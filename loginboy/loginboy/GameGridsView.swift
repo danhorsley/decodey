@@ -87,7 +87,7 @@ struct GameGridsView: View {
     }
     
     // Guess grid
-    private var guessGrid: some View {
+    var guessGrid: some View {
         VStack(alignment: .leading, spacing: 8) {
             if showTextHelpers {
                 Text("Guess with:")
@@ -95,8 +95,8 @@ struct GameGridsView: View {
                     .foregroundColor(.secondary)
             }
             
-            // Get unique letters from the solution
-            let uniqueLetters = Array(Set(game.solution.filter { $0.isLetter })).sorted()
+            // Get unique letters from the solution (not the encrypted version)
+            let uniqueLetters = game.uniqueSolutionLetters()
             
             // Create grid with adaptive columns
             GeometryReader { gridGeometry in

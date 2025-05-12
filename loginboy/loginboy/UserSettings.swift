@@ -39,6 +39,9 @@ class UserSettings: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private let keychainService = "com.yourapp.settings"
     
+    // Flag to prevent repeated sync failures
+    private var syncFailureLogged = false
+    
     // Initialize with AuthService for user-specific settings
     init(authService: AuthService) {
         self.authService = authService
@@ -101,14 +104,17 @@ class UserSettings: ObservableObject {
         }
         
         // Queue for server sync if online and authenticated
-        if authService.isAuthenticated {
-            syncSettingsToServer()
-        }
+        // Note: We won't actively try to sync settings if the endpoint isn't available
     }
     
     private func loadPreference<T: Decodable>(_ key: String, defaultValue: T) -> T {
-        // Try to load from keychain first if user is authenticated
+        // Try to load from user-specific UserDefaults first (most reliable)
         if authService.isAuthenticated && !authService.userId.isEmpty {
+            if let value = UserDefaults.standard.object(forKey: "\(authService.userId)_\(key)") as? T {
+                return value
+            }
+            
+            // Try keychain as fallback for user-specific settings
             do {
                 let data = try KeychainManager.get(
                     service: keychainService,
@@ -119,17 +125,14 @@ class UserSettings: ObservableObject {
                     return value
                 }
             } catch {
-                // Keychain error - fall back to UserDefaults
-                print("DEBUG: Could not load \(key) from keychain: \(error)")
-            }
-            
-            // Try user-specific UserDefaults
-            if let value = UserDefaults.standard.object(forKey: "\(authService.userId)_\(key)") as? T {
-                return value
+                // Keychain error - fall back to generic UserDefaults
+                if !(error is KeychainManager.KeychainError) {
+                    print("DEBUG: Keychain error for \(key): \(error)")
+                }
             }
         }
         
-        // If not found in keychain or user-specific, try generic UserDefaults
+        // If not found in user-specific storage, try generic UserDefaults
         if let value = UserDefaults.standard.object(forKey: key) as? T {
             return value
         }
@@ -237,8 +240,11 @@ class UserSettings: ObservableObject {
     // MARK: - Server Sync
     
     private func syncSettingsToServer() {
-        // Example implementation to sync settings to server
-        // (In a real app, you would implement this to call your API)
+        // This method is disabled since the endpoint seems to be unavailable (404)
+        // We won't try to sync to avoid cluttering the logs
+        
+        // If we need to re-enable it in the future, we can uncomment this code
+        /*
         guard authService.isAuthenticated,
               !authService.userId.isEmpty,
               let token = authService.getAccessToken(),
@@ -281,6 +287,7 @@ class UserSettings: ObservableObject {
                 print("DEBUG: Settings sync failed with status \((response as? HTTPURLResponse)?.statusCode ?? 0)")
             }
         }.resume()
+        */
     }
     
     // MARK: - Appearance Updates

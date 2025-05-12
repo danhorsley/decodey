@@ -245,6 +245,11 @@ struct Game {
     func uniqueEncryptedLetters() -> [Character] {
         return Array(Set(encrypted.filter { $0.isLetter })).sorted()
     }
+
+    // Modified function to properly get unique solution letters
+    func uniqueSolutionLetters() -> [Character] {
+        return Array(Set(solution.filter { $0.isLetter })).sorted()
+    }
     
     // Get a hint by revealing a random letter
     mutating func getHint() -> Bool {
