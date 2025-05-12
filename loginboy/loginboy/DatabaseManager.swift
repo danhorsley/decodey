@@ -12,25 +12,58 @@ class DatabaseManager {
     // Private initializer for singleton
     private init() {
         do {
-            // Get the document directory
+            // Get the document directory - improved path handling
             let fileManager = FileManager.default
             let folderURL = try fileManager.url(for: .documentDirectory,
                                                in: .userDomainMask,
                                                appropriateFor: nil,
                                                create: true)
             
-            // Database path
-            let dbPath = folderURL.appendingPathComponent("decodey.sqlite").path
-            print("Database path: \(dbPath)")
-            // Create the database
-            dbQueue = try DatabaseQueue(path: dbPath)
+            // Database path - create subdirectory for better organization
+            let dbFolderURL = folderURL.appendingPathComponent("Databases", isDirectory: true)
+            
+            // Create the directory if it doesn't exist
+            if !fileManager.fileExists(atPath: dbFolderURL.path) {
+                try fileManager.createDirectory(at: dbFolderURL, withIntermediateDirectories: true)
+            }
+            
+            let dbURL = dbFolderURL.appendingPathComponent("decodey.sqlite")
+            let dbPath = dbURL.path
+            
+            // Log the path for debugging
+            print("DEBUG: Attempting to create/open database at: \(dbPath)")
+            
+            // Check if we have write permissions to the directory
+            if fileManager.isWritableFile(atPath: dbFolderURL.path) {
+                print("DEBUG: Directory is writable")
+            } else {
+                print("DEBUG: Directory is NOT writable")
+            }
+            
+            // Create the database with additional configuration
+            var configuration = Configuration()
+            configuration.foreignKeysEnabled = true // Enable foreign key constraints
+            configuration.busyMode = .timeout(5.0) // Set timeout for busy database
+
+            dbQueue = try DatabaseQueue(path: dbPath, configuration: configuration)
             
             // Create tables
             try setupDatabase()
             
-            print("Database initialized at: \(dbPath)")
+            // Verify the database was created
+            if fileManager.fileExists(atPath: dbPath) {
+                print("DEBUG: Database file exists after initialization at: \(dbPath)")
+                print("DEBUG: Database file size: \(try fileManager.attributesOfItem(atPath: dbPath)[.size] ?? 0) bytes")
+            } else {
+                print("DEBUG: WARNING - Database file does not exist after initialization!")
+            }
+            
         } catch {
-            print("Database initialization error: \(error)")
+            print("DEBUG: Database initialization error: \(error)")
+            // Add more detailed error logging
+            if let grdbError = error as? DatabaseError {
+                print("DEBUG: GRDB error code: \(grdbError.resultCode), message: \(grdbError.message)")
+            }
         }
     }
     
@@ -517,10 +550,74 @@ extension DatabaseManager {
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         
         URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            guard let self = self else { return }
+            guard let self = self else {
+                completion(false, "Self reference lost")
+                return
+            }
             
-            // Rest of the implementation stays the same
-            // ...
+            if let error = error {
+                print("DEBUG: Failed to sync quotes: \(error)")
+                completion(false, error.localizedDescription)
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                completion(false, "Invalid response from server")
+                return
+            }
+            
+            if httpResponse.statusCode != 200 {
+                completion(false, "Server returned status code \(httpResponse.statusCode)")
+                return
+            }
+            
+            guard let data = data else {
+                completion(false, "No data received")
+                return
+            }
+            
+            do {
+                let decoder = JSONDecoder()
+                let quotesResponse = try decoder.decode(QuotesResponse.self, from: data)
+                
+                // Save quotes to database
+                try self.dbQueue.write { db in
+                    // Clear existing quotes
+                    try db.execute(sql: "DELETE FROM quotes")
+                    
+                    // Insert new quotes
+                    for quote in quotesResponse.quotes {
+                        try db.execute(
+                            sql: """
+                                INSERT INTO quotes (
+                                    id, text, author, attribution, difficulty, 
+                                    daily_date, is_active, times_used, unique_letters, 
+                                    created_at, updated_at
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            """,
+                            arguments: [
+                                quote.id,
+                                quote.text,
+                                quote.author,
+                                quote.minorAttribution,
+                                quote.difficulty,
+                                quote.dailyDate,
+                                true,
+                                quote.timesUsed,
+                                quote.uniqueLetters,
+                                quote.createdAt,
+                                quote.updatedAt
+                            ]
+                        )
+                    }
+                }
+                
+                print("DEBUG: Successfully synced \(quotesResponse.quotes.count) quotes")
+                completion(true, nil)
+            } catch {
+                print("DEBUG: Failed to parse or save quotes: \(error)")
+                completion(false, error.localizedDescription)
+            }
         }.resume()
     }
     

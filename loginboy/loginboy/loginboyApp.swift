@@ -30,9 +30,16 @@ struct AuthTestApp: App {
                 .environmentObject(userSettings)
                 .onAppear {
                     setupApp()
+                    
+                    // Add observer for login success notification
+                    NotificationCenter.default.addObserver(forName: .userDidLogin, object: nil, queue: .main) { _ in
+                        print("DEBUG: Login notification received, syncing data...")
+                        syncDataAfterLogin()
+                    }
                 }
                 .onChange(of: authService.isAuthenticated) { newValue in
                     if newValue {
+                        print("DEBUG: isAuthenticated changed to true, syncing data...")
                         syncDataAfterLogin()
                     }
                 }

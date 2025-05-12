@@ -283,7 +283,8 @@ class AuthService: ObservableObject {
                         self.hasActiveGame = response.has_active_game ?? false
                         self.isSubadmin = response.subadmin ?? false
                         self.userId = response.user_id
-                        
+                        //notify rest of code about login success
+                        NotificationCenter.default.post(name: .userDidLogin, object: nil)
                         // Emit login event via callback
                         self.onLoginCallback?(response)
                         
