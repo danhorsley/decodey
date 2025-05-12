@@ -7,8 +7,14 @@ struct MainView: View {
         if authService.isAuthenticated {
             // Main tabbed interface
             TabView {
-                // Home/Game Tab
-                Text("Game View")
+                // Daily Challenge Tab (new primary tab)
+                DailyView(authService: authService)
+                    .tabItem {
+                        Label("Daily", systemImage: "calendar")
+                    }
+                
+                // Game Tab (for custom games)
+                Text("Custom Game")
                     .tabItem {
                         Label("Play", systemImage: "gamecontroller")
                     }
