@@ -7,11 +7,12 @@
 
 import SwiftUI
 
+// MARK: - Main App
 @main
-struct loginboyApp: App {
+struct AuthTestApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NetworkTestView()
         }
     }
 }
