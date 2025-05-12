@@ -47,17 +47,20 @@ class DatabaseManager {
         migrator.registerMigration("createTables") { db in
             // Quotes table
             try db.create(table: "quotes") { t in
-                t.autoIncrementedPrimaryKey("id")
+                t.column("id", .integer).primaryKey()
                 t.column("text", .text).notNull()
-                t.column("author", .text)
+                t.column("author", .text).notNull()
                 t.column("attribution", .text)
-                t.column("difficulty", .text).notNull()
+                t.column("difficulty", .double).notNull()
                 t.column("is_daily", .boolean).notNull().defaults(to: false)
                 t.column("daily_date", .date)
                 t.column("is_active", .boolean).notNull().defaults(to: true)
                 t.column("times_used", .integer).notNull().defaults(to: 0)
+                t.column("unique_letters", .integer)
+                t.column("created_at", .datetime)
+                t.column("updated_at", .datetime)
             }
-            
+    
             // Games table
             try db.create(table: "games") { t in
                 t.autoIncrementedPrimaryKey("id")
@@ -493,6 +496,58 @@ extension DatabaseManager {
     private func calculatePercentage(_ value: Int, outOf total: Int) -> Double {
         guard total > 0 else { return 0.0 }
         return Double(value) / Double(total) * 100.0
+    }
+}
+
+extension DatabaseManager {
+    /// Sync all quotes from the server
+    func syncQuotesFromServer(authService: AuthService, completion: @escaping (Bool, String?) -> Void) {
+        guard let token = authService.getAccessToken() else {
+            completion(false, "Authentication required")
+            return
+        }
+        
+        guard let url = URL(string: "\(authService.baseURL)/api/get_all_quotes") else {
+            completion(false, "Invalid URL configuration")
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            guard let self = self else { return }
+            
+            // Rest of the implementation stays the same
+            // ...
+        }.resume()
+    }
+    
+    /// Check if quotes need to be synced (e.g., on app start)
+    func checkAndSyncQuotesIfNeeded(authService: AuthService) {
+        // Check if quotes table is empty or we haven't synced in a while
+        do {
+            let count = try dbQueue.read { db in
+                try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM quotes") ?? 0
+            }
+            
+            let lastSync = UserDefaults.standard.object(forKey: "lastQuotesSync") as? Date
+            let syncNeeded = count == 0 ||
+                             lastSync == nil ||
+                             Calendar.current.dateComponents([.day], from: lastSync!, to: Date()).day! > 7
+            
+            if syncNeeded {
+                syncQuotesFromServer(authService: authService) { success, message in
+                    if success {
+                        // Update last sync date
+                        UserDefaults.standard.set(Date(), forKey: "lastQuotesSync")
+                    }
+                }
+            }
+        } catch {
+            print("Error checking quotes table: \(error)")
+        }
     }
 }
 //
