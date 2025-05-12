@@ -1,7 +1,72 @@
+// MARK: - Auth Service to match existing backend
 import SwiftUI
+import Security
 import Combine
 
-// MARK: - Auth Service to match your existing backend
+// MARK: - KeychainManager
+class KeychainManager {
+    enum KeychainError: Error {
+        case duplicateEntry
+        case unknown(OSStatus)
+        case noPassword
+        case unexpectedPasswordData
+        case unhandledError(status: OSStatus)
+    }
+    
+    static func save(service: String, account: String, password: Data) throws {
+        let query: [String: AnyObject] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service as AnyObject,
+            kSecAttrAccount as String: account as AnyObject,
+            kSecValueData as String: password as AnyObject
+        ]
+        
+        // Delete any existing items with this service & account
+        SecItemDelete(query as CFDictionary)
+        
+        let status = SecItemAdd(query as CFDictionary, nil)
+        
+        if status != errSecSuccess {
+            throw KeychainError.unhandledError(status: status)
+        }
+    }
+    
+    static func get(service: String, account: String) throws -> Data {
+        let query: [String: AnyObject] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service as AnyObject,
+            kSecAttrAccount as String: account as AnyObject,
+            kSecReturnData as String: kCFBooleanTrue,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        
+        guard status != errSecItemNotFound else { throw KeychainError.noPassword }
+        guard status == errSecSuccess else { throw KeychainError.unhandledError(status: status) }
+        
+        guard let passwordData = item as? Data else { throw KeychainError.unexpectedPasswordData }
+        
+        return passwordData
+    }
+    
+    static func delete(service: String, account: String) throws {
+        let query: [String: AnyObject] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service as AnyObject,
+            kSecAttrAccount as String: account as AnyObject
+        ]
+        
+        let status = SecItemDelete(query as CFDictionary)
+        
+        guard status == errSecSuccess || status == errSecItemNotFound else {
+            throw KeychainError.unhandledError(status: status)
+        }
+    }
+}
+
+// MARK: - Enhanced AuthService with Keychain Storage
 class AuthService: ObservableObject {
     // Published properties for UI binding
     @Published var isLoading = false
@@ -12,39 +77,88 @@ class AuthService: ObservableObject {
     @Published var isSubadmin = false
     @Published var userId = ""
     
-    // Events system (similar to your JS events.emit)
+    // Events system
     var onLoginCallback: ((LoginResponse) -> Void)?
     
     // Network and storage
     private var cancellables = Set<AnyCancellable>()
-    private let keyAccessToken = "uncrypt-token"
+    private let keyAccessToken = "access_token"
     private let keyRefreshToken = "refresh_token"
-    private let keyRememberMe = "uncrypt-remember-me"
+    private let keyRememberMe = "remember_me"
+    private let keychainService = "com.yourapp.auth"
     
-    // Base URL - change to match your setup
-    private var baseURL: String =  "https://7264097a-b4a2-42c7-988c-db8c0c9b107a-00-1lx57x7wg68m5.janeway.replit.dev"
+    // Base URL
+    var baseURL: String = "https://7264097a-b4a2-42c7-988c-db8c0c9b107a-00-1lx57x7wg68m5.janeway.replit.dev"
+    
+    // Initialize and check for existing auth
+    init() {
+        checkSavedAuthentication()
+    }
+    
     //helper to set base url
     func setBaseURL(_ url: String) {
-        // Validate the URL format
         guard let _ = URL(string: url) else {
             print("WARNING: Invalid URL format provided: \(url)")
             return
         }
         
-        // Directly set the property
         self.baseURL = url
         print("DEBUG: Updated base URL to \(url)")
     }
-    // MARK: - Login matching your backend expectations
+    
+    // MARK: - Check for saved authentication on init
+    private func checkSavedAuthentication() {
+        if let token = getAccessToken(), !token.isEmpty {
+            // We have a token, try to verify it
+            verifyToken(token)
+        }
+    }
+    
+    // MARK: - Verify token
+    private func verifyToken(_ token: String) {
+        guard let url = URL(string: "\(baseURL)/verify_token") else { return }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                
+                if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200,
+                   let data = data,
+                   let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                   let valid = json["valid"] as? Bool, valid,
+                   let username = json["username"] as? String,
+                   let userId = json["user_id"] as? String {
+                    
+                    // Token is valid, update state
+                    self.isAuthenticated = true
+                    self.username = username
+                    self.userId = userId
+                    self.isSubadmin = json["subadmin"] as? Bool ?? false
+                    
+                    print("DEBUG: ✅ Verified saved token for user: \(username)")
+                } else {
+                    // Token invalid, clear it
+                    print("DEBUG: ❌ Saved token is invalid, clearing")
+                    self.clearTokens()
+                }
+            }
+        }.resume()
+    }
+    
+    // MARK: - Login function
     func login(username: String, password: String, rememberMe: Bool, completion: @escaping (Bool, String?) -> Void) {
         // Reset state
         isLoading = true
         errorMessage = nil
         
-        // Log attempt (matching your JS debug)
+        // Log attempt
         print("DEBUG: Login attempt with credentials: username=\(username), password=[REDACTED], rememberMe=\(rememberMe)")
         
-        // Create login data exactly matching your backend expectations
+        // Create login data
         let loginData: [String: Any] = [
             "username": username,
             "password": password,
@@ -65,13 +179,12 @@ class AuthService: ObservableObject {
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
         request.addValue("application/json", forHTTPHeaderField: "Accept")
         
-        // Add these headers to match browser behavior
+        // Add browser-like headers
         request.addValue("XMLHttpRequest", forHTTPHeaderField: "X-Requested-With")
         request.addValue(baseURL, forHTTPHeaderField: "Origin")
-        request.addValue("loginboy", forHTTPHeaderField: "User-Agent") // Or another identifier
+        request.addValue("loginboy", forHTTPHeaderField: "User-Agent")
         
-        // Handle CORS by explicitly allowing credentials
-        // This is crucial if your server has supports_credentials=True
+        // Handle CORS
         request.httpShouldHandleCookies = true
         
         // Serialize to JSON
@@ -84,31 +197,20 @@ class AuthService: ObservableObject {
             return
         }
         
-        // Print full request details for debugging (matching your JS debug)
+        // Debug info
         print("DEBUG: Login request to: \(url.absoluteString)")
-        print("DEBUG: Request headers: \(request.allHTTPHeaderFields ?? [:])")
-        if let body = request.httpBody, let bodyString = String(data: body, encoding: .utf8) {
-            print("DEBUG: Request body: \(bodyString)")
-        }
         
         // Create a custom URLSession configuration
         let config = URLSessionConfiguration.default
         config.httpShouldSetCookies = true
         config.httpCookieAcceptPolicy = .always
         
-        // Make the request with the custom session
+        // Make the request
         let session = URLSession(configuration: config)
         let task = session.dataTask(with: request) { [weak self] data, response, error in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 self.isLoading = false
-                
-                // Log response details
-                print("DEBUG: Response received")
-                if let httpResponse = response as? HTTPURLResponse {
-                    print("DEBUG: Status code: \(httpResponse.statusCode)")
-                    print("DEBUG: Response headers: \(httpResponse.allHeaderFields)")
-                }
                 
                 // Handle network error
                 if let error = error {
@@ -126,20 +228,14 @@ class AuthService: ObservableObject {
                     return
                 }
                 
-                // Log response data for debugging
-                if let responseString = String(data: data, encoding: .utf8) {
-                    print("DEBUG: Response body: \(responseString)")
-                }
-                
                 // Check response status
                 if let httpResponse = response as? HTTPURLResponse {
-                    // Check for error status codes
                     if httpResponse.statusCode == 401 {
                         self.errorMessage = "Invalid credentials"
                         completion(false, self.errorMessage)
                         return
                     } else if httpResponse.statusCode >= 400 {
-                        // Try to parse error message from JSON
+                        // Try to parse error message
                         if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                            let errorMsg = json["msg"] as? String {
                             self.errorMessage = errorMsg
@@ -157,31 +253,29 @@ class AuthService: ObservableObject {
                     let decoder = JSONDecoder()
                     let response = try decoder.decode(LoginResponse.self, from: data)
                     
-                    // Handle successful login as before...
                     print("DEBUG: Login successful, got response")
                     
-                    // Store tokens based on rememberMe (matching your JS logic)
+                    // Store tokens securely in keychain
                     if let accessToken = response.access_token {
-                        if rememberMe {
-                            UserDefaults.standard.set(accessToken, forKey: self.keyAccessToken)
-                            print("DEBUG: ✅ Saved access token to UserDefaults (rememberMe=true)")
-                        } else {
-                            // In Swift, sessionStorage equivalent would be temporary storage
-                            UserDefaults.standard.set(accessToken, forKey: "temp_\(self.keyAccessToken)")
-                            print("DEBUG: ✅ Saved access token to temporary storage (rememberMe=false)")
-                        }
+                        // Save token to keychain
+                        try? KeychainManager.save(
+                            service: self.keychainService,
+                            account: self.keyAccessToken,
+                            password: accessToken.data(using: .utf8) ?? Data()
+                        )
                         
-                        // Store refresh token if provided (always persistent regardless of rememberMe)
+                        // Store refresh token if provided
                         if let refreshToken = response.refresh_token {
-                            UserDefaults.standard.set(refreshToken, forKey: self.keyRefreshToken)
-                            print("DEBUG: ✅ Saved refresh token to UserDefaults")
-                        } else {
-                            print("DEBUG: ⚠️ NO REFRESH TOKEN PROVIDED IN LOGIN RESPONSE")
+                            try? KeychainManager.save(
+                                service: self.keychainService,
+                                account: self.keyRefreshToken,
+                                password: refreshToken.data(using: .utf8) ?? Data()
+                            )
+                            print("DEBUG: ✅ Saved refresh token to Keychain")
                         }
                         
-                        // Store rememberMe preference
+                        // Store rememberMe preference (this is not sensitive)
                         UserDefaults.standard.set(rememberMe, forKey: self.keyRememberMe)
-                        print("DEBUG: ✅ Saved remember-me preference: \(rememberMe)")
                         
                         // Update authentication state
                         self.isAuthenticated = true
@@ -190,14 +284,10 @@ class AuthService: ObservableObject {
                         self.isSubadmin = response.subadmin ?? false
                         self.userId = response.user_id
                         
-                        // Log storage after login (matching your JS debug)
-                        print("DEBUG: AFTER LOGIN - Storage check:")
-                        print("- UserDefaults.\(self.keyAccessToken): \(UserDefaults.standard.string(forKey: self.keyAccessToken) != nil)")
-                        print("- UserDefaults.\(self.keyRefreshToken): \(UserDefaults.standard.string(forKey: self.keyRefreshToken) != nil)")
-                        print("- Temporary.\(self.keyAccessToken): \(UserDefaults.standard.string(forKey: "temp_\(self.keyAccessToken)") != nil)")
-                        
                         // Emit login event via callback
                         self.onLoginCallback?(response)
+                        
+                        print("DEBUG: ✅ Authentication successful for: \(response.username)")
                         
                         // Call completion handler with success
                         completion(true, nil)
@@ -210,12 +300,6 @@ class AuthService: ObservableObject {
                     // JSON decoding error
                     self.errorMessage = "Failed to parse response: \(error.localizedDescription)"
                     print("DEBUG: Login error: \(error.localizedDescription)")
-                    
-                    // Log the raw response for debugging
-                    if let responseString = String(data: data, encoding: .utf8) {
-                        print("DEBUG: Raw response: \(responseString)")
-                    }
-                    
                     completion(false, self.errorMessage)
                 }
             }
@@ -226,10 +310,13 @@ class AuthService: ObservableObject {
     
     // MARK: - Logout function
     func logout() {
-        // Clear tokens
-        UserDefaults.standard.removeObject(forKey: keyAccessToken)
-        UserDefaults.standard.removeObject(forKey: "temp_\(keyAccessToken)")
-        UserDefaults.standard.removeObject(forKey: keyRefreshToken)
+        // First, call logout API if we have a token
+        if let token = getAccessToken() {
+            callLogoutAPI(token)
+        }
+        
+        // Clear tokens regardless of API response
+        clearTokens()
         
         // Reset state
         isAuthenticated = false
@@ -241,30 +328,53 @@ class AuthService: ObservableObject {
         print("DEBUG: User logged out, tokens cleared")
     }
     
-    // MARK: - Check if user is authenticated
-    func checkAuthentication() -> Bool {
-        // Check for token based on rememberMe preference
-        let rememberMe = UserDefaults.standard.bool(forKey: keyRememberMe)
+    // Call the logout API
+    private func callLogoutAPI(_ token: String) {
+        guard let url = URL(string: "\(baseURL)/logout") else { return }
         
-        if rememberMe {
-            return UserDefaults.standard.string(forKey: keyAccessToken) != nil
-        } else {
-            return UserDefaults.standard.string(forKey: "temp_\(keyAccessToken)") != nil
-        }
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { _, _, _ in
+            // We don't really care about the response here
+            print("DEBUG: Logout API called")
+        }.resume()
     }
     
-    // MARK: - Get stored token
+    // Clear all tokens
+    private func clearTokens() {
+        // Clear tokens from keychain
+        try? KeychainManager.delete(service: keychainService, account: keyAccessToken)
+        try? KeychainManager.delete(service: keychainService, account: keyRefreshToken)
+        
+        // Clear rememberMe preference
+        UserDefaults.standard.removeObject(forKey: keyRememberMe)
+    }
+    
+    // MARK: - Get stored access token
     func getAccessToken() -> String? {
-        let rememberMe = UserDefaults.standard.bool(forKey: keyRememberMe)
-        
-        if rememberMe {
-            return UserDefaults.standard.string(forKey: keyAccessToken)
-        } else {
-            return UserDefaults.standard.string(forKey: "temp_\(keyAccessToken)")
+        do {
+            let data = try KeychainManager.get(service: keychainService, account: keyAccessToken)
+            return String(data: data, encoding: .utf8)
+        } catch {
+            print("DEBUG: No access token in keychain or error: \(error)")
+            return nil
         }
     }
     
-    // MARK: - Response model matching your backend
+    // MARK: - Get stored refresh token
+    func getRefreshToken() -> String? {
+        do {
+            let data = try KeychainManager.get(service: keychainService, account: keyRefreshToken)
+            return String(data: data, encoding: .utf8)
+        } catch {
+            print("DEBUG: No refresh token in keychain or error: \(error)")
+            return nil
+        }
+    }
+    
+    // MARK: - Response model
     struct LoginResponse: Codable {
         let access_token: String?
         let refresh_token: String?
@@ -272,6 +382,67 @@ class AuthService: ObservableObject {
         let user_id: String
         let has_active_game: Bool?
         let subadmin: Bool?
+    }
+    
+    // MARK: - Token refresh
+    func refreshToken(completion: @escaping (Bool) -> Void) {
+        guard let refreshToken = getRefreshToken() else {
+            completion(false)
+            return
+        }
+        
+        guard let url = URL(string: "\(baseURL)/refresh") else {
+            completion(false)
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("Bearer \(refreshToken)", forHTTPHeaderField: "Authorization")
+        
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            guard let self = self,
+                  error == nil,
+                  let data = data,
+                  let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 200 else {
+                DispatchQueue.main.async {
+                    completion(false)
+                }
+                return
+            }
+            
+            do {
+                let decoder = JSONDecoder()
+                let refreshResponse = try decoder.decode(RefreshResponse.self, from: data)
+                
+                if let newAccessToken = refreshResponse.access_token {
+                    // Save new access token
+                    try? KeychainManager.save(
+                        service: self.keychainService,
+                        account: self.keyAccessToken,
+                        password: newAccessToken.data(using: .utf8) ?? Data()
+                    )
+                    
+                    DispatchQueue.main.async {
+                        completion(true)
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        completion(false)
+                    }
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(false)
+                }
+            }
+        }.resume()
+    }
+    
+    // MARK: - Model for refresh token response
+    struct RefreshResponse: Codable {
+        let access_token: String?
     }
 }
 
@@ -429,10 +600,8 @@ struct LoginView: View {
             // Focus the URL field when the view appears
             isURLFieldFocused = true
             
-            // Check if already authenticated
-            if authService.checkAuthentication() {
-                print("User already has a stored token")
-            }
+            // The token check is now done automatically in AuthService's init
+            // No need to manually check here
         }
     }
 }
