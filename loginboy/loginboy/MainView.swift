@@ -80,8 +80,13 @@ struct ProfileView: View {
                     Toggle("Dark Mode", isOn: $settings.isDarkMode)
                     Toggle("Show Text Helpers", isOn: $settings.showTextHelpers)
                     Toggle("Accessibility Text Size", isOn: $settings.useAccessibilityTextSize)
+                    
+                    Picker("Game Difficulty", selection: $settings.gameDifficulty) {
+                        Text("Easy").tag("easy")
+                        Text("Medium").tag("medium")
+                        Text("Hard").tag("hard")
+                    }
                 }
-                
                 // Security section
                 Section(header: Text("Security")) {
                     Toggle("Use Biometric Auth", isOn: $settings.useBiometricAuth)

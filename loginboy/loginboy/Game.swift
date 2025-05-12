@@ -98,7 +98,7 @@ struct Game {
     }
     
     // Converts difficulty string to max mistakes int
-    private func difficultyToMaxMistakes(_ difficulty: String) -> Int {
+    func difficultyToMaxMistakes(_ difficulty: String) -> Int {
         switch difficulty {
         case "easy":
             return 8
@@ -356,3 +356,5 @@ struct Game {
         setupNewGame()
     }
 }
+
+

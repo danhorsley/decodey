@@ -178,9 +178,6 @@ struct DailyView: View {
                             .foregroundColor(.secondary)
                             .padding(.top)
                         
-                        // Difficulty indicator
-                        DifficultyIndicator(difficulty: quote.difficulty)
-                        
                         // Quote card
                         VStack(spacing: 16) {
                             // Quote text preview (masked for game)
@@ -218,7 +215,6 @@ struct DailyView: View {
                         VStack(spacing: 12) {
                             InfoRow(title: "Unique Letters", value: "\(quote.unique_letters)")
                             InfoRow(title: "Quote Length", value: "\(quote.text.count) characters")
-                            InfoRow(title: "Difficulty", value: difficultyText(quote.difficulty))
                         }
                         .padding()
                         .background(Color.gray.opacity(0.1))
@@ -342,20 +338,20 @@ struct DailyView: View {
             return result
         }
     }
+}
+
+// Simple InfoRow structure for displaying key-value pairs
+struct InfoRow: View {
+    let title: String
+    let value: String
     
-    // Helper to convert difficulty to text
-    private func difficultyText(_ difficulty: Double) -> String {
-        switch difficulty {
-        case 0..<1:
-            return "Very Easy"
-        case 1..<2:
-            return "Easy"
-        case 2..<3:
-            return "Medium"
-        case 3..<4:
-            return "Hard"
-        default:
-            return "Very Hard"
+    var body: some View {
+        HStack {
+            Text(title)
+                .foregroundColor(.secondary)
+            Spacer()
+            Text(value)
+                .fontWeight(.medium)
         }
     }
 }

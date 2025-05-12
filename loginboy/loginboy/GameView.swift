@@ -461,10 +461,9 @@ struct GameView: View {
             newGame.solution = quote.text.uppercased()
             newGame.setupGameWithSolution(quote.text.uppercased())
             
-            // Update game difficulty based on quote difficulty
-            let difficulty = self.getDifficultyString(from: quote.difficulty)
-            newGame.difficulty = difficulty
-            newGame.maxMistakes = self.difficultyToMaxMistakes(difficulty)
+            // Always set difficulty to easy for daily challenge
+            newGame.difficulty = "easy"
+            newGame.maxMistakes = difficultyToMaxMistakes("easy")
             
             // Update state
             self.game = newGame

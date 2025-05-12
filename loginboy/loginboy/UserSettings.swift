@@ -31,6 +31,12 @@ class UserSettings: ObservableObject {
         }
     }
     
+    @Published var gameDifficulty: String {
+        didSet {
+            savePreference("gameDifficulty", value: gameDifficulty)
+        }
+    }
+    
     // App version
     let appVersion: String
     
@@ -50,6 +56,7 @@ class UserSettings: ObservableObject {
         self.showTextHelpers = true
         self.useAccessibilityTextSize = false
         self.useBiometricAuth = false
+        self.gameDifficulty = "medium"
         // Get app version
         if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
            let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
@@ -63,6 +70,7 @@ class UserSettings: ObservableObject {
         self.showTextHelpers = loadPreference("showTextHelpers", defaultValue: true)
         self.useAccessibilityTextSize = loadPreference("useAccessibilityTextSize", defaultValue: false)
         self.useBiometricAuth = loadPreference("useBiometricAuth", defaultValue: isBiometricAuthAvailable())
+        self.gameDifficulty = loadPreference("gameDifficulty", defaultValue: "medium")
         
         // Apply initial appearance
         updateAppAppearance()
@@ -175,6 +183,7 @@ class UserSettings: ObservableObject {
         self.showTextHelpers = loadPreference("showTextHelpers", defaultValue: true)
         self.useAccessibilityTextSize = loadPreference("useAccessibilityTextSize", defaultValue: false)
         self.useBiometricAuth = loadPreference("useBiometricAuth", defaultValue: isBiometricAuthAvailable())
+        self.gameDifficulty = loadPreference("gameDifficulty", defaultValue: "medium")
         
         // Update appearance based on reloaded settings
         updateAppAppearance()
@@ -188,6 +197,7 @@ class UserSettings: ObservableObject {
         self.showTextHelpers = UserDefaults.standard.bool(forKey: "showTextHelpers")
         self.useAccessibilityTextSize = UserDefaults.standard.bool(forKey: "useAccessibilityTextSize")
         self.useBiometricAuth = UserDefaults.standard.bool(forKey: "useBiometricAuth")
+        self.gameDifficulty = UserDefaults.standard.string(forKey: "gameDifficulty") ?? "medium"
         
         // Update appearance
         updateAppAppearance()
@@ -310,6 +320,7 @@ class UserSettings: ObservableObject {
         showTextHelpers = true
         useAccessibilityTextSize = false
         useBiometricAuth = isBiometricAuthAvailable()
+        gameDifficulty = "medium"
         
         print("DEBUG: Reset all settings to defaults")
     }
