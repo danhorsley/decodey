@@ -19,6 +19,13 @@ struct MainView: View {
                         Label("Leaderboard", systemImage: "list.number")
                     }
                 
+                // Stats Tab
+                UserStatsView(authService: authService)
+                    .environmentObject(authService)
+                    .tabItem {
+                        Label("Stats", systemImage: "chart.bar")
+                    }
+                
                 // Profile/Settings Tab
                 VStack {
                     Text("Welcome, \(authService.username)!")
@@ -44,11 +51,3 @@ struct MainView: View {
         }
     }
 }
-
-//
-//  MainView.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 12/05/2025.
-//
-
