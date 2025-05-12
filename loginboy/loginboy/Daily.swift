@@ -124,6 +124,7 @@ class DailyQuoteService: ObservableObject {
 struct DailyView: View {
     @StateObject private var quoteService: DailyQuoteService
     @EnvironmentObject var authService: AuthService
+    @EnvironmentObject var settings: UserSettings
     @State private var showGameView = false
     
     // Initialize with AuthService
@@ -245,8 +246,19 @@ struct DailyView: View {
                     .padding(.bottom, 30)
                 }
                 .sheet(isPresented: $showGameView) {
-                    // Replace this with your actual game view when ready
-                    GamePlaceholderView(quote: quote)
+                    // Use our unified GameView with daily parameters
+                    NavigationView {
+                        GameView(
+                            isDailyChallenge: true,
+                            dailyQuote: quote,
+                            onGameComplete: {
+                                showGameView = false
+                            }
+                        )
+                        .environmentObject(settings)
+                        .environmentObject(authService)
+                        // For macOS, don't include the navigationBarTitleDisplayMode modifier
+                    }
                 }
             } else {
                 // Empty state
@@ -345,138 +357,6 @@ struct DailyView: View {
         default:
             return "Very Hard"
         }
-    }
-}
-
-// MARK: - Difficulty Indicator
-struct DifficultyIndicator: View {
-    let difficulty: Double
-    
-    var body: some View {
-        VStack(spacing: 4) {
-            Text("Difficulty")
-                .font(.caption)
-                .foregroundColor(.secondary)
-            
-            HStack(spacing: 2) {
-                ForEach(0..<5) { index in
-                    Image(systemName: "star.fill")
-                        .foregroundColor(index < Int(difficulty.rounded()) ? .yellow : .gray.opacity(0.3))
-                        .font(.system(size: 14))
-                }
-            }
-            
-            Text(difficultyLabel)
-                .font(.caption)
-                .fontWeight(.medium)
-                .foregroundColor(difficultyColor)
-        }
-    }
-    
-    var difficultyLabel: String {
-        switch difficulty {
-        case 0..<1:
-            return "Very Easy"
-        case 1..<2:
-            return "Easy"
-        case 2..<3:
-            return "Medium"
-        case 3..<4:
-            return "Hard"
-        default:
-            return "Very Hard"
-        }
-    }
-    
-    var difficultyColor: Color {
-        switch difficulty {
-        case 0..<1:
-            return .green
-        case 1..<2:
-            return .blue
-        case 2..<3:
-            return .orange
-        case 3..<4:
-            return .red
-        default:
-            return .purple
-        }
-    }
-}
-
-// MARK: - Info Row
-struct InfoRow: View {
-    let title: String
-    let value: String
-    
-    var body: some View {
-        HStack {
-            Text(title)
-                .foregroundColor(.secondary)
-            
-            Spacer()
-            
-            Text(value)
-                .fontWeight(.medium)
-        }
-    }
-}
-
-// MARK: - Game Placeholder (replace with actual game view)
-struct GamePlaceholderView: View {
-    let quote: DailyQuote
-    @Environment(\.presentationMode) var presentationMode
-    
-    var body: some View {
-        VStack(spacing: 20) {
-            Text("Daily Challenge")
-                .font(.title)
-                .fontWeight(.bold)
-            
-            Text("Game will go here!")
-                .font(.title2)
-            
-            Text("Quote ID: \(quote.id)")
-            Text("Today's Date: \(quote.formattedDate)")
-            
-            // Display the full quote for testing purposes
-            VStack(spacing: 10) {
-                Text("Full Quote (for testing):")
-                    .font(.headline)
-                
-                Text("\"\(quote.text)\"")
-                    .italic()
-                    .padding()
-                    .multilineTextAlignment(.center)
-                
-                Text("— \(quote.author)")
-                    .font(.subheadline)
-            }
-            .padding()
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(10)
-            
-            Button("Close") {
-                presentationMode.wrappedValue.dismiss()
-            }
-            .padding()
-            .background(Color.blue)
-            .foregroundColor(.white)
-            .cornerRadius(10)
-            .padding(.top, 20)
-        }
-        .padding()
-    }
-}
-
-// MARK: - Preview
-struct DailyView_Previews: PreviewProvider {
-    static var previews: some View {
-        let authService = AuthService()
-        authService.username = "TestUser"
-        
-        return DailyView(authService: authService)
-            .environmentObject(authService)
     }
 }
 //

@@ -15,12 +15,15 @@ struct MainView: View {
                     }
                 
                 // Game Tab (for custom games)
-                GameView()
-                    .environmentObject(authService)
-                    .environmentObject(settings)
-                    .tabItem {
-                        Label("Play", systemImage: "gamecontroller")
-                    }
+                NavigationView {
+                    GameView(isDailyChallenge: false)
+                        .environmentObject(authService)
+                        .environmentObject(settings)
+                        .navigationTitle("Custom Game")
+                }
+                .tabItem {
+                    Label("Play", systemImage: "gamecontroller")
+                }
                 
                 // Leaderboard Tab
                 LeaderboardView(authService: authService)
