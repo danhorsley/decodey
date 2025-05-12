@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		28D1B2F92DD235CB001C2A15 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28D1B2F82DD235CB001C2A15 /* SwiftUI.framework */; };
+		28D1B3062DD23CE0001C2A15 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = 28D1B3052DD23CE0001C2A15 /* GRDB */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -71,6 +72,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				28D1B2F92DD235CB001C2A15 /* SwiftUI.framework in Frameworks */,
+				28D1B3062DD23CE0001C2A15 /* GRDB in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -140,6 +142,7 @@
 			);
 			name = loginboy;
 			packageProductDependencies = (
+				28D1B3052DD23CE0001C2A15 /* GRDB */,
 			);
 			productName = loginboy;
 			productReference = 284A19F62DD21B7E00606222 /* loginboy.app */;
@@ -223,6 +226,9 @@
 			);
 			mainGroup = 284A19ED2DD21B7E00606222;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				28D1B3042DD23CD5001C2A15 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 284A19F72DD21B7E00606222 /* Products */;
 			projectDirPath = "";
@@ -614,6 +620,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		28D1B3042DD23CD5001C2A15 /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/groue/GRDB.swift.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		28D1B3052DD23CE0001C2A15 /* GRDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 28D1B3042DD23CD5001C2A15 /* XCRemoteSwiftPackageReference "GRDB.swift" */;
+			productName = GRDB;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 284A19EE2DD21B7E00606222 /* Project object */;
 }
