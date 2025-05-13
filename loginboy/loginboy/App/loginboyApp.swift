@@ -23,6 +23,7 @@ struct AuthTestApp: App {
                 .environmentObject(appState.userState)
                 .environmentObject(appState.gameState)
                 .environmentObject(appState.settingsState)
+                .environmentObject(appState.userState.authCoordinator)
                 .onAppear {
                     print("App Started")
                 }

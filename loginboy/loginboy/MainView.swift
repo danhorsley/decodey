@@ -67,7 +67,7 @@ struct MainView: View {
             } else {
                 TabView {
                     NavigationViewWrapper {
-                        DailyView(auth:AuthenticationCoordinator())
+                        DailyView(auth: userState.authCoordinator)
                     }
                     .tabItem {
                         Label("Daily", systemImage: "calendar")
@@ -81,14 +81,14 @@ struct MainView: View {
                     }
                     
                     NavigationViewWrapper {
-                        LeaderboardView(auth:AuthenticationCoordinator())
+                        LeaderboardView(auth: userState.authCoordinator)
                     }
                     .tabItem {
                         Label("Leaderboard", systemImage: "list.number")
                     }
                     
                     NavigationViewWrapper {
-                        UserStatsView(auth:AuthenticationCoordinator())
+                        UserStatsView(auth: userState.authCoordinator)
                     }
                     .tabItem {
                         Label("Stats", systemImage: "chart.bar")
