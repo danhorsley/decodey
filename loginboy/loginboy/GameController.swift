@@ -31,7 +31,19 @@ class GameController: ObservableObject {
     
     init(authService: AuthService) {
         self.authService = authService
+        
+        // Add these diagnostic calls
+        print("DEBUG: Running database diagnostics from GameController init")
+        DatabaseManager.shared.debugDatabaseState()
+        DatabaseManager.shared.testDatabaseWrite()
+        
+        // You can also add a slight delay if you want these to run after other initialization
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            print("DEBUG: Running delayed database diagnostics")
+            DatabaseManager.shared.debugDatabaseState()
+        }
     }
+    
     
     // MARK: - Game Setup Methods
     

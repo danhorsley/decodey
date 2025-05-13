@@ -362,6 +362,209 @@ extension DatabaseManager {
             }
         }
     }
+    func saveOrUpdateGame(_ game: Game) throws {
+        // Add diagnostic logging
+        print("DEBUG: Attempting to save/update game with ID: \(game.gameId ?? "nil")")
+        
+        if let gameId = game.gameId {
+            // Try to update an existing game
+            do {
+                // First check if the game exists
+                let exists = try dbQueue.read { db -> Bool in
+                    return try Row.fetchOne(db, sql: "SELECT COUNT(*) FROM games WHERE game_id = ?", arguments: [gameId])?[0] as? Int64 ?? 0 > 0
+                }
+                
+                if exists {
+                    // Update the existing game
+                    try dbQueue.write { db in
+                        try db.execute(
+                            sql: """
+                                UPDATE games SET
+                                    current_display = ?,
+                                    mapping = ?,
+                                    reverse_mapping = ?,
+                                    correctly_guessed = ?,
+                                    mistakes = ?,
+                                    has_won = ?,
+                                    has_lost = ?,
+                                    is_complete = ?,
+                                    last_updated = ?
+                                WHERE game_id = ?
+                            """,
+                            arguments: [
+                                game.currentDisplay,
+                                // Convert game data to Data objects
+                                try JSONEncoder().encode(characterDictToStringDict(game.mapping)),
+                                try JSONEncoder().encode(characterDictToStringDict(game.correctMappings)),
+                                try JSONEncoder().encode(game.correctlyGuessed().map { String($0) }),
+                                game.mistakes,
+                                game.hasWon,
+                                game.hasLost,
+                                game.hasWon || game.hasLost,
+                                Date(),
+                                gameId
+                            ]
+                        )
+                    }
+                    print("DEBUG: Updated existing game with ID \(gameId)")
+                } else {
+                    // Game doesn't exist, create a new record
+                    print("DEBUG: No existing game found with ID \(gameId), creating new record")
+                    try saveNewGame(game)
+                }
+            } catch {
+                print("DEBUG: Error updating game: \(error)")
+                // Try saving as new if update fails
+                try saveNewGame(game)
+            }
+        } else {
+            // No game ID provided, save as new
+            print("DEBUG: No game ID, saving as new game")
+            try saveNewGame(game)
+        }
+    }
+    private func saveNewGame(_ game: Game) throws {
+        // Make sure we have a gameId
+        guard let gameId = game.gameId else {
+            throw NSError(domain: "DatabaseManager", code: 400, userInfo: [NSLocalizedDescriptionKey: "Game ID required"])
+        }
+        
+        try dbQueue.write { db in
+            // Convert Character dictionaries to String dictionaries for serialization
+            let mappingStringDict = characterDictToStringDict(game.mapping)
+            let reverseMappingStringDict = characterDictToStringDict(game.correctMappings)
+            
+            // Serialize the dictionaries and arrays
+            let mappingData = try JSONEncoder().encode(mappingStringDict)
+            let reverseMappingData = try JSONEncoder().encode(reverseMappingStringDict)
+            let correctlyGuessedData = try JSONEncoder().encode(game.correctlyGuessed().map { String($0) })
+            
+            // Execute with individual arguments
+            try db.execute(
+                sql: """
+                    INSERT INTO games (
+                        game_id, original_text, encrypted_text, current_display, solution,
+                        mapping, reverse_mapping, correctly_guessed, mistakes, max_mistakes,
+                        difficulty, has_won, has_lost, is_complete, created_at, last_updated
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                arguments: [
+                    gameId,
+                    game.solution,
+                    game.encrypted,
+                    game.currentDisplay,
+                    game.solution,
+                    mappingData,
+                    reverseMappingData,
+                    correctlyGuessedData,
+                    game.mistakes,
+                    game.maxMistakes,
+                    game.difficulty, // Default to medium
+                    game.hasWon,
+                    game.hasLost,
+                    game.hasWon || game.hasLost,
+                    Date(),
+                    Date()
+                ]
+            )
+            
+            print("DEBUG: New game saved with ID: \(gameId)")
+        }
+    }
+    func debugDatabaseState() {
+        do {
+            // Check if database exists
+            let fileManager = FileManager.default
+            let dbPath = try getCurrentDatabasePath()
+            
+            print("DEBUG: Checking database at path: \(dbPath)")
+            if fileManager.fileExists(atPath: dbPath) {
+                let attributes = try fileManager.attributesOfItem(atPath: dbPath)
+                let size = attributes[.size] as? Int64 ?? 0
+                print("DEBUG: Database file exists, size: \(size) bytes")
+            } else {
+                print("DEBUG: ‼️ DATABASE FILE DOES NOT EXIST!")
+                return
+            }
+            
+            // Check if games table exists and count rows
+            try dbQueue.read { db in
+                let tablesCount = try Int.fetchOne(db, sql: "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='games'") ?? 0
+                print("DEBUG: Games table exists: \(tablesCount > 0)")
+                
+                if tablesCount > 0 {
+                    let gamesCount = try Int.fetchOne(db, sql: "SELECT count(*) FROM games") ?? 0
+                    print("DEBUG: Number of games in database: \(gamesCount)")
+                    
+                    // Check schema
+                    let columns = try String.fetchAll(db, sql: "PRAGMA table_info(games)")
+                    print("DEBUG: Games table schema: \(columns)")
+                    
+                    // If there are games, print the first one
+                    if gamesCount > 0 {
+                        let game = try Row.fetchOne(db, sql: "SELECT * FROM games LIMIT 1")
+                        print("DEBUG: Sample game: \(String(describing: game))")
+                    }
+                }
+            }
+        } catch {
+            print("DEBUG: Error checking database state: \(error.localizedDescription)")
+        }
+    }
+
+    // Helper to get current database path
+    private func getCurrentDatabasePath() throws -> String {
+        let fileManager = FileManager.default
+        let folderURL = try fileManager.url(for: .documentDirectory,
+                                           in: .userDomainMask,
+                                           appropriateFor: nil,
+                                           create: true)
+        let dbFolderURL = folderURL.appendingPathComponent("Databases", isDirectory: true)
+        let dbURL = dbFolderURL.appendingPathComponent("decodey.sqlite")
+        return dbURL.path
+    }
+
+    // Add a test function to attempt writing a test row
+    func testDatabaseWrite() {
+        do {
+            try dbQueue.write { db in
+                print("DEBUG: Attempting to write a test row...")
+                try db.execute(
+                    sql: """
+                        INSERT INTO games (
+                            game_id, original_text, encrypted_text, current_display, solution,
+                            mapping, reverse_mapping, correctly_guessed, mistakes, max_mistakes,
+                            difficulty, has_won, has_lost, is_complete, created_at, last_updated
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    """,
+                    arguments: [
+                        "test-game-id",
+                        "TEST TEXT",
+                        "ENCRYPTED",
+                        "DISPLAY",
+                        "SOLUTION",
+                        Data(),  // Empty data for mapping
+                        Data(),  // Empty data for reverse mapping
+                        Data(),  // Empty data for correctly guessed
+                        0,       // mistakes
+                        5,       // max mistakes
+                        "medium", // Default to medium
+                        false,    // has won
+                        false,    // has lost
+                        false,    // is complete
+                        Date(),   // created at
+                        Date()    // last updated
+                    ]
+                )
+                
+                // Verify it was written
+                let count = try Int.fetchOne(db, sql: "SELECT count(*) FROM games WHERE game_id = ?", arguments: ["test-game-id"]) ?? 0
+                print("DEBUG: Test row written successfully: \(count > 0)")
+            }
+        } catch {
+            print("DEBUG: Test write failed: \(error.localizedDescription)")
+        }
+    }
 }
 
 // MARK: - Quote Methods
@@ -646,6 +849,7 @@ extension DatabaseManager {
             print("Error checking quotes table: \(error)")
         }
     }
+    
 }
 //
 //  DatabaseManager.swift

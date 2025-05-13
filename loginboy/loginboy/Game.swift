@@ -83,14 +83,21 @@ struct Game {
             let (quoteText, quoteAuthor, _) = try DatabaseManager.shared.getRandomQuote()
             
             // Set the solution and the difficulty
-            self.solution = quoteText.uppercased() // Fixed typo from uppercaased to uppercased
+            self.solution = quoteText.uppercased()
             self.difficulty = "medium"
             self.maxMistakes = difficultyToMaxMistakes(self.difficulty)
+            
+            // Generate a game ID if needed
+            if self.gameId == nil {
+                self.gameId = generateGameId(difficulty: self.difficulty, isDailyChallenge: false)
+                print("DEBUG: New game created with ID \(self.gameId ?? "unknown")")
+            }
             
             // Set up the Game
             setupGameWithSolution(solution)
             
         } catch {
+
             print("Error loading quote from database: \(error)")
             self.solution = "MANNERS MAKETH MAN"
             setupGameWithSolution(solution)
@@ -155,6 +162,8 @@ struct Game {
         self.hasLost = false
         self.startTime = Date()
         self.lastUpdateTime = Date()
+        //save initial gamestate
+        saveGameState()
     }
     
     // Select letter for guessing
@@ -324,18 +333,35 @@ struct Game {
     }
     
     // Private method to save game state
-    private func saveGameState() {
-        do {
-            if let gameId = self.gameId {
-                // Update existing game
-                try DatabaseManager.shared.updateGame(self, gameId: gameId)
-            } else {
-                // Save new game
-                try DatabaseManager.shared.saveGame(self)
-            }
-        } catch {
-            print("Error saving game state: \(error)")
+    mutating func saveGameState() {
+        // Make sure we have a gameId
+        if gameId == nil {
+            // Generate a new game ID
+            gameId = generateGameId(difficulty: difficulty, isDailyChallenge: false)
         }
+        
+        // Save to the database
+        do {
+            try DatabaseManager.shared.saveOrUpdateGame(self)
+            print("Game state saved with ID: \(gameId ?? "unknown")")
+        } catch {
+            print("Error saving game state: \(error.localizedDescription)")
+        }
+    }
+    private func generateGameId(difficulty: String, isDailyChallenge: Bool, date: Date? = nil) -> String {
+        // Create UUID
+        let uuid = UUID().uuidString
+        
+        // For daily challenges, include date
+        if isDailyChallenge, let gameDate = date {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            let dateString = dateFormatter.string(from: gameDate)
+            return "\(difficulty)-daily-\(dateString)-app-\(uuid)"
+        }
+        
+        // For custom games, simpler format
+        return "\(difficulty)-app-\(uuid)"
     }
     
     // Static method to load most recent game
@@ -355,6 +381,9 @@ struct Game {
         // Then reset the game
         setupNewGame()
     }
+    
 }
+
+
 
 
