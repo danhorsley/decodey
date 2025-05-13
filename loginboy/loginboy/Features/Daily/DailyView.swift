@@ -22,7 +22,6 @@ struct DailyQuote: Codable {
     }
 }
 
-
 struct DailyView: View {
     @EnvironmentObject var auth: AuthenticationCoordinator
     @EnvironmentObject var settings: UserSettings
@@ -298,26 +297,10 @@ struct DailyView: View {
         }
     }
 }
-
-// Simple InfoRow structure for displaying key-value pairs
-struct InfoRow: View {
-    let title: String
-    let value: String
-    
-    var body: some View {
-        HStack {
-            Text(title)
-                .foregroundColor(.secondary)
-            Spacer()
-            Text(value)
-                .fontWeight(.medium)
-        }
-    }
-}
 //
-//  Daily.swift
+//  DailyView.swift
 //  loginboy
 //
-//  Created by Daniel Horsley on 12/05/2025.
+//  Created by Daniel Horsley on 13/05/2025.
 //
 
