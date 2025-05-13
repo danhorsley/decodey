@@ -4,57 +4,137 @@ struct MainView: View {
     @EnvironmentObject var authService: AuthService
     @EnvironmentObject var settings: UserSettings
     
+    // Track which screen to show
+    @State private var currentScreen: AppScreen = .home
+    
+    enum AppScreen {
+        case home       // The home/orientation screen with the matrix animation
+        case main       // The main tabbed interface
+        case login      // The login screen
+    }
+    
     var body: some View {
-        if authService.isAuthenticated {
-            // Main tabbed interface
-            TabView {
-                // Daily Challenge Tab
-                NavigationViewWrapper {
-                    DailyView(authService: authService)
-                }
-                .tabItem {
-                    Label("Daily", systemImage: "calendar")
-                }
-                
-                // Game Tab (for custom games)
-                NavigationViewWrapper {
-                    CustomGameView()
-                        .environmentObject(authService)
-                        .environmentObject(settings)
-                }
-                .tabItem {
-                    Label("Play", systemImage: "gamecontroller")
-                }
-                
-                // Leaderboard Tab
-                NavigationViewWrapper {
-                    LeaderboardView(authService: authService)
-                }
-                .tabItem {
-                    Label("Leaderboard", systemImage: "list.number")
-                }
-                
-                // Stats Tab
-                NavigationViewWrapper {
-                    UserStatsView(authService: authService)
-                        .environmentObject(authService)
-                }
-                .tabItem {
-                    Label("Stats", systemImage: "chart.bar")
-                }
-                
-                // Profile/Settings Tab
-                NavigationViewWrapper {
-                    ProfileView()
-                }
-                .tabItem {
-                    Label("Profile", systemImage: "person")
-                }
+        if !authService.isAuthenticated {
+            // Not authenticated - show login or home screen
+            if currentScreen == .home {
+                // Show the "home" screen with orientation content
+                // Rename WelcomeScreen to HomeScreen for clarity
+                HomeScreen(
+                    onBegin: {
+                        // User wants to play - go to login if needed, otherwise main
+                        if !authService.isAuthenticated {
+                            currentScreen = .login
+                        } else {
+                            currentScreen = .main
+                        }
+                    },
+                    onShowLogin: {
+                        // User explicitly wants to login
+                        currentScreen = .login
+                    }
+                )
+                .transition(.opacity)
+            } else {
+                // Show login screen with a way to go back to home
+                LoginView()
+                    .environmentObject(authService)
+                    .overlay(
+                        Button(action: {
+                            currentScreen = .home
+                        }) {
+                            Image(systemName: "house")
+                                .font(.title)
+                                .padding()
+                                .background(Circle().fill(Color.black.opacity(0.7)))
+                                .foregroundColor(.white)
+                        }
+                        .padding(),
+                        alignment: .topLeading
+                    )
+                    .transition(.opacity)
+                    .onChange(of: authService.isAuthenticated) { isAuthenticated in
+                        if isAuthenticated {
+                            // When login succeeds, go to main screen
+                            currentScreen = .main
+                        }
+                    }
             }
         } else {
-            // Login screen
-            LoginView()
-                .environmentObject(authService)
+            // User is authenticated
+            if currentScreen == .home {
+                // Show home screen
+                HomeScreen(
+                    onBegin: {
+                        // User wants to play - go to main
+                        currentScreen = .main
+                    },
+                    onShowLogin: {
+                        // This shouldn't happen when already logged in, but handle it anyway
+                        currentScreen = .main
+                    }
+                )
+                .transition(.opacity)
+            } else {
+                // Show main tabbed interface
+                TabView {
+                    // Daily Challenge Tab
+                    NavigationViewWrapper {
+                        DailyView(authService: authService)
+                    }
+                    .tabItem {
+                        Label("Daily", systemImage: "calendar")
+                    }
+                    
+                    // Game Tab (for custom games)
+                    NavigationViewWrapper {
+                        CustomGameView()
+                            .environmentObject(authService)
+                            .environmentObject(settings)
+                    }
+                    .tabItem {
+                        Label("Play", systemImage: "gamecontroller")
+                    }
+                    
+                    // Leaderboard Tab
+                    NavigationViewWrapper {
+                        LeaderboardView(authService: authService)
+                    }
+                    .tabItem {
+                        Label("Leaderboard", systemImage: "list.number")
+                    }
+                    
+                    // Stats Tab
+                    NavigationViewWrapper {
+                        UserStatsView(authService: authService)
+                            .environmentObject(authService)
+                    }
+                    .tabItem {
+                        Label("Stats", systemImage: "chart.bar")
+                    }
+                    
+                    // Profile/Settings Tab
+                    NavigationViewWrapper {
+                        ProfileView()
+                    }
+                    .tabItem {
+                        Label("Profile", systemImage: "person")
+                    }
+                }
+                .overlay(
+                    Button(action: {
+                        currentScreen = .home
+                    }) {
+                        Image(systemName: "house")
+                            .font(.title)
+                            .padding()
+                            .background(Circle().fill(Color.black.opacity(0.7)))
+                            .foregroundColor(.white)
+                    }
+                    .padding(),
+                    alignment: .topLeading
+                )
+                .transition(.opacity)
+            }
         }
     }
 }

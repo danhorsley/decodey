@@ -16,11 +16,22 @@ struct AuthTestApp: App {
     // Database manager as a singleton
     private let databaseManager = DatabaseManager.shared
     
+    // Add this line to initialize SoundManager
+    private let soundManager = SoundManager.shared
+    
     // Initialize any state objects that need dependencies
     init() {
         // Create UserSettings with the authService
         let settings = UserSettings(authService: AuthService())
         self._userSettings = StateObject(wrappedValue: settings)
+        
+        // Ensure sound system is initialized
+        print("DEBUG: Initializing sound system...")
+        
+        // Optionally, uncomment this if you want to pre-test sounds at startup
+        // DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+        //     SoundManager.shared.testAllSounds()
+        // }
     }
     
     var body: some Scene {
