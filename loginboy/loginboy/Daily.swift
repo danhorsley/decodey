@@ -139,16 +139,27 @@ struct DailyView: View {
         #if os(iOS)
         NavigationView {
             mainContent
+                .navigationTitle("Daily Challenge")
         }
-        .navigationViewStyle(StackNavigationViewStyle()) // Force single column
+        .navigationViewStyle(StackNavigationViewStyle())
         #else
-        // macOS version
-        NavigationView {
-            mainContent
+        // macOS version - no NavigationView
+        VStack(spacing: 0) {
+            // Custom header for macOS
+            HStack {
+                Text("Daily Challenge")
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .padding()
+                Spacer()
+            }
+            .background(Color.secondary.opacity(0.1))
             
-            // Add an empty view as a detail placeholder
-            Color.clear.frame(width: 1)
+            // Main content without navigation
+            mainContent
         }
+        .frame(minWidth: 600, idealWidth: 800, maxWidth: .infinity,
+               minHeight: 500, idealHeight: 700, maxHeight: .infinity)
         #endif
     }
     
