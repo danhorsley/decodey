@@ -15,16 +15,30 @@ struct MainView: View {
                     }
                 
                 // Game Tab (for custom games)
+                #if os(iOS)
                 NavigationView {
-                    GameView(isDailyChallenge: false)
+                    CustomGameView()
                         .environmentObject(authService)
                         .environmentObject(settings)
-                        .navigationTitle("Custom Game")
+                }
+                .navigationViewStyle(StackNavigationViewStyle()) // Force a single column on iPad
+                .tabItem {
+                    Label("Play", systemImage: "gamecontroller")
+                }
+                #else
+                // macOS version
+                NavigationView {
+                    CustomGameView()
+                        .environmentObject(authService)
+                        .environmentObject(settings)
+                        
+                    // Add an empty view as a detail placeholder that won't be visible
+                    Color.clear.frame(width: 1)
                 }
                 .tabItem {
                     Label("Play", systemImage: "gamecontroller")
                 }
-                
+                #endif
                 // Leaderboard Tab
                 LeaderboardView(authService: authService)
                     .tabItem {
@@ -125,5 +139,25 @@ struct ProfileView: View {
             }
             .navigationTitle("Profile & Settings")
         }
+    }
+}
+
+struct CustomGameView: View {
+    @EnvironmentObject var authService: AuthService
+    @EnvironmentObject var settings: UserSettings
+    @StateObject private var gameController: GameController
+    
+    init() {
+        // Create a GameController for custom games
+        let controller = GameController(authService: AuthService())
+        self._gameController = StateObject(wrappedValue: controller)
+    }
+    
+    var body: some View {
+        GameView(gameController: gameController)
+            .navigationTitle("Custom Game")
+            .onAppear {
+                gameController.setupCustomGame()
+            }
     }
 }
