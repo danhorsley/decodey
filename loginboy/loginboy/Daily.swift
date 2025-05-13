@@ -69,7 +69,7 @@ struct DailyView: View {
             if showInfoView {
                 dailyInfoView
             } else {
-                GameView(gameController: gameController)
+                GameView()
             }
         }
         .navigationTitle("Daily Challenge")

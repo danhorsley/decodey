@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct MainView: View {
-    @EnvironmentObject var auth: AuthenticationCoordinator
-    @EnvironmentObject var settings: UserSettings
+    // Inject our state objects
+    @EnvironmentObject var userState: UserState
+    @EnvironmentObject var gameState: GameState
+    @EnvironmentObject var settingsState: SettingsState
     
     @State private var currentScreen: AppScreen = .home
     
@@ -13,11 +15,11 @@ struct MainView: View {
     }
     
     var body: some View {
-        if !auth.isAuthenticated {
+        if !userState.isAuthenticated {
             if currentScreen == .home {
                 HomeScreen(
                     onBegin: {
-                        if !auth.isAuthenticated {
+                        if !userState.isAuthenticated {
                             currentScreen = .login
                         } else {
                             currentScreen = .main
@@ -30,7 +32,7 @@ struct MainView: View {
                 .transition(.opacity)
             } else {
                 LoginView()
-                    .environmentObject(auth)
+                    .environmentObject(userState)
                     .overlay(
                         Button(action: {
                             currentScreen = .home
@@ -45,7 +47,7 @@ struct MainView: View {
                         alignment: .topLeading
                     )
                     .transition(.opacity)
-                    .onChange(of: auth.isAuthenticated) { isAuthenticated in
+                    .onChange(of: userState.isAuthenticated) { isAuthenticated in
                         if isAuthenticated {
                             currentScreen = .main
                         }
@@ -65,7 +67,7 @@ struct MainView: View {
             } else {
                 TabView {
                     NavigationViewWrapper {
-                        DailyView(auth: auth)
+                        DailyView(auth:AuthenticationCoordinator())
                     }
                     .tabItem {
                         Label("Daily", systemImage: "calendar")
@@ -73,23 +75,20 @@ struct MainView: View {
                     
                     NavigationViewWrapper {
                         CustomGameView()
-                            .environmentObject(auth)
-                            .environmentObject(settings)
                     }
                     .tabItem {
                         Label("Play", systemImage: "gamecontroller")
                     }
                     
                     NavigationViewWrapper {
-                        LeaderboardView(auth: auth)
+                        LeaderboardView(auth:AuthenticationCoordinator())
                     }
                     .tabItem {
                         Label("Leaderboard", systemImage: "list.number")
                     }
                     
                     NavigationViewWrapper {
-                        UserStatsView(auth: auth)
-                            .environmentObject(auth)
+                        UserStatsView(auth:AuthenticationCoordinator())
                     }
                     .tabItem {
                         Label("Stats", systemImage: "chart.bar")
@@ -121,7 +120,7 @@ struct MainView: View {
     }
 }
 
-// Platform-specific NavigationView wrapper
+// Updated platform-specific NavigationView wrapper (unchanged)
 struct NavigationViewWrapper<Content: View>: View {
     let content: Content
     
@@ -144,10 +143,10 @@ struct NavigationViewWrapper<Content: View>: View {
     }
 }
 
-// Profile view component for the settings tab
+// Updated Profile view
 struct ProfileView: View {
-    @EnvironmentObject var authService: AuthenticationCoordinator
-    @EnvironmentObject var settings: UserSettings
+    @EnvironmentObject var userState: UserState
+    @EnvironmentObject var settingsState: SettingsState
     
     var body: some View {
         Form {
@@ -156,11 +155,11 @@ struct ProfileView: View {
                 HStack {
                     Text("Logged in as")
                     Spacer()
-                    Text(authService.username)
+                    Text(userState.username)
                         .foregroundColor(.secondary)
                 }
                 
-                if authService.isSubadmin {
+                if userState.isSubadmin {
                     Label("Admin privileges", systemImage: "checkmark.shield")
                         .foregroundColor(.blue)
                 }
@@ -168,11 +167,11 @@ struct ProfileView: View {
             
             // Appearance section
             Section(header: Text("Appearance")) {
-                Toggle("Dark Mode", isOn: $settings.isDarkMode)
-                Toggle("Show Text Helpers", isOn: $settings.showTextHelpers)
-                Toggle("Accessibility Text Size", isOn: $settings.useAccessibilityTextSize)
+                Toggle("Dark Mode", isOn: $settingsState.isDarkMode)
+                Toggle("Show Text Helpers", isOn: $settingsState.showTextHelpers)
+                Toggle("Accessibility Text Size", isOn: $settingsState.useAccessibilityTextSize)
                 
-                Picker("Game Difficulty", selection: $settings.gameDifficulty) {
+                Picker("Game Difficulty", selection: $settingsState.gameDifficulty) {
                     Text("Easy").tag("easy")
                     Text("Medium").tag("medium")
                     Text("Hard").tag("hard")
@@ -180,12 +179,12 @@ struct ProfileView: View {
             }
             // Security section
             Section(header: Text("Security")) {
-                Toggle("Use Biometric Auth", isOn: $settings.useBiometricAuth)
+                Toggle("Use Biometric Auth", isOn: $settingsState.useBiometricAuth)
             }
             
             // Reset section
             Section {
-                Button(action: settings.resetToDefaults) {
+                Button(action: settingsState.resetToDefaults) {
                     Text("Reset All Settings")
                         .foregroundColor(.red)
                 }
@@ -196,14 +195,14 @@ struct ProfileView: View {
                 HStack {
                     Text("App Version")
                     Spacer()
-                    Text(settings.appVersion)
+                    Text(settingsState.appVersion)
                         .foregroundColor(.secondary)
                 }
             }
             
             // Logout section
             Section {
-                Button(action: authService.logout) {
+                Button(action: userState.logout) {
                     HStack {
                         Spacer()
                         Text("Logout")
@@ -218,26 +217,15 @@ struct ProfileView: View {
     }
 }
 
+// Updated CustomGameView
 struct CustomGameView: View {
-    @EnvironmentObject var auth: AuthenticationCoordinator
-    @EnvironmentObject var settings: UserSettings
-    @StateObject private var gameController: GameController
-    
-    init() {
-        // Create a GameController for custom games
-        let controller = GameController(auth: AuthenticationCoordinator())
-        self._gameController = StateObject(wrappedValue: controller)
-    }
+    @EnvironmentObject var gameState: GameState
     
     var body: some View {
-        GameView(gameController: gameController)
+        GameView()
             .navigationTitle("Custom Game")
             .onAppear {
-                // When we appear, make sure we have the latest auth coordinator
-                if let auth = self.auth as? AuthenticationCoordinator {
-                    gameController.updateAuth(auth)
-                }
-                gameController.setupCustomGame()
+                gameState.setupCustomGame()
             }
     }
 }

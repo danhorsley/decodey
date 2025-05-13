@@ -1,14 +1,11 @@
 import SwiftUI
 
 struct GameView: View {
-    @ObservedObject var gameController: GameController
-    @EnvironmentObject var settings: UserSettings
+    @EnvironmentObject var gameState: GameState
+    @EnvironmentObject var userState: UserState
+    @EnvironmentObject var settingsState: SettingsState
     
     @Environment(\.colorScheme) var colorScheme
-    
-    init(gameController: GameController) {
-        self.gameController = gameController
-    }
     
     var body: some View {
         ZStack {
@@ -16,36 +13,33 @@ struct GameView: View {
             ColorSystem.shared.primaryBackground(for: colorScheme)
                 .ignoresSafeArea()
             
-            if gameController.isLoading {
+            if gameState.isLoading {
                 loadingView
-            } else if let error = gameController.errorMessage {
+            } else if let error = gameState.errorMessage {
                 errorView(message: error)
             } else {
                 gameContentView
             }
             
             // Win message overlay
-            if gameController.showWinMessage {
+            if gameState.showWinMessage {
                 winMessageOverlay
             }
             
             // Lose message overlay
-            if gameController.showLoseMessage {
+            if gameState.showLoseMessage {
                 loseMessageOverlay
             }
         }
-        .sheet(isPresented: $gameController.showContinueGameModal) {
-                    ContinueGameSheet(
-                        gameController: gameController,
-                        isDailyChallenge: gameController.isDailyChallenge
-                    )
-                    .presentationDetents([.medium])
-                }
-                .onAppear {
-                    // Check for in-progress game when the view appears
-                    gameController.checkForInProgressGame()
-                }
-        .navigationTitle(gameController.isDailyChallenge ? "Daily Challenge" : "Custom Game")
+        .sheet(isPresented: $gameState.showContinueGameModal) {
+            ContinueGameSheet(isDailyChallenge: gameState.isDailyChallenge)
+                .presentationDetents([.medium])
+        }
+        .onAppear {
+            // Check for in-progress game when the view appears
+            gameState.checkForInProgressGame()
+        }
+        .navigationTitle(gameState.isDailyChallenge ? "Daily Challenge" : "Custom Game")
         
         // Use this modifier only on iOS/iPadOS
         #if os(iOS)
@@ -61,7 +55,7 @@ struct GameView: View {
                 .scaleEffect(1.5)
                 .padding()
             
-            Text(gameController.isDailyChallenge ? "Loading daily challenge..." : "Loading game...")
+            Text(gameState.isDailyChallenge ? "Loading daily challenge..." : "Loading game...")
                 .font(.headline)
                 .padding()
         }
@@ -81,7 +75,7 @@ struct GameView: View {
                 .multilineTextAlignment(.center)
                 .padding(.horizontal)
             
-            Button(action: gameController.resetGame) {
+            Button(action: gameState.resetGame) {
                 HStack {
                     Image(systemName: "arrow.clockwise")
                     Text("Try Again")
@@ -99,7 +93,7 @@ struct GameView: View {
     private var gameContentView: some View {
         VStack(spacing: DesignSystem.shared.displayAreaPadding) {
             // Header - only shown for daily challenge
-            if gameController.isDailyChallenge, let dateString = gameController.quoteDate {
+            if gameState.isDailyChallenge, let dateString = gameState.quoteDate {
                 Text(dateString)
                     .font(.subheadline)
                     .foregroundColor(.secondary)
@@ -111,18 +105,15 @@ struct GameView: View {
             
             // Game grid with letters
             GameGridsView(
-                game: $gameController.game,
-                showWinMessage: $gameController.showWinMessage,
-                showLoseMessage: $gameController.showLoseMessage,
-                showTextHelpers: settings.showTextHelpers
+                showTextHelpers: settingsState.showTextHelpers
             )
             
             Spacer()
             
             // Controls for custom game
-            if !gameController.isDailyChallenge {
+            if !gameState.isDailyChallenge {
                 HStack {
-                    Button(action: gameController.resetGame) {
+                    Button(action: gameState.resetGame) {
                         HStack {
                             Image(systemName: "arrow.clockwise")
                             Text("New Game")
@@ -146,13 +137,13 @@ struct GameView: View {
         VStack(spacing: 16) {
             // Encrypted text
             VStack(alignment: .leading) {
-                if settings.showTextHelpers {
+                if settingsState.showTextHelpers {
                     Text("Encrypted:")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
                 
-                Text(gameController.game.encrypted)
+                Text(gameState.currentGame?.encrypted ?? "")
                     .font(.system(size: DesignSystem.shared.displayFontSize, design: .monospaced))
                     .foregroundColor(ColorSystem.shared.encryptedColor(for: colorScheme))
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -163,13 +154,13 @@ struct GameView: View {
             
             // Solution with blocks
             VStack(alignment: .leading) {
-                if settings.showTextHelpers {
+                if settingsState.showTextHelpers {
                     Text("Your solution:")
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
                 
-                Text(gameController.game.currentDisplay)
+                Text(gameState.currentGame?.currentDisplay ?? "")
                     .font(.system(size: DesignSystem.shared.displayFontSize, design: .monospaced))
                     .foregroundColor(ColorSystem.shared.guessColor(for: colorScheme))
                     .frame(maxWidth: .infinity, alignment: .center)
@@ -201,27 +192,27 @@ struct GameView: View {
             // Content
             VStack(spacing: 20) {
                 // Win message - different for daily vs custom
-                Text(gameController.isDailyChallenge ? "DAILY CHALLENGE COMPLETE!" : "YOU WIN!")
-                    .font(.system(size: gameController.isDailyChallenge ? 28 : 36, weight: .bold))
+                Text(gameState.isDailyChallenge ? "DAILY CHALLENGE COMPLETE!" : "YOU WIN!")
+                    .font(.system(size: gameState.isDailyChallenge ? 28 : 36, weight: .bold))
                     .foregroundColor(.green)
                     .shadow(color: .green.opacity(0.7), radius: 5)
                     .multilineTextAlignment(.center)
                 
                 // Solution with author
                 VStack(spacing: 10) {
-                    Text(gameController.game.solution)
+                    Text(gameState.currentGame?.solution ?? "")
                         .font(.headline)
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
                         .padding()
                     
-                    if !gameController.quoteAuthor.isEmpty {
-                        Text("— \(gameController.quoteAuthor)")
+                    if !gameState.quoteAuthor.isEmpty {
+                        Text("— \(gameState.quoteAuthor)")
                             .font(.subheadline)
                             .foregroundColor(.gray)
                     }
                     
-                    if let attribution = gameController.quoteAttribution, !attribution.isEmpty {
+                    if let attribution = gameState.quoteAttribution, !attribution.isEmpty {
                         Text(attribution)
                             .font(.caption)
                             .foregroundColor(.gray.opacity(0.8))
@@ -237,7 +228,7 @@ struct GameView: View {
                         .font(.subheadline)
                         .foregroundColor(.gray)
                     
-                    Text("\(gameController.game.calculateScore())")
+                    Text("\(gameState.currentGame?.calculateScore() ?? 0)")
                         .font(.system(size: 48, weight: .bold))
                         .foregroundColor(.green)
                 }
@@ -252,7 +243,7 @@ struct GameView: View {
                             .font(.caption)
                             .foregroundColor(.gray)
                         
-                        Text("\(gameController.game.mistakes)/\(gameController.game.maxMistakes)")
+                        Text("\(gameState.currentGame?.mistakes ?? 0)/\(gameState.currentGame?.maxMistakes ?? 0)")
                             .font(.title3)
                             .foregroundColor(.white)
                     }
@@ -262,17 +253,19 @@ struct GameView: View {
                             .font(.caption)
                             .foregroundColor(.gray)
                         
-                        Text(gameController.formatTime(Int(gameController.game.lastUpdateTime.timeIntervalSince(gameController.game.startTime))))
-                            .font(.title3)
-                            .foregroundColor(.white)
+                        if let game = gameState.currentGame {
+                            Text(gameState.formatTime(Int(game.lastUpdateTime.timeIntervalSince(game.startTime))))
+                                .font(.title3)
+                                .foregroundColor(.white)
+                        }
                     }
                 }
                 
                 // Different buttons based on mode
-                if gameController.isDailyChallenge {
+                if gameState.isDailyChallenge {
                     Button(action: {
-                        gameController.submitDailyScore()
-                        gameController.onGameComplete?()
+                        gameState.submitDailyScore(userId: userState.userId)
+                        gameState.showWinMessage = false
                     }) {
                         Text("Close")
                             .font(.headline)
@@ -285,7 +278,7 @@ struct GameView: View {
                     .padding(.top, 20)
                 } else {
                     // Play again button for custom game
-                    Button(action: gameController.resetGame) {
+                    Button(action: gameState.resetGame) {
                         Text("Play Again")
                             .font(.headline)
                             .foregroundColor(.black)
@@ -311,22 +304,25 @@ struct GameView: View {
             ColorSystem.shared.overlayBackground()
                 .ignoresSafeArea()
             
-            LoseOverlayView(
-                solution: gameController.game.solution,
-                mistakes: gameController.game.mistakes,
-                maxMistakes: gameController.game.maxMistakes,
-                timeTaken: Int(gameController.game.lastUpdateTime.timeIntervalSince(gameController.game.startTime)),
-                isDarkMode: colorScheme == .dark,
-                onTryAgain: gameController.resetGame
-            )
-            .frame(width: DesignSystem.shared.overlayWidth)
-            .cornerRadius(DesignSystem.shared.overlayCornerRadius)
+            if let game = gameState.currentGame {
+                LoseOverlayView(
+                    solution: game.solution,
+                    mistakes: game.mistakes,
+                    maxMistakes: game.maxMistakes,
+                    timeTaken: Int(game.lastUpdateTime.timeIntervalSince(game.startTime)),
+                    isDarkMode: colorScheme == .dark,
+                    onTryAgain: gameState.resetGame
+                )
+                .frame(width: DesignSystem.shared.overlayWidth)
+                .cornerRadius(DesignSystem.shared.overlayCornerRadius)
+            }
         }
     }
 }
 
+// Updated continuation sheet
 struct ContinueGameSheet: View {
-    @ObservedObject var gameController: GameController
+    @EnvironmentObject var gameState: GameState
     let isDailyChallenge: Bool
     
     var body: some View {
@@ -342,8 +338,8 @@ struct ContinueGameSheet: View {
             
             HStack(spacing: 20) {
                 Button(action: {
-                    gameController.showContinueGameModal = false
-                    gameController.resetGame() // This will start a new game and purge the old one
+                    gameState.showContinueGameModal = false
+                    gameState.resetGame() // This will start a new game and purge the old one
                 }) {
                     Text("New Game")
                         .frame(maxWidth: .infinity)
@@ -354,7 +350,7 @@ struct ContinueGameSheet: View {
                 }
                 
                 Button(action: {
-                    gameController.continueSavedGame()
+                    gameState.continueSavedGame()
                 }) {
                     Text("Continue")
                         .frame(maxWidth: .infinity)

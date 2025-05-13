@@ -1,14 +1,13 @@
+// Updated GameGridsView.swift
+
 import SwiftUI
 
 struct GameGridsView: View {
-    @Binding var game: Game
-    @Binding var showWinMessage: Bool
-    @Binding var showLoseMessage: Bool
+    @EnvironmentObject var gameState: GameState
     
     let showTextHelpers: Bool
     
     @State private var isHintInProgress = false
-    @EnvironmentObject private var settings: UserSettings
     
     // Use DesignSystem for consistent sizing
     private let design = DesignSystem.shared
@@ -65,23 +64,25 @@ struct GameGridsView: View {
                 // Create grid with number of columns based on size
                 let isLandscape = gridGeometry.size.width > gridGeometry.size.height
                 
-                LazyVGrid(columns: createGridColumns(isLandscape: isLandscape), spacing: design.letterCellSpacing) {
-                    ForEach(game.uniqueEncryptedLetters(), id: \.self) { letter in
-                        EncryptedLetterCell(
-                            letter: letter,
-                            isSelected: game.selectedLetter == letter,
-                            isGuessed: game.correctlyGuessed().contains(letter),
-                            frequency: game.letterFrequency[letter] ?? 0,
-                            action: {
-                                withAnimation {
-                                    game.selectLetter(letter)
+                if let game = gameState.currentGame {
+                    LazyVGrid(columns: createGridColumns(isLandscape: isLandscape), spacing: design.letterCellSpacing) {
+                        ForEach(game.uniqueEncryptedLetters(), id: \.self) { letter in
+                            EncryptedLetterCell(
+                                letter: letter,
+                                isSelected: game.selectedLetter == letter,
+                                isGuessed: game.correctlyGuessed().contains(letter),
+                                frequency: game.letterFrequency[letter] ?? 0,
+                                action: {
+                                    withAnimation {
+                                        gameState.selectLetter(letter)
+                                    }
                                 }
-                            }
-                        )
-                        .frame(width: design.letterCellSize, height: design.letterCellSize)
+                            )
+                            .frame(width: design.letterCellSize, height: design.letterCellSize)
+                        }
                     }
+                    .frame(width: gridGeometry.size.width)
                 }
-                .frame(width: gridGeometry.size.width)
             }
         }
     }
@@ -96,36 +97,31 @@ struct GameGridsView: View {
             }
             
             // Get unique letters from the solution (not the encrypted version)
-            let uniqueLetters = game.uniqueSolutionLetters()
-            
-            // Create grid with adaptive columns
-            GeometryReader { gridGeometry in
-                let isLandscape = gridGeometry.size.width > gridGeometry.size.height
+            if let game = gameState.currentGame {
+                let uniqueLetters = game.uniqueSolutionLetters()
                 
-                LazyVGrid(columns: createGridColumns(isLandscape: isLandscape), spacing: design.letterCellSpacing) {
-                    ForEach(uniqueLetters, id: \.self) { letter in
-                        GuessLetterCell(
-                            letter: letter,
-                            isUsed: game.guessedMappings.values.contains(letter),
-                            action: {
-                                if let selectedLetter = game.selectedLetter {
-                                    withAnimation {
-                                        let _ = game.makeGuess(letter)
-                                        
-                                        // Check game status
-                                        if game.hasWon {
-                                            showWinMessage = true
-                                        } else if game.hasLost {
-                                            showLoseMessage = true
+                // Create grid with adaptive columns
+                GeometryReader { gridGeometry in
+                    let isLandscape = gridGeometry.size.width > gridGeometry.size.height
+                    
+                    LazyVGrid(columns: createGridColumns(isLandscape: isLandscape), spacing: design.letterCellSpacing) {
+                        ForEach(uniqueLetters, id: \.self) { letter in
+                            GuessLetterCell(
+                                letter: letter,
+                                isUsed: game.guessedMappings.values.contains(letter),
+                                action: {
+                                    if game.selectedLetter != nil {
+                                        withAnimation {
+                                            gameState.makeGuess(letter)
                                         }
                                     }
                                 }
-                            }
-                        )
-                        .frame(width: design.letterCellSize, height: design.letterCellSize)
+                            )
+                            .frame(width: design.letterCellSize, height: design.letterCellSize)
+                        }
                     }
+                    .frame(width: gridGeometry.size.width)
                 }
-                .frame(width: gridGeometry.size.width)
             }
         }
     }
@@ -142,7 +138,7 @@ struct GameGridsView: View {
     // Hint button
     private var hintButton: some View {
         HintButtonView(
-            remainingHints: game.maxMistakes - game.mistakes,
+            remainingHints: gameState.currentGame?.maxMistakes ?? 5 - (gameState.currentGame?.mistakes ?? 0),
             isLoading: isHintInProgress,
             isDarkMode: colorScheme == .dark,
             onHintRequested: {
@@ -154,17 +150,10 @@ struct GameGridsView: View {
                 
                 // Process hint with slight delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    let _ = game.getHint()
+                    gameState.getHint()
                     
                     // Reset loading state
                     isHintInProgress = false
-                    
-                    // Check game status after hint
-                    if game.hasWon {
-                        showWinMessage = true
-                    } else if game.hasLost {
-                        showLoseMessage = true
-                    }
                 }
             }
         )
