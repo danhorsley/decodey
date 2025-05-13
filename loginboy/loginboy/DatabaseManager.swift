@@ -221,8 +221,8 @@ class DatabaseManager {
     func loadLatestGame() throws -> Game? {
         try dbQueue.read { db in
             let record = try GameRecord
-                .filter(Column("is_complete") == false)
-                .order(Column("created_at").desc)
+                .filter(Column("isComplete") == false)
+                .order(Column("createdAt").desc)
                 .fetchOne(db)
             
             return record?.toGame()
@@ -614,6 +614,29 @@ extension DatabaseManager {
         }
     }
     
+}
+
+extension DatabaseManager {
+    /// Mark a specific game as abandoned
+    func markGameAsAbandoned(gameId: String) throws {
+        try dbQueue.write { db in
+            // Update the game
+            try db.execute(
+                sql: "UPDATE games SET isComplete = TRUE, hasLost = TRUE WHERE gameId = ?",
+                arguments: [gameId]
+            )
+            
+            // If we affected a row, reset the player's streak
+            if let gameRecord = try GameRecord.filter(Column("gameId") == gameId).fetchOne(db),
+               let userId = gameRecord.userId {
+                try db.execute(
+                    sql: "UPDATE statistics SET current_streak = 0 WHERE user_id = ? AND current_streak > 0",
+                    arguments: [userId]
+                )
+                print("DEBUG: Reset streak for user \(userId) due to abandoned game")
+            }
+        }
+    }
 }
 //
 //  DatabaseManager.swift

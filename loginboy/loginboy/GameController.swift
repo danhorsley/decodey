@@ -15,6 +15,9 @@ class GameController: ObservableObject {
     @Published var quoteAuthor: String = ""
     @Published var quoteAttribution: String? = nil
     @Published var quoteDate: String? = nil
+    // Game state handling
+    @Published var showContinueGameModal = false
+    @Published var savedGame: Game? = nil
     
     // Configuration
     private(set) var isDailyChallenge: Bool = false
@@ -53,7 +56,35 @@ class GameController: ObservableObject {
         self.isDailyChallenge = true
         Task { await fetchDailyQuote() }
     }
-    
+    // Game state handling
+    func checkForInProgressGame() {
+            Task {
+                do {
+                    if let game = try DatabaseManager.shared.loadLatestGame() {
+                        // Check if it's the right type (daily vs custom)
+                        let isDaily = isDailyChallenge
+                        
+                        // If we want to show daily but the saved game isn't daily, don't show modal
+                        if isDaily && game.gameId?.starts(with: "custom-") == true {
+                            return
+                        }
+                        
+                        // If we want to show custom but the saved game is daily, don't show modal
+                        if !isDaily && game.gameId?.starts(with: "daily-") == true {
+                            return
+                        }
+                        
+                        // We have a matching in-progress game
+                        await MainActor.run {
+                            self.savedGame = game
+                            self.showContinueGameModal = true
+                        }
+                    }
+                } catch {
+                    print("Error checking for in-progress game: \(error)")
+                }
+            }
+        }
     // Fetch daily quote with async/await
     private func fetchDailyQuote() async {
         isLoading = true
@@ -91,23 +122,26 @@ class GameController: ObservableObject {
     
     // Load a new random game
     private func loadNewGame() async {
-        isLoading = true
-        errorMessage = nil
-        
-        do {
-            // Get random quote
-            let quote = try quoteService.getRandomQuote()
+            isLoading = true
+            errorMessage = nil
             
-            // Update UI data
-            quoteAuthor = quote.author
-            quoteAttribution = quote.attribution
-            
-            // Create game with quote
-            game = Game(quote: quote)
-            showWinMessage = false
-            showLoseMessage = false
-            
-        } catch {
+            do {
+                // Get random quote
+                let quote = try quoteService.getRandomQuote()
+                
+                // Update UI data
+                quoteAuthor = quote.author
+                quoteAttribution = quote.attribution
+                
+                // Create game with quote and appropriate ID prefix
+                var newGame = Game(quote: quote)
+                newGame.gameId = "custom-\(UUID().uuidString)" // Mark as custom game
+                game = newGame
+                
+                showWinMessage = false
+                showLoseMessage = false
+                
+            } catch {
             errorMessage = "Failed to load a quote: \(error.localizedDescription)"
             
             // Use fallback quote
@@ -122,10 +156,22 @@ class GameController: ObservableObject {
         
         isLoading = false
     }
-    
+    // Method to continue saved game
+    func continueSavedGame() {
+        if let savedGame = savedGame {
+            game = savedGame
+            self.showContinueGameModal = false
+            self.savedGame = nil
+        }
+    }
     // Game control methods
     func resetGame() {
-        if isDailyChallenge, let quote = dailyQuote {
+            // If there was a saved game, mark it as abandoned
+            if let oldGameId = savedGame?.gameId {
+                try? DatabaseManager.shared.markGameAsAbandoned(gameId: oldGameId)
+            }
+            
+            if isDailyChallenge, let quote = dailyQuote {
             // Reuse the daily quote
             let gameQuote = Quote(
                 text: quote.text,
@@ -140,6 +186,8 @@ class GameController: ObservableObject {
             // Load a new random game
             Task { await loadNewGame() }
         }
+        // Clear the saved game reference
+        self.savedGame = nil
     }
     
     func handleGuessResult() {

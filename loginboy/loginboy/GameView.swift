@@ -34,7 +34,19 @@ struct GameView: View {
                 loseMessageOverlay
             }
         }
+        .sheet(isPresented: $gameController.showContinueGameModal) {
+                    ContinueGameSheet(
+                        gameController: gameController,
+                        isDailyChallenge: gameController.isDailyChallenge
+                    )
+                    .presentationDetents([.medium])
+                }
+                .onAppear {
+                    // Check for in-progress game when the view appears
+                    gameController.checkForInProgressGame()
+                }
         .navigationTitle(gameController.isDailyChallenge ? "Daily Challenge" : "Custom Game")
+        
         // Use this modifier only on iOS/iPadOS
         #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
@@ -310,5 +322,51 @@ struct GameView: View {
             .frame(width: DesignSystem.shared.overlayWidth)
             .cornerRadius(DesignSystem.shared.overlayCornerRadius)
         }
+    }
+}
+
+struct ContinueGameSheet: View {
+    @ObservedObject var gameController: GameController
+    let isDailyChallenge: Bool
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Text(isDailyChallenge ? "Continue Daily Challenge?" : "Continue Previous Game?")
+                .font(.title2)
+                .fontWeight(.bold)
+                .padding(.top)
+            
+            Text("You have an unfinished game. Would you like to continue where you left off?")
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+            
+            HStack(spacing: 20) {
+                Button(action: {
+                    gameController.showContinueGameModal = false
+                    gameController.resetGame() // This will start a new game and purge the old one
+                }) {
+                    Text("New Game")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.gray.opacity(0.2))
+                        .foregroundColor(.primary)
+                        .cornerRadius(10)
+                }
+                
+                Button(action: {
+                    gameController.continueSavedGame()
+                }) {
+                    Text("Continue")
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.bottom)
+        }
+        .padding()
     }
 }
