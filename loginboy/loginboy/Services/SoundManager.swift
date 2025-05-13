@@ -529,4 +529,9 @@ class SoundManager: ObservableObject {
     #endif
 }
 
-
+// Extend array of SoundManager.SoundType to make it Identifiable
+extension SoundManager.SoundType: Identifiable {
+    var id: String {
+        return self.rawValue
+    }
+}
