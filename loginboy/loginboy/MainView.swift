@@ -1,43 +1,36 @@
 import SwiftUI
 
 struct MainView: View {
-    @EnvironmentObject var authService: AuthService
+    @EnvironmentObject var auth: AuthenticationCoordinator
     @EnvironmentObject var settings: UserSettings
     
-    // Track which screen to show
     @State private var currentScreen: AppScreen = .home
     
     enum AppScreen {
-        case home       // The home/orientation screen with the matrix animation
-        case main       // The main tabbed interface
-        case login      // The login screen
+        case home
+        case main
+        case login
     }
     
     var body: some View {
-        if !authService.isAuthenticated {
-            // Not authenticated - show login or home screen
+        if !auth.isAuthenticated {
             if currentScreen == .home {
-                // Show the "home" screen with orientation content
-                // Rename WelcomeScreen to HomeScreen for clarity
                 HomeScreen(
                     onBegin: {
-                        // User wants to play - go to login if needed, otherwise main
-                        if !authService.isAuthenticated {
+                        if !auth.isAuthenticated {
                             currentScreen = .login
                         } else {
                             currentScreen = .main
                         }
                     },
                     onShowLogin: {
-                        // User explicitly wants to login
                         currentScreen = .login
                     }
                 )
                 .transition(.opacity)
             } else {
-                // Show login screen with a way to go back to home
                 LoginView()
-                    .environmentObject(authService)
+                    .environmentObject(auth)
                     .overlay(
                         Button(action: {
                             currentScreen = .home
@@ -52,67 +45,56 @@ struct MainView: View {
                         alignment: .topLeading
                     )
                     .transition(.opacity)
-                    .onChange(of: authService.isAuthenticated) { isAuthenticated in
+                    .onChange(of: auth.isAuthenticated) { isAuthenticated in
                         if isAuthenticated {
-                            // When login succeeds, go to main screen
                             currentScreen = .main
                         }
                     }
             }
         } else {
-            // User is authenticated
             if currentScreen == .home {
-                // Show home screen
                 HomeScreen(
                     onBegin: {
-                        // User wants to play - go to main
                         currentScreen = .main
                     },
                     onShowLogin: {
-                        // This shouldn't happen when already logged in, but handle it anyway
                         currentScreen = .main
                     }
                 )
                 .transition(.opacity)
             } else {
-                // Show main tabbed interface
                 TabView {
-                    // Daily Challenge Tab
                     NavigationViewWrapper {
-                        DailyView(authService: authService)
+                        DailyView(auth: auth)
                     }
                     .tabItem {
                         Label("Daily", systemImage: "calendar")
                     }
                     
-                    // Game Tab (for custom games)
                     NavigationViewWrapper {
                         CustomGameView()
-                            .environmentObject(authService)
+                            .environmentObject(auth)
                             .environmentObject(settings)
                     }
                     .tabItem {
                         Label("Play", systemImage: "gamecontroller")
                     }
                     
-                    // Leaderboard Tab
                     NavigationViewWrapper {
-                        LeaderboardView(authService: authService)
+                        LeaderboardView(auth: auth)
                     }
                     .tabItem {
                         Label("Leaderboard", systemImage: "list.number")
                     }
                     
-                    // Stats Tab
                     NavigationViewWrapper {
-                        UserStatsView(authService: authService)
-                            .environmentObject(authService)
+                        UserStatsView(auth: auth)
+                            .environmentObject(auth)
                     }
                     .tabItem {
                         Label("Stats", systemImage: "chart.bar")
                     }
                     
-                    // Profile/Settings Tab
                     NavigationViewWrapper {
                         ProfileView()
                     }
@@ -164,7 +146,7 @@ struct NavigationViewWrapper<Content: View>: View {
 
 // Profile view component for the settings tab
 struct ProfileView: View {
-    @EnvironmentObject var authService: AuthService
+    @EnvironmentObject var authService: AuthenticationCoordinator
     @EnvironmentObject var settings: UserSettings
     
     var body: some View {
@@ -237,13 +219,13 @@ struct ProfileView: View {
 }
 
 struct CustomGameView: View {
-    @EnvironmentObject var authService: AuthService
+    @EnvironmentObject var auth: AuthenticationCoordinator
     @EnvironmentObject var settings: UserSettings
     @StateObject private var gameController: GameController
     
     init() {
         // Create a GameController for custom games
-        let controller = GameController(authService: AuthService())
+        let controller = GameController(auth: AuthenticationCoordinator())
         self._gameController = StateObject(wrappedValue: controller)
     }
     
@@ -251,6 +233,10 @@ struct CustomGameView: View {
         GameView(gameController: gameController)
             .navigationTitle("Custom Game")
             .onAppear {
+                // When we appear, make sure we have the latest auth coordinator
+                if let auth = self.auth as? AuthenticationCoordinator {
+                    gameController.updateAuth(auth)
+                }
                 gameController.setupCustomGame()
             }
     }

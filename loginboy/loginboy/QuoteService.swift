@@ -1,4 +1,4 @@
-// QuoteService.swift - New file
+// QuoteService.swift - Refactored for AuthenticationCoordinator
 import Foundation
 
 struct Quote {
@@ -42,12 +42,12 @@ class QuoteService {
     }
     
     // Get daily quote
-    func getDailyQuote(authService: AuthService) async throws -> DailyQuote {
-        guard let token = authService.getAccessToken() else {
+    func getDailyQuote(auth: AuthenticationCoordinator) async throws -> DailyQuote {
+        guard let token = auth.getAccessToken() else {
             throw QuoteError.authRequired
         }
         
-        guard let url = URL(string: "\(authService.baseURL)/api/get_daily") else {
+        guard let url = URL(string: "\(auth.baseURL)/api/get_daily") else {
             throw QuoteError.invalidConfiguration
         }
         
@@ -91,10 +91,3 @@ class QuoteService {
         }
     }
 }
-//
-//  QuoteService.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 13/05/2025.
-//
-

@@ -1,4 +1,4 @@
-// GameController.swift - Refactored
+// GameController.swift - Completely refactored for AuthenticationCoordinator
 import SwiftUI
 import Combine
 
@@ -15,6 +15,7 @@ class GameController: ObservableObject {
     @Published var quoteAuthor: String = ""
     @Published var quoteAttribution: String? = nil
     @Published var quoteDate: String? = nil
+    
     // Game state handling
     @Published var showContinueGameModal = false
     @Published var savedGame: Game? = nil
@@ -24,15 +25,15 @@ class GameController: ObservableObject {
     private var dailyQuote: DailyQuote?
     
     // Services
-    private let authService: AuthService
+    var auth: AuthenticationCoordinator
     private let quoteService = QuoteService.shared
     
     // Callbacks
     var onGameComplete: (() -> Void)?
     
-    // Initialize with a placeholder game
-    init(authService: AuthService) {
-        self.authService = authService
+    // Initialize with an AuthenticationCoordinator
+    init(auth: AuthenticationCoordinator) {
+        self.auth = auth
         
         // Create a placeholder game with default quote
         let defaultQuote = Quote(
@@ -42,6 +43,11 @@ class GameController: ObservableObject {
             difficulty: 2.0
         )
         self.game = Game(quote: defaultQuote)
+    }
+    
+    // Update the auth coordinator (used when environment reference changes)
+    func updateAuth(_ newAuth: AuthenticationCoordinator) {
+        self.auth = newAuth
     }
     
     // Setup a custom game
@@ -56,42 +62,44 @@ class GameController: ObservableObject {
         self.isDailyChallenge = true
         Task { await fetchDailyQuote() }
     }
+    
     // Game state handling
     func checkForInProgressGame() {
-            Task {
-                do {
-                    if let game = try DatabaseManager.shared.loadLatestGame() {
-                        // Check if it's the right type (daily vs custom)
-                        let isDaily = isDailyChallenge
-                        
-                        // If we want to show daily but the saved game isn't daily, don't show modal
-                        if isDaily && game.gameId?.starts(with: "custom-") == true {
-                            return
-                        }
-                        
-                        // If we want to show custom but the saved game is daily, don't show modal
-                        if !isDaily && game.gameId?.starts(with: "daily-") == true {
-                            return
-                        }
-                        
-                        // We have a matching in-progress game
-                        await MainActor.run {
-                            self.savedGame = game
-                            self.showContinueGameModal = true
-                        }
+        Task {
+            do {
+                if let game = try DatabaseManager.shared.loadLatestGame() {
+                    // Check if it's the right type (daily vs custom)
+                    let isDaily = isDailyChallenge
+                    
+                    // If we want to show daily but the saved game isn't daily, don't show modal
+                    if isDaily && game.gameId?.starts(with: "custom-") == true {
+                        return
                     }
-                } catch {
-                    print("Error checking for in-progress game: \(error)")
+                    
+                    // If we want to show custom but the saved game is daily, don't show modal
+                    if !isDaily && game.gameId?.starts(with: "daily-") == true {
+                        return
+                    }
+                    
+                    // We have a matching in-progress game
+                    await MainActor.run {
+                        self.savedGame = game
+                        self.showContinueGameModal = true
+                    }
                 }
+            } catch {
+                print("Error checking for in-progress game: \(error)")
             }
         }
+    }
+    
     // Fetch daily quote with async/await
     private func fetchDailyQuote() async {
         isLoading = true
         errorMessage = nil
         
         do {
-            let quote = try await quoteService.getDailyQuote(authService: authService)
+            let quote = try await quoteService.getDailyQuote(auth: auth)
             dailyQuote = quote
             
             // Update UI with quote data
@@ -108,6 +116,8 @@ class GameController: ObservableObject {
             )
             
             game = Game(quote: gameQuote)
+            game.gameId = "daily-\(quote.date)" // Mark as daily game with date
+            
             showWinMessage = false
             showLoseMessage = false
             
@@ -122,26 +132,26 @@ class GameController: ObservableObject {
     
     // Load a new random game
     private func loadNewGame() async {
-            isLoading = true
-            errorMessage = nil
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            // Get random quote
+            let quote = try quoteService.getRandomQuote()
             
-            do {
-                // Get random quote
-                let quote = try quoteService.getRandomQuote()
-                
-                // Update UI data
-                quoteAuthor = quote.author
-                quoteAttribution = quote.attribution
-                
-                // Create game with quote and appropriate ID prefix
-                var newGame = Game(quote: quote)
-                newGame.gameId = "custom-\(UUID().uuidString)" // Mark as custom game
-                game = newGame
-                
-                showWinMessage = false
-                showLoseMessage = false
-                
-            } catch {
+            // Update UI data
+            quoteAuthor = quote.author
+            quoteAttribution = quote.attribution
+            
+            // Create game with quote and appropriate ID prefix
+            var newGame = Game(quote: quote)
+            newGame.gameId = "custom-\(UUID().uuidString)" // Mark as custom game
+            game = newGame
+            
+            showWinMessage = false
+            showLoseMessage = false
+            
+        } catch {
             errorMessage = "Failed to load a quote: \(error.localizedDescription)"
             
             // Use fallback quote
@@ -156,6 +166,7 @@ class GameController: ObservableObject {
         
         isLoading = false
     }
+    
     // Method to continue saved game
     func continueSavedGame() {
         if let savedGame = savedGame {
@@ -164,14 +175,15 @@ class GameController: ObservableObject {
             self.savedGame = nil
         }
     }
+    
     // Game control methods
     func resetGame() {
-            // If there was a saved game, mark it as abandoned
-            if let oldGameId = savedGame?.gameId {
-                try? DatabaseManager.shared.markGameAsAbandoned(gameId: oldGameId)
-            }
-            
-            if isDailyChallenge, let quote = dailyQuote {
+        // If there was a saved game, mark it as abandoned
+        if let oldGameId = savedGame?.gameId {
+            try? DatabaseManager.shared.markGameAsAbandoned(gameId: oldGameId)
+        }
+        
+        if isDailyChallenge, let quote = dailyQuote {
             // Reuse the daily quote
             let gameQuote = Quote(
                 text: quote.text,
@@ -180,6 +192,7 @@ class GameController: ObservableObject {
                 difficulty: quote.difficulty
             )
             game = Game(quote: gameQuote)
+            game.gameId = "daily-\(quote.date)" // Mark as daily game with date
             showWinMessage = false
             showLoseMessage = false
         } else {
@@ -199,7 +212,7 @@ class GameController: ObservableObject {
     }
     
     func submitDailyScore() {
-        guard authService.isAuthenticated else { return }
+        guard auth.isAuthenticated else { return }
         
         let finalScore = game.calculateScore()
         let timeTaken = Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
@@ -207,7 +220,7 @@ class GameController: ObservableObject {
         // Update local stats
         do {
             try DatabaseManager.shared.updateStatistics(
-                userId: authService.userId,
+                userId: auth.userId,
                 gameWon: true,
                 mistakes: game.mistakes,
                 timeTaken: timeTaken,
@@ -225,11 +238,3 @@ class GameController: ObservableObject {
         return String(format: "%d:%02d", minutes, seconds)
     }
 }
-
-//
-//  GameController.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 13/05/2025.
-//
-

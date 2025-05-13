@@ -33,14 +33,14 @@ class LeaderboardService: ObservableObject {
     @Published var errorMessage: String?
     @Published var leaderboardData: LeaderboardResponse?
     
-    private let authService: AuthService
+    private let auth: AuthenticationCoordinator
     
-    init(authService: AuthService) {
-        self.authService = authService
+    init(auth: AuthenticationCoordinator) {
+        self.auth = auth
     }
     
     func fetchLeaderboard(period: String = "all-time", page: Int = 1, perPage: Int = 10) {
-        guard let token = authService.getAccessToken() else {
+        guard let token = auth.getAccessToken() else {
             self.errorMessage = "You need to be logged in to view the leaderboard"
             return
         }
@@ -48,8 +48,7 @@ class LeaderboardService: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        // Construct URL with query parameters
-        var urlComponents = URLComponents(string: "\(authService.baseURL)/api/leaderboard")
+        var urlComponents = URLComponents(string: "\(auth.baseURL)/api/leaderboard")
         urlComponents?.queryItems = [
             URLQueryItem(name: "period", value: period),
             URLQueryItem(name: "page", value: "\(page)"),
@@ -87,7 +86,7 @@ class LeaderboardService: ObservableObject {
                 
                 if httpResponse.statusCode == 401 {
                     self.errorMessage = "Authentication required. Please log in again."
-                    self.authService.logout() // Token might be expired, log out
+                    self.auth.logout() // Token might be expired, log out
                     return
                 }
                 
@@ -132,12 +131,12 @@ class LeaderboardService: ObservableObject {
 
 struct LeaderboardView: View {
     @StateObject private var leaderboardService: LeaderboardService
+    @EnvironmentObject var auth: AuthenticationCoordinator
     @State private var selectedPeriod = "all-time"
     @State private var selectedPage = 1
     
-    // Initialize with AuthService
-    init(authService: AuthService) {
-        _leaderboardService = StateObject(wrappedValue: LeaderboardService(authService: authService))
+    init(auth: AuthenticationCoordinator) {
+        _leaderboardService = StateObject(wrappedValue: LeaderboardService(auth: auth))
     }
     
     var body: some View {
@@ -382,15 +381,15 @@ struct EntryRow: View {
 }
 
 // Preview provider for SwiftUI Canvas
-struct LeaderboardView_Previews: PreviewProvider {
-    static var previews: some View {
-        // Create a mock AuthService for preview
-        let authService = AuthService()
-        authService.isAuthenticated = true
-        
-        return LeaderboardView(authService: authService)
-    }
-}
+//struct LeaderboardView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        // Create a mock AuthService for preview
+//        let authService = AuthService()
+//        authService.isAuthenticated = true
+//        
+//        return LeaderboardView(authService: authService)
+//    }
+//}
 
 //
 //  Leaderboard.swift

@@ -41,22 +41,24 @@ class UserSettings: ObservableObject {
     let appVersion: String
     
     // Private properties
-    private let authService: AuthService
+    private let auth: AuthenticationCoordinator
     private var cancellables = Set<AnyCancellable>()
     private let keychainService = "com.yourapp.settings"
     
     // Flag to prevent repeated sync failures
     private var syncFailureLogged = false
     
-    // Initialize with AuthService for user-specific settings
-    init(authService: AuthService) {
-        self.authService = authService
+    // Initialize with AuthenticationCoordinator for user-specific settings
+    init(auth: AuthenticationCoordinator) {
+        self.auth = auth
+        
         // Initialize stored properties first
         self.isDarkMode = true
         self.showTextHelpers = true
         self.useAccessibilityTextSize = false
         self.useBiometricAuth = false
         self.gameDifficulty = "medium"
+        
         // Get app version
         if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
            let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
@@ -79,46 +81,38 @@ class UserSettings: ObservableObject {
         subscribeToAuthChanges()
     }
     
-    // Convenience initializer that gets AuthService from the environment
-    convenience init() {
-        self.init(authService: AuthService())
-    }
-    
     // MARK: - Preference Management
     
     private func savePreference<T: Encodable>(_ key: String, value: T) {
         // First, always save to UserDefaults as a fallback
-        if authService.isAuthenticated && !authService.userId.isEmpty {
+        if auth.isAuthenticated && !auth.userId.isEmpty {
             // User-specific key
-            UserDefaults.standard.set(value, forKey: "\(authService.userId)_\(key)")
+            UserDefaults.standard.set(value, forKey: "\(auth.userId)_\(key)")
         } else {
             // Generic key for when not logged in
             UserDefaults.standard.set(value, forKey: key)
         }
         
         // If user is authenticated, also try to save to keychain for sync
-        if authService.isAuthenticated && !authService.userId.isEmpty {
+        if auth.isAuthenticated && !auth.userId.isEmpty {
             do {
                 let data = try JSONEncoder().encode(value)
                 try KeychainManager.save(
                     service: keychainService,
-                    account: "\(authService.userId)_\(key)",
+                    account: "\(auth.userId)_\(key)",
                     password: data
                 )
-                print("DEBUG: Saved setting \(key) to keychain for user \(authService.userId)")
+                print("DEBUG: Saved setting \(key) to keychain for user \(auth.userId)")
             } catch {
                 print("DEBUG: Failed to save setting to keychain: \(error.localizedDescription)")
             }
         }
-        
-        // Queue for server sync if online and authenticated
-        // Note: We won't actively try to sync settings if the endpoint isn't available
     }
     
     private func loadPreference<T: Decodable>(_ key: String, defaultValue: T) -> T {
         // Try to load from user-specific UserDefaults first (most reliable)
-        if authService.isAuthenticated && !authService.userId.isEmpty {
-            if let value = UserDefaults.standard.object(forKey: "\(authService.userId)_\(key)") as? T {
+        if auth.isAuthenticated && !auth.userId.isEmpty {
+            if let value = UserDefaults.standard.object(forKey: "\(auth.userId)_\(key)") as? T {
                 return value
             }
             
@@ -126,7 +120,7 @@ class UserSettings: ObservableObject {
             do {
                 let data = try KeychainManager.get(
                     service: keychainService,
-                    account: "\(authService.userId)_\(key)"
+                    account: "\(auth.userId)_\(key)"
                 )
                 
                 if let value = try? JSONDecoder().decode(T.self, from: data) {
@@ -154,7 +148,7 @@ class UserSettings: ObservableObject {
     private func subscribeToAuthChanges() {
         // Observe login events
         NotificationCenter.default.publisher(for: .userDidLogin)
-            .sink { [weak self] notification in
+            .sink { [weak self] _ in
                 guard let self = self else { return }
                 
                 // Reload settings for the new user
@@ -188,7 +182,7 @@ class UserSettings: ObservableObject {
         // Update appearance based on reloaded settings
         updateAppAppearance()
         
-        print("DEBUG: Reloaded settings for user \(authService.userId)")
+        print("DEBUG: Reloaded settings for user \(auth.userId)")
     }
     
     private func loadDefaultSettings() {
@@ -208,7 +202,7 @@ class UserSettings: ObservableObject {
     // MARK: - Biometric Auth Helpers
     
     private func handleBiometricAuthChange() {
-        if !authService.isAuthenticated || authService.userId.isEmpty {
+        if !auth.isAuthenticated || auth.userId.isEmpty {
             return
         }
         
@@ -220,7 +214,7 @@ class UserSettings: ObservableObject {
             if available {
                 // Enable biometric auth
                 // For simplicity, just save the setting - actual enrollment would happen at login
-                print("DEBUG: Enabled biometric auth for user \(authService.userId)")
+                print("DEBUG: Enabled biometric auth for user \(auth.userId)")
             } else {
                 // Biometrics not available, revert setting
                 DispatchQueue.main.async {
@@ -233,9 +227,9 @@ class UserSettings: ObservableObject {
             do {
                 try KeychainManager.delete(
                     service: "com.yourapp.auth.biometric",
-                    account: authService.userId
+                    account: auth.userId
                 )
-                print("DEBUG: Disabled and removed biometric auth for user \(authService.userId)")
+                print("DEBUG: Disabled and removed biometric auth for user \(auth.userId)")
             } catch {
                 print("DEBUG: Error removing biometric auth: \(error)")
             }
@@ -245,59 +239,6 @@ class UserSettings: ObservableObject {
     private func isBiometricAuthAvailable() -> Bool {
         let (available, _) = BiometricAuthHelper.shared.biometricAuthAvailable()
         return available
-    }
-    
-    // MARK: - Server Sync
-    
-    private func syncSettingsToServer() {
-        // This method is disabled since the endpoint seems to be unavailable (404)
-        // We won't try to sync to avoid cluttering the logs
-        
-        // If we need to re-enable it in the future, we can uncomment this code
-        /*
-        guard authService.isAuthenticated,
-              !authService.userId.isEmpty,
-              let token = authService.getAccessToken(),
-              let url = URL(string: "\(authService.baseURL)/api/sync_settings") else {
-            return
-        }
-        
-        // Create settings payload
-        let settingsPayload: [String: Any] = [
-            "isDarkMode": isDarkMode,
-            "showTextHelpers": showTextHelpers,
-            "useAccessibilityTextSize": useAccessibilityTextSize,
-            "useBiometricAuth": useBiometricAuth
-        ]
-        
-        // Create request
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        // Serialize to JSON
-        do {
-            request.httpBody = try JSONSerialization.data(withJSONObject: settingsPayload)
-        } catch {
-            print("DEBUG: Failed to serialize settings: \(error)")
-            return
-        }
-        
-        // Make the request
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                print("DEBUG: Failed to sync settings: \(error)")
-                return
-            }
-            
-            if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 {
-                print("DEBUG: Settings synced successfully for user \(self.authService.userId)")
-            } else {
-                print("DEBUG: Settings sync failed with status \((response as? HTTPURLResponse)?.statusCode ?? 0)")
-            }
-        }.resume()
-        */
     }
     
     // MARK: - Appearance Updates
@@ -324,13 +265,6 @@ class UserSettings: ObservableObject {
         
         print("DEBUG: Reset all settings to defaults")
     }
-}
-
-// MARK: - Notification Extensions
-
-extension Notification.Name {
-    static let userDidLogin = Notification.Name("com.yourapp.userDidLogin")
-    static let userDidLogout = Notification.Name("com.yourapp.userDidLogout")
 }
 
 // MARK: - Biometric Auth Helper

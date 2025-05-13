@@ -10,7 +10,7 @@ import SwiftUI
 @main
 struct AuthTestApp: App {
     // Create services at the app level
-    @StateObject private var authService = AuthService()
+    @StateObject private var auth = AuthenticationCoordinator()
     @StateObject private var userSettings: UserSettings
     
     // Database manager as a singleton
@@ -21,23 +21,26 @@ struct AuthTestApp: App {
     
     // Initialize any state objects that need dependencies
     init() {
-        // Create UserSettings with the authService
-        let settings = UserSettings(authService: AuthService())
+        // First, create the coordinator
+        let coordinator = AuthenticationCoordinator()
+        
+        // Then create settings with that coordinator, not using self
+        let settings = UserSettings(auth: coordinator)
+        
+        // Now assign to the StateObject property
         self._userSettings = StateObject(wrappedValue: settings)
+        
+        // Additionally, we need to assign to the auth StateObject
+        self._auth = StateObject(wrappedValue: coordinator)
         
         // Ensure sound system is initialized
         print("DEBUG: Initializing sound system...")
-        
-        // Optionally, uncomment this if you want to pre-test sounds at startup
-        // DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-        //     SoundManager.shared.testAllSounds()
-        // }
     }
     
     var body: some Scene {
         WindowGroup {
             MainView()
-                .environmentObject(authService)
+                .environmentObject(auth)
                 .environmentObject(userSettings)
                 .onAppear {
                     setupApp()
@@ -48,7 +51,7 @@ struct AuthTestApp: App {
                         syncDataAfterLogin()
                     }
                 }
-                .onChange(of: authService.isAuthenticated) { newValue in
+                .onChange(of: auth.isAuthenticated) { newValue in
                     if newValue {
                         print("DEBUG: isAuthenticated changed to true, syncing data...")
                         syncDataAfterLogin()
@@ -59,15 +62,15 @@ struct AuthTestApp: App {
     
     private func setupApp() {
         // Initialize anything needed at app launch
-        if authService.isAuthenticated {
+        if auth.isAuthenticated {
             // Check and sync quotes if needed on app start
-            databaseManager.checkAndSyncQuotesIfNeeded(authService: authService)
+            databaseManager.checkAndSyncQuotesIfNeeded(auth: auth)
         }
     }
     
     private func syncDataAfterLogin() {
         // Sync data after successful login
-        databaseManager.syncQuotesFromServer(authService: authService) { success, message in
+        databaseManager.syncQuotesFromServer(auth: auth) { success, message in
             if success {
                 print("Quotes synced successfully after login")
             } else {

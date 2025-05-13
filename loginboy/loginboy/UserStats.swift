@@ -54,14 +54,14 @@ class UserStatsService: ObservableObject {
     @Published var errorMessage: String?
     @Published var userStats: UserStatsResponse?
     
-    private let authService: AuthService
+    private let auth: AuthenticationCoordinator
     
-    init(authService: AuthService) {
-        self.authService = authService
+    init(auth: AuthenticationCoordinator) {
+        self.auth = auth
     }
     
     func fetchUserStats() {
-        guard let token = authService.getAccessToken() else {
+        guard let token = auth.getAccessToken() else {
             self.errorMessage = "You need to be logged in to view your stats"
             return
         }
@@ -69,7 +69,7 @@ class UserStatsService: ObservableObject {
         isLoading = true
         errorMessage = nil
         
-        guard let url = URL(string: "\(authService.baseURL)/api/user_stats") else {
+        guard let url = URL(string: "\(auth.baseURL)/api/user_stats") else {
             self.isLoading = false
             self.errorMessage = "Invalid URL configuration"
             return
@@ -100,7 +100,7 @@ class UserStatsService: ObservableObject {
                 
                 if httpResponse.statusCode == 401 {
                     self.errorMessage = "Authentication required. Please log in again."
-                    self.authService.logout() // Token might be expired, log out
+                    self.auth.logout() // Token might be expired, log out
                     return
                 }
                 
@@ -146,18 +146,17 @@ class UserStatsService: ObservableObject {
 // MARK: - UserStatsView
 struct UserStatsView: View {
     @StateObject private var statsService: UserStatsService
-    @EnvironmentObject var authService: AuthService
+    @EnvironmentObject var auth: AuthenticationCoordinator
     
-    // Initialize with AuthService
-    init(authService: AuthService) {
-        _statsService = StateObject(wrappedValue: UserStatsService(authService: authService))
+    init(auth: AuthenticationCoordinator) {
+        _statsService = StateObject(wrappedValue: UserStatsService(auth: auth))
     }
     
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
                 // Header with username
-                Text("\(authService.username)'s Stats")
+                Text("\(auth.username)'s Stats")
                     .font(.title)
                     .fontWeight(.bold)
                     .padding(.top)
@@ -382,15 +381,15 @@ struct StatRow: View {
 }
 
 // MARK: - Preview
-struct UserStatsView_Previews: PreviewProvider {
-    static var previews: some View {
-        let authService = AuthService()
-        authService.username = "TestUser"
-        
-        return UserStatsView(authService: authService)
-            .environmentObject(authService)
-    }
-}
+//struct UserStatsView_Previews: PreviewProvider {
+//    static var previews: some View {
+//        let authService = AuthService()
+//        authService.username = "TestUser"
+//        
+//        return UserStatsView(authService: authService)
+//            .environmentObject(authService)
+//    }
+//}
 
 //
 //  UserStats.swift

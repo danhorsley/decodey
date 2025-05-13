@@ -22,115 +22,15 @@ struct DailyQuote: Codable {
     }
 }
 
-class DailyQuoteService: ObservableObject {
-    @Published var isLoading = false
-    @Published var errorMessage: String?
-    @Published var dailyQuote: DailyQuote?
-    
-    private let authService: AuthService
-    
-    init(authService: AuthService) {
-        self.authService = authService
-    }
-    
-    func fetchDailyQuote() {
-        guard let token = authService.getAccessToken() else {
-            self.errorMessage = "You need to be logged in to view the daily challenge"
-            return
-        }
-        
-        isLoading = true
-        errorMessage = nil
-        
-        guard let url = URL(string: "\(authService.baseURL)/api/get_daily") else {
-            self.isLoading = false
-            self.errorMessage = "Invalid URL configuration"
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
-        
-        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            DispatchQueue.main.async {
-                guard let self = self else { return }
-                self.isLoading = false
-                
-                if let error = error {
-                    self.errorMessage = "Network error: \(error.localizedDescription)"
-                    return
-                }
-                
-                guard let httpResponse = response as? HTTPURLResponse else {
-                    self.errorMessage = "Invalid response from server"
-                    return
-                }
-                
-                // Log response details for debugging
-                print("Daily Quote API Response: \(httpResponse.statusCode)")
-                
-                if httpResponse.statusCode == 401 {
-                    self.errorMessage = "Authentication required. Please log in again."
-                    self.authService.logout() // Token might be expired, log out
-                    return
-                }
-                
-                if httpResponse.statusCode == 404 {
-                    self.errorMessage = "No daily challenge available today"
-                    return
-                }
-                
-                if httpResponse.statusCode != 200 {
-                    // Try to parse error message
-                    if let data = data, let errorJson = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                       let errorMsg = errorJson["error"] as? String {
-                        self.errorMessage = errorMsg
-                    } else {
-                        self.errorMessage = "Error fetching daily challenge (Status \(httpResponse.statusCode))"
-                    }
-                    return
-                }
-                
-                guard let data = data else {
-                    self.errorMessage = "No data received from server"
-                    return
-                }
-                
-                // Log response data for debugging
-                if let responseString = String(data: data, encoding: .utf8) {
-                    print("Daily Quote Response: \(responseString)")
-                }
-                
-                do {
-                    let decoder = JSONDecoder()
-                    let response = try decoder.decode(DailyQuote.self, from: data)
-                    self.dailyQuote = response
-                } catch {
-                    self.errorMessage = "Failed to parse daily quote data: \(error.localizedDescription)"
-                    print("JSON parsing error: \(error)")
-                    
-                    // Log the JSON structure for debugging
-                    if let json = try? JSONSerialization.jsonObject(with: data) {
-                        print("Raw JSON: \(json)")
-                    }
-                }
-            }
-        }.resume()
-    }
-}
 
 struct DailyView: View {
-    @EnvironmentObject var authService: AuthService
+    @EnvironmentObject var auth: AuthenticationCoordinator
     @EnvironmentObject var settings: UserSettings
     @StateObject private var gameController: GameController
-    @State private var showInfoView = true  // Start with info view
+    @State private var showInfoView = true
     
-    // Initialize with AuthService
-    init(authService: AuthService) {
-        // Create a GameController for daily challenge
-        let controller = GameController(authService: authService)
+    init(auth: AuthenticationCoordinator) {
+        let controller = GameController(auth: auth)
         self._gameController = StateObject(wrappedValue: controller)
     }
     

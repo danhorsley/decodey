@@ -505,13 +505,13 @@ extension Dictionary where Key == String, Value == String {
 
 extension DatabaseManager {
     /// Sync all quotes from the server
-    func syncQuotesFromServer(authService: AuthService, completion: @escaping (Bool, String?) -> Void) {
-        guard let token = authService.getAccessToken() else {
+    func syncQuotesFromServer(auth: AuthenticationCoordinator, completion: @escaping (Bool, String?) -> Void) {
+        guard let token = auth.getAccessToken() else {
             completion(false, "Authentication required")
             return
         }
         
-        guard let url = URL(string: "\(authService.baseURL)/api/get_all_quotes") else {
+        guard let url = URL(string: "\(auth.baseURL)/api/get_all_quotes") else {
             completion(false, "Invalid URL configuration")
             return
         }
@@ -527,7 +527,6 @@ extension DatabaseManager {
             }
             
             if let error = error {
-                print("DEBUG: Failed to sync quotes: \(error)")
                 completion(false, error.localizedDescription)
                 return
             }
@@ -551,14 +550,13 @@ extension DatabaseManager {
                 let decoder = JSONDecoder()
                 let quotesResponse = try decoder.decode(QuotesResponse.self, from: data)
                 
-                // Save quotes to database using Records
+                // Save quotes to database
                 try self.dbQueue.write { db in
                     // Clear existing quotes
                     try QuoteRecord.deleteAll(db)
                     
                     // Insert new quotes
                     for quote in quotesResponse.quotes {
-                        // Create a QuoteRecord from the API quote
                         let record = QuoteRecord(
                             text: quote.text,
                             author: quote.author,
@@ -571,23 +569,19 @@ extension DatabaseManager {
                             uniqueLetters: quote.uniqueLetters
                         )
                         
-                        // Save to database
                         try record.insert(db)
                     }
                 }
                 
-                print("DEBUG: Successfully synced \(quotesResponse.quotes.count) quotes")
                 completion(true, nil)
             } catch {
-                print("DEBUG: Failed to parse or save quotes: \(error)")
                 completion(false, error.localizedDescription)
             }
         }.resume()
     }
     
     /// Check if quotes need to be synced (e.g., on app start)
-    func checkAndSyncQuotesIfNeeded(authService: AuthService) {
-        // Check if quotes table is empty or we haven't synced in a while
+    func checkAndSyncQuotesIfNeeded(auth: AuthenticationCoordinator) {
         do {
             let count = try dbQueue.read { db in
                 try QuoteRecord.fetchCount(db)
@@ -599,11 +593,10 @@ extension DatabaseManager {
                              Calendar.current.dateComponents([.day], from: lastSync!, to: Date()).day! > 7
             
             if syncNeeded {
-                syncQuotesFromServer(authService: authService) { success, message in
+                syncQuotesFromServer(auth: auth) { success, message in
                     if success {
                         // Update last sync date
                         UserDefaults.standard.set(Date(), forKey: "lastQuotesSync")
-                        print("DEBUG: Quotes synced successfully")
                     } else {
                         print("DEBUG: Failed to sync quotes: \(message ?? "Unknown error")")
                     }
@@ -613,9 +606,7 @@ extension DatabaseManager {
             print("DEBUG: Error checking quotes table: \(error)")
         }
     }
-    
 }
-
 extension DatabaseManager {
     /// Mark a specific game as abandoned
     func markGameAsAbandoned(gameId: String) throws {
