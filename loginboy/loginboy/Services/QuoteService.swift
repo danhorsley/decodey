@@ -26,19 +26,17 @@ struct Quote {
     }
 }
 
-class QuoteService {
+class QuoteService: QuoteServiceProtocol {
     static let shared = QuoteService()
-    private let databaseManager = DatabaseManager.shared
+    private let quoteRepository: QuoteRepositoryProtocol
     
-    // Get a random quote - simplified with no completion handler
+    init(quoteRepository: QuoteRepositoryProtocol = RepositoryProvider.shared.quoteRepository) {
+        self.quoteRepository = quoteRepository
+    }
+    
+    // Get a random quote - use the repository
     func getRandomQuote() throws -> Quote {
-        let (text, author, attribution) = try databaseManager.getRandomQuote()
-        return Quote(
-            text: text,
-            author: author,
-            attribution: attribution,
-            difficulty: 2.0 // Default to medium difficulty
-        )
+        return try quoteRepository.getRandomQuote(difficulty: nil)
     }
     
     // Get daily quote
@@ -73,6 +71,35 @@ class QuoteService {
         }
     }
     
+    // Get all quotes
+    func getAllQuotes(token: String) async throws -> QuotesResponse {
+        guard let url = URL(string: "\(ServiceConstants.baseURL)/api/get_all_quotes") else {
+            throw QuoteError.invalidConfiguration
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw QuoteError.invalidResponse
+        }
+        
+        switch httpResponse.statusCode {
+        case 200:
+            return try JSONDecoder().decode(QuotesResponse.self, from: data)
+        case 401:
+            throw QuoteError.authRequired
+        case 404:
+            throw QuoteError.notAvailable
+        default:
+            throw QuoteError.serverError(statusCode: httpResponse.statusCode)
+        }
+    }
+    
+    // Quote service errors
     enum QuoteError: Error, LocalizedError {
         case authRequired
         case invalidConfiguration
@@ -90,4 +117,9 @@ class QuoteService {
             }
         }
     }
+}
+
+// Constants for service URLs
+enum ServiceConstants {
+    static let baseURL = "https://7264097a-b4a2-42c7-988c-db8c0c9b107a-00-1lx57x7wg68m5.janeway.replit.dev"
 }

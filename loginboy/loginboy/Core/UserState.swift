@@ -22,7 +22,8 @@ class UserState: ObservableObject {
     
     // Services
     let authCoordinator: AuthenticationCoordinator
-    private let databaseManager = DatabaseManager.shared
+    private let userService: UserService
+    private let gameRepository: GameRepositoryProtocol
     private var cancellables = Set<AnyCancellable>()
     
     // Singleton instance
@@ -30,7 +31,9 @@ class UserState: ObservableObject {
     
     // Initialize with authentication coordinator
     private init() {
-        self.authCoordinator = AuthenticationCoordinator()
+        self.authCoordinator = ServiceProvider.shared.authCoordinator
+        self.userService = ServiceProvider.shared.userService
+        self.gameRepository = RepositoryProvider.shared.gameRepository
         
         // Bind to auth coordinator changes
         setupBindings()
@@ -40,6 +43,14 @@ class UserState: ObservableObject {
         // Observe auth coordinator state changes
         authCoordinator.$isAuthenticated
             .assign(to: \.isAuthenticated, on: self)
+            .store(in: &cancellables)
+        
+        authCoordinator.$isLoading
+            .assign(to: \.isLoading, on: self)
+            .store(in: &cancellables)
+        
+        authCoordinator.$errorMessage
+            .assign(to: \.errorMessage, on: self)
             .store(in: &cancellables)
         
         authCoordinator.$username
@@ -52,14 +63,6 @@ class UserState: ObservableObject {
         
         authCoordinator.$isSubadmin
             .assign(to: \.isSubadmin, on: self)
-            .store(in: &cancellables)
-        
-        authCoordinator.$errorMessage
-            .assign(to: \.errorMessage, on: self)
-            .store(in: &cancellables)
-        
-        authCoordinator.$isLoading
-            .assign(to: \.isLoading, on: self)
             .store(in: &cancellables)
         
         // When authentication state changes, fetch user data
@@ -109,23 +112,21 @@ class UserState: ObservableObject {
         guard isAuthenticated else { return }
         isLoadingStats = true
         
-        // Fix for unreachable catch block by adding potential throwing calls
         Task {
             do {
-                // Simulate fetching stats from database or API
-                // This would be a throwing call in a real implementation
-                try await Task.sleep(nanoseconds: 500_000_000) // Sleep for 0.5 seconds
+                // Get stats from repository
+                let gameStats = try await gameRepository.getGameStatistics(userId: userId)
                 
-                // Create mock stats - in a real app, you'd fetch this from a server
+                // Create Stats object from repository data
                 let statsResponse = UserStats(
                     userId: userId,
-                    gamesPlayed: 10,
-                    gamesWon: 7,
-                    currentStreak: 3,
-                    bestStreak: 5,
-                    totalScore: 1500,
-                    averageScore: 150,
-                    averageTime: 180 // 3 minutes
+                    gamesPlayed: gameStats.gamesPlayed,
+                    gamesWon: gameStats.gamesWon,
+                    currentStreak: gameStats.currentStreak,
+                    bestStreak: gameStats.bestStreak,
+                    totalScore: gameStats.totalScore,
+                    averageScore: Double(gameStats.totalScore) / Double(max(1, gameStats.gamesPlayed)),
+                    averageTime: gameStats.averageTime
                 )
                 
                 await MainActor.run {
@@ -146,17 +147,15 @@ class UserState: ObservableObject {
         guard isAuthenticated else { return }
         isLoadingLeaderboard = true
         
-        // Fix for unreachable catch block by adding potential throwing calls
         Task {
             do {
-                // Simulate fetching leaderboard from API
-                // This would be a throwing call in a real implementation
+                // Simulate getting leaderboard entries
+                // In a real implementation, you'd call an API or repository
                 try await Task.sleep(nanoseconds: 1_000_000_000) // Sleep for 1 second
                 
-                // In a real app, you'd fetch from a server
                 await MainActor.run {
                     self.isLoadingLeaderboard = false
-                    // Set leaderboard data
+                    // Set leaderboard data would go here
                 }
             } catch {
                 await MainActor.run {
@@ -168,18 +167,17 @@ class UserState: ObservableObject {
     }
     
     /// Update user statistics after game completion
-    /// Fix for missing 'mistakes' parameter
     func updateStats(gameWon: Bool, score: Int, timeTaken: Int, mistakes: Int = 0) {
         guard isAuthenticated, !userId.isEmpty else { return }
         
         Task {
             do {
-                try databaseManager.updateStatistics(
+                try await gameRepository.updateStatistics(
                     userId: userId,
                     gameWon: gameWon,
                     mistakes: mistakes,
                     timeTaken: timeTaken,
-                    score: score,
+                    score: score
                 )
                 
                 // Refresh stats

@@ -13,19 +13,18 @@ class AppState: ObservableObject {
     // Private state for internal coordination
     private var cancellables = Set<AnyCancellable>()
     
-    // Services and dependencies
-    private let databaseManager: DatabaseManager
+    // Services
+    private let serviceProvider: ServiceProvider
     
     // Singleton instance for easy access
     static let shared = AppState()
     
     // Private initializer for singleton
     private init() {
-        // Initialize services
-        self.databaseManager = DatabaseManager.shared
+        // Initialize services via the provider
+        self.serviceProvider = ServiceProvider.shared
         
-        // Access the singletons for each state instead of creating new instances
-        // This fixes the issue with private initializers
+        // Access the singletons for each state
         self.gameState = GameState.shared
         self.userState = UserState.shared
         self.settingsState = SettingsState.shared
@@ -88,7 +87,7 @@ class AppState: ObservableObject {
         Task {
             do {
                 // Check for saved games
-                if let savedGame = try databaseManager.loadLatestGame() {
+                if let savedGame = try await serviceProvider.gameService.gameRepository.loadLatestGame() {
                     await MainActor.run {
                         self.gameState.savedGame = savedGame
                     }
@@ -97,9 +96,9 @@ class AppState: ObservableObject {
                 // Load user stats if authenticated
                 // Since userId is a non-optional String, just check if it's not empty
                 if !userState.userId.isEmpty {
-                    try databaseManager.checkAndSyncQuotesIfNeeded(auth: userState.authCoordinator)
+                    try await serviceProvider.userService.loadUserData()
                     
-                    // Load other user data as needed
+                    // Log success
                     print("Loaded user data for: \(userState.userId)")
                 }
             } catch {

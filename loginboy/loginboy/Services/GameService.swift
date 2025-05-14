@@ -1,19 +1,15 @@
-// GameState.swift - Updated for Repository Pattern
-
 import Foundation
 import Combine
-import SwiftUI
 
-/// GameState manages all game-related state and operations
-class GameState: ObservableObject {
-    // Game state properties
+class GameService: ObservableObject {
+    // Published properties
     @Published var currentGame: Game?
-    @Published var savedGame: Game?
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var showWinMessage = false
     @Published var showLoseMessage = false
     @Published var showContinueGameModal = false
+    @Published var savedGame: Game?
     
     // Game metadata
     @Published var quoteAuthor: String = ""
@@ -28,22 +24,35 @@ class GameState: ObservableObject {
     private var dailyQuote: DailyQuote?
     private var cancellables = Set<AnyCancellable>()
     
-    // Services
+    // Dependencies
     private let gameRepository: GameRepositoryProtocol
     private let quoteRepository: QuoteRepositoryProtocol
     private let quoteService: QuoteServiceProtocol
+    private let authCoordinator: AuthenticationCoordinator
     
-    // Singleton instance
-    static let shared = GameState()
-    
-    private init() {
-        // Get repositories from provider
-        let repositoryProvider = RepositoryProvider.shared
-        self.gameRepository = repositoryProvider.gameRepository
-        self.quoteRepository = repositoryProvider.quoteRepository
-        self.quoteService = QuoteService.shared
+    init(
+        gameRepository: GameRepositoryProtocol,
+        quoteRepository: QuoteRepositoryProtocol,
+        quoteService: QuoteServiceProtocol,
+        authCoordinator: AuthenticationCoordinator
+    ) {
+        self.gameRepository = gameRepository
+        self.quoteRepository = quoteRepository
+        self.quoteService = quoteService
+        self.authCoordinator = authCoordinator
         
         setupDefaultGame()
+    }
+    
+    // Convenience initializer using repository provider
+    convenience init(authCoordinator: AuthenticationCoordinator) {
+        let provider = RepositoryProvider.shared
+        self.init(
+            gameRepository: provider.gameRepository,
+            quoteRepository: provider.quoteRepository,
+            quoteService: QuoteService.shared,
+            authCoordinator: authCoordinator
+        )
     }
     
     private func setupDefaultGame() {
@@ -57,36 +66,39 @@ class GameState: ObservableObject {
         self.currentGame = Game(quote: defaultQuote)
     }
     
-    // MARK: - Public Methods
+    // MARK: - Game Setup
     
-    /// Set up a custom game
     func setupCustomGame() {
         self.isDailyChallenge = false
         self.dailyQuote = nil
         Task { await loadNewGame() }
     }
     
-    /// Set up the daily challenge
     func setupDailyChallenge() {
         self.isDailyChallenge = true
         Task { await fetchDailyQuote() }
     }
     
-    /// Check for an in-progress game
+    // MARK: - Game State Management
+    
     func checkForInProgressGame() {
         Task {
             do {
+                isLoading = true
+                
                 if let game = try await gameRepository.loadLatestGame() {
                     // Check if it's the right type (daily vs custom)
                     let isDaily = isDailyChallenge
                     
                     // If we want to show daily but the saved game isn't daily, don't show modal
                     if isDaily && game.gameId?.starts(with: "custom-") == true {
+                        isLoading = false
                         return
                     }
                     
                     // If we want to show custom but the saved game is daily, don't show modal
                     if !isDaily && game.gameId?.starts(with: "daily-") == true {
+                        isLoading = false
                         return
                     }
                     
@@ -94,15 +106,20 @@ class GameState: ObservableObject {
                     await MainActor.run {
                         self.savedGame = game
                         self.showContinueGameModal = true
+                        self.isLoading = false
                     }
+                } else {
+                    isLoading = false
                 }
             } catch {
-                print("Error checking for in-progress game: \(error)")
+                await MainActor.run {
+                    self.errorMessage = "Error loading saved game: \(error.localizedDescription)"
+                    self.isLoading = false
+                }
             }
         }
     }
     
-    /// Continue a saved game
     func continueSavedGame() {
         if let savedGame = savedGame {
             currentGame = savedGame
@@ -111,7 +128,6 @@ class GameState: ObservableObject {
         }
     }
     
-    /// Reset the current game
     func resetGame() {
         // If there was a saved game, mark it as abandoned
         Task {
@@ -119,7 +135,7 @@ class GameState: ObservableObject {
                 do {
                     try await gameRepository.markGameAsAbandoned(gameId: oldGameId)
                 } catch {
-                    print("Error marking game as abandoned: \(error)")
+                    print("Error marking game as abandoned: \(error.localizedDescription)")
                 }
             }
             
@@ -146,12 +162,12 @@ class GameState: ObservableObject {
         }
     }
     
-    /// Handle a player's guess
+    // MARK: - Game Actions
+    
     func makeGuess(_ guessedLetter: Character) {
         guard var game = currentGame else { return }
         
-        // Fixed: Removed unused selectedLetter variable
-        // Simply check if there is a selected letter and proceed
+        // Only proceed if a letter is selected
         if game.selectedLetter != nil {
             let _ = game.makeGuess(guessedLetter)
             self.currentGame = game
@@ -168,14 +184,12 @@ class GameState: ObservableObject {
         }
     }
     
-    /// Select a letter to decode
     func selectLetter(_ letter: Character) {
         guard var game = currentGame else { return }
         game.selectLetter(letter)
         self.currentGame = game
     }
     
-    /// Get a hint
     func getHint() {
         guard var game = currentGame else { return }
         let _ = game.getHint()
@@ -192,43 +206,26 @@ class GameState: ObservableObject {
         }
     }
     
-    /// Submit score for daily challenge
     func submitDailyScore(userId: String) {
-        guard let game = currentGame, game.hasWon || game.hasLost else { return }
+        guard let game = currentGame, game.hasWon else { return }
         
         let finalScore = game.calculateScore()
         let timeTaken = Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
         
-        // Update local stats
+        // Update statistics
         Task {
             do {
                 try await gameRepository.updateStatistics(
                     userId: userId,
-                    gameWon: game.hasWon,
+                    gameWon: true,
                     mistakes: game.mistakes,
                     timeTaken: timeTaken,
                     score: finalScore
                 )
             } catch {
-                print("Error updating stats: \(error.localizedDescription)")
+                print("Error updating statistics: \(error.localizedDescription)")
             }
         }
-    }
-    
-    /// Reset the state
-    func reset() {
-        currentGame = nil
-        savedGame = nil
-        isLoading = false
-        errorMessage = nil
-        showWinMessage = false
-        showLoseMessage = false
-        showContinueGameModal = false
-        quoteAuthor = ""
-        quoteAttribution = nil
-        quoteDate = nil
-        isDailyChallenge = false
-        setupDefaultGame()
     }
     
     // MARK: - Private Methods
@@ -257,34 +254,18 @@ class GameState: ObservableObject {
         }
         
         do {
-            // Try to get daily challenge from repository first
-            if let authCoordinator = ServiceProvider.shared.authCoordinator, authCoordinator.isAuthenticated {
-                let quote = try await quoteService.getDailyQuote(auth: authCoordinator)
-                dailyQuote = quote
-                
-                await MainActor.run {
-                    quoteAuthor = quote.author
-                    quoteAttribution = quote.minor_attribution
-                    quoteDate = quote.formattedDate
-                    
-                    // Create game from quote
-                    let gameQuote = Quote(
-                        text: quote.text,
-                        author: quote.author,
-                        attribution: quote.minor_attribution,
-                        difficulty: quote.difficulty
-                    )
-                    
-                    currentGame = Game(quote: gameQuote)
-                    currentGame?.gameId = "daily-\(quote.date)" // Mark as daily game with date
-                    
-                    showWinMessage = false
-                    showLoseMessage = false
-                    isLoading = false
-                }
-            } else {
-                throw NSError(domain: "GameState", code: 401, userInfo: [NSLocalizedDescriptionKey: "Authentication required"])
+            // Try to get daily quote from local DB first
+            if let localDailyQuote = try await Task { try quoteRepository.getDailyQuote() }.value {
+                await handleDailyQuote(localDailyQuote)
+                return
             }
+            
+            // If not found locally, fetch from API
+            let quote = try await quoteService.getDailyQuote(auth: authCoordinator)
+            dailyQuote = quote
+            
+            await handleDailyQuote(quote)
+            
         } catch let error as QuoteService.QuoteError {
             await MainActor.run {
                 errorMessage = error.errorDescription
@@ -298,6 +279,30 @@ class GameState: ObservableObject {
         }
     }
     
+    private func handleDailyQuote(_ quote: DailyQuote) async {
+        await MainActor.run {
+            // Update UI with quote data
+            quoteAuthor = quote.author
+            quoteAttribution = quote.minor_attribution
+            quoteDate = quote.formattedDate
+            
+            // Create game from quote
+            let gameQuote = Quote(
+                text: quote.text,
+                author: quote.author,
+                attribution: quote.minor_attribution,
+                difficulty: quote.difficulty
+            )
+            
+            currentGame = Game(quote: gameQuote)
+            currentGame?.gameId = "daily-\(quote.date)" // Mark as daily game with date
+            
+            showWinMessage = false
+            showLoseMessage = false
+            isLoading = false
+        }
+    }
+    
     private func loadNewGame() async {
         await MainActor.run {
             isLoading = true
@@ -305,8 +310,10 @@ class GameState: ObservableObject {
         }
         
         do {
-            // Get random quote from repository
-            let quote = try quoteRepository.getRandomQuote(difficulty: defaultDifficulty)
+            // Get random quote
+            let quote = try await Task {
+                try quoteRepository.getRandomQuote(difficulty: defaultDifficulty)
+            }.value
             
             await MainActor.run {
                 // Update UI data
@@ -346,3 +353,10 @@ class GameState: ObservableObject {
         return String(format: "%d:%02d", minutes, seconds)
     }
 }
+
+//
+//  GameService.swift
+//  loginboy
+//
+//  Created by Daniel Horsley on 15/05/2025.
+//

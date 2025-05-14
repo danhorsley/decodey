@@ -1,6 +1,6 @@
 import SwiftUI
 
-// Models to match your backend response
+// Leaderboard Entry model
 struct LeaderboardEntry: Identifiable, Codable {
     let rank: Int
     let username: String
@@ -13,6 +13,7 @@ struct LeaderboardEntry: Identifiable, Codable {
     var id: String { user_id }
 }
 
+// Pagination model
 struct Pagination: Codable {
     let current_page: Int
     let total_pages: Int
@@ -20,11 +21,20 @@ struct Pagination: Codable {
     let per_page: Int
 }
 
+// Leaderboard Response model
 struct LeaderboardResponse: Codable {
     let entries: [LeaderboardEntry]
     let currentUserEntry: LeaderboardEntry?
     let pagination: Pagination
     let period: String
+    
+    // CodingKeys to match API response
+    enum CodingKeys: String, CodingKey {
+        case entries
+        case currentUserEntry = "current_user_entry"
+        case pagination
+        case period
+    }
 }
 
 // Leaderboard service to fetch data
@@ -34,9 +44,11 @@ class LeaderboardService: ObservableObject {
     @Published var leaderboardData: LeaderboardResponse?
     
     private let auth: AuthenticationCoordinator
+    private let gameRepository: GameRepositoryProtocol
     
-    init(auth: AuthenticationCoordinator) {
+    init(auth: AuthenticationCoordinator, gameRepository: GameRepositoryProtocol = RepositoryProvider.shared.gameRepository) {
         self.auth = auth
+        self.gameRepository = gameRepository
     }
     
     func fetchLeaderboard(period: String = "all-time", page: Int = 1, perPage: Int = 10) {
@@ -135,8 +147,9 @@ struct LeaderboardView: View {
     @State private var selectedPeriod = "all-time"
     @State private var selectedPage = 1
     
-    init(auth: AuthenticationCoordinator) {
-        _leaderboardService = StateObject(wrappedValue: LeaderboardService(auth: auth))
+    init(auth: AuthenticationCoordinator? = nil) {
+        let authToUse = auth ?? ServiceProvider.shared.authCoordinator
+        _leaderboardService = StateObject(wrappedValue: LeaderboardService(auth: authToUse))
     }
     
     var body: some View {
@@ -154,7 +167,7 @@ struct LeaderboardView: View {
             }
             .pickerStyle(SegmentedPickerStyle())
             .padding(.horizontal)
-            .onChange(of: selectedPeriod) { newValue in
+            .onChange(of: selectedPeriod) { _, newValue in
                 selectedPage = 1 // Reset to first page when changing period
                 leaderboardService.fetchLeaderboard(period: newValue, page: 1)
             }
@@ -380,21 +393,9 @@ struct EntryRow: View {
     }
 }
 
-// Preview provider for SwiftUI Canvas
-//struct LeaderboardView_Previews: PreviewProvider {
-//    static var previews: some View {
-//        // Create a mock AuthService for preview
-//        let authService = AuthService()
-//        authService.isAuthenticated = true
-//        
-//        return LeaderboardView(authService: authService)
-//    }
-//}
-
 //
 //  Leaderboard.swift
 //  loginboy
 //
-//  Created by Daniel Horsley on 12/05/2025.
+//  Created by Daniel Horsley on 15/05/2025.
 //
-

@@ -141,6 +141,42 @@ enum RepositoryError: Error, LocalizedError {
     }
 }
 
+// Quote Record
+struct QuoteRecord: Codable, FetchableRecord, PersistableRecord {
+    static let databaseTableName = "quotes"
+    
+    var id: Int64?
+    let text: String
+    let author: String
+    let attribution: String?
+    let difficulty: Double
+    let isDaily: Bool
+    let dailyDate: Date?
+    let isActive: Bool
+    let timesUsed: Int
+    let uniqueLetters: Int?
+    let createdAt: Date
+    let updatedAt: Date
+    
+    init(text: String, author: String, attribution: String? = nil,
+         difficulty: Double, isDaily: Bool = false, dailyDate: Date? = nil,
+         isActive: Bool = true, timesUsed: Int = 0, uniqueLetters: Int? = nil) {
+        self.id = nil
+        self.text = text
+        self.author = author
+        self.attribution = attribution
+        self.difficulty = difficulty
+        self.isDaily = isDaily
+        self.dailyDate = dailyDate
+        self.isActive = isActive
+        self.timesUsed = timesUsed
+        self.uniqueLetters = uniqueLetters ?? Set(text.uppercased().filter { $0.isLetter }).count
+        self.createdAt = Date()
+        self.updatedAt = Date()
+    }
+    
+    
+}
 //
 //  QuoteRepository.swift
 //  loginboy

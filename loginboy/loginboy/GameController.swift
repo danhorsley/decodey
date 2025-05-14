@@ -1,4 +1,4 @@
-// GameController.swift - Completely refactored for AuthenticationCoordinator
+// GameController.swift - Completely refactored for Repository Pattern
 import SwiftUI
 import Combine
 
@@ -26,14 +26,26 @@ class GameController: ObservableObject {
     
     // Services
     var auth: AuthenticationCoordinator
-    private let quoteService = QuoteService.shared
+    private let gameService: GameService
+    private let gameRepository: GameRepositoryProtocol
+    private let quoteService: QuoteServiceProtocol
     
     // Callbacks
     var onGameComplete: (() -> Void)?
     
-    // Initialize with an AuthenticationCoordinator
-    init(auth: AuthenticationCoordinator) {
+    // Initialize with services
+    init(
+        auth: AuthenticationCoordinator,
+        gameService: GameService? = nil,
+        gameRepository: GameRepositoryProtocol? = nil,
+        quoteService: QuoteServiceProtocol? = nil
+    ) {
         self.auth = auth
+        
+        // Use provided services or get from ServiceProvider
+        self.gameService = gameService ?? ServiceProvider.shared.gameService
+        self.gameRepository = gameRepository ?? RepositoryProvider.shared.gameRepository
+        self.quoteService = quoteService ?? QuoteService.shared
         
         // Create a placeholder game with default quote
         let defaultQuote = Quote(
@@ -67,7 +79,7 @@ class GameController: ObservableObject {
     func checkForInProgressGame() {
         Task {
             do {
-                if let game = try DatabaseManager.shared.loadLatestGame() {
+                if let game = try await gameRepository.loadLatestGame() {
                     // Check if it's the right type (daily vs custom)
                     let isDaily = isDailyChallenge
                     
@@ -179,28 +191,53 @@ class GameController: ObservableObject {
     // Game control methods
     func resetGame() {
         // If there was a saved game, mark it as abandoned
-        if let oldGameId = savedGame?.gameId {
-            try? DatabaseManager.shared.markGameAsAbandoned(gameId: oldGameId)
+        Task {
+            if let oldGameId = savedGame?.gameId {
+                try? await gameRepository.markGameAsAbandoned(gameId: oldGameId)
+            }
+            
+            await MainActor.run {
+                if isDailyChallenge, let quote = dailyQuote {
+                    // Reuse the daily quote
+                    let gameQuote = Quote(
+                        text: quote.text,
+                        author: quote.author,
+                        attribution: quote.minor_attribution,
+                        difficulty: quote.difficulty
+                    )
+                    game = Game(quote: gameQuote)
+                    game.gameId = "daily-\(quote.date)" // Mark as daily game with date
+                    showWinMessage = false
+                    showLoseMessage = false
+                } else {
+                    // Load a new random game
+                    Task { await loadNewGame() }
+                }
+                // Clear the saved game reference
+                self.savedGame = nil
+            }
         }
+    }
+    
+    // Handle game interaction
+    func makeGuess(_ guessedLetter: Character) {
+        guard game.selectedLetter != nil else { return }
         
-        if isDailyChallenge, let quote = dailyQuote {
-            // Reuse the daily quote
-            let gameQuote = Quote(
-                text: quote.text,
-                author: quote.author,
-                attribution: quote.minor_attribution,
-                difficulty: quote.difficulty
-            )
-            game = Game(quote: gameQuote)
-            game.gameId = "daily-\(quote.date)" // Mark as daily game with date
-            showWinMessage = false
-            showLoseMessage = false
-        } else {
-            // Load a new random game
-            Task { await loadNewGame() }
-        }
-        // Clear the saved game reference
-        self.savedGame = nil
+        let _ = game.makeGuess(guessedLetter)
+        saveGameState()
+        
+        handleGuessResult()
+    }
+    
+    func selectLetter(_ letter: Character) {
+        game.selectLetter(letter)
+    }
+    
+    func getHint() {
+        let _ = game.getHint()
+        saveGameState()
+        
+        handleGuessResult()
     }
     
     func handleGuessResult() {
@@ -211,6 +248,23 @@ class GameController: ObservableObject {
         }
     }
     
+    private func saveGameState() {
+        Task {
+            do {
+                if let gameId = game.gameId {
+                    try await gameRepository.updateGame(game, gameId: gameId)
+                } else {
+                    let updatedGame = try await gameRepository.saveGame(game)
+                    await MainActor.run {
+                        self.game = updatedGame
+                    }
+                }
+            } catch {
+                print("Error saving game state: \(error)")
+            }
+        }
+    }
+    
     func submitDailyScore() {
         guard auth.isAuthenticated else { return }
         
@@ -218,16 +272,18 @@ class GameController: ObservableObject {
         let timeTaken = Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
         
         // Update local stats
-        do {
-            try DatabaseManager.shared.updateStatistics(
-                userId: auth.userId,
-                gameWon: true,
-                mistakes: game.mistakes,
-                timeTaken: timeTaken,
-                score: finalScore
-            )
-        } catch {
-            print("Error updating local stats: \(error)")
+        Task {
+            do {
+                try await gameRepository.updateStatistics(
+                    userId: auth.userId,
+                    gameWon: true,
+                    mistakes: game.mistakes,
+                    timeTaken: timeTaken,
+                    score: finalScore
+                )
+            } catch {
+                print("Error updating stats: \(error)")
+            }
         }
     }
     
@@ -235,6 +291,14 @@ class GameController: ObservableObject {
     func formatTime(_ seconds: Int) -> String {
         let minutes = seconds / 60
         let seconds = seconds % 60
+        
         return String(format: "%d:%02d", minutes, seconds)
     }
 }
+
+//
+//  GameController.swift
+//  loginboy
+//
+//  Created by Daniel Horsley on 15/05/2025.
+//
