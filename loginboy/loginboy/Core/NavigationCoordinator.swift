@@ -118,7 +118,7 @@ class NavigationCoordinator: ObservableObject {
 // View modifier for coordinated navigation
 struct CoordinatedNavigationViewModifier: ViewModifier {
     @ObservedObject var coordinator: NavigationCoordinator
-    @ObservedObject var gameState: GameState // Add this parameter
+    @EnvironmentObject var gameState: GameState // Changed to EnvironmentObject for easier access
     
     func body(content: Content) -> some View {
         content
@@ -142,11 +142,10 @@ struct CoordinatedNavigationViewModifier: ViewModifier {
     }
 }
 
-
 // Extension for View
 extension View {
-    func withCoordinatedNavigation(_ coordinator: NavigationCoordinator, gameState: GameState) -> some View {
-        self.modifier(CoordinatedNavigationViewModifier(coordinator: coordinator, gameState: gameState))
+    func withCoordinatedNavigation(_ coordinator: NavigationCoordinator) -> some View {
+        self.modifier(CoordinatedNavigationViewModifier(coordinator: coordinator))
     }
 }
 
@@ -156,4 +155,3 @@ extension View {
 //
 //  Created by Daniel Horsley on 13/05/2025.
 //
-

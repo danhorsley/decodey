@@ -85,31 +85,35 @@ class QuoteRepository: QuoteRepositoryProtocol {
         }
         
         do {
-            // Fetch quotes from API
+            // Fetch quotes from API - adding await here to fix the compilation error
             let quotesResponse = try await api.getAllQuotes(token: token)
             
-            // Save to database
-            try database.write { db in
-                // Clear existing quotes
-                try QuoteRecord.deleteAll(db)
-                
-                // Insert new quotes
-                for quote in quotesResponse.quotes {
-                    let record = QuoteRecord(
-                        text: quote.text,
-                        author: quote.author,
-                        attribution: quote.minorAttribution,
-                        difficulty: quote.difficulty,
-                        isDaily: quote.dailyDate != nil,
-                        dailyDate: ISO8601DateFormatter().date(from: quote.dailyDate ?? ""),
-                        isActive: true,
-                        timesUsed: quote.timesUsed,
-                        uniqueLetters: quote.uniqueLetters
-                    )
+            // Save to database using async wrapper
+            // We need to use a Task to synchronously wait within an async context
+            return try await Task {
+                try database.write { db in
+                    // Clear existing quotes
+                    try QuoteRecord.deleteAll(db)
                     
-                    try record.insert(db)
+                    // Insert new quotes
+                    for quote in quotesResponse.quotes {
+                        let record = QuoteRecord(
+                            text: quote.text,
+                            author: quote.author,
+                            attribution: quote.minorAttribution,
+                            difficulty: quote.difficulty,
+                            isDaily: quote.dailyDate != nil,
+                            dailyDate: ISO8601DateFormatter().date(from: quote.dailyDate ?? ""),
+                            isActive: true,
+                            timesUsed: quote.timesUsed,
+                            uniqueLetters: quote.uniqueLetters
+                        )
+                        
+                        try record.insert(db)
+                    }
                 }
-            }
+                return true
+            }.value
             
             return true
         } catch {
@@ -143,4 +147,3 @@ enum RepositoryError: Error, LocalizedError {
 //
 //  Created by Daniel Horsley on 13/05/2025.
 //
-

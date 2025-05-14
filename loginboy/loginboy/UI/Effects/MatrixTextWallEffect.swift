@@ -143,7 +143,7 @@ struct MatrixTextWallEffect: View {
     private func createRandomMatrixChar(row: Int, col: Int) -> MatrixChar {
         let charset = matrixCharset
         let randomChar = charset.randomElement() ?? "X"
-        let randomState: MatrixCharState = Bool.random() ? .cycling : .settled
+        let randomState: MatrixWallCharState = Bool.random() ? .cycling : .settled
         let randomSpeed = Double.random(in: 0.5...2.0)
         let randomMaxCycles = Int.random(in: 3...15)
         let baseDelay = Double(row + col) * 0.05 // Delay based on position
@@ -244,7 +244,7 @@ struct MatrixTextWallEffect: View {
 // Matrix character structure
 struct MatrixChar {
     var displayChar: Character
-    var state: MatrixCharState
+    var state: MatrixWallCharState
     var cycleSpeed: Double
     var cyclePosition: Int
     var maxCycles: Int
@@ -253,11 +253,12 @@ struct MatrixChar {
     var opacity: Double
 }
 
-// Matrix character states
-enum MatrixCharState {
+// Matrix character states (renamed to avoid conflict)
+enum MatrixWallCharState {
     case cycling
     case settled
 }
+
 // MARK: - Win Overlay With Matrix Background
 struct MatrixWinOverlayView: View {
     let solution: String
@@ -535,3 +536,6 @@ struct LoseOverlayView: View {
         return String(format: "%d:%02d", minutes, seconds)
     }
 }
+
+// Note: The Bool.random(withProbability:) method is already declared elsewhere in the codebase
+// We're removing the duplicate declaration here

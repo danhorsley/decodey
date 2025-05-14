@@ -274,7 +274,7 @@ class DatabaseManager {
     func updateStatistics(userId: String, gameWon: Bool, mistakes: Int, timeTaken: Int, score: Int) throws {
         try dbQueue.write { db in
             // Check if stats exist
-            let exists = try StatsRecord.filter(Column("user_id") == userId).fetchCount(db) > 0
+            let exists = try StatsRecord.filter(Column("userId") == userId).fetchCount(db) > 0
             
             if exists {
                 // Update existing stats
@@ -289,7 +289,7 @@ class DatabaseManager {
                         average_mistakes = (average_mistakes * games_played + ?) / (games_played + 1),
                         average_time = (average_time * games_played + ?) / (games_played + 1),
                         last_played_date = ?
-                    WHERE user_id = ?
+                    WHERE userId = ?
                 """, arguments: [
                     gameWon ? 1 : 0,
                     gameWon,
@@ -621,7 +621,7 @@ extension DatabaseManager {
             if let gameRecord = try GameRecord.filter(Column("gameId") == gameId).fetchOne(db),
                let userId = gameRecord.userId {
                 try db.execute(
-                    sql: "UPDATE statistics SET current_streak = 0 WHERE user_id = ? AND current_streak > 0",
+                    sql: "UPDATE statistics SET current_streak = 0 WHERE userId = ? AND current_streak > 0",
                     arguments: [userId]
                 )
                 print("DEBUG: Reset streak for user \(userId) due to abandoned game")

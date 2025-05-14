@@ -102,8 +102,8 @@ private struct SimpleMatrixEffectView: View {
         .onDisappear {
             timer?.invalidate()
         }
-        .onChange(of: isPaused) { isPaused in
-            if isPaused {
+        .onChange(of: isPaused) { _, newValue in
+            if newValue {
                 timer?.invalidate()
             } else {
                 startAnimation()
@@ -142,6 +142,13 @@ private struct SimpleMatrixEffectView: View {
         let charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-*/=!?><$"
         return String(charset.randomElement() ?? "X")
     }
+}
+
+// MARK: - Matrix Character State enum
+// Define the enum here to avoid conflicts with other files
+enum MatrixComponentCharState {
+    case cycling
+    case settled
 }
 
 // Full version with all effects
@@ -194,8 +201,8 @@ private struct FullMatrixEffectView: View {
         .onDisappear {
             timer?.invalidate()
         }
-        .onChange(of: isPaused) { isPaused in
-            if isPaused {
+        .onChange(of: isPaused) { _, newValue in
+            if newValue {
                 timer?.invalidate()
             } else {
                 startAnimation()
@@ -220,7 +227,7 @@ private struct FullMatrixEffectView: View {
                 characters: (0..<length).map { _ in
                     MatrixCharacter(
                         char: String(matrixCharset.randomElement() ?? "X"),
-                        state: Bool.random() ? .cycling : .settled,
+                        state: Bool.random() ? MatrixComponentCharState.cycling : MatrixComponentCharState.settled,
                         brightness: Double.random(in: 0.7...1.0),
                         cycleSpeed: Double.random(in: 0.5...2.0)
                     )
@@ -259,13 +266,13 @@ private struct FullMatrixEffectView: View {
                     
                     // Check if it's time to settle
                     if character.cyclePosition >= character.maxCycles {
-                        character.state = .settled
+                        character.state = MatrixComponentCharState.settled
                     }
                     
                 case .settled:
                     // Small chance to start cycling again
                     if Bool.random() && Double.random(in: 0...1) < 0.02 {
-                        character.state = .cycling
+                        character.state = MatrixComponentCharState.cycling
                         character.cyclePosition = 0
                         character.maxCycles = Int.random(in: 3...15)
                     }
@@ -278,7 +285,7 @@ private struct FullMatrixEffectView: View {
             if Double.random(in: 0...1) < 0.1 {
                 column.characters.append(MatrixCharacter(
                     char: String(matrixCharset.randomElement() ?? "X"),
-                    state: .cycling,
+                    state: MatrixComponentCharState.cycling,
                     brightness: Double.random(in: 0.7...1.0),
                     cyclePosition: 0
                 ))
@@ -328,17 +335,11 @@ private struct FullMatrixEffectView: View {
 // Matrix character
 struct MatrixCharacter {
     var char: String
-    var state: MatrixCharState
+    var state: MatrixComponentCharState
     var brightness: Double = 1.0
     var cyclePosition: Int = 0
     var maxCycles: Int = Int.random(in: 3...12)
     var cycleSpeed: Double = 1.0
-}
-
-// Matrix character states
-enum MatrixCharState {
-    case cycling
-    case settled
 }
 
 // Matrix column
@@ -354,4 +355,3 @@ struct MatrixColumn {
 //
 //  Created by Daniel Horsley on 13/05/2025.
 //
-
