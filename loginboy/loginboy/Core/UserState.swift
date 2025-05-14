@@ -1,6 +1,8 @@
+// UserState.swift - Reimplemented for Realm
 import Foundation
 import Combine
 import SwiftUI
+import RealmSwift
 
 /// UserState manages user authentication and profile information
 class UserState: ObservableObject {
@@ -12,18 +14,16 @@ class UserState: ObservableObject {
     @Published var userId = ""
     @Published var isSubadmin = false
     
-    // User statistics
+    // User profile data
+    @Published var profile: UserProfile?
     @Published var stats: UserStats?
-    @Published var isLoadingStats = false
     
-    // Leaderboard data
-    @Published var leaderboardData: LeaderboardResponse?
-    @Published var isLoadingLeaderboard = false
-    
-    // Services
+    // Authentication coordinator - keep this for handling auth API
     let authCoordinator: AuthenticationCoordinator
-    private let userService: UserService
-    private let gameRepository: GameRepositoryProtocol
+    
+    // Direct Realm access
+    private let realm = RealmManager.shared.getRealm()
+    private var userNotificationToken: NotificationToken?
     private var cancellables = Set<AnyCancellable>()
     
     // Singleton instance
@@ -31,62 +31,95 @@ class UserState: ObservableObject {
     
     // Initialize with authentication coordinator
     private init() {
-        self.authCoordinator = ServiceProvider.shared.authCoordinator
-        self.userService = ServiceProvider.shared.userService
-        self.gameRepository = RepositoryProvider.shared.gameRepository
+        self.authCoordinator = AuthenticationCoordinator()
         
         // Bind to auth coordinator changes
         setupBindings()
+        
+        // Setup Realm notifications
+        setupRealmObservers()
+    }
+    
+    deinit {
+        // Clean up notification tokens
+        userNotificationToken?.invalidate()
     }
     
     private func setupBindings() {
         // Observe auth coordinator state changes
         authCoordinator.$isAuthenticated
-            .assign(to: \.isAuthenticated, on: self)
-            .store(in: &cancellables)
+            .assign(to: &$isAuthenticated)
         
         authCoordinator.$isLoading
-            .assign(to: \.isLoading, on: self)
-            .store(in: &cancellables)
+            .assign(to: &$isLoading)
         
         authCoordinator.$errorMessage
-            .assign(to: \.errorMessage, on: self)
-            .store(in: &cancellables)
+            .assign(to: &$errorMessage)
         
         authCoordinator.$username
-            .assign(to: \.username, on: self)
-            .store(in: &cancellables)
+            .assign(to: &$username)
         
         authCoordinator.$userId
-            .assign(to: \.userId, on: self)
-            .store(in: &cancellables)
+            .assign(to: &$userId)
         
         authCoordinator.$isSubadmin
-            .assign(to: \.isSubadmin, on: self)
-            .store(in: &cancellables)
+            .assign(to: &$isSubadmin)
         
         // When authentication state changes, fetch user data
         $isAuthenticated
             .sink { [weak self] isAuthenticated in
                 if isAuthenticated {
-                    self?.fetchUserStats()
+                    self?.fetchUserData()
                 } else {
+                    self?.profile = nil
                     self?.stats = nil
-                    self?.leaderboardData = nil
                 }
             }
             .store(in: &cancellables)
+    }
+    
+    // Set up Realm notifications for real-time updates
+    private func setupRealmObservers() {
+        guard let realm = realm else { return }
+        
+        // Observe UserRealm objects
+        let users = realm.objects(UserRealm.self)
+        
+        userNotificationToken = users.observe { [weak self] (changes: RealmCollectionChange) in
+            guard let self = self else { return }
+            
+            switch changes {
+            case .update(let collection, _, _, _):
+                // Only update if it's our user
+                if let userObj = collection.first(where: { $0.userId == self.userId }) {
+                    self.updateUserProfileFromRealm(userObj)
+                }
+            case .initial(let collection):
+                // Initial load after observation starts
+                if let userObj = collection.first(where: { $0.userId == self.userId }) {
+                    self.updateUserProfileFromRealm(userObj)
+                }
+            case .error(let error):
+                print("Error observing users in Realm: \(error)")
+            }
+        }
     }
     
     // MARK: - Public Methods
     
     /// Login with username and password
     func login(username: String, password: String, rememberMe: Bool) async throws {
-        // Fix for 'NSError' is not convertible to 'Never'
         // Create a proper error enum to throw
-        enum LoginError: Error {
+        enum LoginError: Error, LocalizedError {
             case authenticationFailed(String)
             case unknown
+            
+            var errorDescription: String? {
+                switch self {
+                case .authenticationFailed(let msg): return msg
+                case .unknown: return "Unknown login error occurred"
+                }
+            }
         }
         
         return try await withCheckedThrowingContinuation { continuation in
@@ -107,96 +140,207 @@ class UserState: ObservableObject {
         authCoordinator.logout()
     }
     
-    /// Fetch user statistics
-    func fetchUserStats() {
-        guard isAuthenticated else { return }
-        isLoadingStats = true
+    /// Fetch user data from Realm
+    func fetchUserData() {
+        guard isAuthenticated, !userId.isEmpty else { return }
         
-        Task {
-            do {
-                // Get stats from repository
-                let gameStats = try await gameRepository.getGameStatistics(userId: userId)
-                
-                // Create Stats object from repository data
-                let statsResponse = UserStats(
-                    userId: userId,
-                    gamesPlayed: gameStats.gamesPlayed,
-                    gamesWon: gameStats.gamesWon,
-                    currentStreak: gameStats.currentStreak,
-                    bestStreak: gameStats.bestStreak,
-                    totalScore: gameStats.totalScore,
-                    averageScore: Double(gameStats.totalScore) / Double(max(1, gameStats.gamesPlayed)),
-                    averageTime: gameStats.averageTime
-                )
-                
-                await MainActor.run {
-                    self.stats = statsResponse
-                    self.isLoadingStats = false
-                }
-            } catch {
-                await MainActor.run {
-                    self.errorMessage = "Failed to load user stats: \(error.localizedDescription)"
-                    self.isLoadingStats = false
-                }
-            }
-        }
-    }
-    
-    /// Fetch leaderboard data
-    func fetchLeaderboard(period: String = "all-time", page: Int = 1) {
-        guard isAuthenticated else { return }
-        isLoadingLeaderboard = true
-        
-        Task {
-            do {
-                // Simulate getting leaderboard entries
-                // In a real implementation, you'd call an API or repository
-                try await Task.sleep(nanoseconds: 1_000_000_000) // Sleep for 1 second
-                
-                await MainActor.run {
-                    self.isLoadingLeaderboard = false
-                    // Set leaderboard data would go here
-                }
-            } catch {
-                await MainActor.run {
-                    self.errorMessage = "Failed to load leaderboard: \(error.localizedDescription)"
-                    self.isLoadingLeaderboard = false
-                }
-            }
+        // Check if user exists in Realm
+        if let user = getUserFromRealm() {
+            // Update from existing user
+            updateUserProfileFromRealm(user)
+        } else {
+            // Create a new user in Realm
+            createUserInRealm()
         }
     }
     
     /// Update user statistics after game completion
     func updateStats(gameWon: Bool, score: Int, timeTaken: Int, mistakes: Int = 0) {
         guard isAuthenticated, !userId.isEmpty else { return }
+        guard let realm = realm else { return }
         
-        Task {
-            do {
-                try await gameRepository.updateStatistics(
-                    userId: userId,
-                    gameWon: gameWon,
-                    mistakes: mistakes,
-                    timeTaken: timeTaken,
-                    score: score
-                )
-                
-                // Refresh stats
-                await MainActor.run {
-                    fetchUserStats()
+        do {
+            try realm.write {
+                // Find user or create
+                guard let user = getUserFromRealm() else {
+                    return
                 }
-            } catch {
-                print("Error updating stats: \(error.localizedDescription)")
+                
+                // Create stats if needed
+                if user.stats == nil {
+                    user.stats = UserStatsRealm()
+                }
+                
+                guard let stats = user.stats else { return }
+                
+                // Update stats
+                stats.gamesPlayed += 1
+                if gameWon {
+                    stats.gamesWon += 1
+                    stats.currentStreak += 1
+                    stats.bestStreak = max(stats.bestStreak, stats.currentStreak)
+                } else {
+                    stats.currentStreak = 0
+                }
+                
+                stats.totalScore += score
+                
+                // Update averages
+                let oldMistakesTotal = stats.averageMistakes * Double(stats.gamesPlayed - 1)
+                stats.averageMistakes = (oldMistakesTotal + Double(mistakes)) / Double(stats.gamesPlayed)
+                
+                let oldTimeTotal = stats.averageTime * Double(stats.gamesPlayed - 1)
+                stats.averageTime = (oldTimeTotal + Double(timeTaken)) / Double(stats.gamesPlayed)
+                
+                stats.lastPlayedDate = Date()
             }
+            
+            // Update published stats property
+            self.refreshStats()
+        } catch {
+            print("Error updating stats: \(error.localizedDescription)")
         }
     }
     
-    /// Get access token for API calls
-    func getAccessToken() -> String? {
-        return authCoordinator.getAccessToken()
+    /// Get user's statistics
+    func refreshStats() {
+        guard isAuthenticated, let user = getUserFromRealm(), let realmStats = user.stats else {
+            stats = nil
+            return
+        }
+        
+        // Create UserStats from Realm data
+        stats = UserStats(
+            userId: userId,
+            gamesPlayed: realmStats.gamesPlayed,
+            gamesWon: realmStats.gamesWon,
+            currentStreak: realmStats.currentStreak,
+            bestStreak: realmStats.bestStreak,
+            totalScore: realmStats.totalScore,
+            averageScore: realmStats.gamesPlayed > 0 ?
+                Double(realmStats.totalScore) / Double(realmStats.gamesPlayed) : 0,
+            averageTime: realmStats.averageTime
+        )
+    }
+    
+    /// Update user profile information
+    func updateProfile(displayName: String? = nil, bio: String? = nil) {
+        guard isAuthenticated, !userId.isEmpty else { return }
+        guard let realm = realm else { return }
+        
+        do {
+            try realm.write {
+                guard let user = getUserFromRealm() else { return }
+                
+                if let displayName = displayName {
+                    user.displayName = displayName
+                }
+                
+                if let bio = bio {
+                    user.bio = bio
+                }
+                
+                // Update last modified date
+                user.lastLoginDate = Date()
+            }
+            
+            // Update published profile property
+            updateUserProfileFromRealm(getUserFromRealm())
+        } catch {
+            print("Error updating profile: \(error.localizedDescription)")
+        }
+    }
+    
+    // MARK: - Private Methods
+    
+    private func getUserFromRealm() -> UserRealm? {
+        guard let realm = realm else { return nil }
+        return realm.object(ofType: UserRealm.self, forPrimaryKey: userId)
+    }
+    
+    private func updateUserProfileFromRealm(_ user: UserRealm?) {
+        guard let user = user else {
+            profile = nil
+            stats = nil
+            return
+        }
+        
+        // Update the profile data
+        profile = UserProfile(
+            userId: user.userId,
+            username: user.username,
+            email: user.email,
+            displayName: user.displayName,
+            avatarUrl: user.avatarUrl,
+            bio: user.bio,
+            registrationDate: user.registrationDate,
+            lastLoginDate: user.lastLoginDate
+        )
+        
+        // Update stats if available
+        if let realmStats = user.stats {
+            stats = UserStats(
+                userId: userId,
+                gamesPlayed: realmStats.gamesPlayed,
+                gamesWon: realmStats.gamesWon,
+                currentStreak: realmStats.currentStreak,
+                bestStreak: realmStats.bestStreak,
+                totalScore: realmStats.totalScore,
+                averageScore: realmStats.gamesPlayed > 0 ?
+                    Double(realmStats.totalScore) / Double(realmStats.gamesPlayed) : 0,
+                averageTime: realmStats.averageTime
+            )
+        } else {
+            stats = nil
+        }
+    }
+    
+    private func createUserInRealm() {
+        guard isAuthenticated, !userId.isEmpty, !username.isEmpty else { return }
+        guard let realm = realm else { return }
+        
+        do {
+            try realm.write {
+                let user = UserRealm()
+                user.userId = userId
+                user.username = username
+                user.email = "\(username)@example.com" // Placeholder
+                user.registrationDate = Date()
+                user.lastLoginDate = Date()
+                user.isSubadmin = isSubadmin
+                
+                // Create default preferences
+                let preferences = UserPreferencesRealm()
+                user.preferences = preferences
+                
+                // Create empty stats
+                let stats = UserStatsRealm()
+                user.stats = stats
+                
+                realm.add(user)
+                
+                // Update local profile
+                updateUserProfileFromRealm(user)
+            }
+        } catch {
+            print("Error creating user in Realm: \(error.localizedDescription)")
+        }
     }
 }
 
-// User stats model
+// User profile model (non-Realm, for publishing)
+struct UserProfile {
+    let userId: String
+    let username: String
+    let email: String
+    let displayName: String?
+    let avatarUrl: String?
+    let bio: String?
+    let registrationDate: Date
+    let lastLoginDate: Date
+}
+
+// User stats model (non-Realm, for publishing)
 struct UserStats {
     let userId: String
     let gamesPlayed: Int

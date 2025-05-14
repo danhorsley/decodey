@@ -1,6 +1,8 @@
-import Foundation
-import Combine
+// SettingsState.swift - Simplified for Realm
 import SwiftUI
+import Combine
+import Foundation
+import RealmSwift
 
 /// SettingsState manages application settings and preferences
 class SettingsState: ObservableObject {
@@ -30,6 +32,22 @@ class SettingsState: ObservableObject {
         }
     }
     
+    // Sound settings
+    @Published var soundEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(soundEnabled, forKey: Keys.soundEnabled)
+            SoundManager.shared.isSoundEnabled = soundEnabled
+        }
+    }
+    
+    @Published var soundVolume: Float {
+        didSet {
+            UserDefaults.standard.set(soundVolume, forKey: Keys.soundVolume)
+            SoundManager.shared.volume = soundVolume
+        }
+    }
+    
+    // Security settings
     @Published var useBiometricAuth: Bool {
         didSet {
             UserDefaults.standard.set(useBiometricAuth, forKey: Keys.useBiometricAuth)
@@ -39,12 +57,17 @@ class SettingsState: ObservableObject {
     // App version (read-only)
     let appVersion: String
     
+    // Realm access
+    private let realm = RealmManager.shared.getRealm()
+    
     // UserDefaults keys
     private struct Keys {
         static let isDarkMode = "isDarkMode"
         static let showTextHelpers = "showTextHelpers"
         static let useAccessibilityTextSize = "useAccessibilityTextSize"
         static let gameDifficulty = "gameDifficulty"
+        static let soundEnabled = "soundEnabled"
+        static let soundVolume = "soundVolume"
         static let useBiometricAuth = "useBiometricAuth"
     }
     
@@ -82,9 +105,19 @@ class SettingsState: ObservableObject {
         
         self.gameDifficulty = UserDefaults.standard.string(forKey: Keys.gameDifficulty) ?? "medium"
         
+        self.soundEnabled = UserDefaults.standard.bool(forKey: Keys.soundEnabled)
+        if !UserDefaults.standard.exists(key: Keys.soundEnabled) {
+            self.soundEnabled = true // Default to true
+        }
+        
+        self.soundVolume = UserDefaults.standard.float(forKey: Keys.soundVolume)
+        if !UserDefaults.standard.exists(key: Keys.soundVolume) {
+            self.soundVolume = 0.5 // Default to 50%
+        }
+        
         self.useBiometricAuth = UserDefaults.standard.bool(forKey: Keys.useBiometricAuth)
         if !UserDefaults.standard.exists(key: Keys.useBiometricAuth) {
-            self.useBiometricAuth = isBiometricAuthAvailable()
+            self.useBiometricAuth = BiometricAuthHelper.shared.biometricAuthAvailable().0
         }
         
         // Apply initial appearance
@@ -94,8 +127,15 @@ class SettingsState: ObservableObject {
     // MARK: - Public Methods
     
     /// Update all settings at once
-    func updateSettings(darkMode: Bool? = nil, showHelpers: Bool? = nil,
-                        accessibilityText: Bool? = nil, gameDifficulty: String? = nil) {
+    func updateSettings(
+        darkMode: Bool? = nil,
+        showHelpers: Bool? = nil,
+        accessibilityText: Bool? = nil,
+        gameDifficulty: String? = nil,
+        soundEnabled: Bool? = nil,
+        soundVolume: Float? = nil,
+        useBiometricAuth: Bool? = nil
+    ) {
         if let darkMode = darkMode {
             self.isDarkMode = darkMode
         }
@@ -111,6 +151,18 @@ class SettingsState: ObservableObject {
         if let gameDifficulty = gameDifficulty {
             self.gameDifficulty = gameDifficulty
         }
+        
+        if let soundEnabled = soundEnabled {
+            self.soundEnabled = soundEnabled
+        }
+        
+        if let soundVolume = soundVolume {
+            self.soundVolume = soundVolume
+        }
+        
+        if let useBiometricAuth = useBiometricAuth {
+            self.useBiometricAuth = useBiometricAuth
+        }
     }
     
     /// Reset all settings to defaults
@@ -118,8 +170,63 @@ class SettingsState: ObservableObject {
         isDarkMode = true
         showTextHelpers = true
         useAccessibilityTextSize = false
-        useBiometricAuth = isBiometricAuthAvailable()
         gameDifficulty = "medium"
+        soundEnabled = true
+        soundVolume = 0.5
+        useBiometricAuth = BiometricAuthHelper.shared.biometricAuthAvailable().0
+    }
+    
+    /// Save current settings to a logged-in user's preferences in Realm
+    func saveToUserPreferences(userId: String) {
+        guard let realm = realm else { return }
+        
+        do {
+            try realm.write {
+                // Find or create user
+                guard let user = realm.object(ofType: UserRealm.self, forPrimaryKey: userId) else {
+                    return
+                }
+                
+                // Create preferences if needed
+                if user.preferences == nil {
+                    user.preferences = UserPreferencesRealm()
+                }
+                
+                guard let prefs = user.preferences else { return }
+                
+                // Update from settings
+                prefs.darkMode = isDarkMode
+                prefs.showTextHelpers = showTextHelpers
+                prefs.accessibilityTextSize = useAccessibilityTextSize
+                prefs.gameDifficulty = gameDifficulty
+                prefs.soundEnabled = soundEnabled
+                prefs.soundVolume = soundVolume
+                prefs.useBiometricAuth = useBiometricAuth
+                prefs.lastSyncDate = Date()
+            }
+        } catch {
+            print("Error saving user preferences: \(error.localizedDescription)")
+        }
+    }
+    
+    /// Load settings from a user's preferences in Realm
+    func loadFromUserPreferences(userId: String) {
+        guard let realm = realm else { return }
+        
+        // Find user and preferences
+        guard let user = realm.object(ofType: UserRealm.self, forPrimaryKey: userId),
+              let prefs = user.preferences else {
+            return
+        }
+        
+        // Update settings from preferences
+        self.isDarkMode = prefs.darkMode
+        self.showTextHelpers = prefs.showTextHelpers
+        self.useAccessibilityTextSize = prefs.accessibilityTextSize
+        self.gameDifficulty = prefs.gameDifficulty
+        self.soundEnabled = prefs.soundEnabled
+        self.soundVolume = prefs.soundVolume
+        self.useBiometricAuth = prefs.useBiometricAuth
     }
     
     // MARK: - Private Methods
@@ -133,34 +240,11 @@ class SettingsState: ObservableObject {
         }
         #endif
     }
-    
-    private func isBiometricAuthAvailable() -> Bool {
-        #if os(iOS)
-        let context = LAContext()
-        var error: NSError?
-        return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
-        #else
-        return false
-        #endif
-    }
 }
 
-// Extension to check if a key exists in UserDefaults
+// Helper extension for UserDefaults
 extension UserDefaults {
     func exists(key: String) -> Bool {
         return object(forKey: key) != nil
     }
 }
-
-// Add missing import for biometric authentication
-#if os(iOS)
-import LocalAuthentication
-#endif
-
-//
-//  SettingsState.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 13/05/2025.
-//
-

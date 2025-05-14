@@ -1,4 +1,4 @@
-// Game.swift - Refactored
+// Game.swift - Simplified for Realm
 import Foundation
 
 struct Game {
@@ -36,7 +36,7 @@ struct Game {
         setupEncryption()
     }
     
-    // For loading from DB
+    // For loading from Realm
     init(gameId: String, encrypted: String, solution: String, currentDisplay: String,
          mapping: [Character:Character], correctMappings: [Character:Character],
          guessedMappings: [Character:Character], mistakes: Int, maxMistakes: Int,
@@ -63,7 +63,7 @@ struct Game {
         }
     }
     
-    // Setup encryption for current solution
+    // Setup encryption for current solution (unchanged)
     private mutating func setupEncryption() {
         // Create mapping
         let alphabet = Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
@@ -98,7 +98,7 @@ struct Game {
         }
     }
     
-    // Game logic methods
+    // Game logic methods - basic functionality unchanged
     mutating func selectLetter(_ letter: Character) {
         if correctlyGuessed().contains(letter) {
             selectedLetter = nil
@@ -124,13 +124,10 @@ struct Game {
         
         selectedLetter = nil
         lastUpdateTime = Date()
-        
-        // REMOVE database interaction from here
-        // We'll rely on the services layer to handle saving
         return isCorrect
     }
     
-    // Rest of the methods stay similar but with a few optimizations
+    // Rest of the methods stay similar
     mutating func updateDisplay() {
         var displayChars = Array(currentDisplay)
         
@@ -176,9 +173,6 @@ struct Game {
             if mistakes >= maxMistakes {
                 hasLost = true
             }
-            
-            // REMOVE database interaction from here
-            // Again, rely on services to handle saving
             return true
         }
         return false
@@ -209,8 +203,4 @@ struct Game {
         // Total (never negative)
         return max(0, baseScore - mistakePenalty + timeScore)
     }
-    
-    // REMOVE all database operations
-    // Remove saveGameState() method
-    // Remove static loader methods
 }

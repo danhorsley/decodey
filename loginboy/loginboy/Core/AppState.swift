@@ -1,29 +1,26 @@
+// AppState.swift - Streamlined for Realm
 import Foundation
 import Combine
 import SwiftUI
+import RealmSwift
 
-/// AppState serves as the central state management container for the entire application.
-/// It coordinates all substates and ensures consistent data flow throughout the app.
+/// AppState serves as a lightweight coordinator for the app's global state
 class AppState: ObservableObject {
-    // Published substates that will trigger UI updates when changed
+    // Access to singleton state objects
     @Published var gameState: GameState
     @Published var userState: UserState
     @Published var settingsState: SettingsState
     
-    // Private state for internal coordination
+    // For cancelling subscriptions
     private var cancellables = Set<AnyCancellable>()
     
-    // Services
-    private let serviceProvider: ServiceProvider
+    // Realm access if needed directly
+    private let realm = RealmManager.shared.getRealm()
     
-    // Singleton instance for easy access
+    // Singleton instance
     static let shared = AppState()
     
-    // Private initializer for singleton
     private init() {
-        // Initialize services via the provider
-        self.serviceProvider = ServiceProvider.shared
-        
         // Access the singletons for each state
         self.gameState = GameState.shared
         self.userState = UserState.shared
@@ -41,35 +38,8 @@ class AppState: ObservableObject {
                 guard let self = self else { return }
                 
                 if isAuthenticated {
-                    // User logged in, load their saved data
-                    self.loadUserData()
-                } else {
-                    // User logged out, reset states
-                    self.resetStates()
-                }
-            }
-            .store(in: &cancellables)
-        
-        // Listen for game completion to update stats
-        gameState.$currentGame
-            .compactMap { $0 }
-            .filter { $0.hasWon || $0.hasLost }
-            .sink { [weak self] game in
-                guard let self = self, self.userState.isAuthenticated else { return }
-                
-                // Update user stats
-                if game.hasWon {
-                    self.userState.updateStats(
-                        gameWon: true,
-                        score: game.calculateScore(),
-                        timeTaken: Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
-                    )
-                } else if game.hasLost {
-                    self.userState.updateStats(
-                        gameWon: false,
-                        score: 0,
-                        timeTaken: Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
-                    )
+                    // Load user preferences into settings
+                    self.syncUserPreferences()
                 }
             }
             .store(in: &cancellables)
@@ -82,45 +52,35 @@ class AppState: ObservableObject {
             .store(in: &cancellables)
     }
     
-    // Load user-specific data when authenticated
-    private func loadUserData() {
-        Task {
-            do {
-                // Check for saved games
-                if let savedGame = try await serviceProvider.gameService.loadLatestGame() {
-                    await MainActor.run {
-                        self.gameState.savedGame = savedGame
-                    }
-                }
-                
-                // Load user stats if authenticated
-                // Since userId is a non-optional String, just check if it's not empty
-                if !userState.userId.isEmpty {
-                    try await serviceProvider.userService.loadUserData()
-                    
-                    // Log success
-                    print("Loaded user data for: \(userState.userId)")
-                }
-            } catch {
-                print("Error loading user data: \(error.localizedDescription)")
-            }
+    // Sync user preferences to settings state
+    private func syncUserPreferences() {
+        guard let realm = realm,
+              let userId = userState.userId,
+              let user = realm.object(ofType: UserRealm.self, forPrimaryKey: userId),
+              let prefs = user.preferences else {
+            return
         }
+        
+        // Update settings state from user preferences
+        settingsState.updateSettings(
+            darkMode: prefs.darkMode,
+            showHelpers: prefs.showTextHelpers,
+            accessibilityText: prefs.accessibilityTextSize,
+            gameDifficulty: prefs.gameDifficulty,
+            soundEnabled: prefs.soundEnabled,
+            soundVolume: prefs.soundVolume,
+            useBiometricAuth: prefs.useBiometricAuth
+        )
     }
     
-    // Reset states when user logs out
-    private func resetStates() {
-        gameState.reset()
-        // Keep settings as they are for better UX
-    }
+    // MARK: - Public Convenience Methods
     
-    // MARK: - Public Actions
-    
-    /// Start a new custom game
-    func startNewCustomGame() {
+    /// Start a new game with current settings
+    func startNewGame() {
         gameState.setupCustomGame()
     }
     
-    /// Start or resume the daily challenge
+    /// Start the daily challenge
     func startDailyChallenge() {
         gameState.setupDailyChallenge()
     }
@@ -135,14 +95,32 @@ class AppState: ObservableObject {
         userState.logout()
     }
     
-    /// Update user settings
-    func updateSettings(darkMode: Bool? = nil, showHelpers: Bool? = nil,
-                        accessibilityText: Bool? = nil, gameDifficulty: String? = nil) {
-        settingsState.updateSettings(
-            darkMode: darkMode,
-            showHelpers: showHelpers,
-            accessibilityText: accessibilityText,
-            gameDifficulty: gameDifficulty
-        )
+    /// Save user preferences
+    func saveUserPreferences() {
+        guard let realm = realm,
+              userState.isAuthenticated,
+              let userId = userState.userId,
+              let user = realm.object(ofType: UserRealm.self, forPrimaryKey: userId) else {
+            return
+        }
+        
+        try? realm.write {
+            // Create preferences if needed
+            if user.preferences == nil {
+                user.preferences = UserPreferencesRealm()
+            }
+            
+            guard let prefs = user.preferences else { return }
+            
+            // Update from settings state
+            prefs.darkMode = settingsState.isDarkMode
+            prefs.showTextHelpers = settingsState.showTextHelpers
+            prefs.accessibilityTextSize = settingsState.useAccessibilityTextSize
+            prefs.gameDifficulty = settingsState.gameDifficulty
+            prefs.soundEnabled = settingsState.soundEnabled
+            prefs.soundVolume = settingsState.soundVolume
+            prefs.useBiometricAuth = settingsState.useBiometricAuth
+            prefs.lastSyncDate = Date()
+        }
     }
 }

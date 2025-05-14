@@ -1,156 +1,32 @@
+// Updated LeaderboardView.swift for Realm
 import SwiftUI
+import RealmSwift
 
-// Leaderboard Entry model
-struct LeaderboardEntry: Identifiable, Codable {
+// Use the existing LeaderboardEntry model or replace with this simplified version
+struct LeaderboardEntry: Identifiable {
     let rank: Int
     let username: String
-    let user_id: String
+    let userId: String
     let score: Int
-    let games_played: Int
-    let avg_score: Double
-    let is_current_user: Bool
+    let gamesPlayed: Int
+    let avgScore: Double
+    let isCurrentUser: Bool
     
-    var id: String { user_id }
-}
-
-// Pagination model
-struct Pagination: Codable {
-    let current_page: Int
-    let total_pages: Int
-    let total_entries: Int
-    let per_page: Int
-}
-
-// Leaderboard Response model
-struct LeaderboardResponse: Codable {
-    let entries: [LeaderboardEntry]
-    let currentUserEntry: LeaderboardEntry?
-    let pagination: Pagination
-    let period: String
-    
-    // CodingKeys to match API response
-    enum CodingKeys: String, CodingKey {
-        case entries
-        case currentUserEntry = "current_user_entry"
-        case pagination
-        case period
-    }
-}
-
-// Leaderboard service to fetch data
-class LeaderboardService: ObservableObject {
-    @Published var isLoading = false
-    @Published var errorMessage: String?
-    @Published var leaderboardData: LeaderboardResponse?
-    
-    private let auth: AuthenticationCoordinator
-    private let gameRepository: GameRepositoryProtocol
-    
-    init(auth: AuthenticationCoordinator, gameRepository: GameRepositoryProtocol = RepositoryProvider.shared.gameRepository) {
-        self.auth = auth
-        self.gameRepository = gameRepository
-    }
-    
-    func fetchLeaderboard(period: String = "all-time", page: Int = 1, perPage: Int = 10) {
-        guard let token = auth.getAccessToken() else {
-            self.errorMessage = "You need to be logged in to view the leaderboard"
-            return
-        }
-        
-        isLoading = true
-        errorMessage = nil
-        
-        var urlComponents = URLComponents(string: "\(auth.baseURL)/api/leaderboard")
-        urlComponents?.queryItems = [
-            URLQueryItem(name: "period", value: period),
-            URLQueryItem(name: "page", value: "\(page)"),
-            URLQueryItem(name: "per_page", value: "\(perPage)")
-        ]
-        
-        guard let url = urlComponents?.url else {
-            self.isLoading = false
-            self.errorMessage = "Invalid URL configuration"
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.addValue("application/json", forHTTPHeaderField: "Accept")
-        
-        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            DispatchQueue.main.async {
-                guard let self = self else { return }
-                self.isLoading = false
-                
-                if let error = error {
-                    self.errorMessage = "Network error: \(error.localizedDescription)"
-                    return
-                }
-                
-                guard let httpResponse = response as? HTTPURLResponse else {
-                    self.errorMessage = "Invalid response from server"
-                    return
-                }
-                
-                // Log response details for debugging
-                print("Leaderboard API Response: \(httpResponse.statusCode)")
-                
-                if httpResponse.statusCode == 401 {
-                    self.errorMessage = "Authentication required. Please log in again."
-                    self.auth.logout() // Token might be expired, log out
-                    return
-                }
-                
-                if httpResponse.statusCode != 200 {
-                    // Try to parse error message
-                    if let data = data, let errorJson = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                       let errorMsg = errorJson["error"] as? String {
-                        self.errorMessage = errorMsg
-                    } else {
-                        self.errorMessage = "Error fetching leaderboard (Status \(httpResponse.statusCode))"
-                    }
-                    return
-                }
-                
-                guard let data = data else {
-                    self.errorMessage = "No data received from server"
-                    return
-                }
-                
-                // Log response data for debugging
-                if let responseString = String(data: data, encoding: .utf8) {
-                    print("Leaderboard Response: \(responseString)")
-                }
-                
-                do {
-                    let decoder = JSONDecoder()
-                    let response = try decoder.decode(LeaderboardResponse.self, from: data)
-                    self.leaderboardData = response
-                } catch {
-                    self.errorMessage = "Failed to parse leaderboard data: \(error.localizedDescription)"
-                    print("JSON parsing error: \(error)")
-                    
-                    // Log the JSON structure for debugging
-                    if let json = try? JSONSerialization.jsonObject(with: data) {
-                        print("Raw JSON: \(json)")
-                    }
-                }
-            }
-        }.resume()
-    }
+    var id: String { userId }
 }
 
 struct LeaderboardView: View {
-    @StateObject private var leaderboardService: LeaderboardService
-    @EnvironmentObject var auth: AuthenticationCoordinator
+    @EnvironmentObject var userState: UserState
+    @State private var isLoading = false
+    @State private var errorMessage: String?
+    @State private var entries: [LeaderboardEntry] = []
+    @State private var currentUserEntry: LeaderboardEntry?
+    @State private var currentPage = 1
+    @State private var totalPages = 1
     @State private var selectedPeriod = "all-time"
-    @State private var selectedPage = 1
     
-    init(auth: AuthenticationCoordinator? = nil) {
-        let authToUse = auth ?? ServiceProvider.shared.authCoordinator
-        _leaderboardService = StateObject(wrappedValue: LeaderboardService(auth: authToUse))
-    }
+    // Realm access
+    private let realm = RealmManager.shared.getRealm()
     
     var body: some View {
         VStack {
@@ -168,16 +44,16 @@ struct LeaderboardView: View {
             .pickerStyle(SegmentedPickerStyle())
             .padding(.horizontal)
             .onChange(of: selectedPeriod) { _, newValue in
-                selectedPage = 1 // Reset to first page when changing period
-                leaderboardService.fetchLeaderboard(period: newValue, page: 1)
+                currentPage = 1 // Reset to first page when changing period
+                fetchLeaderboard()
             }
             
-            if leaderboardService.isLoading {
+            if isLoading {
                 // Loading state
                 ProgressView("Loading leaderboard...")
                     .padding()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let errorMessage = leaderboardService.errorMessage {
+            } else if let errorMessage = errorMessage {
                 // Error state
                 VStack {
                     Image(systemName: "exclamationmark.triangle")
@@ -191,10 +67,7 @@ struct LeaderboardView: View {
                         .padding()
                     
                     Button("Try Again") {
-                        leaderboardService.fetchLeaderboard(
-                            period: selectedPeriod,
-                            page: selectedPage
-                        )
+                        fetchLeaderboard()
                     }
                     .padding()
                     .background(Color.blue)
@@ -203,7 +76,7 @@ struct LeaderboardView: View {
                 }
                 .padding()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let leaderboardData = leaderboardService.leaderboardData {
+            } else if !entries.isEmpty {
                 // Leaderboard content
                 VStack {
                     // Table header
@@ -236,7 +109,7 @@ struct LeaderboardView: View {
                     ScrollView {
                         LazyVStack(spacing: 0) {
                             // Show the users's entry at the top if not in the visible range
-                            if let currentUserEntry = leaderboardData.currentUserEntry {
+                            if let currentUserEntry = currentUserEntry, !entries.contains(where: { $0.userId == userState.userId }) {
                                 EntryRow(entry: currentUserEntry, showDivider: true)
                                     .padding(.vertical, 8)
                                     .background(Color.yellow.opacity(0.2))
@@ -247,10 +120,10 @@ struct LeaderboardView: View {
                             }
                             
                             // Regular entries
-                            ForEach(leaderboardData.entries) { entry in
+                            ForEach(entries) { entry in
                                 EntryRow(entry: entry)
                                     .padding(.vertical, 8)
-                                    .background(entry.is_current_user ? Color.green.opacity(0.2) : Color.clear)
+                                    .background(entry.isCurrentUser ? Color.green.opacity(0.2) : Color.clear)
                                 
                                 Divider()
                                     .background(Color.gray.opacity(0.3))
@@ -262,54 +135,33 @@ struct LeaderboardView: View {
                     // Pagination controls
                     HStack {
                         Button(action: {
-                            if selectedPage > 1 {
-                                selectedPage -= 1
-                                leaderboardService.fetchLeaderboard(
-                                    period: selectedPeriod,
-                                    page: selectedPage
-                                )
+                            if currentPage > 1 {
+                                currentPage -= 1
+                                fetchLeaderboard()
                             }
                         }) {
                             Image(systemName: "chevron.left")
                                 .padding(.horizontal, 8)
                         }
-                        .disabled(selectedPage <= 1)
-                        .opacity(selectedPage <= 1 ? 0.5 : 1)
+                        .disabled(currentPage <= 1)
+                        .opacity(currentPage <= 1 ? 0.5 : 1)
                         
-                        Text("Page \(selectedPage) of \(leaderboardData.pagination.total_pages)")
+                        Text("Page \(currentPage) of \(totalPages)")
                             .font(.caption)
                         
                         Button(action: {
-                            if selectedPage < leaderboardData.pagination.total_pages {
-                                selectedPage += 1
-                                leaderboardService.fetchLeaderboard(
-                                    period: selectedPeriod,
-                                    page: selectedPage
-                                )
+                            if currentPage < totalPages {
+                                currentPage += 1
+                                fetchLeaderboard()
                             }
                         }) {
                             Image(systemName: "chevron.right")
                                 .padding(.horizontal, 8)
                         }
-                        .disabled(selectedPage >= leaderboardData.pagination.total_pages)
-                        .opacity(selectedPage >= leaderboardData.pagination.total_pages ? 0.5 : 1)
+                        .disabled(currentPage >= totalPages)
+                        .opacity(currentPage >= totalPages ? 0.5 : 1)
                     }
                     .padding()
-                    
-                    // Stats summary
-                    HStack {
-                        Text("\(leaderboardData.pagination.total_entries) players")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                        
-                        Spacer()
-                        
-                        Text(selectedPeriod == "weekly" ? "Weekly Rankings" : "All-Time Rankings")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                    .padding(.horizontal)
-                    .padding(.bottom, 8)
                 }
             } else {
                 // Empty state
@@ -323,10 +175,7 @@ struct LeaderboardView: View {
                         .foregroundColor(.secondary)
                     
                     Button("Refresh") {
-                        leaderboardService.fetchLeaderboard(
-                            period: selectedPeriod,
-                            page: selectedPage
-                        )
+                        fetchLeaderboard()
                     }
                     .padding()
                     .background(Color.blue)
@@ -340,62 +189,229 @@ struct LeaderboardView: View {
         }
         .padding(.bottom)
         .onAppear {
-            leaderboardService.fetchLeaderboard(period: selectedPeriod, page: selectedPage)
+            fetchLeaderboard()
         }
     }
-}
-
-// Reusable row component for leaderboard entries
-struct EntryRow: View {
-    let entry: LeaderboardEntry
-    var showDivider: Bool = false
     
-    var body: some View {
-        HStack {
-            // Rank with medal for top 3
-            HStack(spacing: 4) {
-                if entry.rank <= 3 {
-                    Image(systemName: "medal.fill")
-                        .foregroundColor(
-                            entry.rank == 1 ? .yellow :
-                            entry.rank == 2 ? .gray :
-                            .brown
-                        )
+    // Fetch leaderboard data - either from Realm or API depending on needs
+    private func fetchLeaderboard() {
+        isLoading = true
+        errorMessage = nil
+        
+        if selectedPeriod == "all-time" {
+            // For all time, we can use local Realm data
+            fetchLeaderboardFromRealm()
+        } else {
+            // For weekly, we might need API data
+            fetchLeaderboardFromAPI()
+        }
+    }
+    
+    // Fetch leaderboard from local Realm
+    private func fetchLeaderboardFromRealm() {
+        guard let realm = realm else {
+            isLoading = false
+            errorMessage = "Database not available"
+            return
+        }
+        
+        // Get all users with stats
+        let users = realm.objects(UserRealm.self)
+            .filter("stats != nil")
+            .sorted(byKeyPath: "stats.totalScore", ascending: false)
+        
+        // Convert to entries
+        var leaderboardEntries: [LeaderboardEntry] = []
+        var userRank = 0
+        var currentUserFound = false
+        
+        for (index, user) in users.enumerated() {
+            guard let stats = user.stats else { continue }
+            
+            let rank = index + 1
+            let isCurrentUser = user.userId == userState.userId
+            
+            let entry = LeaderboardEntry(
+                rank: rank,
+                username: user.username,
+                userId: user.userId,
+                score: stats.totalScore,
+                gamesPlayed: stats.gamesPlayed,
+                avgScore: stats.gamesPlayed > 0 ? Double(stats.totalScore) / Double(stats.gamesPlayed) : 0,
+                isCurrentUser: isCurrentUser
+            )
+            
+            leaderboardEntries.append(entry)
+            
+            if isCurrentUser {
+                currentUserFound = true
+                userRank = rank
+                currentUserEntry = entry
+            }
+        }
+        
+        // If current user not found but has stats, add them
+        if !currentUserFound && userState.isAuthenticated, let stats = userState.stats {
+            currentUserEntry = LeaderboardEntry(
+                rank: userRank,
+                username: userState.username,
+                userId: userState.userId,
+                score: stats.totalScore,
+                gamesPlayed: stats.gamesPlayed,
+                avgScore: stats.averageScore,
+                isCurrentUser: true
+            )
+        }
+        
+        // Paginate results - 10 per page
+        let pageSize = 10
+        totalPages = max(1, (leaderboardEntries.count + pageSize - 1) / pageSize)
+        
+        // Calculate start and end indices
+        let startIndex = (currentPage - 1) * pageSize
+        let endIndex = min(startIndex + pageSize, leaderboardEntries.count)
+        
+        // Get entries for current page
+        if startIndex < leaderboardEntries.count {
+            entries = Array(leaderboardEntries[startIndex..<endIndex])
+        } else {
+            entries = []
+        }
+        
+        isLoading = false
+    }
+    
+    // Fetch leaderboard from API
+    private func fetchLeaderboardFromAPI() {
+        guard let token = userState.authCoordinator.getAccessToken() else {
+            isLoading = false
+            errorMessage = "Authentication required"
+            return
+        }
+        
+        // Build URL
+        guard let url = URL(string: "\(userState.authCoordinator.baseURL)/api/leaderboard") else {
+            isLoading = false
+            errorMessage = "Invalid URL configuration"
+            return
+        }
+        
+        // Add query parameters
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: true)
+        components?.queryItems = [
+            URLQueryItem(name: "period", value: selectedPeriod),
+            URLQueryItem(name: "page", value: "\(currentPage)"),
+            URLQueryItem(name: "per_page", value: "10")
+        ]
+        
+        guard let requestURL = components?.url else {
+            isLoading = false
+            errorMessage = "Invalid URL configuration"
+            return
+        }
+        
+        // Create request
+        var request = URLRequest(url: requestURL)
+        request.httpMethod = "GET"
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        // Execute request
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            DispatchQueue.main.async {
+                self.isLoading = false
+                
+                if let error = error {
+                    self.errorMessage = "Network error: \(error.localizedDescription)"
+                    return
                 }
                 
-                Text("\(entry.rank)")
-                    .fontWeight(entry.rank <= 3 ? .bold : .regular)
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    self.errorMessage = "Invalid response from server"
+                    return
+                }
+                
+                if httpResponse.statusCode != 200 {
+                    self.errorMessage = "Server error (Status \(httpResponse.statusCode))"
+                    return
+                }
+                
+                guard let data = data else {
+                    self.errorMessage = "No data received"
+                    return
+                }
+                
+                // Parse response
+                do {
+                    let decoder = JSONDecoder()
+                    let response = try decoder.decode(LeaderboardResponse.self, from: data)
+                    
+                    // Update state
+                    self.entries = response.entries.map { entry in
+                        LeaderboardEntry(
+                            rank: entry.rank,
+                            username: entry.username,
+                            userId: entry.user_id,
+                            score: entry.score,
+                            gamesPlayed: entry.games_played,
+                            avgScore: entry.avg_score,
+                            isCurrentUser: entry.is_current_user
+                        )
+                    }
+                    
+                    if let userEntry = response.currentUserEntry {
+                        self.currentUserEntry = LeaderboardEntry(
+                            rank: userEntry.rank,
+                            username: userEntry.username,
+                            userId: userEntry.user_id,
+                            score: userEntry.score,
+                            gamesPlayed: userEntry.games_played,
+                            avgScore: userEntry.avg_score,
+                            isCurrentUser: true
+                        )
+                    }
+                    
+                    self.totalPages = response.pagination.total_pages
+                } catch {
+                    self.errorMessage = "Failed to parse response: \(error.localizedDescription)"
+                }
             }
-            .frame(width: 60, alignment: .leading)
-            
-            // Username
-            Text(entry.username)
-                .fontWeight(entry.is_current_user ? .bold : .regular)
-                .lineLimit(1)
-                .frame(minWidth: 100, maxWidth: .infinity, alignment: .leading)
-            
-            // Score
-            Text("\(entry.score)")
-                .fontWeight(.medium)
-                .frame(width: 80, alignment: .trailing)
-            
-            // Games played
-            Text("\(entry.games_played)")
-                .foregroundColor(.secondary)
-                .frame(width: 60, alignment: .trailing)
-            
-            // Average score
-            Text(String(format: "%.1f", entry.avg_score))
-                .foregroundColor(.secondary)
-                .frame(width: 60, alignment: .trailing)
-        }
-        .padding(.horizontal)
+        }.resume()
     }
 }
 
-//
-//  Leaderboard.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 15/05/2025.
-//
+// Keep the existing EntryRow view as it is
+// struct EntryRow: View { ... }
+
+// API response model
+struct LeaderboardResponse: Codable {
+    let entries: [LeaderboardEntryResponse]
+    let currentUserEntry: LeaderboardEntryResponse?
+    let pagination: PaginationResponse
+    let period: String
+    
+    enum CodingKeys: String, CodingKey {
+        case entries
+        case currentUserEntry = "current_user_entry"
+        case pagination
+        case period
+    }
+}
+
+struct LeaderboardEntryResponse: Codable, Identifiable {
+    let rank: Int
+    let username: String
+    let user_id: String
+    let score: Int
+    let games_played: Int
+    let avg_score: Double
+    let is_current_user: Bool
+    
+    var id: String { user_id }
+}
+
+struct PaginationResponse: Codable {
+    let current_page: Int
+    let total_pages: Int
+    let total_entries: Int
+    let per_page: Int
+}

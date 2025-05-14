@@ -1,37 +1,11 @@
-import Foundation
+// Updated DailyView.swift for Realm
 import SwiftUI
-import Combine
-
-struct DailyQuote: Codable {
-    let id: Int
-    let text: String
-    let author: String
-    let minor_attribution: String?
-    let difficulty: Double
-    let date: String
-    let unique_letters: Int
-    
-    // Computed property for formatted date
-    var formattedDate: String {
-        if let date = ISO8601DateFormatter().date(from: date) {
-            let formatter = DateFormatter()
-            formatter.dateStyle = .long
-            return formatter.string(from: date)
-        }
-        return date
-    }
-}
+import RealmSwift
 
 struct DailyView: View {
-    @EnvironmentObject var auth: AuthenticationCoordinator
-    @EnvironmentObject var settings: UserSettings
-    @StateObject private var gameController: GameController
+    @EnvironmentObject var userState: UserState
+    @EnvironmentObject var gameState: GameState
     @State private var showInfoView = true
-    
-    init(auth: AuthenticationCoordinator) {
-        let controller = GameController(auth: auth)
-        self._gameController = StateObject(wrappedValue: controller)
-    }
     
     var body: some View {
         // Platform-specific navigation setup
@@ -100,7 +74,7 @@ struct DailyView: View {
         }
         .onAppear {
             if !showInfoView {
-                gameController.setupDailyChallenge()
+                gameState.setupDailyChallenge()
             }
         }
     }
@@ -116,12 +90,12 @@ struct DailyView: View {
                         .fontWeight(.bold)
                         .padding(.top)
                     
-                    if gameController.isLoading {
+                    if gameState.isLoading {
                         // Loading state
                         ProgressView("Loading today's challenge...")
                             .padding()
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    } else if let errorMessage = gameController.errorMessage {
+                    } else if let errorMessage = gameState.errorMessage {
                         // Error state
                         VStack {
                             Image(systemName: "exclamationmark.triangle")
@@ -135,7 +109,7 @@ struct DailyView: View {
                                 .padding()
                             
                             Button("Try Again") {
-                                gameController.setupDailyChallenge()
+                                gameState.setupDailyChallenge()
                             }
                             .padding()
                             .background(Color.blue)
@@ -143,7 +117,7 @@ struct DailyView: View {
                             .cornerRadius(10)
                         }
                         .padding()
-                    } else if let date = gameController.quoteDate {
+                    } else if let date = gameState.quoteDate {
                         // Daily challenge info
                         VStack(spacing: 20) {
                             // Date
@@ -155,7 +129,7 @@ struct DailyView: View {
                             // Quote card with masked text
                             VStack(spacing: 16) {
                                 // Quote text preview (masked for game)
-                                Text(maskQuote(gameController.game.solution))
+                                Text(maskQuote(gameState.currentGame?.solution ?? ""))
                                     .font(.title3)
                                     .fontWeight(.medium)
                                     .multilineTextAlignment(.center)
@@ -166,14 +140,14 @@ struct DailyView: View {
                                     .cornerRadius(12)
                                 
                                 // Author (partially masked)
-                                Text("— " + maskAuthor(gameController.quoteAuthor))
+                                Text("— " + maskAuthor(gameState.quoteAuthor))
                                     .font(.callout)
                                     .fontWeight(.medium)
                                     .foregroundColor(.secondary)
                                     .padding(.top, 4)
                                 
                                 // Minor attribution
-                                if let attribution = gameController.quoteAttribution {
+                                if let attribution = gameState.quoteAttribution {
                                     Text(attribution)
                                         .font(.caption)
                                         .foregroundColor(.secondary)
@@ -187,7 +161,7 @@ struct DailyView: View {
                             
                             // Stats about the quote
                             VStack(spacing: 12) {
-                                InfoRow(title: "Quote Length", value: "\(gameController.game.solution.count) characters")
+                                InfoRow(title: "Quote Length", value: "\(gameState.currentGame?.solution.count ?? 0) characters")
                             }
                             .padding()
                             .background(Color.gray.opacity(0.1))
@@ -197,7 +171,7 @@ struct DailyView: View {
                             // Play button
                             Button(action: {
                                 showInfoView = false
-                                gameController.setupDailyChallenge()
+                                gameState.setupDailyChallenge()
                             }) {
                                 HStack {
                                     Image(systemName: "play.fill")
@@ -226,7 +200,7 @@ struct DailyView: View {
                                 .foregroundColor(.secondary)
                             
                             Button("Check for Today's Challenge") {
-                                gameController.setupDailyChallenge()
+                                gameState.setupDailyChallenge()
                             }
                             .padding()
                             .background(Color.blue)
@@ -241,10 +215,10 @@ struct DailyView: View {
             }
         }
         .onAppear {
-            gameController.setupDailyChallenge()
+            gameState.setupDailyChallenge()
         }
         .refreshable {
-            gameController.setupDailyChallenge()
+            gameState.setupDailyChallenge()
         }
     }
     
@@ -297,10 +271,3 @@ struct DailyView: View {
         }
     }
 }
-//
-//  DailyView.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 13/05/2025.
-//
-

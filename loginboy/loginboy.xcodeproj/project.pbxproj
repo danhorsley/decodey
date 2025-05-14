@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		28D1B2F92DD235CB001C2A15 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28D1B2F82DD235CB001C2A15 /* SwiftUI.framework */; };
 		28D1B3062DD23CE0001C2A15 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = 28D1B3052DD23CE0001C2A15 /* GRDB */; };
+		28D1B3842DD4DE21001C2A15 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 28D1B3832DD4DE21001C2A15 /* RealmSwift */; };
+		28D1B3852DD4DE21001C2A15 /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 28D1B3832DD4DE21001C2A15 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -27,6 +29,20 @@
 			remoteInfo = loginboy;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		28D1B3862DD4DE21001C2A15 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				28D1B3852DD4DE21001C2A15 /* RealmSwift in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		284A19F62DD21B7E00606222 /* loginboy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = loginboy.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -71,6 +87,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				28D1B3842DD4DE21001C2A15 /* RealmSwift in Frameworks */,
 				28D1B2F92DD235CB001C2A15 /* SwiftUI.framework in Frameworks */,
 				28D1B3062DD23CE0001C2A15 /* GRDB in Frameworks */,
 			);
@@ -132,6 +149,7 @@
 				284A19F22DD21B7E00606222 /* Sources */,
 				284A19F32DD21B7E00606222 /* Frameworks */,
 				284A19F42DD21B7E00606222 /* Resources */,
+				28D1B3862DD4DE21001C2A15 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -143,6 +161,7 @@
 			name = loginboy;
 			packageProductDependencies = (
 				28D1B3052DD23CE0001C2A15 /* GRDB */,
+				28D1B3832DD4DE21001C2A15 /* RealmSwift */,
 			);
 			productName = loginboy;
 			productReference = 284A19F62DD21B7E00606222 /* loginboy.app */;
@@ -228,6 +247,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				28D1B3042DD23CD5001C2A15 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
+				28D1B3822DD4DE0F001C2A15 /* XCRemoteSwiftPackageReference "realm-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 284A19F72DD21B7E00606222 /* Products */;
@@ -630,6 +650,14 @@
 				kind = branch;
 			};
 		};
+		28D1B3822DD4DE0F001C2A15 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/realm-swift";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -637,6 +665,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 28D1B3042DD23CD5001C2A15 /* XCRemoteSwiftPackageReference "GRDB.swift" */;
 			productName = GRDB;
+		};
+		28D1B3832DD4DE21001C2A15 /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 28D1B3822DD4DE0F001C2A15 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

@@ -1,16 +1,24 @@
+// MainView.swift - Rewritten for Realm
 import SwiftUI
 
 struct MainView: View {
     // Environment state objects
-    @EnvironmentObject var userState: UserState
-    @EnvironmentObject var gameState: GameState
-    @EnvironmentObject var settingsState: SettingsState
+    @StateObject private var userState = UserState.shared
+    @StateObject private var gameState = GameState.shared
+    @StateObject private var settingsState = SettingsState.shared
     
     // Use navigation coordinator
     @StateObject private var coordinator = NavigationCoordinator(auth: UserState.shared.authCoordinator)
     
+    // State for sheet presentations
+    @State private var showLoginSheet = false
+    @State private var showContinueGameSheet = false
+    
     var body: some View {
         mainContent
+            .environmentObject(userState)
+            .environmentObject(gameState)
+            .environmentObject(settingsState)
             .environmentObject(coordinator)
     }
     
@@ -28,8 +36,23 @@ struct MainView: View {
                 mainTabView
             }
         }
-        .sheet(item: $coordinator.activeSheet) { sheetType in
-            sheetContent(for: sheetType)
+        .sheet(isPresented: $showLoginSheet) {
+            NavigationView {
+                LoginView()
+                    .environmentObject(userState.authCoordinator)
+                    .navigationTitle("Login")
+            }
+        }
+        .sheet(isPresented: $showContinueGameSheet) {
+            if let savedGame = gameState.savedGame {
+                ContinueGameSheet(
+                    isDailyChallenge: savedGame.gameId?.starts(with: "daily-") ?? false
+                )
+                .presentationDetents([.medium])
+            }
+        }
+        .onChange(of: gameState.showContinueGameModal) { _, showModal in
+            showContinueGameSheet = showModal
         }
     }
     
@@ -44,35 +67,35 @@ struct MainView: View {
                 }
             },
             onShowLogin: {
-                coordinator.navigate(to: .login)
+                showLoginSheet = true
             }
         )
     }
     
     // Login view
     private var loginView: some View {
-            LoginView()
-                .environmentObject(userState.authCoordinator)
-                .overlay(
-                    Button(action: {
-                        coordinator.navigate(to: .home)
-                    }) {
-                        Image(systemName: "house")
-                            .font(.title)
-                            .padding()
-                            .background(Circle().fill(Color.black.opacity(0.7)))
-                            .foregroundColor(.white)
-                    }
-                    .padding(),
-                    alignment: .topLeading
-                )
-        }
+        LoginView()
+            .environmentObject(userState.authCoordinator)
+            .overlay(
+                Button(action: {
+                    coordinator.navigate(to: .home)
+                }) {
+                    Image(systemName: "house")
+                        .font(.title)
+                        .padding()
+                        .background(Circle().fill(Color.black.opacity(0.7)))
+                        .foregroundColor(.white)
+                }
+                .padding(),
+                alignment: .topLeading
+            )
+    }
     
     // Main tab view
     private var mainTabView: some View {
         TabView(selection: $coordinator.selectedTab) {
             NavigationViewWrapper {
-                DailyView(auth: userState.authCoordinator)
+                DailyView()
                     .environmentObject(userState.authCoordinator)
             }
             .tabItem {
@@ -89,7 +112,7 @@ struct MainView: View {
             .tag(NavigationCoordinator.AppRoute.TabRoute.game)
             
             NavigationViewWrapper {
-                LeaderboardView(auth: userState.authCoordinator)
+                LeaderboardView()
                     .environmentObject(userState.authCoordinator)
             }
             .tabItem {
@@ -98,8 +121,7 @@ struct MainView: View {
             .tag(NavigationCoordinator.AppRoute.TabRoute.leaderboard)
             
             NavigationViewWrapper {
-                UserStatsView(auth: userState.authCoordinator)
-                    .environmentObject(userState.authCoordinator)
+                UserStatsView()
             }
             .tabItem {
                 Label("Stats", systemImage: "chart.bar")
@@ -127,25 +149,5 @@ struct MainView: View {
             .padding(),
             alignment: .topLeading
         )
-    }
-    
-    // Sheet content factory function
-    @ViewBuilder
-    private func sheetContent(for sheetType: NavigationCoordinator.SheetType) -> some View {
-        switch sheetType {
-        case .settings:
-            NavigationView {
-                ProfileView()
-                    .environmentObject(coordinator)
-            }
-        case .login:
-            NavigationView {
-                LoginView()
-                    .environmentObject(coordinator)
-            }
-        case .continueGame:
-            ContinueGameSheet(isDailyChallenge: gameState.isDailyChallenge)
-                .presentationDetents([.medium])
-        }
     }
 }
