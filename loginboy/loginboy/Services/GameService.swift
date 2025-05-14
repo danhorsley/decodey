@@ -303,6 +303,10 @@ class GameService: ObservableObject {
         }
     }
     
+    func loadLatestGame() async throws -> Game? {
+        return try await gameRepository.loadLatestGame()
+    }
+    
     private func loadNewGame() async {
         await MainActor.run {
             isLoading = true

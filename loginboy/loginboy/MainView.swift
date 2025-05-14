@@ -51,22 +51,22 @@ struct MainView: View {
     
     // Login view
     private var loginView: some View {
-        LoginView()
-            .environmentObject(userState.authCoordinator)
-            .overlay(
-                Button(action: {
-                    coordinator.navigate(to: .home)
-                }) {
-                    Image(systemName: "house")
-                        .font(.title)
-                        .padding()
-                        .background(Circle().fill(Color.black.opacity(0.7)))
-                        .foregroundColor(.white)
-                }
-                .padding(),
-                alignment: .topLeading
-            )
-    }
+            LoginView()
+                .environmentObject(userState.authCoordinator)
+                .overlay(
+                    Button(action: {
+                        coordinator.navigate(to: .home)
+                    }) {
+                        Image(systemName: "house")
+                            .font(.title)
+                            .padding()
+                            .background(Circle().fill(Color.black.opacity(0.7)))
+                            .foregroundColor(.white)
+                    }
+                    .padding(),
+                    alignment: .topLeading
+                )
+        }
     
     // Main tab view
     private var mainTabView: some View {

@@ -98,7 +98,7 @@ struct Game {
         }
     }
     
-    // Game logic methods (these stay mostly the same)
+    // Game logic methods
     mutating func selectLetter(_ letter: Character) {
         if correctlyGuessed().contains(letter) {
             selectedLetter = nil
@@ -125,8 +125,8 @@ struct Game {
         selectedLetter = nil
         lastUpdateTime = Date()
         
-        // Save game state
-        saveGameState()
+        // REMOVE database interaction from here
+        // We'll rely on the services layer to handle saving
         return isCorrect
     }
     
@@ -177,7 +177,8 @@ struct Game {
                 hasLost = true
             }
             
-            saveGameState()
+            // REMOVE database interaction from here
+            // Again, rely on services to handle saving
             return true
         }
         return false
@@ -209,33 +210,7 @@ struct Game {
         return max(0, baseScore - mistakePenalty + timeScore)
     }
     
-    // Database operations
-    private mutating func saveGameState() {
-        do {
-            if let existingGameId = self.gameId {
-                // Game already has an ID, so update the existing record
-                try DatabaseManager.shared.updateGame(self, gameId: existingGameId)
-            } else {
-                // This is a new game, so save it and update our gameId
-                let updatedGame = try DatabaseManager.shared.saveGame(self)
-                self.gameId = updatedGame.gameId
-            }
-        } catch {
-            print("Error saving game state: \(error)")
-        }
-    }
-    
-    // Static loader
-    static func loadSavedGame() -> Game? {
-        do {
-            return try DatabaseManager.shared.loadLatestGame()
-        } catch {
-            print("Error loading saved game: \(error)")
-            return nil
-        }
-    }
+    // REMOVE all database operations
+    // Remove saveGameState() method
+    // Remove static loader methods
 }
-
-
-
-

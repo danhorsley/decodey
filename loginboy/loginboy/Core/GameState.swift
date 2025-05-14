@@ -258,7 +258,7 @@ class GameState: ObservableObject {
         
         do {
             // Try to get daily challenge from repository first
-            if let authCoordinator = ServiceProvider.shared.authCoordinator, authCoordinator.isAuthenticated {
+            let authCoordinator = ServiceProvider.shared.authCoordinator
                 let quote = try await quoteService.getDailyQuote(auth: authCoordinator)
                 dailyQuote = quote
                 
@@ -282,9 +282,7 @@ class GameState: ObservableObject {
                     showLoseMessage = false
                     isLoading = false
                 }
-            } else {
-                throw NSError(domain: "GameState", code: 401, userInfo: [NSLocalizedDescriptionKey: "Authentication required"])
-            }
+            
         } catch let error as QuoteService.QuoteError {
             await MainActor.run {
                 errorMessage = error.errorDescription

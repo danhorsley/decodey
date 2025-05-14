@@ -87,7 +87,7 @@ class AppState: ObservableObject {
         Task {
             do {
                 // Check for saved games
-                if let savedGame = try await serviceProvider.gameService.gameRepository.loadLatestGame() {
+                if let savedGame = try await serviceProvider.gameService.loadLatestGame() {
                     await MainActor.run {
                         self.gameState.savedGame = savedGame
                     }
