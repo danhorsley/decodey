@@ -16,7 +16,7 @@ class QuoteRepository: QuoteRepositoryProtocol {
     
     func getRandomQuote(difficulty: String? = nil) throws -> Quote {
         try database.read { db in
-            var request = QuoteRecord.filter(Column("isActive") == true)
+            var request = QuoteRecord.filter(Column("is_active") == true)
             
             // Apply difficulty filter if provided
             if let difficulty = difficulty {
@@ -71,7 +71,7 @@ class QuoteRepository: QuoteRepositoryProtocol {
                     minor_attribution: quoteRecord.attribution,
                     difficulty: quoteRecord.difficulty,
                     date: formatter.string(from: today),
-                    unique_letters: quoteRecord.uniqueLetters ?? 0
+                    unique_letters: quoteRecord.unique_letters ?? 0
                 )
             }
             
@@ -102,11 +102,11 @@ class QuoteRepository: QuoteRepositoryProtocol {
                             author: quote.author,
                             attribution: quote.minorAttribution,
                             difficulty: quote.difficulty,
-                            isDaily: quote.dailyDate != nil,
-                            dailyDate: ISO8601DateFormatter().date(from: quote.dailyDate ?? ""),
-                            isActive: true,
-                            timesUsed: quote.timesUsed,
-                            uniqueLetters: quote.uniqueLetters
+                            is_daily: quote.dailyDate != nil,
+                            daily_date: ISO8601DateFormatter().date(from: quote.dailyDate ?? ""),
+                            is_active: true,
+                            times_used: quote.timesUsed,
+                            unique_letters: quote.uniqueLetters
                         )
                         
                         try record.insert(db)
@@ -150,32 +150,30 @@ struct QuoteRecord: Codable, FetchableRecord, PersistableRecord {
     let author: String
     let attribution: String?
     let difficulty: Double
-    let isDaily: Bool
-    let dailyDate: Date?
-    let isActive: Bool
-    let timesUsed: Int
-    let uniqueLetters: Int?
-    let createdAt: Date
-    let updatedAt: Date
+    let is_daily: Bool
+    let daily_date: Date?
+    let is_active: Bool
+    let times_used: Int
+    let unique_letters: Int?
+    let created_at: Date
+    let updated_at: Date
     
     init(text: String, author: String, attribution: String? = nil,
-         difficulty: Double, isDaily: Bool = false, dailyDate: Date? = nil,
-         isActive: Bool = true, timesUsed: Int = 0, uniqueLetters: Int? = nil) {
+         difficulty: Double, is_daily: Bool = false, daily_date: Date? = nil,
+         is_active: Bool = true, times_used: Int = 0, unique_letters: Int? = nil) {
         self.id = nil
         self.text = text
         self.author = author
         self.attribution = attribution
         self.difficulty = difficulty
-        self.isDaily = isDaily
-        self.dailyDate = dailyDate
-        self.isActive = isActive
-        self.timesUsed = timesUsed
-        self.uniqueLetters = uniqueLetters ?? Set(text.uppercased().filter { $0.isLetter }).count
-        self.createdAt = Date()
-        self.updatedAt = Date()
+        self.is_daily = is_daily
+        self.daily_date = daily_date
+        self.is_active = is_active
+        self.times_used = times_used
+        self.unique_letters = unique_letters ?? Set(text.uppercased().filter { $0.isLetter }).count
+        self.created_at = Date()
+        self.updated_at = Date()
     }
-    
-    
 }
 //
 //  QuoteRepository.swift

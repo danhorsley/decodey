@@ -60,14 +60,14 @@ class UserRepository: UserRepositoryProtocol {
                     userId: record.id,
                     username: record.username,
                     email: record.email,
-                    displayName: record.displayName,
-                    avatarUrl: record.avatarUrl,
+                    displayName: record.display_name,
+                    avatarUrl: record.avatar_url,
                     bio: record.bio,
-                    registrationDate: record.registrationDate,
-                    lastLoginDate: record.lastLoginDate,
-                    isActive: record.isActive,
-                    isVerified: record.isVerified,
-                    isSubadmin: record.isSubadmin
+                    registrationDate: record.registration_date,
+                    lastLoginDate: record.last_login_date,
+                    isActive: record.is_active,
+                    isVerified: record.is_verified,
+                    isSubadmin: record.is_subadmin
                 )
             }
         }.value
@@ -87,15 +87,15 @@ class UserRepository: UserRepositoryProtocol {
                     id: profile.userId,
                     username: profile.username,
                     email: profile.email,
-                    passwordHash: nil, // Don't modify password
-                    displayName: profile.displayName,
-                    avatarUrl: profile.avatarUrl,
+                    password_hash: nil, // Don't modify password
+                    display_name: profile.displayName,
+                    avatar_url: profile.avatarUrl,
                     bio: profile.bio,
-                    registrationDate: profile.registrationDate,
-                    lastLoginDate: profile.lastLoginDate,
-                    isActive: profile.isActive,
-                    isVerified: profile.isVerified,
-                    isSubadmin: profile.isSubadmin
+                    registration_date: profile.registrationDate,
+                    last_login_date: profile.lastLoginDate,
+                    is_active: profile.isActive,
+                    is_verified: profile.isVerified,
+                    is_subadmin: profile.isSubadmin
                 )
                 
                 try record.update(db)
@@ -128,16 +128,16 @@ class UserRepository: UserRepositoryProtocol {
                 
                 // Convert to domain model
                 return UserPreferences(
-                    userId: record.userId,
-                    darkMode: record.darkMode,
-                    showTextHelpers: record.showTextHelpers,
-                    accessibilityTextSize: record.accessibilityTextSize,
-                    gameDifficulty: record.gameDifficulty,
-                    soundEnabled: record.soundEnabled,
-                    soundVolume: record.soundVolume,
-                    useBiometricAuth: record.useBiometricAuth,
-                    notificationsEnabled: record.notificationsEnabled,
-                    lastSyncDate: record.lastSyncDate
+                    userId: record.user_id,
+                    darkMode: record.dark_mode,
+                    showTextHelpers: record.show_text_helpers,
+                    accessibilityTextSize: record.accessibility_text_size,
+                    gameDifficulty: record.game_difficulty,
+                    soundEnabled: record.sound_enabled,
+                    soundVolume: record.sound_volume,
+                    useBiometricAuth: record.use_biometric_auth,
+                    notificationsEnabled: record.notifications_enabled,
+                    lastSyncDate: record.last_sync_date
                 )
             }
         }.value
@@ -152,16 +152,16 @@ class UserRepository: UserRepositoryProtocol {
                 
                 // Create record
                 let record = UserPreferencesRecord(
-                    userId: preferences.userId,
-                    darkMode: preferences.darkMode,
-                    showTextHelpers: preferences.showTextHelpers,
-                    accessibilityTextSize: preferences.accessibilityTextSize,
-                    gameDifficulty: preferences.gameDifficulty,
-                    soundEnabled: preferences.soundEnabled,
-                    soundVolume: preferences.soundVolume,
-                    useBiometricAuth: preferences.useBiometricAuth,
-                    notificationsEnabled: preferences.notificationsEnabled,
-                    lastSyncDate: preferences.lastSyncDate ?? Date()
+                    user_id: preferences.userId,
+                    dark_mode: preferences.darkMode,
+                    show_text_helpers: preferences.showTextHelpers,
+                    accessibility_text_size: preferences.accessibilityTextSize,
+                    game_difficulty: preferences.gameDifficulty,
+                    sound_enabled: preferences.soundEnabled,
+                    sound_volume: preferences.soundVolume,
+                    use_biometric_auth: preferences.useBiometricAuth,
+                    notifications_enabled: preferences.notificationsEnabled,
+                    last_sync_date: preferences.lastSyncDate ?? Date()
                 )
                 
                 if exists {
@@ -204,31 +204,32 @@ class UserRepository: UserRepositoryProtocol {
                     id: userId,
                     username: username,
                     email: email,
-                    passwordHash: passwordHash,
-                    displayName: nil,
-                    avatarUrl: nil,
+                    password_hash: passwordHash,
+                    display_name: nil,
+                    avatar_url: nil,
                     bio: nil,
-                    registrationDate: Date(),
-                    lastLoginDate: Date(),
-                    isActive: true,
-                    isVerified: false,
-                    isSubadmin: false
+                    registration_date: Date(),
+                    last_login_date: Date(),
+                    is_active: true,
+                    is_verified: false,
+                    is_subadmin: false
                 )
+
                 
                 try record.insert(db)
                 
                 // Initialize user preferences with defaults
                 let preferences = UserPreferencesRecord(
-                    userId: userId,
-                    darkMode: true,
-                    showTextHelpers: true,
-                    accessibilityTextSize: false,
-                    gameDifficulty: "medium",
-                    soundEnabled: true,
-                    soundVolume: 0.5,
-                    useBiometricAuth: false,
-                    notificationsEnabled: true,
-                    lastSyncDate: Date()
+                    user_id: userId,
+                    dark_mode: true,
+                    show_text_helpers: true,
+                    accessibility_text_size: false,
+                    game_difficulty: "medium",
+                    sound_enabled: true,
+                    sound_volume: 0.5,
+                    use_biometric_auth: false,
+                    notifications_enabled: true,
+                    last_sync_date: Date()
                 )
                 
                 try preferences.insert(db)
@@ -259,44 +260,30 @@ struct UserRecord: Codable, FetchableRecord, PersistableRecord {
     let id: String
     let username: String
     let email: String
-    let passwordHash: String?
-    let displayName: String?
-    let avatarUrl: String?
+    let password_hash: String?
+    let display_name: String?
+    let avatar_url: String?
     let bio: String?
-    let registrationDate: Date
-    let lastLoginDate: Date
-    let isActive: Bool
-    let isVerified: Bool
-    let isSubadmin: Bool
+    let registration_date: Date
+    let last_login_date: Date
+    let is_active: Bool
+    let is_verified: Bool
+    let is_subadmin: Bool
 }
 
 struct UserPreferencesRecord: Codable, FetchableRecord, PersistableRecord {
     static let databaseTableName = "user_preferences"
     
-    let userId: String
-    let darkMode: Bool
-    let showTextHelpers: Bool
-    let accessibilityTextSize: Bool
-    let gameDifficulty: String
-    let soundEnabled: Bool
-    let soundVolume: Float
-    let useBiometricAuth: Bool
-    let notificationsEnabled: Bool
-    let lastSyncDate: Date?
-    
-    // Map column names
-    enum Columns {
-        static let userId = Column("user_id")
-        static let darkMode = Column("dark_mode")
-        static let showTextHelpers = Column("show_text_helpers")
-        static let accessibilityTextSize = Column("accessibility_text_size")
-        static let gameDifficulty = Column("game_difficulty")
-        static let soundEnabled = Column("sound_enabled")
-        static let soundVolume = Column("sound_volume")
-        static let useBiometricAuth = Column("use_biometric_auth")
-        static let notificationsEnabled = Column("notifications_enabled")
-        static let lastSyncDate = Column("last_sync_date")
-    }
+    let user_id: String
+    let dark_mode: Bool
+    let show_text_helpers: Bool
+    let accessibility_text_size: Bool
+    let game_difficulty: String
+    let sound_enabled: Bool
+    let sound_volume: Float
+    let use_biometric_auth: Bool
+    let notifications_enabled: Bool
+    let last_sync_date: Date?
 }
 
 // MARK: - Additional Repository Errors
@@ -305,36 +292,23 @@ extension RepositoryError {
         return .saveFailed("User already exists: \(message)")
     }
 }
+
 // Stats Record
 struct StatsRecord: Codable, FetchableRecord, PersistableRecord {
     static let databaseTableName = "statistics"
     
-    let userId: String
-    let gamesPlayed: Int
-    let gamesWon: Int
-    let currentStreak: Int
-    let bestStreak: Int
-    let totalScore: Int
-    let averageMistakes: Double
-    let averageTime: Double
-    let lastPlayedDate: Date?
+    let user_id: String
+    let games_played: Int
+    let games_won: Int
+    let current_streak: Int
+    let best_streak: Int
+    let total_score: Int
+    let average_mistakes: Double
+    let average_time: Double
+    let last_played_date: Date?
     
     var winPercentage: Double {
-        guard gamesPlayed > 0 else { return 0 }
-        return (Double(gamesWon) / Double(gamesPlayed)) * 100.0
+        guard games_played > 0 else { return 0 }
+        return (Double(games_won) / Double(games_played)) * 100.0
     }
 }
-//
-//  UserRepository.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 15/05/2025.
-//
-
-//
-//  UserRepository.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 14/05/2025.
-//
-

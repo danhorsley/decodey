@@ -24,6 +24,7 @@ class RepositoryProvider {
                                              appropriateFor: nil, create: true)
                 .appendingPathComponent("Databases", isDirectory: true)
             
+            print("Database path: \(dbFolder.path)") // db path for debugging
             // Create folder if needed
             if !fileManager.fileExists(atPath: dbFolder.path) {
                 try fileManager.createDirectory(at: dbFolder, withIntermediateDirectories: true)
@@ -67,8 +68,8 @@ class RepositoryProvider {
                 t.column("is_verified", .boolean).notNull().defaults(to: false)
                 t.column("is_subadmin", .boolean).notNull().defaults(to: false)
             }
-            
-            // Create user preferences table
+
+            // User preferences table
             try db.create(table: "user_preferences") { t in
                 t.column("user_id", .text).notNull().primaryKey()
                     .references("users", column: "id", onDelete: .cascade)
@@ -157,7 +158,7 @@ class RepositoryProvider {
                     text: quote["text"] as! String,
                     author: quote["author"] as! String,
                     difficulty: quote["difficulty"] as! Double,
-                    isActive: true
+                    is_active: true
                 ).insert(db)
             }
             
@@ -166,29 +167,29 @@ class RepositoryProvider {
                 id: "test-user-1",
                 username: "testuser",
                 email: "test@example.com",
-                passwordHash: "$2y$10$92jJqMp3F4QCbwmGYI.wJuLnhrpGxBgBNUNuZ2O41oGG/pz5UbLOe", // "password"
-                displayName: "Test User",
-                avatarUrl: nil,
+                password_hash: "$2y$10$92jJqMp3F4QCbwmGYI.wJuLnhrpGxBgBNUNuZ2O41oGG/pz5UbLOe", // "password"
+                display_name: "Test User",
+                avatar_url: nil,
                 bio: nil,
-                registrationDate: Date(),
-                lastLoginDate: Date(),
-                isActive: true,
-                isVerified: true,
-                isSubadmin: false
+                registration_date: Date(),
+                last_login_date: Date(),
+                is_active: true,
+                is_verified: true,
+                is_subadmin: false
             ).insert(db)
             
             // Insert test user preferences
             try UserPreferencesRecord(
-                userId: "test-user-1",
-                darkMode: true,
-                showTextHelpers: true,
-                accessibilityTextSize: false,
-                gameDifficulty: "medium",
-                soundEnabled: true,
-                soundVolume: 0.5,
-                useBiometricAuth: false,
-                notificationsEnabled: true,
-                lastSyncDate: Date()
+                user_id: "test-user-1",
+                dark_mode: true,
+                show_text_helpers: true,
+                accessibility_text_size: false,
+                game_difficulty: "medium",
+                sound_enabled: true,
+                sound_volume: 0.5,
+                use_biometric_auth: false,
+                notifications_enabled: true,
+                last_sync_date: Date()
             ).insert(db)
         }
         

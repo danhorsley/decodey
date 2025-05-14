@@ -37,12 +37,12 @@ class GameRepository: GameRepositoryProtocol {
         return try await Task {
             try database.write { db in
                 var record = GameRecord(from: game)
-                try record.save(db)
+                try record.insert(db)
                 
                 // Return updated game with ID if it was new
                 if game.gameId == nil {
                     var updatedGame = game
-                    updatedGame.gameId = record.gameId
+                    updatedGame.gameId = record.game_id
                     return updatedGame
                 }
                 return game
@@ -73,23 +73,23 @@ class GameRepository: GameRepositoryProtocol {
                 try db.execute(
                     sql: """
                         UPDATE games SET 
-                        currentDisplay = ?, 
-                        originalText = ?,
-                        encryptedText = ?,
+                        current_display = ?, 
+                        original_text = ?,
+                        encrypted_text = ?,
                         solution = ?,
                         mapping = ?,
-                        reverseMapping = ?,
-                        correctlyGuessed = ?,
+                        reverse_mapping = ?,
+                        correctly_guessed = ?,
                         mistakes = ?,
-                        maxMistakes = ?,
+                        max_mistakes = ?,
                         difficulty = ?,
-                        hasWon = ?,
-                        hasLost = ?,
-                        isComplete = ?,
+                        has_won = ?,
+                        has_lost = ?,
+                        is_complete = ?,
                         score = ?,
-                        timeTaken = ?,
-                        lastUpdated = ?
-                        WHERE gameId = ?
+                        time_taken = ?,
+                        last_updated = ?
+                        WHERE game_id = ?
                     """,
                     arguments: [
                         game.currentDisplay,
@@ -120,8 +120,8 @@ class GameRepository: GameRepositoryProtocol {
         return try await Task {
             try database.read { db in
                 let record = try GameRecord
-                    .filter(Column("isComplete") == false)
-                    .order(Column("createdAt").desc)
+                    .filter(Column("is_complete") == false)
+                    .order(Column("created_at").desc)
                     .fetchOne(db)
                 
                 return record?.toGame()
@@ -134,7 +134,7 @@ class GameRepository: GameRepositoryProtocol {
         return try await Task {
             try database.read { db in
                 let record = try GameRecord
-                    .filter(Column("gameId") == gameId)
+                    .filter(Column("game_id") == gameId)
                     .fetchOne(db)
                 
                 return record?.toGame()
@@ -148,13 +148,13 @@ class GameRepository: GameRepositoryProtocol {
             try database.write { db in
                 // Update the game
                 try db.execute(
-                    sql: "UPDATE games SET isComplete = TRUE, hasLost = TRUE WHERE gameId = ?",
+                    sql: "UPDATE games SET is_complete = TRUE, has_lost = TRUE WHERE game_id = ?",
                     arguments: [gameId]
                 )
                 
                 // If we affected a row, reset the player's streak
-                if let gameRecord = try GameRecord.filter(Column("gameId") == gameId).fetchOne(db),
-                   let userId = gameRecord.userId {
+                if let gameRecord = try GameRecord.filter(Column("game_id") == gameId).fetchOne(db),
+                   let userId = gameRecord.user_id {
                     try db.execute(
                         sql: "UPDATE statistics SET current_streak = 0 WHERE user_id = ? AND current_streak > 0",
                         arguments: [userId]
@@ -185,14 +185,14 @@ class GameRepository: GameRepositoryProtocol {
                 
                 // Convert DB record to domain model
                 return GameStatistics(
-                    gamesPlayed: stats.gamesPlayed,
-                    gamesWon: stats.gamesWon,
-                    currentStreak: stats.currentStreak,
-                    bestStreak: stats.bestStreak,
-                    totalScore: stats.totalScore,
-                    averageMistakes: stats.averageMistakes,
-                    averageTime: stats.averageTime,
-                    lastPlayedDate: stats.lastPlayedDate
+                    gamesPlayed: stats.games_played,
+                    gamesWon: stats.games_won,
+                    currentStreak: stats.current_streak,
+                    bestStreak: stats.best_streak,
+                    totalScore: stats.total_score,
+                    averageMistakes: stats.average_mistakes,
+                    averageTime: stats.average_time,
+                    lastPlayedDate: stats.last_played_date
                 )
             }
         }.value
@@ -234,15 +234,15 @@ class GameRepository: GameRepositoryProtocol {
                 } else {
                     // Insert new stats
                     let stats = StatsRecord(
-                        userId: userId,
-                        gamesPlayed: 1,
-                        gamesWon: gameWon ? 1 : 0,
-                        currentStreak: gameWon ? 1 : 0,
-                        bestStreak: gameWon ? 1 : 0,
-                        totalScore: score,
-                        averageMistakes: Double(mistakes),
-                        averageTime: Double(timeTaken),
-                        lastPlayedDate: Date()
+                        user_id: userId,
+                        games_played: 1,
+                        games_won: gameWon ? 1 : 0,
+                        current_streak: gameWon ? 1 : 0,
+                        best_streak: gameWon ? 1 : 0,
+                        total_score: score,
+                        average_mistakes: Double(mistakes),
+                        average_time: Double(timeTaken),
+                        last_played_date: Date()
                     )
                     try stats.insert(db)
                 }
@@ -307,55 +307,55 @@ struct GameRecord: Codable, FetchableRecord, PersistableRecord {
     static let databaseTableName = "games"
     
     var id: Int64?
-    let gameId: String
-    let userId: String?
-    let quoteId: Int64?
-    let originalText: String
-    let encryptedText: String
-    let currentDisplay: String
+    let game_id: String
+    let user_id: String?
+    let quote_id: Int64?
+    let original_text: String
+    let encrypted_text: String
+    let current_display: String
     let solution: String
     let mapping: Data
-    let reverseMapping: Data
-    let correctlyGuessed: Data?
+    let reverse_mapping: Data
+    let correctly_guessed: Data?
     let mistakes: Int
-    let maxMistakes: Int
+    let max_mistakes: Int
     let difficulty: String
-    let hasWon: Bool
-    let hasLost: Bool
-    let isComplete: Bool
+    let has_won: Bool
+    let has_lost: Bool
+    let is_complete: Bool
     let score: Int?
-    let timeTaken: Int?
-    let createdAt: Date
-    let lastUpdated: Date
+    let time_taken: Int?
+    let created_at: Date
+    let last_updated: Date
     
     // Create from Game model
     init(from game: Game) {
         self.id = nil
-        self.gameId = game.gameId ?? UUID().uuidString
-        self.userId = nil // This would come from your auth service
-        self.quoteId = nil // Would be set if coming from a specific quote
-        self.originalText = game.solution
-        self.encryptedText = game.encrypted
-        self.currentDisplay = game.currentDisplay
+        self.game_id = game.gameId ?? UUID().uuidString
+        self.user_id = nil // This would come from your auth service
+        self.quote_id = nil // Would be set if coming from a specific quote
+        self.original_text = game.solution
+        self.encrypted_text = game.encrypted
+        self.current_display = game.currentDisplay
         self.solution = game.solution
         
         // Serialize mappings
         let encoder = JSONEncoder()
         self.mapping = try! encoder.encode(game.mapping.mapToStringDict())
-        self.reverseMapping = try! encoder.encode(game.correctMappings.mapToStringDict())
-        self.correctlyGuessed = try! encoder.encode(game.correctlyGuessed().map { String($0) })
+        self.reverse_mapping = try! encoder.encode(game.correctMappings.mapToStringDict())
+        self.correctly_guessed = try! encoder.encode(game.correctlyGuessed().map { String($0) })
         
         self.mistakes = game.mistakes
-        self.maxMistakes = game.maxMistakes
+        self.max_mistakes = game.maxMistakes
         self.difficulty = game.difficulty
-        self.hasWon = game.hasWon
-        self.hasLost = game.hasLost
-        self.isComplete = game.hasWon || game.hasLost
+        self.has_won = game.hasWon
+        self.has_lost = game.hasLost
+        self.is_complete = game.hasWon || game.hasLost
         self.score = game.hasWon ? game.calculateScore() : nil
-        self.timeTaken = game.hasWon || game.hasLost ?
+        self.time_taken = game.hasWon || game.hasLost ?
             Int(game.lastUpdateTime.timeIntervalSince(game.startTime)) : nil
-        self.createdAt = game.startTime
-        self.lastUpdated = game.lastUpdateTime
+        self.created_at = game.startTime
+        self.last_updated = game.lastUpdateTime
     }
     
     // Convert to Game model
@@ -365,8 +365,8 @@ struct GameRecord: Codable, FetchableRecord, PersistableRecord {
             
             // Deserialize mappings
             let mappingDict = try decoder.decode([String: String].self, from: mapping)
-            let reverseDict = try decoder.decode([String: String].self, from: reverseMapping)
-            let guessedArray = try decoder.decode([String].self, from: correctlyGuessed ?? Data())
+            let reverseDict = try decoder.decode([String: String].self, from: reverse_mapping)
+            let guessedArray = try decoder.decode([String].self, from: correctly_guessed ?? Data())
             
             // Convert string dictionaries to character dictionaries
             let mappingChars = mappingDict.mapToCharDict()
@@ -380,22 +380,22 @@ struct GameRecord: Codable, FetchableRecord, PersistableRecord {
                 }
             }
             
-            // Create Game - fix parameter name to match expected initializer
+            // Create Game
             return Game(
-                gameId: gameId,
-                encrypted: encryptedText,
-                solution: originalText, // Use originalText to avoid the mismatch issue
-                currentDisplay: currentDisplay,
+                gameId: game_id,
+                encrypted: encrypted_text,
+                solution: original_text,
+                currentDisplay: current_display,
                 mapping: mappingChars,
                 correctMappings: reverseChars,
                 guessedMappings: guessedMappings,
                 mistakes: mistakes,
-                maxMistakes: maxMistakes,
-                hasWon: hasWon,
-                hasLost: hasLost,
+                maxMistakes: max_mistakes,
+                hasWon: has_won,
+                hasLost: has_lost,
                 difficulty: difficulty,
-                startTime: createdAt,
-                lastUpdateTime: lastUpdated  // Changed from lastUpdated to lastUpdateTime
+                startTime: created_at,
+                lastUpdateTime: last_updated
             )
         } catch {
             print("Error converting GameRecord to Game: \(error)")
@@ -426,9 +426,3 @@ extension Dictionary where Key == String, Value == String {
         return result
     }
 }
-//
-//  GameRepository.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 15/05/2025.
-//
