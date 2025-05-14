@@ -6,36 +6,32 @@ struct MainView: View {
     @EnvironmentObject var gameState: GameState
     @EnvironmentObject var settingsState: SettingsState
     
-    @State private var currentScreen: AppScreen = .home
-    
-    enum AppScreen {
-        case home
-        case main
-        case login
-    }
+    // Use navigation coordinator
+    @StateObject private var coordinator = NavigationCoordinator(auth: UserState.shared.authCoordinator)
     
     var body: some View {
-        if !userState.isAuthenticated {
-            if currentScreen == .home {
+        Group {
+            switch coordinator.currentRoute {
+            case .home:
                 HomeScreen(
                     onBegin: {
-                        if !userState.isAuthenticated {
-                            currentScreen = .login
+                        if userState.isAuthenticated {
+                            coordinator.navigate(to: .main(.daily))
                         } else {
-                            currentScreen = .main
+                            coordinator.navigate(to: .login)
                         }
                     },
                     onShowLogin: {
-                        currentScreen = .login
+                        coordinator.navigate(to: .login)
                     }
                 )
-                .transition(.opacity)
-            } else {
+                
+            case .login:
                 LoginView()
-                    .environmentObject(userState)
+                    .environmentObject(userState.authCoordinator)
                     .overlay(
                         Button(action: {
-                            currentScreen = .home
+                            coordinator.navigate(to: .home)
                         }) {
                             Image(systemName: "house")
                                 .font(.title)
@@ -46,32 +42,17 @@ struct MainView: View {
                         .padding(),
                         alignment: .topLeading
                     )
-                    .transition(.opacity)
-                    .onChange(of: userState.isAuthenticated) { isAuthenticated in
-                        if isAuthenticated {
-                            currentScreen = .main
-                        }
-                    }
-            }
-        } else {
-            if currentScreen == .home {
-                HomeScreen(
-                    onBegin: {
-                        currentScreen = .main
-                    },
-                    onShowLogin: {
-                        currentScreen = .main
-                    }
-                )
-                .transition(.opacity)
-            } else {
-                TabView {
+                
+            case .main:
+                TabView(selection: $coordinator.selectedTab) {
                     NavigationViewWrapper {
-                        DailyView(auth: userState.authCoordinator)
+                        DailyView()
+                            .environmentObject(userState.authCoordinator)
                     }
                     .tabItem {
                         Label("Daily", systemImage: "calendar")
                     }
+                    .tag(NavigationCoordinator.AppRoute.TabRoute.daily)
                     
                     NavigationViewWrapper {
                         CustomGameView()
@@ -79,20 +60,25 @@ struct MainView: View {
                     .tabItem {
                         Label("Play", systemImage: "gamecontroller")
                     }
+                    .tag(NavigationCoordinator.AppRoute.TabRoute.game)
                     
                     NavigationViewWrapper {
-                        LeaderboardView(auth: userState.authCoordinator)
+                        LeaderboardView()
+                            .environmentObject(userState.authCoordinator)
                     }
                     .tabItem {
                         Label("Leaderboard", systemImage: "list.number")
                     }
+                    .tag(NavigationCoordinator.AppRoute.TabRoute.leaderboard)
                     
                     NavigationViewWrapper {
-                        UserStatsView(auth: userState.authCoordinator)
+                        UserStatsView()
+                            .environmentObject(userState.authCoordinator)
                     }
                     .tabItem {
                         Label("Stats", systemImage: "chart.bar")
                     }
+                    .tag(NavigationCoordinator.AppRoute.TabRoute.stats)
                     
                     NavigationViewWrapper {
                         ProfileView()
@@ -100,10 +86,11 @@ struct MainView: View {
                     .tabItem {
                         Label("Profile", systemImage: "person")
                     }
+                    .tag(NavigationCoordinator.AppRoute.TabRoute.profile)
                 }
                 .overlay(
                     Button(action: {
-                        currentScreen = .home
+                        coordinator.navigate(to: .home)
                     }) {
                         Image(systemName: "house")
                             .font(.title)
@@ -114,24 +101,9 @@ struct MainView: View {
                     .padding(),
                     alignment: .topLeading
                 )
-                .transition(.opacity)
             }
         }
-    }
-}
-
-
-
-
-// Updated CustomGameView
-struct CustomGameView: View {
-    @EnvironmentObject var gameState: GameState
-    
-    var body: some View {
-        GameView()
-            .navigationTitle("Custom Game")
-            .onAppear {
-                gameState.setupCustomGame()
-            }
+        .environmentObject(coordinator)
+        .withCoordinatedNavigation(coordinator)
     }
 }
