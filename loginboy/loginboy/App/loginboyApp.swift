@@ -6,6 +6,10 @@ struct DecodeyApp: App {
     // Initialize Core Data stack and sound manager
     private let coreData = CoreDataStack.shared
     private let soundManager = SoundManager.shared
+    private let quoteStore = QuoteStore.shared
+    
+    // State to track sync status
+    @State private var quoteSyncInProgress = false
     
     init() {
         // Print database path during initialization
@@ -26,6 +30,9 @@ struct DecodeyApp: App {
                     
                     // Print database info when UI appears
                     CoreDataStack.shared.printDatabaseInfo()
+                    
+                    // Sync quotes from server on app launch
+                    syncQuotesIfNeeded()
                 }
                 .environment(\.managedObjectContext, coreData.mainContext)
         }
@@ -73,6 +80,57 @@ struct DecodeyApp: App {
             
             // Save the current version
             defaults.set(currentVersion, forKey: lastVersionKey)
+        }
+    }
+    
+    // Sync quotes if needed based on time since last sync
+    private func syncQuotesIfNeeded() {
+        // Avoid multiple sync attempts
+        guard !quoteSyncInProgress else { return }
+        
+        // Check when we last synced
+        let defaults = UserDefaults.standard
+        let lastSyncKey = "lastQuoteSyncDate"
+        
+        let shouldSync: Bool
+        
+        if let lastSyncDate = defaults.object(forKey: lastSyncKey) as? Date {
+            // Check if it's been more than a day since the last sync
+            let daysSinceLastSync = Calendar.current.dateComponents([.day], from: lastSyncDate, to: Date()).day ?? 0
+            shouldSync = daysSinceLastSync >= 1
+        } else {
+            // No sync date found, should sync
+            shouldSync = true
+        }
+        
+        if shouldSync {
+            quoteSyncInProgress = true
+            
+            print("🔄 Syncing quotes from server...")
+            
+            // Check if user is authenticated for API access
+            if let token = UserState.shared.authCoordinator.getAccessToken() {
+                // User is authenticated, sync with server
+                quoteStore.syncQuotesFromServer(auth: UserState.shared.authCoordinator) { success in
+                    DispatchQueue.main.async {
+                        self.quoteSyncInProgress = false
+                        
+                        if success {
+                            print("✅ Quote sync completed successfully")
+                            // Update last sync date
+                            defaults.set(Date(), forKey: lastSyncKey)
+                        } else {
+                            print("❌ Quote sync failed")
+                        }
+                    }
+                }
+            } else {
+                // No authentication, skip server sync
+                print("ℹ️ Skipping quote sync - user not authenticated")
+                quoteSyncInProgress = false
+            }
+        } else {
+            print("ℹ️ Skipping quote sync - last sync was recent")
         }
     }
 }

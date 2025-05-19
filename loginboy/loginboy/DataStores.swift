@@ -103,7 +103,7 @@ class QuoteStore {
         }
         
         // Build URL
-        guard let url = URL(string: "\(auth.baseURL)/get_all_quotes") else {
+        guard let url = URL(string: "\(auth.baseURL)/api/quotes") else {
             print("Cannot sync quotes: Invalid URL")
             completion(false)
             return
@@ -113,41 +113,34 @@ class QuoteStore {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
         
         // Execute request
         URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
             // Check for errors
             if let error = error {
                 print("Network error during quote sync: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    completion(false)
-                }
+                completion(false)
                 return
             }
             
             guard let httpResponse = response as? HTTPURLResponse else {
                 print("Invalid response during quote sync")
-                DispatchQueue.main.async {
-                    completion(false)
-                }
+                completion(false)
                 return
             }
             
             // Check for HTTP errors
             if httpResponse.statusCode != 200 {
                 print("Server error during quote sync: Status \(httpResponse.statusCode)")
-                DispatchQueue.main.async {
-                    completion(false)
-                }
+                completion(false)
                 return
             }
             
             // Parse response data
             guard let data = data else {
                 print("No data received during quote sync")
-                DispatchQueue.main.async {
-                    completion(false)
-                }
+                completion(false)
                 return
             }
             
@@ -158,69 +151,88 @@ class QuoteStore {
                 
                 guard response.success, let quotes = response.quotes else {
                     print("Server response indicated failure during quote sync")
-                    DispatchQueue.main.async {
-                        completion(false)
-                    }
+                    completion(false)
                     return
                 }
                 
                 // Process quotes on a background thread
-                DispatchQueue.global(qos: .userInitiated).async {
-                    self?.processServerQuotes(quotes) { success in
-                        DispatchQueue.main.async {
-                            completion(success)
-                        }
-                    }
+                self?.processServerQuotes(quotes) { success in
+                    completion(success)
                 }
             } catch {
                 print("Error parsing response during quote sync: \(error.localizedDescription)")
-                DispatchQueue.main.async {
-                    completion(false)
-                }
+                completion(false)
             }
         }.resume()
     }
     
     // Helper method to process server quotes and update Core Data
     private func processServerQuotes(_ serverQuotes: [ServerQuote], completion: @escaping (Bool) -> Void) {
+        // Use a background context for better performance
         coreData.performBackgroundTask { context in
+            print("Processing \(serverQuotes.count) quotes from server...")
+            
             // Get all existing quotes from Core Data
             let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
             
             do {
                 let existingQuotes = try context.fetch(fetchRequest)
+                print("Found \(existingQuotes.count) existing quotes in database")
+                
+                // Create a dictionary of existing quotes by server ID for faster lookup
+                var existingQuotesByServerId = [Int32: QuoteCD]()
+                for quote in existingQuotes where quote.serverId > 0 {
+                    existingQuotesByServerId[quote.serverId] = quote
+                }
                 
                 // Track which quote IDs are received from the server
                 var serverQuoteIds = Set<Int32>()
+                var updatedCount = 0
+                var createdCount = 0
                 
                 // Process each quote from the server
                 for serverQuote in serverQuotes {
+                    let serverId = Int32(serverQuote.id)
+                    
                     // Track this ID as seen
-                    serverQuoteIds.insert(Int32(serverQuote.id))
+                    serverQuoteIds.insert(serverId)
                     
                     // Check if this quote exists in Core Data
-                    let existingQuote = existingQuotes.first(where: { $0.serverId == Int32(serverQuote.id) })
-                    
-                    if let existingQuote = existingQuote {
+                    if let existingQuote = existingQuotesByServerId[serverId] {
                         // Quote exists - update it if needed
                         self.updateExistingQuote(existingQuote, with: serverQuote)
+                        updatedCount += 1
                     } else {
                         // Quote doesn't exist - create it
                         self.createNewQuote(from: serverQuote, in: context)
+                        createdCount += 1
                     }
                 }
                 
                 // Set quotes that no longer exist on the server to inactive
+                var deactivatedCount = 0
                 for existingQuote in existingQuotes {
                     if existingQuote.serverId > 0 && !serverQuoteIds.contains(existingQuote.serverId) {
                         existingQuote.isActive = false
+                        deactivatedCount += 1
                     }
                 }
                 
                 // Save the changes
-                try context.save()
-                print("Successfully synchronized \(serverQuotes.count) quotes")
-                completion(true)
+                if context.hasChanges {
+                    try context.save()
+                    print("✅ Quote sync complete: Updated \(updatedCount), Created \(createdCount), Deactivated \(deactivatedCount)")
+                    
+                    // Update last sync timestamp in UserDefaults
+                    DispatchQueue.main.async {
+                        UserDefaults.standard.set(Date(), forKey: "lastQuoteSyncDate")
+                    }
+                    
+                    completion(true)
+                } else {
+                    print("No changes needed during quote sync")
+                    completion(true)
+                }
             } catch {
                 print("Error updating Core Data during quote sync: \(error.localizedDescription)")
                 completion(false)
@@ -230,20 +242,31 @@ class QuoteStore {
     
     // Helper to update an existing quote
     private func updateExistingQuote(_ quote: QuoteCD, with serverQuote: ServerQuote) {
-        // Update quote properties
-        quote.text = serverQuote.text
-        quote.author = serverQuote.author
-        quote.attribution = serverQuote.minor_attribution
-        quote.difficulty = serverQuote.difficulty
-        quote.uniqueLetters = Int16(serverQuote.unique_letters)
-        quote.isActive = true
+        // Only update if there are actual changes to avoid unnecessary Core Data changes
+        let needsUpdate = quote.text != serverQuote.text ||
+        quote.author != serverQuote.author ||
+        quote.attribution != serverQuote.minor_attribution ||
+        abs(quote.difficulty - serverQuote.difficulty) > 0.001 ||
+        Int(quote.uniqueLetters) != serverQuote.unique_letters ||
+        !quote.isActive
+        
+        if needsUpdate {
+            // Update quote properties
+            quote.text = serverQuote.text
+            quote.author = serverQuote.author
+            quote.attribution = serverQuote.minor_attribution
+            quote.difficulty = serverQuote.difficulty
+            quote.uniqueLetters = Int16(serverQuote.unique_letters)
+            quote.isActive = true
+        }
         
         // Set daily date if available
         if let dailyDateString = serverQuote.daily_date,
            let dailyDate = ISO8601DateFormatter().date(from: dailyDateString) {
             quote.isDaily = true
             quote.dailyDate = dailyDate
-        } else {
+        } else if quote.isDaily && quote.dailyDate != nil {
+            // Only update if there's a change
             quote.isDaily = false
             quote.dailyDate = nil
         }
@@ -271,6 +294,29 @@ class QuoteStore {
            let dailyDate = ISO8601DateFormatter().date(from: dailyDateString) {
             quote.isDaily = true
             quote.dailyDate = dailyDate
+        } else {
+            quote.isDaily = false
+        }
+    }
+    
+    // Add a method to check daily challenge availability
+    func hasDailyChallenge(forDate date: Date = Date()) -> Bool {
+        let calendar = Calendar.current
+        let startOfDay = calendar.startOfDay(for: date)
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: startOfDay)!
+        
+        let context = coreData.mainContext
+        let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
+        fetchRequest.predicate = NSPredicate(format: "isDaily == YES AND dailyDate >= %@ AND dailyDate < %@",
+                                             startOfDay as NSDate, endOfDay as NSDate)
+        fetchRequest.fetchLimit = 1
+        
+        do {
+            let count = try context.count(for: fetchRequest)
+            return count > 0
+        } catch {
+            print("Error checking for daily challenge: \(error)")
+            return false
         }
     }
     
@@ -281,6 +327,17 @@ class QuoteStore {
         let quotes: [ServerQuote]?
         let error: String?
         let message: String?
+        
+        // Add a computed property to get a user-friendly error message
+        var errorMessage: String {
+            if let error = error {
+                return error
+            } else if let message = message, !success {
+                return message
+            } else {
+                return "Unknown error occurred"
+            }
+        }
     }
     
     struct ServerQuote: Codable {
@@ -294,7 +351,41 @@ class QuoteStore {
         let unique_letters: Int
         let created_at: String?
         let updated_at: String?
+        
+        // Add validation and conversion methods
+        func isValid() -> Bool {
+            // Basic validation to avoid completely broken quotes
+            return !text.isEmpty &&
+            !author.isEmpty &&
+            unique_letters > 0 &&
+            difficulty >= 0
+        }
+        
+        // Helper to get daily date as a Date object
+        func getDailyDate() -> Date? {
+            guard let dateString = daily_date else { return nil }
+            
+            // Try ISO8601 format first
+            let isoFormatter = ISO8601DateFormatter()
+            if let date = isoFormatter.date(from: dateString) {
+                return date
+            }
+            
+            // Try alternative formats
+            let dateFormatter = DateFormatter()
+            let formats = ["yyyy-MM-dd", "yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd HH:mm:ss"]
+            
+            for format in formats {
+                dateFormatter.dateFormat = format
+                if let date = dateFormatter.date(from: dateString) {
+                    return date
+                }
+            }
+            
+            return nil
+        }
     }
+    
 }
 
 // MARK: - GameStore
@@ -678,4 +769,33 @@ func stringDictionaryToCharacterDictionary(_ dict: [String: String]) -> [Charact
         }
     }
     return result
+}
+
+extension ISO8601DateFormatter {
+    static func dateWithFallbacks(from string: String) -> Date? {
+        // Try standard ISO formatter
+        let isoFormatter = ISO8601DateFormatter()
+        if let date = isoFormatter.date(from: string) {
+            return date
+        }
+        
+        // Add extended options if needed
+        isoFormatter.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        if let date = isoFormatter.date(from: string) {
+            return date
+        }
+        
+        // Fall back to DateFormatter with various formats
+        let dateFormatter = DateFormatter()
+        let formats = ["yyyy-MM-dd", "yyyy-MM-dd'T'HH:mm:ss", "yyyy-MM-dd HH:mm:ss"]
+        
+        for format in formats {
+            dateFormatter.dateFormat = format
+            if let date = dateFormatter.date(from: string) {
+                return date
+            }
+        }
+        
+        return nil
+    }
 }
