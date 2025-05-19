@@ -20,6 +20,8 @@ class GameRealm: Object {
     @Persisted var startTime: Date = Date()
     @Persisted var lastUpdateTime: Date = Date()
     @Persisted var isDaily: Bool = false
+    @Persisted var score: Int? = nil
+    @Persisted var timeTaken: Int? = nil
     
     // Computed property (not stored)
     var letterFrequency: [Character: Int] {

@@ -1,4 +1,3 @@
-// Updated LeaderboardView.swift for Realm
 import SwiftUI
 import RealmSwift
 
@@ -13,6 +12,35 @@ struct LeaderboardEntry: Identifiable {
     let isCurrentUser: Bool
     
     var id: String { userId }
+}
+
+struct EntryRow: View {
+    let entry: LeaderboardEntry
+    var showDivider: Bool = false
+    
+    var body: some View {
+        HStack {
+            Text("#\(entry.rank)")
+                .fontWeight(.bold)
+                .frame(width: 60, alignment: .leading)
+            
+            Text(entry.username)
+                .fontWeight(.medium)
+                .lineLimit(1)
+                .frame(minWidth: 100, maxWidth: .infinity, alignment: .leading)
+            
+            Text("\(entry.score)")
+                .fontWeight(.medium)
+                .frame(width: 80, alignment: .trailing)
+            
+            Text("\(entry.gamesPlayed)")
+                .frame(width: 60, alignment: .trailing)
+            
+            Text(String(format: "%.1f", entry.avgScore))
+                .frame(width: 60, alignment: .trailing)
+        }
+        .padding(.horizontal)
+    }
 }
 
 struct LeaderboardView: View {
@@ -378,9 +406,6 @@ struct LeaderboardView: View {
         }.resume()
     }
 }
-
-// Keep the existing EntryRow view as it is
-// struct EntryRow: View { ... }
 
 // API response model
 struct LeaderboardResponse: Codable {

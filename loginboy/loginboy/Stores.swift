@@ -101,6 +101,12 @@ class GameStore {
         gameRealm.lastUpdateTime = game.lastUpdateTime
         gameRealm.isDaily = game.gameId?.starts(with: "daily-") ?? false
         
+        // Calculate and store score and time taken
+        if game.hasWon || game.hasLost {
+            gameRealm.score = game.calculateScore()
+            gameRealm.timeTaken = Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
+        }
+        
         // Store mappings
         for (key, value) in game.mapping {
             gameRealm.mapping[String(key)] = String(value)
@@ -129,19 +135,6 @@ class GameStore {
         }
     }
     
-    // Load latest unfinished game
-    func loadLatestGame() -> Game? {
-        guard let realm = realm else { return nil }
-        
-        // Query for unfinished games
-        let games = realm.objects(GameRealm.self)
-            .filter("hasWon == false AND hasLost == false")
-            .sorted(byKeyPath: "lastUpdateTime", ascending: false)
-        
-        guard let latestGame = games.first else { return nil }
-        return convertToGame(latestGame)
-    }
-    
     // Update game
     func updateGame(_ game: Game) -> Bool {
         guard let realm = realm, let gameId = game.gameId else { return false }
@@ -161,6 +154,12 @@ class GameStore {
                 gameRealm.hasLost = game.hasLost
                 gameRealm.difficulty = game.difficulty
                 gameRealm.lastUpdateTime = game.lastUpdateTime
+                
+                // Update score and time taken if game is completed
+                if game.hasWon || game.hasLost {
+                    gameRealm.score = game.calculateScore()
+                    gameRealm.timeTaken = Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
+                }
                 
                 // Clear and update mappings
                 gameRealm.mapping.removeAll()
@@ -186,27 +185,42 @@ class GameStore {
         }
     }
     
+    // Load latest unfinished game
+    func loadLatestGame() -> Game? {
+        guard let realm = realm else { return nil }
+        
+        // Query for unfinished games
+        let games = realm.objects(GameRealm.self)
+            .filter("hasWon == false AND hasLost == false")
+            .sorted(byKeyPath: "lastUpdateTime", ascending: false)
+        
+        guard let latestGame = games.first else { return nil }
+        return convertToGame(latestGame)
+    }
+    
+
+    
     // Helper method to convert Realm object to Game model
     private func convertToGame(_ gameRealm: GameRealm) -> Game {
         var mapping: [Character: Character] = [:]
         var correctMappings: [Character: Character] = [:]
         var guessedMappings: [Character: Character] = [:]
         
-        // Convert mappings
-        for (key, value) in gameRealm.mapping {
-            if let keyChar = key.first, let valueChar = value.first {
+        // Convert mappings - using the correct way to iterate through Realm Map objects
+        for entry in gameRealm.mapping {
+            if let keyChar = entry.key.first, let valueChar = entry.value.first {
                 mapping[keyChar] = valueChar
             }
         }
         
-        for (key, value) in gameRealm.correctMappings {
-            if let keyChar = key.first, let valueChar = value.first {
+        for entry in gameRealm.correctMappings {
+            if let keyChar = entry.key.first, let valueChar = entry.value.first {
                 correctMappings[keyChar] = valueChar
             }
         }
         
-        for (key, value) in gameRealm.guessedMappings {
-            if let keyChar = key.first, let valueChar = value.first {
+        for entry in gameRealm.guessedMappings {
+            if let keyChar = entry.key.first, let valueChar = entry.value.first {
                 guessedMappings[keyChar] = valueChar
             }
         }
@@ -228,7 +242,6 @@ class GameStore {
             lastUpdateTime: gameRealm.lastUpdateTime
         )
     }
-    
     // Update user stats after game
     func updateStats(userId: String, gameWon: Bool, mistakes: Int, timeTaken: Int, score: Int) {
         guard let realm = realm else { return }

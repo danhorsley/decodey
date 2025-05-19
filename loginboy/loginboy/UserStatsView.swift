@@ -1,6 +1,19 @@
-// UserStatsView.swift - Rewritten for Realm
 import SwiftUI
 import RealmSwift
+
+/// Extension for safely accessing array indices
+//extension Array {
+//    subscript(safe index: Index) -> Element? {
+//        return indices.contains(index) ? self[index] : nil
+//    }
+//}
+
+/// Extension for Results collection to safely access indices
+extension Results {
+    subscript(safe index: Int) -> Element? {
+        return index < count ? self[index] : nil
+    }
+}
 
 struct UserStatsView: View {
     @EnvironmentObject var userState: UserState
@@ -214,7 +227,24 @@ struct UserStatsView: View {
             if let storedScore = game.score {
                 totalScore += storedScore
             } else {
-                // We could calculate it here if needed
+                // Convert to regular Game and calculate score manually
+                var tempGame = Game(
+                    gameId: game.gameId,
+                    encrypted: game.encrypted,
+                    solution: game.solution,
+                    currentDisplay: game.currentDisplay,
+                    mapping: [:],
+                    correctMappings: [:],
+                    guessedMappings: [:],
+                    mistakes: game.mistakes,
+                    maxMistakes: game.maxMistakes,
+                    hasWon: game.hasWon,
+                    hasLost: game.hasLost,
+                    difficulty: game.difficulty,
+                    startTime: game.startTime,
+                    lastUpdateTime: game.lastUpdateTime
+                )
+                totalScore += tempGame.calculateScore()
             }
         }
         
@@ -256,9 +286,36 @@ struct UserStatsView: View {
         var topScores: [TopScore] = []
         
         for game in games {
+            // If score and time are stored directly
             if let score = game.score, let timeTaken = game.timeTaken {
                 topScores.append(TopScore(
                     score: score,
+                    timeTaken: timeTaken,
+                    date: game.lastUpdateTime
+                ))
+            } else {
+                // Calculate score manually if not stored
+                let calculatedScore = Game(
+                    gameId: game.gameId,
+                    encrypted: game.encrypted,
+                    solution: game.solution,
+                    currentDisplay: game.currentDisplay,
+                    mapping: [:],
+                    correctMappings: [:],
+                    guessedMappings: [:],
+                    mistakes: game.mistakes,
+                    maxMistakes: game.maxMistakes,
+                    hasWon: true,
+                    hasLost: false,
+                    difficulty: game.difficulty,
+                    startTime: game.startTime,
+                    lastUpdateTime: game.lastUpdateTime
+                ).calculateScore()
+                
+                let timeTaken = Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
+                
+                topScores.append(TopScore(
+                    score: calculatedScore,
                     timeTaken: timeTaken,
                     date: game.lastUpdateTime
                 ))
@@ -311,11 +368,3 @@ struct StatRow: View {
         }
     }
 }
-
-//
-//  UserStatsView.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 14/05/2025.
-//
-

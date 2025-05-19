@@ -1,4 +1,3 @@
-// AppState.swift - Streamlined for Realm
 import Foundation
 import Combine
 import SwiftUI
