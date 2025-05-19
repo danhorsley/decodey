@@ -1,5 +1,6 @@
 import Foundation
 import CoreData
+import SwiftUI
 
 // MARK: - QuoteStore
 class QuoteStore {
@@ -8,10 +9,10 @@ class QuoteStore {
     private let coreData = CoreDataStack.shared
     
     // Get random quote
-    func getRandomQuote(difficulty: String? = nil) -> Quote? {
+    func getRandomQuote(difficulty: String? = nil) -> QuoteCD? {
         let context = coreData.mainContext
         
-        let fetchRequest = NSFetchRequest<Quote>(entityName: "Quote")
+        let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
         fetchRequest.predicate = NSPredicate(format: "isActive == YES")
         
         do {
@@ -30,7 +31,7 @@ class QuoteStore {
                 if let quoteID = quote.id {
                     // Get the object in this background context
                     let objectID = quote.objectID
-                    let backgroundQuote = context.object(with: objectID) as! Quote
+                    let backgroundQuote = context.object(with: objectID) as! QuoteCD
                     backgroundQuote.timesUsed += 1
                     
                     do {
@@ -49,7 +50,7 @@ class QuoteStore {
     }
     
     // Get daily quote
-    func getDailyQuote() -> Quote? {
+    func getDailyQuote() -> QuoteCD? {
         let context = coreData.mainContext
         
         // Create a date formatter to check for daily quotes
@@ -57,7 +58,7 @@ class QuoteStore {
         let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: today)!
         
         // Find quote for today
-        let fetchRequest = NSFetchRequest<Quote>(entityName: "Quote")
+        let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
         fetchRequest.predicate = NSPredicate(format: "isDaily == YES AND dailyDate >= %@ AND dailyDate < %@", today as NSDate, tomorrow as NSDate)
         
         do {
@@ -73,7 +74,7 @@ class QuoteStore {
     func addQuotes(_ quotes: [QuoteModel]) {
         coreData.performBackgroundTask { context in
             for quoteModel in quotes {
-                let quote = Quote(context: context)
+                let quote = QuoteCD(context: context)
                 quote.id = UUID()
                 quote.text = quoteModel.text
                 quote.author = quoteModel.author
@@ -184,7 +185,7 @@ class QuoteStore {
     private func processServerQuotes(_ serverQuotes: [ServerQuote], completion: @escaping (Bool) -> Void) {
         coreData.performBackgroundTask { context in
             // Get all existing quotes from Core Data
-            let fetchRequest = NSFetchRequest<Quote>(entityName: "Quote")
+            let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
             
             do {
                 let existingQuotes = try context.fetch(fetchRequest)
@@ -228,7 +229,7 @@ class QuoteStore {
     }
     
     // Helper to update an existing quote
-    private func updateExistingQuote(_ quote: Quote, with serverQuote: ServerQuote) {
+    private func updateExistingQuote(_ quote: QuoteCD, with serverQuote: ServerQuote) {
         // Update quote properties
         quote.text = serverQuote.text
         quote.author = serverQuote.author
@@ -252,7 +253,7 @@ class QuoteStore {
     
     // Helper to create a new quote
     private func createNewQuote(from serverQuote: ServerQuote, in context: NSManagedObjectContext) {
-        let quote = Quote(context: context)
+        let quote = QuoteCD(context: context)
         
         // Set properties
         quote.id = UUID()
@@ -306,9 +307,9 @@ class GameStore {
     func saveGame(_ game: GameModel) -> GameModel? {
         let context = coreData.mainContext
         
-        let newGame = Game(context: context)
+        let newGame = GameCD(context: context)
         newGame.id = UUID()
-        newGame.setValue(game.gameId ?? UUID().uuidString, forKey: "gameId")
+        newGame.gameId = game.gameId ?? UUID().uuidString
         newGame.encrypted = game.encrypted
         newGame.solution = game.solution
         newGame.currentDisplay = game.currentDisplay
@@ -329,9 +330,9 @@ class GameStore {
         
         // Store mappings as serialized data
         do {
-            newGame.mappingData = try JSONEncoder().encode(game.mapping.mapToDictionary())
-            newGame.correctMappingsData = try JSONEncoder().encode(game.correctMappings.mapToDictionary())
-            newGame.guessedMappingsData = try JSONEncoder().encode(game.guessedMappings.mapToDictionary())
+            newGame.mapping = try JSONEncoder().encode(characterDictionaryToStringDictionary(game.mapping))
+            newGame.correctMappings = try JSONEncoder().encode(characterDictionaryToStringDictionary(game.correctMappings))
+            newGame.guessedMappings = try JSONEncoder().encode(characterDictionaryToStringDictionary(game.guessedMappings))
         } catch {
             print("Error encoding mappings: \(error.localizedDescription)")
         }
@@ -357,7 +358,7 @@ class GameStore {
         // Find existing game
         guard let gameId = game.gameId else { return false }
         
-        let fetchRequest: NSFetchRequest<Game> = Game.fetchRequest()
+        let fetchRequest: NSFetchRequest<GameCD> = GameCD.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "gameId == %@", gameId)
         
         do {
@@ -383,9 +384,9 @@ class GameStore {
             
             // Update mappings
             do {
-                existingGame.mappingData = try JSONEncoder().encode(game.mapping.mapToDictionary())
-                existingGame.correctMappingsData = try JSONEncoder().encode(game.correctMappings.mapToDictionary())
-                existingGame.guessedMappingsData = try JSONEncoder().encode(game.guessedMappings.mapToDictionary())
+                existingGame.mapping = try JSONEncoder().encode(characterDictionaryToStringDictionary(game.mapping))
+                existingGame.correctMappings = try JSONEncoder().encode(characterDictionaryToStringDictionary(game.correctMappings))
+                existingGame.guessedMappings = try JSONEncoder().encode(characterDictionaryToStringDictionary(game.guessedMappings))
             } catch {
                 print("Error encoding mappings: \(error.localizedDescription)")
             }
@@ -404,7 +405,7 @@ class GameStore {
         let context = coreData.mainContext
         
         // Query for unfinished games
-        let fetchRequest: NSFetchRequest<Game> = Game.fetchRequest()
+        let fetchRequest: NSFetchRequest<GameCD> = GameCD.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "hasWon == NO AND hasLost == NO")
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "lastUpdateTime", ascending: false)]
         fetchRequest.fetchLimit = 1
@@ -420,29 +421,29 @@ class GameStore {
     }
     
     // Helper method to convert Core Data object to Game model
-    private func convertToGameModel(_ game: Game) -> GameModel {
+    private func convertToGameModel(_ game: GameCD) -> GameModel {
         var mapping: [Character: Character] = [:]
         var correctMappings: [Character: Character] = [:]
         var guessedMappings: [Character: Character] = [:]
         
         // Deserialize mappings
-        if let mappingData = game.mappingData,
+        if let mappingData = game.mapping,
            let mappingDict = try? JSONDecoder().decode([String: String].self, from: mappingData) {
-            mapping = mappingDict.convertToCharacterDictionary()
+            mapping = stringDictionaryToCharacterDictionary(mappingDict)
         }
         
-        if let correctMappingsData = game.correctMappingsData,
+        if let correctMappingsData = game.correctMappings,
            let correctDict = try? JSONDecoder().decode([String: String].self, from: correctMappingsData) {
-            correctMappings = correctDict.convertToCharacterDictionary()
+            correctMappings = stringDictionaryToCharacterDictionary(correctDict)
         }
         
-        if let guessedMappingsData = game.guessedMappingsData,
+        if let guessedMappingsData = game.guessedMappings,
            let guessedDict = try? JSONDecoder().decode([String: String].self, from: guessedMappingsData) {
-            guessedMappings = guessedDict.convertToCharacterDictionary()
+            guessedMappings = stringDictionaryToCharacterDictionary(guessedDict)
         }
         
         return GameModel(
-            gameId: game.value(forKey: "gameId") as? String,
+            gameId: game.gameId,
             encrypted: game.encrypted ?? "",
             solution: game.solution ?? "",
             currentDisplay: game.currentDisplay ?? "",
@@ -464,7 +465,7 @@ class GameStore {
         let context = coreData.mainContext
         
         // Find user
-        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+        let fetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
         
         do {
@@ -472,11 +473,11 @@ class GameStore {
             guard let user = users.first else { return }
             
             // Get or create stats
-            let stats: UserStats
+            let stats: UserStatsCD
             if let existingStats = user.stats {
                 stats = existingStats
             } else {
-                stats = UserStats(context: context)
+                stats = UserStatsCD(context: context)
                 user.stats = stats
                 stats.user = user
             }
@@ -509,6 +510,7 @@ class GameStore {
         }
     }
 }
+
 // MARK: - UserStore
 class UserStore {
     static let shared = UserStore()
@@ -516,10 +518,10 @@ class UserStore {
     private let coreData = CoreDataStack.shared
     
     // Get user
-    func getUser(userId: String) -> User? {
+    func getUser(userId: String) -> UserCD? {
         let context = coreData.mainContext
         
-        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+        let fetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
         
         do {
@@ -536,19 +538,19 @@ class UserStore {
         let context = coreData.mainContext
         
         // Check if user already exists
-        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+        let fetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "userId == %@", userModel.userId)
         
         do {
             let users = try context.fetch(fetchRequest)
             
-            let user: User
+            let user: UserCD
             if let existingUser = users.first {
                 // Update existing user
                 user = existingUser
             } else {
                 // Create new user
-                user = User(context: context)
+                user = UserCD(context: context)
                 user.id = UUID()
                 user.userId = userModel.userId
             }
@@ -579,7 +581,7 @@ class UserStore {
         let context = coreData.mainContext
         
         // Find user
-        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+        let fetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
         
         do {
@@ -587,18 +589,18 @@ class UserStore {
             guard let user = users.first else { return false }
             
             // Get or create preferences
-            let userPrefs: UserPreferences
+            let userPrefs: UserPreferencesCD
             if let existingPrefs = user.preferences {
                 userPrefs = existingPrefs
             } else {
-                userPrefs = UserPreferences(context: context)
+                userPrefs = UserPreferencesCD(context: context)
                 user.preferences = userPrefs
                 userPrefs.user = user
             }
             
             // Update properties
             userPrefs.darkMode = preferences.darkMode
-            userPrefs.showTextHelpers = preferences.showTextHelpers
+            userPrefs.showTextHelpers = preferences.showTextHelpers as NSObject
             userPrefs.accessibilityTextSize = preferences.accessibilityTextSize
             userPrefs.gameDifficulty = preferences.gameDifficulty
             userPrefs.soundEnabled = preferences.soundEnabled
@@ -621,7 +623,7 @@ class UserStore {
         let context = coreData.mainContext
         
         // Find user
-        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+        let fetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
         
         do {
@@ -629,7 +631,7 @@ class UserStore {
             guard let user = users.first, let stats = user.stats else { return nil }
             
             return UserStatsModel(
-                userId: user.userId,
+                userId: user.userId ?? "",
                 gamesPlayed: Int(stats.gamesPlayed),
                 gamesWon: Int(stats.gamesWon),
                 currentStreak: Int(stats.currentStreak),
@@ -646,34 +648,24 @@ class UserStore {
     }
 }
 
-// MARK: - Helper Extensions
+// MARK: - Helper Functions
 
-extension Dictionary where Key == Character, Value == Character {
-    func mapToDictionary() -> [String: String] {
-        var result = [String: String]()
-        for (key, value) in self {
-            result[String(key)] = String(value)
-        }
-        return result
+// Convert character dictionary to string dictionary
+func characterDictionaryToStringDictionary(_ dict: [Character: Character]) -> [String: String] {
+    var result = [String: String]()
+    for (key, value) in dict {
+        result[String(key)] = String(value)
     }
+    return result
 }
 
-extension Dictionary where Key == String, Value == String {
-    func convertToCharacterDictionary() -> [Character: Character] {
-        var result = [Character: Character]()
-        for (key, value) in self {
-            if let keyChar = key.first, let valueChar = value.first {
-                result[keyChar] = valueChar
-            }
+// Convert string dictionary to character dictionary
+func stringDictionaryToCharacterDictionary(_ dict: [String: String]) -> [Character: Character] {
+    var result = [Character: Character]()
+    for (key, value) in dict {
+        if let keyChar = key.first, let valueChar = value.first {
+            result[keyChar] = valueChar
         }
-        return result
     }
+    return result
 }
-
-//
-//  DataStores.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 19/05/2025.
-//
-

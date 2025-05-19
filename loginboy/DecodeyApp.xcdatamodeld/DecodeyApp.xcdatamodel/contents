@@ -42,7 +42,7 @@
         <attribute name="email" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isActive" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="isSubAdmin" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="isSubadmin" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isVerified" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="lastLoginDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="registrationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>

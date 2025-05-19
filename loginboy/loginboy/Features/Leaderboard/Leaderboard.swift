@@ -1,5 +1,6 @@
+
 import SwiftUI
-import RealmSwift
+import CoreData
 
 // Use the existing LeaderboardEntry model or replace with this simplified version
 struct LeaderboardEntry: Identifiable {
@@ -53,8 +54,8 @@ struct LeaderboardView: View {
     @State private var totalPages = 1
     @State private var selectedPeriod = "all-time"
     
-    // Realm access
-    private let realm = RealmManager.shared.getRealm()
+    // Core Data access
+    private let coreData = CoreDataStack.shared
     
     var body: some View {
         VStack {
@@ -221,92 +222,102 @@ struct LeaderboardView: View {
         }
     }
     
-    // Fetch leaderboard data - either from Realm or API depending on needs
+    // Fetch leaderboard data - either from Core Data or API depending on needs
     private func fetchLeaderboard() {
         isLoading = true
         errorMessage = nil
         
         if selectedPeriod == "all-time" {
-            // For all time, we can use local Realm data
-            fetchLeaderboardFromRealm()
+            // For all time, we can use local Core Data
+            fetchLeaderboardFromCoreData()
         } else {
             // For weekly, we might need API data
             fetchLeaderboardFromAPI()
         }
     }
     
-    // Fetch leaderboard from local Realm
-    private func fetchLeaderboardFromRealm() {
-        guard let realm = realm else {
-            isLoading = false
-            errorMessage = "Database not available"
-            return
-        }
+    // Fetch leaderboard from local Core Data
+    private func fetchLeaderboardFromCoreData() {
+        let context = coreData.mainContext
         
         // Get all users with stats
-        let users = realm.objects(UserRealm.self)
-            .filter("stats != nil")
-            .sorted(byKeyPath: "stats.totalScore", ascending: false)
+        let fetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
+        fetchRequest.predicate = NSPredicate(format: "stats != nil")
         
-        // Convert to entries
-        var leaderboardEntries: [LeaderboardEntry] = []
-        var userRank = 0
-        var currentUserFound = false
-        
-        for (index, user) in users.enumerated() {
-            guard let stats = user.stats else { continue }
+        do {
+            // First get all users
+            let users = try context.fetch(fetchRequest)
             
-            let rank = index + 1
-            let isCurrentUser = user.userId == userState.userId
-            
-            let entry = LeaderboardEntry(
-                rank: rank,
-                username: user.username,
-                userId: user.userId,
-                score: stats.totalScore,
-                gamesPlayed: stats.gamesPlayed,
-                avgScore: stats.gamesPlayed > 0 ? Double(stats.totalScore) / Double(stats.gamesPlayed) : 0,
-                isCurrentUser: isCurrentUser
-            )
-            
-            leaderboardEntries.append(entry)
-            
-            if isCurrentUser {
-                currentUserFound = true
-                userRank = rank
-                currentUserEntry = entry
+            // Sort by total score
+            let sortedUsers = users.sorted {
+                guard let stats1 = $0.stats, let stats2 = $1.stats else { return false }
+                return stats1.totalScore > stats2.totalScore
             }
+            
+            // Convert to entries
+            var leaderboardEntries: [LeaderboardEntry] = []
+            var userRank = 0
+            var currentUserFound = false
+            
+            for (index, user) in sortedUsers.enumerated() {
+                guard let stats = user.stats else { continue }
+                
+                let rank = index + 1
+                let isCurrentUser = user.userId == userState.userId
+                
+                let entry = LeaderboardEntry(
+                    rank: rank,
+                    username: user.username ?? "Unknown",
+                    userId: user.userId ?? "",
+                    score: Int(stats.totalScore),
+                    gamesPlayed: Int(stats.gamesPlayed),
+                    avgScore: stats.gamesPlayed > 0 ? Double(stats.totalScore) / Double(stats.gamesPlayed) : 0,
+                    isCurrentUser: isCurrentUser
+                )
+                
+                leaderboardEntries.append(entry)
+                
+                if isCurrentUser {
+                    currentUserFound = true
+                    userRank = rank
+                    currentUserEntry = entry
+                }
+            }
+            
+            // If current user not found but has stats, add them
+            if !currentUserFound && userState.isAuthenticated, let stats = userState.stats {
+                currentUserEntry = LeaderboardEntry(
+                    rank: userRank,
+                    username: userState.username,
+                    userId: userState.userId,
+                    score: stats.totalScore,
+                    gamesPlayed: stats.gamesPlayed,
+                    avgScore: stats.averageScore,
+                    isCurrentUser: true
+                )
+            }
+            
+            // Paginate results - 10 per page
+            let pageSize = 10
+            totalPages = max(1, (leaderboardEntries.count + pageSize - 1) / pageSize)
+            
+            // Calculate start and end indices
+            let startIndex = (currentPage - 1) * pageSize
+            let endIndex = min(startIndex + pageSize, leaderboardEntries.count)
+            
+            // Get entries for current page
+            if startIndex < leaderboardEntries.count {
+                entries = Array(leaderboardEntries[startIndex..<endIndex])
+            } else {
+                entries = []
+            }
+            
+            isLoading = false
+        } catch {
+            print("Error fetching leaderboard data: \(error.localizedDescription)")
+            errorMessage = "Failed to load leaderboard: \(error.localizedDescription)"
+            isLoading = false
         }
-        
-        // If current user not found but has stats, add them
-        if !currentUserFound && userState.isAuthenticated, let stats = userState.stats {
-            currentUserEntry = LeaderboardEntry(
-                rank: userRank,
-                username: userState.username,
-                userId: userState.userId,
-                score: stats.totalScore,
-                gamesPlayed: stats.gamesPlayed,
-                avgScore: stats.averageScore,
-                isCurrentUser: true
-            )
-        }
-        
-        // Paginate results - 10 per page
-        let pageSize = 10
-        totalPages = max(1, (leaderboardEntries.count + pageSize - 1) / pageSize)
-        
-        // Calculate start and end indices
-        let startIndex = (currentPage - 1) * pageSize
-        let endIndex = min(startIndex + pageSize, leaderboardEntries.count)
-        
-        // Get entries for current page
-        if startIndex < leaderboardEntries.count {
-            entries = Array(leaderboardEntries[startIndex..<endIndex])
-        } else {
-            entries = []
-        }
-        
-        isLoading = false
     }
     
     // Fetch leaderboard from API

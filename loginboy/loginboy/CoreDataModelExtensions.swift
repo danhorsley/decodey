@@ -2,7 +2,7 @@ import Foundation
 import CoreData
 import SwiftUI
 
-// MARK: - Core Data Extensions for GameScoreModel
+// MARK: - Core Data Extensions for GameCD
 extension GameCD {
     
     // MARK: - Computed properties for mappings
@@ -28,6 +28,7 @@ extension GameCD {
     /// Gets the game ID (safe unwrapping)
     var gameId: String? {
         get {
+            // You need to define a "gameId" attribute in your Core Data model
             return value(forKey: "gameId") as? String
         }
         set {
@@ -77,8 +78,8 @@ extension GameCD {
     
     // MARK: - Helper methods
     
-    /// Converts to a GameData struct for use in business logic
-    func toData() -> GameData {
+    /// Converts to a GameModel struct for use in business logic
+    func toModel() -> GameModel {
         // Deserialize mappings
         var mapping: [Character: Character] = [:]
         var correctMappings: [Character: Character] = [:]
@@ -86,20 +87,20 @@ extension GameCD {
         
         if let mappingData = self.mappingData,
            let mappingDict = try? JSONDecoder().decode([String: String].self, from: mappingData) {
-            mapping = mappingDict.convertToCharacterDictionary()
+            mapping = dictionaryToCharacterMapping(mappingDict)
         }
         
         if let correctMappingsData = self.correctMappingsData,
            let correctDict = try? JSONDecoder().decode([String: String].self, from: correctMappingsData) {
-            correctMappings = correctDict.convertToCharacterDictionary()
+            correctMappings = dictionaryToCharacterMapping(correctDict)
         }
         
         if let guessedMappingsData = self.guessedMappingsData,
            let guessedDict = try? JSONDecoder().decode([String: String].self, from: guessedMappingsData) {
-            guessedMappings = guessedDict.convertToCharacterDictionary()
+            guessedMappings = dictionaryToCharacterMapping(guessedDict)
         }
         
-        return GameData(
+        return GameModel(
             gameId: self.gameId,
             encrypted: self.encrypted ?? "",
             solution: self.solution ?? "",
@@ -116,37 +117,11 @@ extension GameCD {
             lastUpdateTime: self.lastUpdateTime ?? Date()
         )
     }
-}
-
-// MARK: - QuoteModel Extensions
-extension QuoteCD {
-    /// Converts to a QuoteData struct for use in business logic
-    func toData() -> QuoteData {
-        return QuoteData(
-            text: text ?? "",
-            author: author ?? "",
-            attribution: attribution,
-            difficulty: difficulty
-        )
-    }
-}
-
-// MARK: - Helper Extensions
-
-extension Dictionary where Key == Character, Value == Character {
-    func mapToDictionary() -> [String: String] {
-        var result = [String: String]()
-        for (key, value) in self {
-            result[String(key)] = String(value)
-        }
-        return result
-    }
-}
-
-extension Dictionary where Key == String, Value == String {
-    func convertToCharacterDictionary() -> [Character: Character] {
+    
+    // Helper to convert dictionary to character mapping
+    private func dictionaryToCharacterMapping(_ dict: [String: String]) -> [Character: Character] {
         var result = [Character: Character]()
-        for (key, value) in self {
+        for (key, value) in dict {
             if let keyChar = key.first, let valueChar = value.first {
                 result[keyChar] = valueChar
             }
@@ -155,34 +130,47 @@ extension Dictionary where Key == String, Value == String {
     }
 }
 
+// MARK: - QuoteCD Extensions
+extension QuoteCD {
+    /// Converts to a QuoteModel struct for use in business logic
+    func toModel() -> QuoteModel {
+        return QuoteModel(
+            text: text ?? "",
+            author: author ?? "",
+            attribution: attribution,
+            difficulty: difficulty
+        )
+    }
+}
+
 // MARK: - NSFetchRequest Extensions
-extension NSFetchRequest where ResultType == GameScoreModel {
-    static func fetchRequest() -> NSFetchRequest<GameScoreModel> {
-        return NSFetchRequest<GameScoreModel>(entityName: "GameScoreModel")
+extension NSFetchRequest where ResultType == GameCD {
+    static func fetchRequest() -> NSFetchRequest<GameCD> {
+        return NSFetchRequest<GameCD>(entityName: "GameCD")
     }
 }
 
-extension NSFetchRequest where ResultType == QuoteModel {
-    static func fetchRequest() -> NSFetchRequest<QuoteModel> {
-        return NSFetchRequest<QuoteModel>(entityName: "QuoteModel")
+extension NSFetchRequest where ResultType == QuoteCD {
+    static func fetchRequest() -> NSFetchRequest<QuoteCD> {
+        return NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
     }
 }
 
-extension NSFetchRequest where ResultType == UserModel {
-    static func fetchRequest() -> NSFetchRequest<UserModel> {
-        return NSFetchRequest<UserModel>(entityName: "UserModel")
+extension NSFetchRequest where ResultType == UserCD {
+    static func fetchRequest() -> NSFetchRequest<UserCD> {
+        return NSFetchRequest<UserCD>(entityName: "UserCD")
     }
 }
 
-extension NSFetchRequest where ResultType == UserStatsModel {
-    static func fetchRequest() -> NSFetchRequest<UserStatsModel> {
-        return NSFetchRequest<UserStatsModel>(entityName: "UserStatsModel")
+extension NSFetchRequest where ResultType == UserStatsCD {
+    static func fetchRequest() -> NSFetchRequest<UserStatsCD> {
+        return NSFetchRequest<UserStatsCD>(entityName: "UserStatsCD")
     }
 }
 
-extension NSFetchRequest where ResultType == UserPreferencesModel {
-    static func fetchRequest() -> NSFetchRequest<UserPreferencesModel> {
-        return NSFetchRequest<UserPreferencesModel>(entityName: "UserPreferencesModel")
+extension NSFetchRequest where ResultType == UserPreferencesCD {
+    static func fetchRequest() -> NSFetchRequest<UserPreferencesCD> {
+        return NSFetchRequest<UserPreferencesCD>(entityName: "UserPreferencesCD")
     }
 }
 

@@ -19,7 +19,7 @@ class UserState: ObservableObject {
     let authCoordinator: AuthenticationCoordinator
     
     // Core Data access
-    private let cdStack = CoreDataStack.shared
+    private let coreData = CoreDataStack.shared
     private var cancellables = Set<AnyCancellable>()
     
     // Singleton instance
@@ -57,7 +57,7 @@ class UserState: ObservableObject {
         $isAuthenticated
             .sink { [weak self] isAuthenticated in
                 if isAuthenticated {
-                    self?.fetchUserDataFromCD()
+                    self?.fetchUserData()
                 } else {
                     self?.profile = nil
                     self?.stats = nil
@@ -102,24 +102,24 @@ class UserState: ObservableObject {
     }
     
     /// Fetch user data from Core Data
-    func fetchUserDataFromCD() {
+    func fetchUserData() {
         guard isAuthenticated, !userId.isEmpty else { return }
         
-        let context = cdStack.mainContext
+        let context = coreData.mainContext
         
-        // Fetch user from Core Data
-        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+        // Fetch user
+        let fetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
         
         do {
-            let usersCD = try context.fetch(fetchRequest)
+            let users = try context.fetch(fetchRequest)
             
-            if let userCD = usersCD.first {
-                // Update from existing user
-                updateProfileFromCD(userCD)
+            if let user = users.first {
+                // Update profile from existing user
+                updateProfileFromCoreData(user)
             } else {
                 // Create a new user in Core Data
-                createUserInCD()
+                createUserInCoreData()
             }
         } catch {
             print("Error fetching user data: \(error.localizedDescription)")
@@ -127,89 +127,89 @@ class UserState: ObservableObject {
     }
     
     /// Update user statistics after game completion
-    func updateStatsInCD(gameWon: Bool, score: Int, timeTaken: Int, mistakes: Int = 0) {
+    func updateStats(gameWon: Bool, score: Int, timeTaken: Int, mistakes: Int = 0) {
         guard isAuthenticated, !userId.isEmpty else { return }
         
-        let context = cdStack.mainContext
+        let context = coreData.mainContext
         
-        // Find or create user in Core Data
-        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+        // Find or create user
+        let fetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
         
         do {
-            let usersCD = try context.fetch(fetchRequest)
+            let users = try context.fetch(fetchRequest)
             
             // Find or create user
-            let userCD: User
-            if let existingUser = usersCD.first {
-                userCD = existingUser
+            let user: UserCD
+            if let existingUser = users.first {
+                user = existingUser
             } else {
-                userCD = User(context: context)
-                userCD.id = UUID()
-                userCD.userId = userId
-                userCD.username = username
-                userCD.email = "\(username)@example.com" // Placeholder
-                userCD.registrationDate = Date()
-                userCD.lastLoginDate = Date()
-                userCD.isActive = true
+                user = UserCD(context: context)
+                user.id = UUID()
+                user.userId = userId
+                user.username = username
+                user.email = "\(username)@example.com" // Placeholder
+                user.registrationDate = Date()
+                user.lastLoginDate = Date()
+                user.isActive = true
             }
             
             // Get or create stats
-            let statsCD: UserStats
-            if let existingStats = userCD.stats {
-                statsCD = existingStats
+            let stats: UserStatsCD
+            if let existingStats = user.stats {
+                stats = existingStats
             } else {
-                statsCD = UserStats(context: context)
-                userCD.stats = statsCD
-                statsCD.user = userCD
+                stats = UserStatsCD(context: context)
+                user.stats = stats
+                stats.user = user
             }
             
             // Update stats
-            statsCD.gamesPlayed += 1
+            stats.gamesPlayed += 1
             if gameWon {
-                statsCD.gamesWon += 1
-                statsCD.currentStreak += 1
-                statsCD.bestStreak = max(statsCD.bestStreak, statsCD.currentStreak)
+                stats.gamesWon += 1
+                stats.currentStreak += 1
+                stats.bestStreak = max(stats.bestStreak, stats.currentStreak)
             } else {
-                statsCD.currentStreak = 0
+                stats.currentStreak = 0
             }
             
-            statsCD.totalScore += Int32(score)
+            stats.totalScore += Int32(score)
             
             // Update averages
-            let oldMistakesTotal = statsCD.averageMistakes * Double(statsCD.gamesPlayed - 1)
-            statsCD.averageMistakes = (oldMistakesTotal + Double(mistakes)) / Double(statsCD.gamesPlayed)
+            let oldMistakesTotal = stats.averageMistakes * Double(stats.gamesPlayed - 1)
+            stats.averageMistakes = (oldMistakesTotal + Double(mistakes)) / Double(stats.gamesPlayed)
             
-            let oldTimeTotal = statsCD.averageTime * Double(statsCD.gamesPlayed - 1)
-            statsCD.averageTime = (oldTimeTotal + Double(timeTaken)) / Double(statsCD.gamesPlayed)
+            let oldTimeTotal = stats.averageTime * Double(stats.gamesPlayed - 1)
+            stats.averageTime = (oldTimeTotal + Double(timeTaken)) / Double(stats.gamesPlayed)
             
-            statsCD.lastPlayedDate = Date()
+            stats.lastPlayedDate = Date()
             
             // Save changes
             try context.save()
             
             // Update published stats property
-            refreshStatsFromCD()
+            refreshStats()
         } catch {
             print("Error updating stats: \(error.localizedDescription)")
         }
     }
     
-    /// Get user's statistics from Core Data
-    func refreshStatsFromCD() {
+    /// Get user's statistics
+    func refreshStats() {
         guard isAuthenticated, !userId.isEmpty else {
             stats = nil
             return
         }
         
-        let context = cdStack.mainContext
-        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+        let context = coreData.mainContext
+        let fetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
         
         do {
-            let usersCD = try context.fetch(fetchRequest)
+            let users = try context.fetch(fetchRequest)
             
-            if let userCD = usersCD.first, let userStats = userCD.stats {
+            if let user = users.first, let userStats = user.stats {
                 // Create UserStatsModel from Core Data
                 stats = UserStatsModel(
                     userId: userId,
@@ -233,37 +233,37 @@ class UserState: ObservableObject {
     }
     
     /// Update user profile information
-    func updateProfileInCD(displayName: String? = nil, bio: String? = nil) {
+    func updateProfile(displayName: String? = nil, bio: String? = nil) {
         guard isAuthenticated, !userId.isEmpty else { return }
         
-        let context = cdStack.mainContext
+        let context = coreData.mainContext
         
-        // Find user in Core Data
-        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+        // Find user
+        let fetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
         
         do {
-            let usersCD = try context.fetch(fetchRequest)
+            let users = try context.fetch(fetchRequest)
             
-            guard let userCD = usersCD.first else { return }
+            guard let user = users.first else { return }
             
             // Update properties
             if let displayName = displayName {
-                userCD.displayName = displayName
+                user.displayName = displayName
             }
             
             if let bio = bio {
-                userCD.bio = bio
+                user.bio = bio
             }
             
             // Update last login date
-            userCD.lastLoginDate = Date()
+            user.lastLoginDate = Date()
             
             // Save changes
             try context.save()
             
             // Update published profile property
-            updateProfileFromCD(userCD)
+            updateProfileFromCoreData(user)
         } catch {
             print("Error updating profile: \(error.localizedDescription)")
         }
@@ -271,24 +271,24 @@ class UserState: ObservableObject {
     
     // MARK: - Private Methods
     
-    private func updateProfileFromCD(_ userCD: User) {
+    private func updateProfileFromCoreData(_ user: UserCD) {
         // Update the profile data
         profile = UserModel(
-            userId: userCD.userId ?? "",
-            username: userCD.username ?? "",
-            email: userCD.email ?? "",
-            displayName: userCD.displayName,
-            avatarUrl: userCD.avatarUrl,
-            bio: userCD.bio,
-            registrationDate: userCD.registrationDate ?? Date(),
-            lastLoginDate: userCD.lastLoginDate ?? Date(),
-            isActive: userCD.isActive,
-            isVerified: userCD.isVerified,
-            isSubadmin: userCD.isSubAdmin
+            userId: user.userId ?? "",
+            username: user.username ?? "",
+            email: user.email ?? "",
+            displayName: user.displayName,
+            avatarUrl: user.avatarUrl,
+            bio: user.bio,
+            registrationDate: user.registrationDate ?? Date(),
+            lastLoginDate: user.lastLoginDate ?? Date(),
+            isActive: user.isActive,
+            isVerified: user.isVerified,
+            isSubadmin: user.isSubadmin
         )
         
         // Update stats if available
-        if let userStats = userCD.stats {
+        if let userStats = user.stats {
             stats = UserStatsModel(
                 userId: userId,
                 gamesPlayed: Int(userStats.gamesPlayed),
@@ -306,48 +306,48 @@ class UserState: ObservableObject {
         }
     }
     
-    private func createUserInCD() {
+    private func createUserInCoreData() {
         guard isAuthenticated, !userId.isEmpty, !username.isEmpty else { return }
         
-        let context = cdStack.mainContext
+        let context = coreData.mainContext
         
         do {
             // Create user
-            let userCD = User(context: context)
-            userCD.id = UUID()
-            userCD.userId = userId
-            userCD.username = username
-            userCD.email = "\(username)@example.com" // Placeholder
-            userCD.registrationDate = Date()
-            userCD.lastLoginDate = Date()
-            userCD.isActive = true
-            userCD.isSubAdmin = isSubadmin
+            let user = UserCD(context: context)
+            user.id = UUID()
+            user.userId = userId
+            user.username = username
+            user.email = "\(username)@example.com" // Placeholder
+            user.registrationDate = Date()
+            user.lastLoginDate = Date()
+            user.isActive = true
+            user.isSubadmin = isSubadmin
             
             // Create default preferences
-            let preferencesCD = UserPreferences(context: context)
-            userCD.preferences = preferencesCD
-            preferencesCD.user = userCD
+            let preferences = UserPreferencesCD(context: context)
+            user.preferences = preferences
+            preferences.user = user
             
             // Set default values
-            preferencesCD.darkMode = true
-            preferencesCD.showTextHelpers = true
-            preferencesCD.accessibilityTextSize = false
-            preferencesCD.gameDifficulty = "medium"
-            preferencesCD.soundEnabled = true
-            preferencesCD.soundVolume = 0.5
-            preferencesCD.useBiometricAuth = false
-            preferencesCD.notificationsEnabled = true
+            preferences.darkMode = true
+            preferences.showTextHelpers = true as NSObject
+            preferences.accessibilityTextSize = false
+            preferences.gameDifficulty = "medium"
+            preferences.soundEnabled = true
+            preferences.soundVolume = 0.5
+            preferences.useBiometricAuth = false
+            preferences.notificationsEnabled = true
             
             // Create empty stats
-            let statsCD = UserStats(context: context)
-            userCD.stats = statsCD
-            statsCD.user = userCD
+            let stats = UserStatsCD(context: context)
+            user.stats = stats
+            stats.user = user
             
             // Save changes
             try context.save()
             
             // Update local profile
-            updateProfileFromCD(userCD)
+            updateProfileFromCoreData(user)
         } catch {
             print("Error creating user in Core Data: \(error.localizedDescription)")
         }

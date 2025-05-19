@@ -79,13 +79,13 @@ class CoreDataStack {
         print("📊 Database Information:")
         
         do {
-            // Get entity counts
-            let quoteCount = try context.count(for: NSFetchRequest<Quote>(entityName: "Quote"))
-            let activeQuotes = try context.count(for: NSFetchRequest<Quote>(entityName: "Quote").apply {
+            // Get entity counts - updated with CD suffix
+            let quoteCount = try context.count(for: NSFetchRequest<QuoteCD>(entityName: "QuoteCD"))
+            let activeQuotes = try context.count(for: NSFetchRequest<QuoteCD>(entityName: "QuoteCD").apply {
                 $0.predicate = NSPredicate(format: "isActive == YES")
             })
-            let gameCount = try context.count(for: NSFetchRequest<Game>(entityName: "Game"))
-            let userCount = try context.count(for: NSFetchRequest<User>(entityName: "User"))
+            let gameCount = try context.count(for: NSFetchRequest<GameCD>(entityName: "GameCD"))
+            let userCount = try context.count(for: NSFetchRequest<UserCD>(entityName: "UserCD"))
             
             print("📚 Total Quotes: \(quoteCount) (Active: \(activeQuotes))")
             print("🎮 Total Games: \(gameCount)")
@@ -138,7 +138,7 @@ class CoreDataStack {
         
         context.perform {
             // Check if there are any quotes
-            let fetchRequest = NSFetchRequest<Quote>(entityName: "Quote")
+            let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
             fetchRequest.fetchLimit = 1
             
             do {
@@ -156,7 +156,7 @@ class CoreDataStack {
                     ]
                     
                     for quoteData in defaultQuotes {
-                        let quote = Quote(context: context)
+                        let quote = QuoteCD(context: context)
                         quote.id = UUID()
                         quote.text = quoteData.text
                         quote.author = quoteData.author
