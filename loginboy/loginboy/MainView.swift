@@ -121,7 +121,9 @@ struct MainView: View {
             .tag(NavigationCoordinator.AppRoute.TabRoute.leaderboard)
             
             NavigationViewWrapper {
-                UserStatsView()
+                Text("Stats Coming Soon")
+                    .font(.largeTitle)
+                    .padding()
             }
             .tabItem {
                 Label("Stats", systemImage: "chart.bar")

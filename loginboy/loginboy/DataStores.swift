@@ -443,7 +443,7 @@ class GameStore {
         }
         
         return GameModel(
-            gameId: game.gameId,
+            gameId: game.gameId ?? "",
             encrypted: game.encrypted ?? "",
             solution: game.solution ?? "",
             currentDisplay: game.currentDisplay ?? "",
@@ -600,7 +600,7 @@ class UserStore {
             
             // Update properties
             userPrefs.darkMode = preferences.darkMode
-            userPrefs.showTextHelpers = preferences.showTextHelpers as NSObject
+            userPrefs.showTextHelpers = preferences.showTextHelpers
             userPrefs.accessibilityTextSize = preferences.accessibilityTextSize
             userPrefs.gameDifficulty = preferences.gameDifficulty
             userPrefs.soundEnabled = preferences.soundEnabled

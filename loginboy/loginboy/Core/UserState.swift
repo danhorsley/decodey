@@ -330,7 +330,7 @@ class UserState: ObservableObject {
             
             // Set default values
             preferences.darkMode = true
-            preferences.showTextHelpers = true as NSObject
+            preferences.showTextHelpers = true
             preferences.accessibilityTextSize = false
             preferences.gameDifficulty = "medium"
             preferences.soundEnabled = true
