@@ -537,83 +537,43 @@ class GameState: ObservableObject {
     }
     
     // Save current game state to Core Data
-    private func saveGameState(_ game: GameModel) {
-        let context = coreData.mainContext
+    private func convertToGameModel(_ game: GameCD) -> GameModel {
+        var mapping: [Character: Character] = [:]
+        var correctMappings: [Character: Character] = [:]
+        var guessedMappings: [Character: Character] = [:]
         
-        // Check if game exists by ID
-        let gameFetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
-        
-        if let gameId = game.gameId {
-            gameFetchRequest.predicate = NSPredicate(format: "gameId == %@", gameId)
-            
-            do {
-                let existingGames = try context.fetch(gameFetchRequest)
-                
-                if let gameEntity = existingGames.first {
-                    // Update existing game
-                    updateGameEntity(gameEntity, from: game)
-                } else {
-                    // Create new game
-                    let newGame = createGameEntity(from: game)
-                    
-                    // Set userId relationship if user is authenticated
-                    if let userId = UserState.shared.userId, !userId.isEmpty {
-                        let userFetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
-                        userFetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
-                        let users = try context.fetch(userFetchRequest)
-                        
-                        if let user = users.first {
-                            newGame.user = user
-                        }
-                    }
-                }
-                
-                try context.save()
-            } catch {
-                print("Error saving game state: \(error.localizedDescription)")
-            }
-        } else {
-            // No game ID, create a new game
-            let gameEntity = GameCD(context: context)
-            gameEntity.id = UUID()
-            gameEntity.gameId = UUID().uuidString
-            updateGameEntity(gameEntity, from: game)
-            
-            // Set userId relationship if user is authenticated
-            if let userId = UserState.shared.userId, !userId.isEmpty {
-                let userFetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
-                userFetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
-                
-                do {
-                    let users = try context.fetch(userFetchRequest)
-                    
-                    if let user = users.first {
-                        gameEntity.user = user
-                    }
-                    
-                    try context.save()
-                    
-                    // Update the game model with the new ID
-                    var updatedGame = game
-                    updatedGame.gameId = gameEntity.gameId
-                    self.currentGame = updatedGame
-                } catch {
-                    print("Error creating new game: \(error.localizedDescription)")
-                }
-            } else {
-                // No user ID, just save the game
-                do {
-                    try context.save()
-                    
-                    // Update the game model with the new ID
-                    var updatedGame = game
-                    updatedGame.gameId = gameEntity.gameId
-                    self.currentGame = updatedGame
-                } catch {
-                    print("Error creating new game: \(error.localizedDescription)")
-                }
-            }
+        // Deserialize mappings
+        if let mappingData = game.mapping,
+           let mappingDict = try? JSONDecoder().decode([String: String].self, from: mappingData) {
+            mapping = stringDictionaryToCharacterDictionary(mappingDict)
         }
+        
+        if let correctMappingsData = game.correctMappings,
+           let correctDict = try? JSONDecoder().decode([String: String].self, from: correctMappingsData) {
+            correctMappings = stringDictionaryToCharacterDictionary(correctDict)
+        }
+        
+        if let guessedMappingsData = game.guessedMappings,
+           let guessedDict = try? JSONDecoder().decode([String: String].self, from: guessedMappingsData) {
+            guessedMappings = stringDictionaryToCharacterDictionary(guessedDict)
+        }
+        
+        return GameModel(
+            gameId: game.gameId?.uuidString ?? "", // Convert UUID to String
+            encrypted: game.encrypted ?? "",
+            solution: game.solution ?? "",
+            currentDisplay: game.currentDisplay ?? "",
+            mapping: mapping,
+            correctMappings: correctMappings,
+            guessedMappings: guessedMappings,
+            mistakes: Int(game.mistakes),
+            maxMistakes: Int(game.maxMistakes),
+            hasWon: game.hasWon,
+            hasLost: game.hasLost,
+            difficulty: game.difficulty ?? "medium",
+            startTime: game.startTime ?? Date(),
+            lastUpdateTime: game.lastUpdateTime ?? Date()
+        )
     }
     
     // Create a new game entity from model
@@ -621,8 +581,7 @@ class GameState: ObservableObject {
         let context = coreData.mainContext
         let gameEntity = GameCD(context: context)
         
-        gameEntity.id = UUID()
-        gameEntity.gameId = model.gameId ?? UUID().uuidString
+        gameEntity.gameId = UUID() 
         gameEntity.startTime = model.startTime
         
         updateGameEntity(gameEntity, from: model)
@@ -745,6 +704,89 @@ class GameState: ObservableObject {
         return result
     }
     
+    private func saveGameState(_ game: GameModel) {
+        let context = coreData.mainContext
+        
+        // Check if game exists by ID
+        let gameFetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
+        
+        if let gameIdString = game.gameId {
+            // Try to convert string to UUID for the query
+            if let gameIdUUID = UUID(uuidString: gameIdString) {
+                gameFetchRequest.predicate = NSPredicate(format: "gameId == %@", gameIdUUID as CVarArg)
+                
+                do {
+                    let existingGames = try context.fetch(gameFetchRequest)
+                    
+                    if let gameEntity = existingGames.first {
+                        // Update existing game
+                        updateGameEntity(gameEntity, from: game)
+                    } else {
+                        // Create new game
+                        let newGame = createGameEntity(from: game)
+                        
+                        // Set userId relationship if user is authenticated
+                        if !UserState.shared.userId.isEmpty {
+                            let userFetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
+                            userFetchRequest.predicate = NSPredicate(format: "userId == %@", UserState.shared.userId)
+                            let users = try context.fetch(userFetchRequest)
+                            
+                            if let user = users.first {
+                                newGame.user = user
+                            }
+                        }
+                    }
+                    
+                    try context.save()
+                } catch {
+                    print("Error saving game state: \(error.localizedDescription)")
+                }
+            } else {
+                print("Invalid UUID string format: \(gameIdString)")
+            }
+        } else {
+            // No game ID, create a new game
+            let gameEntity = GameCD(context: context)
+            // gameEntity.id = UUID() // Remove this if id is now gameId
+            gameEntity.gameId = UUID() // Use UUID directly
+            updateGameEntity(gameEntity, from: game)
+            
+            // Set userId relationship if user is authenticated
+            if !UserState.shared.userId.isEmpty {
+                let userFetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
+                userFetchRequest.predicate = NSPredicate(format: "userId == %@", UserState.shared.userId)
+                
+                do {
+                    let users = try context.fetch(userFetchRequest)
+                    
+                    if let user = users.first {
+                        gameEntity.user = user
+                    }
+                    
+                    try context.save()
+                    
+                    // Update the game model with the new ID
+                    var updatedGame = game
+                    updatedGame.gameId = gameEntity.gameId?.uuidString // Convert UUID to string
+                    self.currentGame = updatedGame
+                } catch {
+                    print("Error creating new game: \(error.localizedDescription)")
+                }
+            } else {
+                // No user ID, just save the game
+                do {
+                    try context.save()
+                    
+                    // Update the game model with the new ID
+                    var updatedGame = game
+                    updatedGame.gameId = gameEntity.gameId?.uuidString // Convert UUID to string
+                    self.currentGame = updatedGame
+                } catch {
+                    print("Error creating new game: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
     private func stringDictionaryToCharacterDictionary(_ dict: [String: String]) -> [Character: Character] {
         var result = [Character: Character]()
         for (key, value) in dict {

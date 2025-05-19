@@ -6,7 +6,11 @@ import SwiftUI
 extension GameCD {
     
     // MARK: - Computed properties for mappings
-    
+    var gameIdString: String? {
+            get {
+                return gameId?.uuidString
+            }
+        }
     /// Mapping data stored as binary
     var mappingData: Data? {
         get { return mapping }
@@ -26,15 +30,15 @@ extension GameCD {
     }
     
     /// Gets the game ID (safe unwrapping)
-    var gameId: String? {
-        get {
-            // You need to define a "gameId" attribute in your Core Data model
-            return value(forKey: "gameId") as? String
-        }
-        set {
-            setValue(newValue, forKey: "gameId")
-        }
-    }
+//    var gameId: String? {
+//        get {
+//            // You need to define a "gameId" attribute in your Core Data model
+//            return value(forKey: "gameId") as? String
+//        }
+//        set {
+//            setValue(newValue, forKey: "gameId")
+//        }
+//    }
     
     /// Convenience function to calculate letter frequency
     func calculateLetterFrequency() -> [Character: Int] {
@@ -101,7 +105,7 @@ extension GameCD {
         }
         
         return GameModel(
-            gameId: self.gameId,
+            gameId: self.gameId?.uuidString ?? "",
             encrypted: self.encrypted ?? "",
             solution: self.solution ?? "",
             currentDisplay: self.currentDisplay ?? "",

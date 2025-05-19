@@ -81,8 +81,8 @@ class CoreDataStack {
         do {
             // Get entity counts - updated with CD suffix
             let quoteCount = try context.count(for: NSFetchRequest<QuoteCD>(entityName: "QuoteCD"))
-            let activeQuotes = try context.count(for: NSFetchRequest<QuoteCD>(entityName: "QuoteCD").apply {
-                $0.predicate = NSPredicate(format: "isActive == YES")
+            let activeQuotes = try context.count(for: configureFetchRequest(NSFetchRequest<QuoteCD>(entityName: "QuoteCD")) { request in
+                request.predicate = NSPredicate(format: "isActive == YES")
             })
             let gameCount = try context.count(for: NSFetchRequest<GameCD>(entityName: "GameCD"))
             let userCount = try context.count(for: NSFetchRequest<UserCD>(entityName: "UserCD"))
@@ -179,9 +179,8 @@ class CoreDataStack {
 
 // MARK: - Extensions
 
-extension NSFetchRequest {
-    func apply(_ block: (Self) -> Void) -> Self {
-        block(self)
-        return self
-    }
+func configureFetchRequest<T: NSFetchRequestResult>(_ request: NSFetchRequest<T>,
+                                                  configuration: (NSFetchRequest<T>) -> Void) -> NSFetchRequest<T> {
+    configuration(request)
+    return request
 }

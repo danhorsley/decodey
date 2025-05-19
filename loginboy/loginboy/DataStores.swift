@@ -308,8 +308,15 @@ class GameStore {
         let context = coreData.mainContext
         
         let newGame = GameCD(context: context)
-        newGame.id = UUID()
-        newGame.gameId = game.gameId ?? UUID().uuidString
+        
+        // Convert String to UUID for gameId
+        if let gameIdString = game.gameId, let uuid = UUID(uuidString: gameIdString) {
+            newGame.gameId = uuid
+        } else {
+            // If no valid UUID, create a new one
+            newGame.gameId = UUID()
+        }
+        
         newGame.encrypted = game.encrypted
         newGame.solution = game.solution
         newGame.currentDisplay = game.currentDisplay
@@ -343,7 +350,7 @@ class GameStore {
             
             // Return updated game with gameId
             var updatedGame = game
-            updatedGame.gameId = newGame.gameId
+            updatedGame.gameId = newGame.gameId?.uuidString // Convert UUID back to String
             return updatedGame
         } catch {
             print("Error saving game: \(error.localizedDescription)")
@@ -355,11 +362,14 @@ class GameStore {
     func updateGame(_ game: GameModel) -> Bool {
         let context = coreData.mainContext
         
-        // Find existing game
-        guard let gameId = game.gameId else { return false }
+        // Find existing game - convert String to UUID
+        guard let gameIdString = game.gameId,
+              let gameIdUUID = UUID(uuidString: gameIdString) else {
+            return false
+        }
         
         let fetchRequest: NSFetchRequest<GameCD> = GameCD.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "gameId == %@", gameId)
+        fetchRequest.predicate = NSPredicate(format: "gameId == %@", gameIdUUID as CVarArg)
         
         do {
             let results = try context.fetch(fetchRequest)
@@ -443,7 +453,7 @@ class GameStore {
         }
         
         return GameModel(
-            gameId: game.gameId ?? "",
+            gameId: game.gameId?.uuidString ?? "", // Convert UUID to String
             encrypted: game.encrypted ?? "",
             solution: game.solution ?? "",
             currentDisplay: game.currentDisplay ?? "",

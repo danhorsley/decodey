@@ -5,10 +5,10 @@
         <attribute name="currentDisplay" optional="YES" attributeType="String"/>
         <attribute name="difficulty" optional="YES" attributeType="String"/>
         <attribute name="encrypted" optional="YES" attributeType="String"/>
+        <attribute name="gameId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="guessedMappings" optional="YES" attributeType="Binary"/>
         <attribute name="hasLost" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="hasWon" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isDaily" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="lastUpdateTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="mapping" optional="YES" attributeType="Binary"/>
