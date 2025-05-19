@@ -103,7 +103,7 @@ class QuoteStore {
         }
         
         // Build URL
-        guard let url = URL(string: "\(auth.baseURL)/api/quotes") else {
+        guard let url = URL(string: "\(auth.baseURL)/api/get_all_quotes") else {
             print("Cannot sync quotes: Invalid URL")
             completion(false)
             return
@@ -161,6 +161,7 @@ class QuoteStore {
                 }
             } catch {
                 print("Error parsing response during quote sync: \(error.localizedDescription)")
+                print("Raw response data: \(String(data: data, encoding: .utf8) ?? "Invalid data")")
                 completion(false)
             }
         }.resume()
