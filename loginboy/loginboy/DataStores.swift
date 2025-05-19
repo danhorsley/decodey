@@ -27,14 +27,17 @@ class QuoteStore {
             
             // Update usage count
             coreData.performBackgroundTask { context in
-                let quoteID = quote.id
-                let backgroundQuote = context.object(with: quote.objectID) as! Quote
-                backgroundQuote.timesUsed += 1
-                
-                do {
-                    try context.save()
-                } catch {
-                    print("Failed to update quote usage count: \(error.localizedDescription)")
+                if let quoteID = quote.id {
+                    // Get the object in this background context
+                    let objectID = quote.objectID
+                    let backgroundQuote = context.object(with: objectID) as! Quote
+                    backgroundQuote.timesUsed += 1
+                    
+                    do {
+                        try context.save()
+                    } catch {
+                        print("Failed to update quote usage count: \(error.localizedDescription)")
+                    }
                 }
             }
             
@@ -75,7 +78,7 @@ class QuoteStore {
                 quote.text = quoteModel.text
                 quote.author = quoteModel.author
                 quote.attribution = quoteModel.attribution
-                quote.difficulty = quoteModel.difficulty
+                quote.difficulty = quoteModel.difficulty ?? 1.0
                 quote.uniqueLetters = Int16(Set(quoteModel.text.filter { $0.isLetter }).count)
                 quote.isActive = true
                 quote.timesUsed = 0
@@ -208,7 +211,7 @@ class QuoteStore {
                 
                 // Set quotes that no longer exist on the server to inactive
                 for existingQuote in existingQuotes {
-                    if let serverId = existingQuote.serverId, !serverQuoteIds.contains(serverId) {
+                    if existingQuote.serverId > 0 && !serverQuoteIds.contains(existingQuote.serverId) {
                         existingQuote.isActive = false
                     }
                 }
@@ -305,7 +308,7 @@ class GameStore {
         
         let newGame = Game(context: context)
         newGame.id = UUID()
-        newGame.gameId = game.gameId ?? UUID().uuidString
+        newGame.setValue(game.gameId ?? UUID().uuidString, forKey: "gameId")
         newGame.encrypted = game.encrypted
         newGame.solution = game.solution
         newGame.currentDisplay = game.currentDisplay
@@ -325,13 +328,13 @@ class GameStore {
         }
         
         // Store mappings as serialized data
-        let mappingData = try? JSONEncoder().encode(game.mapping.mapToDictionary())
-        let correctMappingsData = try? JSONEncoder().encode(game.correctMappings.mapToDictionary())
-        let guessedMappingsData = try? JSONEncoder().encode(game.guessedMappings.mapToDictionary())
-        
-        newGame.mappingData = mappingData
-        newGame.correctMappingsData = correctMappingsData
-        newGame.guessedMappingsData = guessedMappingsData
+        do {
+            newGame.mappingData = try JSONEncoder().encode(game.mapping.mapToDictionary())
+            newGame.correctMappingsData = try JSONEncoder().encode(game.correctMappings.mapToDictionary())
+            newGame.guessedMappingsData = try JSONEncoder().encode(game.guessedMappings.mapToDictionary())
+        } catch {
+            print("Error encoding mappings: \(error.localizedDescription)")
+        }
         
         // Save to Core Data
         do {
@@ -379,13 +382,13 @@ class GameStore {
             }
             
             // Update mappings
-            let mappingData = try? JSONEncoder().encode(game.mapping.mapToDictionary())
-            let correctMappingsData = try? JSONEncoder().encode(game.correctMappings.mapToDictionary())
-            let guessedMappingsData = try? JSONEncoder().encode(game.guessedMappings.mapToDictionary())
-            
-            existingGame.mappingData = mappingData
-            existingGame.correctMappingsData = correctMappingsData
-            existingGame.guessedMappingsData = guessedMappingsData
+            do {
+                existingGame.mappingData = try JSONEncoder().encode(game.mapping.mapToDictionary())
+                existingGame.correctMappingsData = try JSONEncoder().encode(game.correctMappings.mapToDictionary())
+                existingGame.guessedMappingsData = try JSONEncoder().encode(game.guessedMappings.mapToDictionary())
+            } catch {
+                print("Error encoding mappings: \(error.localizedDescription)")
+            }
             
             // Save changes
             try context.save()
@@ -439,10 +442,10 @@ class GameStore {
         }
         
         return GameModel(
-            gameId: game.gameId,
-            encrypted: game.encrypted,
-            solution: game.solution,
-            currentDisplay: game.currentDisplay,
+            gameId: game.value(forKey: "gameId") as? String,
+            encrypted: game.encrypted ?? "",
+            solution: game.solution ?? "",
+            currentDisplay: game.currentDisplay ?? "",
             mapping: mapping,
             correctMappings: correctMappings,
             guessedMappings: guessedMappings,
@@ -450,9 +453,9 @@ class GameStore {
             maxMistakes: Int(game.maxMistakes),
             hasWon: game.hasWon,
             hasLost: game.hasLost,
-            difficulty: game.difficulty,
-            startTime: game.startTime,
-            lastUpdateTime: game.lastUpdateTime
+            difficulty: game.difficulty ?? "medium",
+            startTime: game.startTime ?? Date(),
+            lastUpdateTime: game.lastUpdateTime ?? Date()
         )
     }
     
@@ -506,7 +509,6 @@ class GameStore {
         }
     }
 }
-
 // MARK: - UserStore
 class UserStore {
     static let shared = UserStore()

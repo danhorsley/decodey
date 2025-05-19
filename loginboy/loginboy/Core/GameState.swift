@@ -1,6 +1,10 @@
 import SwiftUI
 import CoreData
 
+import Foundation
+import CoreData
+import Combine
+
 class GameState: ObservableObject {
     // Game state properties
     @Published var currentGame: GameModel?
@@ -24,7 +28,7 @@ class GameState: ObservableObject {
     private var dailyQuote: DailyQuoteModel?
     private let authCoordinator = UserState.shared.authCoordinator
     
-    // Stores - direct access to Core Data stores
+    // Store - direct access to Core Data store
     private let gameStore = GameStore.shared
     private let quoteStore = QuoteStore.shared
     private let coreData = CoreDataStack.shared
@@ -53,7 +57,13 @@ class GameState: ObservableObject {
             attribution: nil,
             difficulty: 2.0
         )
-        self.currentGame = GameModel(quote: defaultQuote)
+        
+        var game = GameModel(quote: defaultQuote)
+        // Difficulty and max mistakes from settings, not from quote
+        game.difficulty = SettingsState.shared.gameDifficulty
+        game.maxMistakes = getMaxMistakesForDifficulty(game.difficulty)
+        
+        self.currentGame = game
     }
     
     // MARK: - Game Setup
@@ -69,13 +79,13 @@ class GameState: ObservableObject {
         // Get random quote from store
         if let quote = quoteStore.getRandomQuote() {
             // Update UI data
-            quoteAuthor = quote.author
+            quoteAuthor = quote.author ?? ""
             quoteAttribution = quote.attribution
             
             // Create quote model
             let quoteModel = QuoteModel(
-                text: quote.text,
-                author: quote.author,
+                text: quote.text ?? "",
+                author: quote.author ?? "",
                 attribution: quote.attribution,
                 difficulty: quote.difficulty
             )
@@ -101,23 +111,15 @@ class GameState: ObservableObject {
                 attribution: nil,
                 difficulty: nil
             )
-            currentGame = GameModel(quote: fallbackQuote)
+            var game = GameModel(quote: fallbackQuote)
             // Get difficulty from settings
-            currentGame?.difficulty = SettingsState.shared.gameDifficulty
+            game.difficulty = SettingsState.shared.gameDifficulty
             // Set max mistakes based on difficulty settings
-            currentGame?.maxMistakes = getMaxMistakesForDifficulty(currentGame?.difficulty ?? "medium")
+            game.maxMistakes = getMaxMistakesForDifficulty(game.difficulty)
+            currentGame = game
         }
         
         isLoading = false
-    }
-    
-    /// Get max mistakes based on difficulty settings
-    private func getMaxMistakesForDifficulty(_ difficulty: String) -> Int {
-        switch difficulty.lowercased() {
-        case "easy": return 8
-        case "hard": return 3
-        default: return 5  // Medium difficulty
-        }
     }
     
     /// Set up the daily challenge
@@ -140,9 +142,9 @@ class GameState: ObservableObject {
     private func setupFromDailyQuote(_ quote: Quote) {
         // Create a daily quote model
         let dailyQuoteModel = DailyQuoteModel(
-            id: Int(quote.serverId ?? 0),
-            text: quote.text,
-            author: quote.author,
+            id: Int(quote.serverId),
+            text: quote.text ?? "",
+            author: quote.author ?? "",
             minor_attribution: quote.attribution,
             difficulty: quote.difficulty,
             date: ISO8601DateFormatter().string(from: quote.dailyDate ?? Date()),
@@ -152,7 +154,7 @@ class GameState: ObservableObject {
         self.dailyQuote = dailyQuoteModel
         
         // Update UI data
-        quoteAuthor = quote.author
+        quoteAuthor = quote.author ?? ""
         quoteAttribution = quote.attribution
         
         if let dailyDate = quote.dailyDate {
@@ -163,13 +165,17 @@ class GameState: ObservableObject {
         
         // Create game from quote
         let gameQuote = QuoteModel(
-            text: quote.text,
-            author: quote.author,
+            text: quote.text ?? "",
+            author: quote.author ?? "",
             attribution: quote.attribution,
             difficulty: quote.difficulty
         )
         
         var game = GameModel(quote: gameQuote)
+        // Set difficulty from settings, not from quote
+        game.difficulty = SettingsState.shared.gameDifficulty
+        // Set max mistakes based on difficulty settings
+        game.maxMistakes = getMaxMistakesForDifficulty(game.difficulty)
         game.gameId = "daily-\(ISO8601DateFormatter().string(from: quote.dailyDate ?? Date()))" // Mark as daily game with date
         currentGame = game
         
@@ -341,7 +347,7 @@ class GameState: ObservableObject {
             do {
                 let quotes = try context.fetch(fetchRequest)
                 if let quote = quotes.first {
-                    quoteAuthor = quote.author
+                    quoteAuthor = quote.author ?? ""
                     quoteAttribution = quote.attribution
                 }
             } catch {
@@ -368,8 +374,13 @@ class GameState: ObservableObject {
                 attribution: dailyQuote.minor_attribution,
                 difficulty: dailyQuote.difficulty
             )
-            currentGame = GameModel(quote: gameQuote)
-            currentGame?.gameId = "daily-\(dailyQuote.date)" // Mark as daily game with date
+            var game = GameModel(quote: gameQuote)
+            // Set difficulty from settings
+            game.difficulty = SettingsState.shared.gameDifficulty
+            // Set max mistakes based on difficulty settings
+            game.maxMistakes = getMaxMistakesForDifficulty(game.difficulty)
+            game.gameId = "daily-\(dailyQuote.date)" // Mark as daily game with date
+            currentGame = game
             showWinMessage = false
             showLoseMessage = false
         } else {
@@ -511,13 +522,13 @@ class GameState: ObservableObject {
                 } else {
                     gameEntity = Game(context: context)
                     gameEntity.id = UUID()
-                    gameEntity.gameId = gameId
+                    gameEntity.setValue(gameId, forKey: "gameId")
                     gameEntity.startTime = game.startTime
                 }
             } else {
                 gameEntity = Game(context: context)
                 gameEntity.id = UUID()
-                gameEntity.gameId = UUID().uuidString
+                gameEntity.setValue(UUID().uuidString, forKey: "gameId")
                 gameEntity.startTime = game.startTime
             }
             
@@ -543,13 +554,13 @@ class GameState: ObservableObject {
             }
             
             // Store mappings as serialized data
-            let mappingData = try? JSONEncoder().encode(game.mapping.mapToDictionary())
-            let correctMappingsData = try? JSONEncoder().encode(game.correctMappings.mapToDictionary())
-            let guessedMappingsData = try? JSONEncoder().encode(game.guessedMappings.mapToDictionary())
-            
-            gameEntity.mappingData = mappingData
-            gameEntity.correctMappingsData = correctMappingsData
-            gameEntity.guessedMappingsData = guessedMappingsData
+            do {
+                gameEntity.mappingData = try JSONEncoder().encode(game.mapping.mapToDictionary())
+                gameEntity.correctMappingsData = try JSONEncoder().encode(game.correctMappings.mapToDictionary())
+                gameEntity.guessedMappingsData = try JSONEncoder().encode(game.guessedMappings.mapToDictionary())
+            } catch {
+                print("Error encoding mappings: \(error)")
+            }
             
             // Save changes
             try context.save()
@@ -557,7 +568,7 @@ class GameState: ObservableObject {
             // Update the current game model with the ID if it was new
             if game.gameId == nil {
                 var updatedGame = game
-                updatedGame.gameId = gameEntity.gameId
+                updatedGame.gameId = gameEntity.value(forKey: "gameId") as? String
                 currentGame = updatedGame
             }
         } catch {
@@ -606,21 +617,25 @@ class GameState: ObservableObject {
     }
 }
 
-// MARK: - Extensions
-extension NSFetchRequest where ResultType == Game {
-    static func fetchRequest() -> NSFetchRequest<Game> {
-        return NSFetchRequest<Game>(entityName: "Game")
+// MARK: - Helper Extensions
+extension Dictionary where Key == Character, Value == Character {
+    func mapToDictionary() -> [String: String] {
+        var result = [String: String]()
+        for (key, value) in self {
+            result[String(key)] = String(value)
+        }
+        return result
     }
 }
 
-extension NSFetchRequest where ResultType == Quote {
-    static func fetchRequest() -> NSFetchRequest<Quote> {
-        return NSFetchRequest<Quote>(entityName: "Quote")
-    }
-}
-
-extension NSFetchRequest where ResultType == User {
-    static func fetchRequest() -> NSFetchRequest<User> {
-        return NSFetchRequest<User>(entityName: "User")
+extension Dictionary where Key == String, Value == String {
+    func convertToCharacterDictionary() -> [Character: Character] {
+        var result = [Character: Character]()
+        for (key, value) in self {
+            if let keyChar = key.first, let valueChar = value.first {
+                result[keyChar] = valueChar
+            }
+        }
+        return result
     }
 }

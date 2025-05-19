@@ -11,17 +11,13 @@ class CoreDataStack {
         let container = NSPersistentContainer(name: "DecodeyApp")
         container.loadPersistentStores { (storeDescription, error) in
             if let error = error as NSError? {
-                // Replace this implementation with code to handle the error appropriately.
-                /*
-                 Typical reasons for an error here include:
-                 * The parent directory does not exist, cannot be created, or disallows writing.
-                 * The persistent store is not accessible, due to permissions or data protection when the device is locked.
-                 * The device is out of space.
-                 * The store could not be migrated to the current model version.
-                 Check the error message to determine what the actual problem was.
-                 */
+                // Log the error but don't crash in production
                 print("❌ Core Data error: \(error), \(error.userInfo)")
+                #if DEBUG
                 fatalError("Unresolved error: \(error), \(error.userInfo)")
+                #else
+                print("Critical database error. Some features may not work correctly.")
+                #endif
             } else {
                 print("✅ CoreData successfully initialized!")
                 print("📊 SQLite database location: \(String(describing: storeDescription.url?.path))")
@@ -68,6 +64,7 @@ class CoreDataStack {
                 let nsError = error as NSError
                 print("❌ Error saving context: \(nsError), \(nsError.userInfo)")
                 #if DEBUG
+                // In debug, we want to know immediately if there's an issue
                 fatalError("Unresolved error: \(nsError), \(nsError.userInfo)")
                 #endif
             }
@@ -134,7 +131,7 @@ class CoreDataStack {
         }
     }
     
-    // MARK: - Migration Helpers
+    // MARK: - Initial Data Creation
     
     func createInitialData() {
         let context = newBackgroundContext()
@@ -166,6 +163,7 @@ class CoreDataStack {
                         quote.difficulty = quoteData.difficulty
                         quote.uniqueLetters = Int16(Set(quoteData.text.filter { $0.isLetter }).count)
                         quote.isActive = true
+                        quote.timesUsed = 0
                     }
                     
                     // Save the context
@@ -177,13 +175,6 @@ class CoreDataStack {
             }
         }
     }
-    
-    // Function to migrate data from Realm to Core Data
-    func migrateFromRealm(completion: @escaping (Bool) -> Void) {
-        // This would be implemented as needed for the migration
-        // For now, just call back with success
-        completion(true)
-    }
 }
 
 // MARK: - Extensions
@@ -194,10 +185,3 @@ extension NSFetchRequest {
         return self
     }
 }
-//
-//  CoreDataStack.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 19/05/2025.
-//
-

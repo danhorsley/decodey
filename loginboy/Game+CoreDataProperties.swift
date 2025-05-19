@@ -33,10 +33,6 @@ extension Game {
     @NSManaged public var mapping: Data?
     @NSManaged public var correctMappings: Data?
     @NSManaged public var guessedMappings: Data?
-    @NSManaged public var attribute: NSObject?
-    @NSManaged public var attribute1: NSObject?
-    @NSManaged public var attribute2: NSObject?
-    @NSManaged public var attribute3: NSObject?
     @NSManaged public var quote: Quote?
     @NSManaged public var user: User?
 
