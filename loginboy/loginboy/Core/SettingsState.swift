@@ -1,8 +1,7 @@
-// SettingsState.swift - Simplified for Realm
-import SwiftUI
-import Combine
 import Foundation
-import RealmSwift
+import CoreData
+import Combine
+import SwiftUI
 
 /// SettingsState manages application settings and preferences
 class SettingsState: ObservableObject {
@@ -57,8 +56,9 @@ class SettingsState: ObservableObject {
     // App version (read-only)
     let appVersion: String
     
-    // Realm access
-    private let realm = RealmManager.shared.getRealm()
+    // Core Data access
+    private let coreData = CoreDataStack.shared
+    private var cancellables = Set<AnyCancellable>()
     
     // UserDefaults keys
     private struct Keys {
@@ -122,6 +122,19 @@ class SettingsState: ObservableObject {
         
         // Apply initial appearance
         updateAppAppearance()
+        
+        // Subscribe to user state changes
+        subscribeToUserStateChanges()
+    }
+    
+    private func subscribeToUserStateChanges() {
+        UserState.shared.$isAuthenticated
+            .sink { [weak self] isAuthenticated in
+                if isAuthenticated {
+                    self?.loadFromUserPreferences(userId: UserState.shared.userId)
+                }
+            }
+            .store(in: &cancellables)
     }
     
     // MARK: - Public Methods
@@ -176,57 +189,87 @@ class SettingsState: ObservableObject {
         useBiometricAuth = BiometricAuthHelper.shared.biometricAuthAvailable().0
     }
     
-    /// Save current settings to a logged-in user's preferences in Realm
+    /// Save current settings to a logged-in user's preferences in Core Data
     func saveToUserPreferences(userId: String) {
-        guard let realm = realm else { return }
+        let context = coreData.mainContext
+        
+        // Find the user
+        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
         
         do {
-            try realm.write {
-                // Find or create user
-                guard let user = realm.object(ofType: UserRealm.self, forPrimaryKey: userId) else {
-                    return
-                }
-                
-                // Create preferences if needed
-                if user.preferences == nil {
-                    user.preferences = UserPreferencesRealm()
-                }
-                
-                guard let prefs = user.preferences else { return }
-                
-                // Update from settings
-                prefs.darkMode = isDarkMode
-                prefs.showTextHelpers = showTextHelpers
-                prefs.accessibilityTextSize = useAccessibilityTextSize
-                prefs.gameDifficulty = gameDifficulty
-                prefs.soundEnabled = soundEnabled
-                prefs.soundVolume = soundVolume
-                prefs.useBiometricAuth = useBiometricAuth
-                prefs.lastSyncDate = Date()
+            let users = try context.fetch(fetchRequest)
+            
+            guard let user = users.first else { return }
+            
+            // Get or create preferences
+            let preferences: UserPreferences
+            if let existingPrefs = user.preferences {
+                preferences = existingPrefs
+            } else {
+                preferences = UserPreferences(context: context)
+                user.preferences = preferences
+                preferences.user = user
+            }
+            
+            // Update from settings
+            preferences.darkMode = isDarkMode
+            preferences.showTextHelpers = showTextHelpers
+            preferences.accessibilityTextSize = useAccessibilityTextSize
+            preferences.gameDifficulty = gameDifficulty
+            preferences.soundEnabled = soundEnabled
+            preferences.soundVolume = soundVolume
+            preferences.useBiometricAuth = useBiometricAuth
+            preferences.lastSyncDate = Date()
+            
+            // Save changes
+            try context.save()
+            
+            if let settings = UserState.shared.authCoordinator as? SettingsSync {
+                settings.syncSettingsToServer(preferences: UserPreferencesModel(
+                    darkMode: isDarkMode,
+                    showTextHelpers: showTextHelpers,
+                    accessibilityTextSize: useAccessibilityTextSize,
+                    gameDifficulty: gameDifficulty,
+                    soundEnabled: soundEnabled,
+                    soundVolume: soundVolume,
+                    useBiometricAuth: useBiometricAuth,
+                    notificationsEnabled: preferences.notificationsEnabled,
+                    lastSyncDate: Date()
+                ))
             }
         } catch {
             print("Error saving user preferences: \(error.localizedDescription)")
         }
     }
     
-    /// Load settings from a user's preferences in Realm
+    /// Load settings from a user's preferences in Core Data
     func loadFromUserPreferences(userId: String) {
-        guard let realm = realm else { return }
+        let context = coreData.mainContext
         
         // Find user and preferences
-        guard let user = realm.object(ofType: UserRealm.self, forPrimaryKey: userId),
-              let prefs = user.preferences else {
-            return
-        }
+        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
         
-        // Update settings from preferences
-        self.isDarkMode = prefs.darkMode
-        self.showTextHelpers = prefs.showTextHelpers
-        self.useAccessibilityTextSize = prefs.accessibilityTextSize
-        self.gameDifficulty = prefs.gameDifficulty
-        self.soundEnabled = prefs.soundEnabled
-        self.soundVolume = prefs.soundVolume
-        self.useBiometricAuth = prefs.useBiometricAuth
+        do {
+            let users = try context.fetch(fetchRequest)
+            guard let user = users.first, let prefs = user.preferences else {
+                return
+            }
+            
+            // Update settings from preferences
+            DispatchQueue.main.async {
+                self.isDarkMode = prefs.darkMode
+                self.showTextHelpers = prefs.showTextHelpers
+                self.useAccessibilityTextSize = prefs.accessibilityTextSize
+                self.gameDifficulty = prefs.gameDifficulty
+                self.soundEnabled = prefs.soundEnabled
+                self.soundVolume = prefs.soundVolume
+                self.useBiometricAuth = prefs.useBiometricAuth
+            }
+        } catch {
+            print("Error loading user preferences: \(error.localizedDescription)")
+        }
     }
     
     // MARK: - Private Methods
@@ -246,5 +289,17 @@ class SettingsState: ObservableObject {
 extension UserDefaults {
     func exists(key: String) -> Bool {
         return object(forKey: key) != nil
+    }
+}
+
+// Protocol for syncing settings to server
+protocol SettingsSync {
+    func syncSettingsToServer(preferences: UserPreferencesModel)
+}
+
+// MARK: - NSFetchRequest Extension
+extension NSFetchRequest where ResultType == User {
+    static func fetchRequest() -> NSFetchRequest<User> {
+        return NSFetchRequest<User>(entityName: "User")
     }
 }

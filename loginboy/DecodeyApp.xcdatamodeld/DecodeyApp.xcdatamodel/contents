@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788" systemVersion="24E263" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="Game" representedClassName="Game" syncable="YES" codeGenerationType="class">
+        <attribute name="attribute" optional="YES"/>
+        <attribute name="attribute1" optional="YES"/>
+        <attribute name="attribute2" optional="YES"/>
+        <attribute name="attribute3" optional="YES"/>
+        <attribute name="correctMappings" optional="YES" attributeType="Binary"/>
+        <attribute name="currentDisplay" optional="YES" attributeType="String"/>
+        <attribute name="difficulty" optional="YES" attributeType="String"/>
+        <attribute name="encrypted" optional="YES" attributeType="String"/>
+        <attribute name="guessedMappings" optional="YES" attributeType="Binary"/>
+        <attribute name="hasLost" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="hasWon" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isDaily" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="lastUpdateTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="mapping" optional="YES" attributeType="Binary"/>
+        <attribute name="maxMistakes" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="mistakes" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="score" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="solution" optional="YES" attributeType="String"/>
+        <attribute name="startTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="timeTaken" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="quote" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Quote" inverseName="games" inverseEntity="Quote"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="games" inverseEntity="User"/>
+    </entity>
+    <entity name="Quote" representedClassName="Quote" syncable="YES" codeGenerationType="class">
+        <attribute name="attribution" optional="YES" attributeType="String"/>
+        <attribute name="author" optional="YES" attributeType="String"/>
+        <attribute name="dailyDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="difficulty" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isActive" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="isDaily" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="serverId" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="text" optional="YES" attributeType="String"/>
+        <attribute name="timesUsed" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="uniqueLetters" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="games" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Game" inverseName="quote" inverseEntity="Game"/>
+    </entity>
+    <entity name="User" representedClassName="User" syncable="YES" codeGenerationType="class">
+        <attribute name="avatarUrl" optional="YES" attributeType="String"/>
+        <attribute name="bio" optional="YES" attributeType="String"/>
+        <attribute name="displayName" optional="YES" attributeType="String"/>
+        <attribute name="email" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isActive" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="isSubAdmin" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="isVerified" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="lastLoginDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="registrationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="userId" optional="YES" attributeType="String"/>
+        <attribute name="username" optional="YES" attributeType="String"/>
+        <relationship name="games" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Game" inverseName="user" inverseEntity="Game"/>
+        <relationship name="preferences" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserPreferences" inverseName="user" inverseEntity="UserPreferences"/>
+        <relationship name="stats" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserStats" inverseName="user" inverseEntity="UserStats"/>
+    </entity>
+    <entity name="UserPreferences" representedClassName="UserPreferences" syncable="YES" codeGenerationType="class">
+        <attribute name="accessibilityTextSize" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="darkMode" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="gameDifficulty" optional="YES" attributeType="String"/>
+        <attribute name="lastSyncDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="notificationsEnabled" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="showTextHelpers" optional="YES"/>
+        <attribute name="soundEnabled" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="soundVolume" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="useBiometricAuth" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="preferences" inverseEntity="User"/>
+    </entity>
+    <entity name="UserStats" representedClassName="UserStats" syncable="YES" codeGenerationType="class">
+        <attribute name="averageMistakes" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="averageTime" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="bestStreak" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="currentStreak" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="gamesPlayed" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="gamesWon" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="lastPlayedDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="totalScore" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="stats" inverseEntity="User"/>
+    </entity>
+</model>

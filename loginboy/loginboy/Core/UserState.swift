@@ -1,10 +1,7 @@
-// UserState.swift - Reimplemented for Realm
 import Foundation
+import CoreData
 import Combine
-import SwiftUI
-import RealmSwift
 
-/// UserState manages user authentication and profile information
 class UserState: ObservableObject {
     // Published properties for UI binding
     @Published var isAuthenticated = false
@@ -15,15 +12,14 @@ class UserState: ObservableObject {
     @Published var isSubadmin = false
     
     // User profile data
-    @Published var profile: UserProfile?
-    @Published var stats: UserStats?
+    @Published var profile: UserModel?
+    @Published var stats: UserStatsModel?
     
     // Authentication coordinator - keep this for handling auth API
     let authCoordinator: AuthenticationCoordinator
     
-    // Direct Realm access
-    private let realm = RealmManager.shared.getRealm()
-    private var userNotificationToken: NotificationToken?
+    // Core Data access
+    private let coreData = CoreDataStack.shared
     private var cancellables = Set<AnyCancellable>()
     
     // Singleton instance
@@ -36,13 +32,8 @@ class UserState: ObservableObject {
         // Bind to auth coordinator changes
         setupBindings()
         
-        // Setup Realm notifications
-        setupRealmObservers()
-    }
-    
-    deinit {
-        // Clean up notification tokens
-        userNotificationToken?.invalidate()
+        // Setup observers for Core Data changes - if needed
+        // setupCoreDataObservers()
     }
     
     private func setupBindings() {
@@ -78,29 +69,41 @@ class UserState: ObservableObject {
             .store(in: &cancellables)
     }
     
-    // Set up Realm notifications for real-time updates
-    private func setupRealmObservers() {
-        guard let realm = realm else { return }
+    // Setup observers for Core Data changes
+    private func setupCoreDataObservers() {
+        // Using NotificationCenter to observe Core Data changes
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(managedObjectContextDidSave),
+            name: .NSManagedObjectContextDidSave,
+            object: nil
+        )
+    }
+    
+    @objc private func managedObjectContextDidSave(_ notification: Notification) {
+        // Only update if we're authenticated and the user's data changed
+        guard isAuthenticated, !userId.isEmpty else { return }
         
-        // Observe UserRealm objects
-        let users = realm.objects(UserRealm.self)
+        let changedObjects = notification.userInfo?[NSUpdatedObjectsKey] as? Set<NSManagedObject> ?? []
+        let insertedObjects = notification.userInfo?[NSInsertedObjectsKey] as? Set<NSManagedObject> ?? []
         
-        userNotificationToken = users.observe { [weak self] (changes: RealmCollectionChange) in
-            guard let self = self else { return }
-            
-            switch changes {
-            case .update(let collection, _, _, _):
-                // Only update if it's our user
-                if let userObj = collection.first(where: { $0.userId == self.userId }) {
-                    self.updateUserProfileFromRealm(userObj)
-                }
-            case .initial(let collection):
-                // Initial load after observation starts
-                if let userObj = collection.first(where: { $0.userId == self.userId }) {
-                    self.updateUserProfileFromRealm(userObj)
-                }
-            case .error(let error):
-                print("Error observing users in Realm: \(error)")
+        // Check if any User, UserStats, or UserPreferences objects changed
+        let relevantObjects = changedObjects.union(insertedObjects).filter { object in
+            if let user = object as? User, user.userId == userId {
+                return true
+            }
+            if let stats = object as? UserStats, stats.user?.userId == userId {
+                return true
+            }
+            if let prefs = object as? UserPreferences, prefs.user?.userId == userId {
+                return true
+            }
+            return false
+        }
+        
+        if !relevantObjects.isEmpty {
+            DispatchQueue.main.async { [weak self] in
+                self?.fetchUserData()
             }
         }
     }
@@ -140,63 +143,95 @@ class UserState: ObservableObject {
         authCoordinator.logout()
     }
     
-    /// Fetch user data from Realm
+    /// Fetch user data from Core Data
     func fetchUserData() {
         guard isAuthenticated, !userId.isEmpty else { return }
         
-        // Check if user exists in Realm
-        if let user = getUserFromRealm() {
-            // Update from existing user
-            updateUserProfileFromRealm(user)
-        } else {
-            // Create a new user in Realm
-            createUserInRealm()
+        let context = coreData.mainContext
+        
+        // Fetch user
+        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
+        
+        do {
+            let users = try context.fetch(fetchRequest)
+            
+            if let user = users.first {
+                // Update from existing user
+                updateProfileFromCoreData(user)
+            } else {
+                // Create a new user in Core Data
+                createUserInCoreData()
+            }
+        } catch {
+            print("Error fetching user data: \(error.localizedDescription)")
         }
     }
     
     /// Update user statistics after game completion
     func updateStats(gameWon: Bool, score: Int, timeTaken: Int, mistakes: Int = 0) {
         guard isAuthenticated, !userId.isEmpty else { return }
-        guard let realm = realm else { return }
+        
+        let context = coreData.mainContext
+        
+        // Find or create user
+        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
         
         do {
-            try realm.write {
-                // Find user or create
-                guard let user = getUserFromRealm() else {
-                    return
-                }
-                
-                // Create stats if needed
-                if user.stats == nil {
-                    user.stats = UserStatsRealm()
-                }
-                
-                guard let stats = user.stats else { return }
-                
-                // Update stats
-                stats.gamesPlayed += 1
-                if gameWon {
-                    stats.gamesWon += 1
-                    stats.currentStreak += 1
-                    stats.bestStreak = max(stats.bestStreak, stats.currentStreak)
-                } else {
-                    stats.currentStreak = 0
-                }
-                
-                stats.totalScore += score
-                
-                // Update averages
-                let oldMistakesTotal = stats.averageMistakes * Double(stats.gamesPlayed - 1)
-                stats.averageMistakes = (oldMistakesTotal + Double(mistakes)) / Double(stats.gamesPlayed)
-                
-                let oldTimeTotal = stats.averageTime * Double(stats.gamesPlayed - 1)
-                stats.averageTime = (oldTimeTotal + Double(timeTaken)) / Double(stats.gamesPlayed)
-                
-                stats.lastPlayedDate = Date()
+            let users = try context.fetch(fetchRequest)
+            
+            // Find or create user
+            let user: User
+            if let existingUser = users.first {
+                user = existingUser
+            } else {
+                user = User(context: context)
+                user.id = UUID()
+                user.userId = userId
+                user.username = username
+                user.email = "\(username)@example.com" // Placeholder
+                user.registrationDate = Date()
+                user.lastLoginDate = Date()
+                user.isActive = true
             }
             
+            // Get or create stats
+            let stats: UserStats
+            if let existingStats = user.stats {
+                stats = existingStats
+            } else {
+                stats = UserStats(context: context)
+                user.stats = stats
+                stats.user = user
+            }
+            
+            // Update stats
+            stats.gamesPlayed += 1
+            if gameWon {
+                stats.gamesWon += 1
+                stats.currentStreak += 1
+                stats.bestStreak = max(stats.bestStreak, stats.currentStreak)
+            } else {
+                stats.currentStreak = 0
+            }
+            
+            stats.totalScore += Int32(score)
+            
+            // Update averages
+            let oldMistakesTotal = stats.averageMistakes * Double(stats.gamesPlayed - 1)
+            stats.averageMistakes = (oldMistakesTotal + Double(mistakes)) / Double(stats.gamesPlayed)
+            
+            let oldTimeTotal = stats.averageTime * Double(stats.gamesPlayed - 1)
+            stats.averageTime = (oldTimeTotal + Double(timeTaken)) / Double(stats.gamesPlayed)
+            
+            stats.lastPlayedDate = Date()
+            
+            // Save changes
+            try context.save()
+            
             // Update published stats property
-            self.refreshStats()
+            refreshStats()
         } catch {
             print("Error updating stats: \(error.localizedDescription)")
         }
@@ -204,48 +239,73 @@ class UserState: ObservableObject {
     
     /// Get user's statistics
     func refreshStats() {
-        guard isAuthenticated, let user = getUserFromRealm(), let realmStats = user.stats else {
+        guard isAuthenticated, !userId.isEmpty else {
             stats = nil
             return
         }
         
-        // Create UserStats from Realm data
-        stats = UserStats(
-            userId: userId,
-            gamesPlayed: realmStats.gamesPlayed,
-            gamesWon: realmStats.gamesWon,
-            currentStreak: realmStats.currentStreak,
-            bestStreak: realmStats.bestStreak,
-            totalScore: realmStats.totalScore,
-            averageScore: realmStats.gamesPlayed > 0 ?
-                Double(realmStats.totalScore) / Double(realmStats.gamesPlayed) : 0,
-            averageTime: realmStats.averageTime
-        )
+        let context = coreData.mainContext
+        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
+        
+        do {
+            let users = try context.fetch(fetchRequest)
+            
+            if let user = users.first, let userStats = user.stats {
+                // Create UserStatsModel from Core Data
+                stats = UserStatsModel(
+                    userId: userId,
+                    gamesPlayed: Int(userStats.gamesPlayed),
+                    gamesWon: Int(userStats.gamesWon),
+                    currentStreak: Int(userStats.currentStreak),
+                    bestStreak: Int(userStats.bestStreak),
+                    totalScore: Int(userStats.totalScore),
+                    averageScore: userStats.gamesPlayed > 0 ?
+                        Double(userStats.totalScore) / Double(userStats.gamesPlayed) : 0,
+                    averageTime: userStats.averageTime,
+                    lastPlayedDate: userStats.lastPlayedDate
+                )
+            } else {
+                stats = nil
+            }
+        } catch {
+            print("Error refreshing stats: \(error.localizedDescription)")
+            stats = nil
+        }
     }
     
     /// Update user profile information
     func updateProfile(displayName: String? = nil, bio: String? = nil) {
         guard isAuthenticated, !userId.isEmpty else { return }
-        guard let realm = realm else { return }
+        
+        let context = coreData.mainContext
+        
+        // Find user
+        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
         
         do {
-            try realm.write {
-                guard let user = getUserFromRealm() else { return }
-                
-                if let displayName = displayName {
-                    user.displayName = displayName
-                }
-                
-                if let bio = bio {
-                    user.bio = bio
-                }
-                
-                // Update last modified date
-                user.lastLoginDate = Date()
+            let users = try context.fetch(fetchRequest)
+            
+            guard let user = users.first else { return }
+            
+            // Update properties
+            if let displayName = displayName {
+                user.displayName = displayName
             }
             
+            if let bio = bio {
+                user.bio = bio
+            }
+            
+            // Update last login date
+            user.lastLoginDate = Date()
+            
+            // Save changes
+            try context.save()
+            
             // Update published profile property
-            updateUserProfileFromRealm(getUserFromRealm())
+            updateProfileFromCoreData(user)
         } catch {
             print("Error updating profile: \(error.localizedDescription)")
         }
@@ -253,20 +313,9 @@ class UserState: ObservableObject {
     
     // MARK: - Private Methods
     
-    private func getUserFromRealm() -> UserRealm? {
-        guard let realm = realm else { return nil }
-        return realm.object(ofType: UserRealm.self, forPrimaryKey: userId)
-    }
-    
-    private func updateUserProfileFromRealm(_ user: UserRealm?) {
-        guard let user = user else {
-            profile = nil
-            stats = nil
-            return
-        }
-        
+    private func updateProfileFromCoreData(_ user: User) {
         // Update the profile data
-        profile = UserProfile(
+        profile = UserModel(
             userId: user.userId,
             username: user.username,
             email: user.email,
@@ -274,84 +323,94 @@ class UserState: ObservableObject {
             avatarUrl: user.avatarUrl,
             bio: user.bio,
             registrationDate: user.registrationDate,
-            lastLoginDate: user.lastLoginDate
+            lastLoginDate: user.lastLoginDate,
+            isActive: user.isActive,
+            isVerified: user.isVerified,
+            isSubadmin: user.isSubadmin
         )
         
         // Update stats if available
-        if let realmStats = user.stats {
-            stats = UserStats(
+        if let userStats = user.stats {
+            stats = UserStatsModel(
                 userId: userId,
-                gamesPlayed: realmStats.gamesPlayed,
-                gamesWon: realmStats.gamesWon,
-                currentStreak: realmStats.currentStreak,
-                bestStreak: realmStats.bestStreak,
-                totalScore: realmStats.totalScore,
-                averageScore: realmStats.gamesPlayed > 0 ?
-                    Double(realmStats.totalScore) / Double(realmStats.gamesPlayed) : 0,
-                averageTime: realmStats.averageTime
+                gamesPlayed: Int(userStats.gamesPlayed),
+                gamesWon: Int(userStats.gamesWon),
+                currentStreak: Int(userStats.currentStreak),
+                bestStreak: Int(userStats.bestStreak),
+                totalScore: Int(userStats.totalScore),
+                averageScore: userStats.gamesPlayed > 0 ?
+                    Double(userStats.totalScore) / Double(userStats.gamesPlayed) : 0,
+                averageTime: userStats.averageTime,
+                lastPlayedDate: userStats.lastPlayedDate
             )
         } else {
             stats = nil
         }
     }
     
-    private func createUserInRealm() {
+    private func createUserInCoreData() {
         guard isAuthenticated, !userId.isEmpty, !username.isEmpty else { return }
-        guard let realm = realm else { return }
+        
+        let context = coreData.mainContext
         
         do {
-            try realm.write {
-                let user = UserRealm()
-                user.userId = userId
-                user.username = username
-                user.email = "\(username)@example.com" // Placeholder
-                user.registrationDate = Date()
-                user.lastLoginDate = Date()
-                user.isSubadmin = isSubadmin
-                
-                // Create default preferences
-                let preferences = UserPreferencesRealm()
-                user.preferences = preferences
-                
-                // Create empty stats
-                let stats = UserStatsRealm()
-                user.stats = stats
-                
-                realm.add(user)
-                
-                // Update local profile
-                updateUserProfileFromRealm(user)
-            }
+            // Create user
+            let user = User(context: context)
+            user.id = UUID()
+            user.userId = userId
+            user.username = username
+            user.email = "\(username)@example.com" // Placeholder
+            user.registrationDate = Date()
+            user.lastLoginDate = Date()
+            user.isActive = true
+            user.isSubadmin = isSubadmin
+            
+            // Create default preferences
+            let preferences = UserPreferences(context: context)
+            user.preferences = preferences
+            preferences.user = user
+            
+            // Set default values
+            preferences.darkMode = true
+            preferences.showTextHelpers = true
+            preferences.accessibilityTextSize = false
+            preferences.gameDifficulty = "medium"
+            preferences.soundEnabled = true
+            preferences.soundVolume = 0.5
+            preferences.useBiometricAuth = false
+            preferences.notificationsEnabled = true
+            
+            // Create empty stats
+            let stats = UserStats(context: context)
+            user.stats = stats
+            stats.user = user
+            
+            // Save changes
+            try context.save()
+            
+            // Update local profile
+            updateProfileFromCoreData(user)
         } catch {
-            print("Error creating user in Realm: \(error.localizedDescription)")
+            print("Error creating user in Core Data: \(error.localizedDescription)")
         }
     }
 }
 
-// User profile model (non-Realm, for publishing)
-struct UserProfile {
-    let userId: String
-    let username: String
-    let email: String
-    let displayName: String?
-    let avatarUrl: String?
-    let bio: String?
-    let registrationDate: Date
-    let lastLoginDate: Date
+// MARK: - NSFetchRequest Extensions
+extension NSFetchRequest where ResultType == User {
+    static func fetchRequest() -> NSFetchRequest<User> {
+        return NSFetchRequest<User>(entityName: "User")
+    }
 }
 
-// User stats model (non-Realm, for publishing)
-struct UserStats {
-    let userId: String
-    let gamesPlayed: Int
-    let gamesWon: Int
-    let currentStreak: Int
-    let bestStreak: Int
-    let totalScore: Int
-    let averageScore: Double
-    let averageTime: Double // in seconds
-    
-    var winPercentage: Double {
-        return gamesPlayed > 0 ? Double(gamesWon) / Double(gamesPlayed) * 100 : 0
+extension NSFetchRequest where ResultType == UserStats {
+    static func fetchRequest() -> NSFetchRequest<UserStats> {
+        return NSFetchRequest<UserStats>(entityName: "UserStats")
+    }
+}
+
+extension NSFetchRequest where ResultType == UserPreferences {
+    static func fetchRequest() -> NSFetchRequest<UserPreferences> {
+        return NSFetchRequest<UserPreferences>(entityName: "UserPreferences")
     }
 }

@@ -1,14 +1,10 @@
-// GameState.swift - Refactored for Realm
 import SwiftUI
-import Combine
-import Foundation
-import RealmSwift
+import CoreData
 
-/// GameState manages all game-related state and operations
 class GameState: ObservableObject {
     // Game state properties
-    @Published var currentGame: Game?
-    @Published var savedGame: Game?
+    @Published var currentGame: GameModel?
+    @Published var savedGame: GameModel?
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var showWinMessage = false
@@ -25,12 +21,13 @@ class GameState: ObservableObject {
     @Published var defaultDifficulty = "medium"
     
     // Private properties
-    private var dailyQuote: DailyQuote?
+    private var dailyQuote: DailyQuoteModel?
     private let authCoordinator = UserState.shared.authCoordinator
     
-    // Stores - direct access to data without repositories/services
+    // Stores - direct access to Core Data stores
     private let gameStore = GameStore.shared
     private let quoteStore = QuoteStore.shared
+    private let coreData = CoreDataStack.shared
     
     // Singleton instance
     static let shared = GameState()
@@ -39,15 +36,24 @@ class GameState: ObservableObject {
         setupDefaultGame()
     }
     
+    /// Get max mistakes based on difficulty settings
+    private func getMaxMistakesForDifficulty(_ difficulty: String) -> Int {
+        switch difficulty.lowercased() {
+        case "easy": return 8
+        case "hard": return 3
+        default: return 5  // Medium difficulty
+        }
+    }
+    
     private func setupDefaultGame() {
         // Create a placeholder game with default quote
-        let defaultQuote = Quote(
+        let defaultQuote = QuoteModel(
             text: "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG",
             author: "Anonymous",
             attribution: nil,
             difficulty: 2.0
         )
-        self.currentGame = Game(quote: defaultQuote)
+        self.currentGame = GameModel(quote: defaultQuote)
     }
     
     // MARK: - Game Setup
@@ -61,13 +67,25 @@ class GameState: ObservableObject {
         errorMessage = nil
         
         // Get random quote from store
-        if let quote = quoteStore.getRandomQuote(difficulty: defaultDifficulty) {
+        if let quote = quoteStore.getRandomQuote() {
             // Update UI data
             quoteAuthor = quote.author
             quoteAttribution = quote.attribution
             
+            // Create quote model
+            let quoteModel = QuoteModel(
+                text: quote.text,
+                author: quote.author,
+                attribution: quote.attribution,
+                difficulty: quote.difficulty
+            )
+            
             // Create game with quote and appropriate ID prefix
-            var newGame = Game(quote: quote)
+            var newGame = GameModel(quote: quoteModel)
+            // Get difficulty from settings instead of quote
+            newGame.difficulty = SettingsState.shared.gameDifficulty
+            // Set max mistakes based on difficulty settings
+            newGame.maxMistakes = getMaxMistakesForDifficulty(newGame.difficulty)
             newGame.gameId = "custom-\(UUID().uuidString)" // Mark as custom game
             currentGame = newGame
             
@@ -77,16 +95,29 @@ class GameState: ObservableObject {
             errorMessage = "Failed to load a quote"
             
             // Use fallback quote
-            let fallbackQuote = Quote(
+            let fallbackQuote = QuoteModel(
                 text: "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG",
                 author: "Anonymous",
                 attribution: nil,
-                difficulty: 2.0
+                difficulty: nil
             )
-            currentGame = Game(quote: fallbackQuote)
+            currentGame = GameModel(quote: fallbackQuote)
+            // Get difficulty from settings
+            currentGame?.difficulty = SettingsState.shared.gameDifficulty
+            // Set max mistakes based on difficulty settings
+            currentGame?.maxMistakes = getMaxMistakesForDifficulty(currentGame?.difficulty ?? "medium")
         }
         
         isLoading = false
+    }
+    
+    /// Get max mistakes based on difficulty settings
+    private func getMaxMistakesForDifficulty(_ difficulty: String) -> Int {
+        switch difficulty.lowercased() {
+        case "easy": return 8
+        case "hard": return 3
+        default: return 5  // Medium difficulty
+        }
     }
     
     /// Set up the daily challenge
@@ -106,24 +137,40 @@ class GameState: ObservableObject {
     }
     
     // Helper to set up game from daily quote
-    private func setupFromDailyQuote(_ quote: DailyQuote) {
-        self.dailyQuote = quote
+    private func setupFromDailyQuote(_ quote: Quote) {
+        // Create a daily quote model
+        let dailyQuoteModel = DailyQuoteModel(
+            id: Int(quote.serverId ?? 0),
+            text: quote.text,
+            author: quote.author,
+            minor_attribution: quote.attribution,
+            difficulty: quote.difficulty,
+            date: ISO8601DateFormatter().string(from: quote.dailyDate ?? Date()),
+            unique_letters: Int(quote.uniqueLetters)
+        )
+        
+        self.dailyQuote = dailyQuoteModel
         
         // Update UI data
         quoteAuthor = quote.author
-        quoteAttribution = quote.minor_attribution
-        quoteDate = quote.formattedDate
+        quoteAttribution = quote.attribution
+        
+        if let dailyDate = quote.dailyDate {
+            let formatter = DateFormatter()
+            formatter.dateStyle = .long
+            quoteDate = formatter.string(from: dailyDate)
+        }
         
         // Create game from quote
-        let gameQuote = Quote(
+        let gameQuote = QuoteModel(
             text: quote.text,
             author: quote.author,
-            attribution: quote.minor_attribution,
+            attribution: quote.attribution,
             difficulty: quote.difficulty
         )
         
-        var game = Game(quote: gameQuote)
-        game.gameId = "daily-\(quote.date)" // Mark as daily game with date
+        var game = GameModel(quote: gameQuote)
+        game.gameId = "daily-\(ISO8601DateFormatter().string(from: quote.dailyDate ?? Date()))" // Mark as daily game with date
         currentGame = game
         
         showWinMessage = false
@@ -171,14 +218,36 @@ class GameState: ObservableObject {
                 if httpResponse.statusCode == 200 {
                     // Parse response
                     let decoder = JSONDecoder()
-                    let quote = try decoder.decode(DailyQuote.self, from: data)
+                    let dailyQuote = try decoder.decode(DailyQuoteModel.self, from: data)
                     
-                    // Save to Realm for future use
-                    saveQuoteToRealm(quote)
+                    // Save to Core Data for future use
+                    saveQuoteToCoreData(dailyQuote)
                     
                     // Update UI on main thread
                     await MainActor.run {
-                        setupFromDailyQuote(quote)
+                        self.dailyQuote = dailyQuote
+                        quoteAuthor = dailyQuote.author
+                        quoteAttribution = dailyQuote.minor_attribution
+                        quoteDate = dailyQuote.formattedDate
+                        
+                        // Create game
+                        let quoteModel = QuoteModel(
+                            text: dailyQuote.text,
+                            author: dailyQuote.author,
+                            attribution: dailyQuote.minor_attribution,
+                            difficulty: dailyQuote.difficulty
+                        )
+                        
+                        var game = GameModel(quote: quoteModel)
+                        // Set difficulty and max mistakes from settings
+                        game.difficulty = SettingsState.shared.gameDifficulty
+                        game.maxMistakes = getMaxMistakesForDifficulty(game.difficulty)
+                        game.gameId = "daily-\(dailyQuote.date)" // Mark as daily game with date
+                        currentGame = game
+                        
+                        showWinMessage = false
+                        showLoseMessage = false
+                        isLoading = false
                     }
                 } else {
                     // Handle error responses
@@ -203,30 +272,34 @@ class GameState: ObservableObject {
         }
     }
     
-    // Save daily quote to Realm for offline use
-    private func saveQuoteToRealm(_ quote: DailyQuote) {
-        // Get realm instance
-        guard let realm = RealmManager.shared.getRealm() else { return }
+    // Save daily quote to Core Data for offline use
+    private func saveQuoteToCoreData(_ dailyQuote: DailyQuoteModel) {
+        let context = CoreDataStack.shared.newBackgroundContext()
         
-        // Create date object from ISO string
-        let dateFormatter = ISO8601DateFormatter()
-        guard let quoteDate = dateFormatter.date(from: quote.date) else { return }
-        
-        do {
-            try realm.write {
-                let quoteRealm = QuoteRealm()
-                quoteRealm.text = quote.text
-                quoteRealm.author = quote.author
-                quoteRealm.attribution = quote.minor_attribution
-                quoteRealm.difficulty = quote.difficulty
-                quoteRealm.isDaily = true
-                quoteRealm.dailyDate = quoteDate
-                quoteRealm.uniqueLetters = quote.unique_letters
-                
-                realm.add(quoteRealm)
+        context.perform {
+            // Create date object from ISO string
+            let dateFormatter = ISO8601DateFormatter()
+            guard let quoteDate = dateFormatter.date(from: dailyQuote.date) else { return }
+            
+            // Create new Quote entity
+            let quote = Quote(context: context)
+            quote.id = UUID()
+            quote.serverId = Int32(dailyQuote.id)
+            quote.text = dailyQuote.text
+            quote.author = dailyQuote.author
+            quote.attribution = dailyQuote.minor_attribution
+            quote.difficulty = dailyQuote.difficulty
+            quote.isDaily = true
+            quote.dailyDate = quoteDate
+            quote.uniqueLetters = Int16(dailyQuote.unique_letters)
+            quote.isActive = true
+            quote.timesUsed = 0
+            
+            do {
+                try context.save()
+            } catch {
+                print("Error saving daily quote: \(error.localizedDescription)")
             }
-        } catch {
-            print("Error saving daily quote: \(error.localizedDescription)")
         }
     }
     
@@ -234,7 +307,7 @@ class GameState: ObservableObject {
     
     /// Check for an in-progress game
     func checkForInProgressGame() {
-        // Look for unfinished games in Realm
+        // Look for unfinished games in Core Data
         if let game = gameStore.loadLatestGame() {
             // Check if it's the right type (daily vs custom)
             let isDaily = isDailyChallenge
@@ -260,24 +333,24 @@ class GameState: ObservableObject {
         if let savedGame = savedGame {
             currentGame = savedGame
             
-            // Get quote info if available
-            if let quoteRealm = getQuoteForGame(savedGame) {
-                quoteAuthor = quoteRealm.author
-                quoteAttribution = quoteRealm.attribution
+            // Get quote info if available - can be expanded as needed
+            let context = CoreDataStack.shared.mainContext
+            let fetchRequest: NSFetchRequest<Quote> = Quote.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "text == %@", savedGame.solution)
+            
+            do {
+                let quotes = try context.fetch(fetchRequest)
+                if let quote = quotes.first {
+                    quoteAuthor = quote.author
+                    quoteAttribution = quote.attribution
+                }
+            } catch {
+                print("Error fetching quote for game: \(error.localizedDescription)")
             }
             
             self.showContinueGameModal = false
             self.savedGame = nil
         }
-    }
-    
-    // Helper to find quote for a game
-    private func getQuoteForGame(_ game: Game) -> QuoteRealm? {
-        guard let realm = RealmManager.shared.getRealm() else { return nil }
-        
-        // The solution text should match the quote text
-        let quotes = realm.objects(QuoteRealm.self).filter("text == %@", game.solution)
-        return quotes.first
     }
     
     /// Reset the current game
@@ -287,16 +360,16 @@ class GameState: ObservableObject {
             markGameAsAbandoned(gameId: oldGameId)
         }
         
-        if isDailyChallenge, let quote = dailyQuote {
+        if isDailyChallenge, let dailyQuote = dailyQuote {
             // Reuse the daily quote
-            let gameQuote = Quote(
-                text: quote.text,
-                author: quote.author,
-                attribution: quote.minor_attribution,
-                difficulty: quote.difficulty
+            let gameQuote = QuoteModel(
+                text: dailyQuote.text,
+                author: dailyQuote.author,
+                attribution: dailyQuote.minor_attribution,
+                difficulty: dailyQuote.difficulty
             )
-            currentGame = Game(quote: gameQuote)
-            currentGame?.gameId = "daily-\(quote.date)" // Mark as daily game with date
+            currentGame = GameModel(quote: gameQuote)
+            currentGame?.gameId = "daily-\(dailyQuote.date)" // Mark as daily game with date
             showWinMessage = false
             showLoseMessage = false
         } else {
@@ -310,20 +383,23 @@ class GameState: ObservableObject {
     
     // Mark a game as abandoned
     private func markGameAsAbandoned(gameId: String) {
-        guard let realm = RealmManager.shared.getRealm() else { return }
+        let context = CoreDataStack.shared.mainContext
+        
+        // Find the game
+        let fetchRequest: NSFetchRequest<Game> = Game.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "gameId == %@", gameId)
         
         do {
-            try realm.write {
-                if let game = realm.object(ofType: GameRealm.self, forPrimaryKey: gameId) {
-                    game.hasLost = true
-                    
-                    // Reset streak if player had one
-                    if let userId = game.userId, let user = realm.object(ofType: UserRealm.self, forPrimaryKey: userId) {
-                        if let stats = user.stats, stats.currentStreak > 0 {
-                            stats.currentStreak = 0
-                        }
-                    }
+            let games = try context.fetch(fetchRequest)
+            if let game = games.first {
+                game.hasLost = true
+                
+                // Reset streak if player had one
+                if let user = game.user, let stats = user.stats, stats.currentStreak > 0 {
+                    stats.currentStreak = 0
                 }
+                
+                try context.save()
             }
         } catch {
             print("Error marking game as abandoned: \(error.localizedDescription)")
@@ -384,16 +460,108 @@ class GameState: ObservableObject {
         }
     }
     
-    // Save current game state to Realm
-    private func saveGameState(_ game: Game) {
-        if let _ = game.gameId {
-            // Update existing game
-            _ = gameStore.updateGame(game)
-        } else {
-            // Save new game
-            if let updatedGame = gameStore.saveGame(game) {
+    // Save current game state to Core Data
+    private func saveGameState(_ game: GameModel) {
+        guard let userId = UserState.shared.userId, !userId.isEmpty else {
+            // Just save the game model
+            if let _ = game.gameId {
+                // Update existing game
+                _ = gameStore.updateGame(game)
+            } else {
+                // Save new game
+                if let updatedGame = gameStore.saveGame(game) {
+                    currentGame = updatedGame
+                }
+            }
+            return
+        }
+        
+        // Get user entity
+        let context = CoreDataStack.shared.mainContext
+        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
+        
+        do {
+            let users = try context.fetch(fetchRequest)
+            let user: User
+            
+            if let existingUser = users.first {
+                user = existingUser
+            } else {
+                // Create a new user if needed
+                user = User(context: context)
+                user.id = UUID()
+                user.userId = userId
+                user.username = UserState.shared.username
+                user.email = "\(UserState.shared.username)@example.com" // Placeholder
+                user.registrationDate = Date()
+                user.lastLoginDate = Date()
+                user.isActive = true
+            }
+            
+            // Get or create game
+            let gameEntity: Game
+            let gameFetchRequest: NSFetchRequest<Game> = Game.fetchRequest()
+            if let gameId = game.gameId {
+                gameFetchRequest.predicate = NSPredicate(format: "gameId == %@", gameId)
+                let games = try context.fetch(gameFetchRequest)
+                
+                if let existingGame = games.first {
+                    gameEntity = existingGame
+                } else {
+                    gameEntity = Game(context: context)
+                    gameEntity.id = UUID()
+                    gameEntity.gameId = gameId
+                    gameEntity.startTime = game.startTime
+                }
+            } else {
+                gameEntity = Game(context: context)
+                gameEntity.id = UUID()
+                gameEntity.gameId = UUID().uuidString
+                gameEntity.startTime = game.startTime
+            }
+            
+            // Update game properties
+            gameEntity.encrypted = game.encrypted
+            gameEntity.solution = game.solution
+            gameEntity.currentDisplay = game.currentDisplay
+            gameEntity.mistakes = Int16(game.mistakes)
+            gameEntity.maxMistakes = Int16(game.maxMistakes)
+            gameEntity.hasWon = game.hasWon
+            gameEntity.hasLost = game.hasLost
+            gameEntity.difficulty = game.difficulty
+            gameEntity.lastUpdateTime = game.lastUpdateTime
+            gameEntity.isDaily = game.gameId?.starts(with: "daily-") ?? false
+            
+            // Set the user relationship
+            gameEntity.user = user
+            
+            // Calculate and store score and time taken
+            if game.hasWon || game.hasLost {
+                gameEntity.score = Int32(game.calculateScore())
+                gameEntity.timeTaken = Int32(game.lastUpdateTime.timeIntervalSince(game.startTime))
+            }
+            
+            // Store mappings as serialized data
+            let mappingData = try? JSONEncoder().encode(game.mapping.mapToDictionary())
+            let correctMappingsData = try? JSONEncoder().encode(game.correctMappings.mapToDictionary())
+            let guessedMappingsData = try? JSONEncoder().encode(game.guessedMappings.mapToDictionary())
+            
+            gameEntity.mappingData = mappingData
+            gameEntity.correctMappingsData = correctMappingsData
+            gameEntity.guessedMappingsData = guessedMappingsData
+            
+            // Save changes
+            try context.save()
+            
+            // Update the current game model with the ID if it was new
+            if game.gameId == nil {
+                var updatedGame = game
+                updatedGame.gameId = gameEntity.gameId
                 currentGame = updatedGame
             }
+        } catch {
+            print("Error saving game state: \(error.localizedDescription)")
         }
     }
     
@@ -404,7 +572,7 @@ class GameState: ObservableObject {
         let finalScore = game.calculateScore()
         let timeTaken = Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
         
-        // Update user stats in Realm
+        // Update user stats in Core Data
         gameStore.updateStats(
             userId: userId,
             gameWon: game.hasWon,
@@ -438,9 +606,21 @@ class GameState: ObservableObject {
     }
 }
 
-// Extension to safely access array elements
-extension Array {
-    subscript(safe index: Index) -> Element? {
-        return indices.contains(index) ? self[index] : nil
+// MARK: - Extensions
+extension NSFetchRequest where ResultType == Game {
+    static func fetchRequest() -> NSFetchRequest<Game> {
+        return NSFetchRequest<Game>(entityName: "Game")
+    }
+}
+
+extension NSFetchRequest where ResultType == Quote {
+    static func fetchRequest() -> NSFetchRequest<Quote> {
+        return NSFetchRequest<Quote>(entityName: "Quote")
+    }
+}
+
+extension NSFetchRequest where ResultType == User {
+    static func fetchRequest() -> NSFetchRequest<User> {
+        return NSFetchRequest<User>(entityName: "User")
     }
 }

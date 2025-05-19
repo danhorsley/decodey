@@ -7,6 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		285B4E742DDB3A0C00CAC666 /* DecodeyApp.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 285B4E722DDB3A0C00CAC666 /* DecodeyApp.xcdatamodeld */; };
+		285B4E8B2DDB4E1900CAC666 /* User+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 285B4E862DDB4E1900CAC666 /* User+CoreDataProperties.swift */; };
+		285B4E8C2DDB4E1900CAC666 /* UserPreferences+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 285B4E872DDB4E1900CAC666 /* UserPreferences+CoreDataClass.swift */; };
+		285B4E8D2DDB4E1900CAC666 /* UserStats+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 285B4E892DDB4E1900CAC666 /* UserStats+CoreDataClass.swift */; };
+		285B4E8E2DDB4E1900CAC666 /* User+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 285B4E852DDB4E1900CAC666 /* User+CoreDataClass.swift */; };
+		285B4E8F2DDB4E1900CAC666 /* Game+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 285B4E812DDB4E1900CAC666 /* Game+CoreDataClass.swift */; };
+		285B4E902DDB4E1900CAC666 /* UserPreferences+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 285B4E882DDB4E1900CAC666 /* UserPreferences+CoreDataProperties.swift */; };
+		285B4E912DDB4E1900CAC666 /* Game+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 285B4E822DDB4E1900CAC666 /* Game+CoreDataProperties.swift */; };
+		285B4E922DDB4E1900CAC666 /* UserStats+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 285B4E8A2DDB4E1900CAC666 /* UserStats+CoreDataProperties.swift */; };
+		285B4E932DDB4E1900CAC666 /* Quote+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 285B4E832DDB4E1900CAC666 /* Quote+CoreDataClass.swift */; };
+		285B4E942DDB4E1900CAC666 /* Quote+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 285B4E842DDB4E1900CAC666 /* Quote+CoreDataProperties.swift */; };
 		28D1B2F92DD235CB001C2A15 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28D1B2F82DD235CB001C2A15 /* SwiftUI.framework */; };
 		28D1B3062DD23CE0001C2A15 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = 28D1B3052DD23CE0001C2A15 /* GRDB */; };
 		28D1B3842DD4DE21001C2A15 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 28D1B3832DD4DE21001C2A15 /* RealmSwift */; };
@@ -48,6 +59,17 @@
 		284A19F62DD21B7E00606222 /* loginboy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = loginboy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		284A1A042DD21B7F00606222 /* loginboyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = loginboyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		284A1A0E2DD21B7F00606222 /* loginboyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = loginboyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		285B4E732DDB3A0C00CAC666 /* DecodeyApp.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DecodeyApp.xcdatamodel; sourceTree = "<group>"; };
+		285B4E812DDB4E1900CAC666 /* Game+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Game+CoreDataClass.swift"; sourceTree = "<group>"; };
+		285B4E822DDB4E1900CAC666 /* Game+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Game+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		285B4E832DDB4E1900CAC666 /* Quote+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Quote+CoreDataClass.swift"; sourceTree = "<group>"; };
+		285B4E842DDB4E1900CAC666 /* Quote+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Quote+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		285B4E852DDB4E1900CAC666 /* User+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+CoreDataClass.swift"; sourceTree = "<group>"; };
+		285B4E862DDB4E1900CAC666 /* User+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "User+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		285B4E872DDB4E1900CAC666 /* UserPreferences+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserPreferences+CoreDataClass.swift"; sourceTree = "<group>"; };
+		285B4E882DDB4E1900CAC666 /* UserPreferences+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserPreferences+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		285B4E892DDB4E1900CAC666 /* UserStats+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserStats+CoreDataClass.swift"; sourceTree = "<group>"; };
+		285B4E8A2DDB4E1900CAC666 /* UserStats+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserStats+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		28D1B2F82DD235CB001C2A15 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.4.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
@@ -113,6 +135,17 @@
 		284A19ED2DD21B7E00606222 = {
 			isa = PBXGroup;
 			children = (
+				285B4E812DDB4E1900CAC666 /* Game+CoreDataClass.swift */,
+				285B4E822DDB4E1900CAC666 /* Game+CoreDataProperties.swift */,
+				285B4E832DDB4E1900CAC666 /* Quote+CoreDataClass.swift */,
+				285B4E842DDB4E1900CAC666 /* Quote+CoreDataProperties.swift */,
+				285B4E852DDB4E1900CAC666 /* User+CoreDataClass.swift */,
+				285B4E862DDB4E1900CAC666 /* User+CoreDataProperties.swift */,
+				285B4E872DDB4E1900CAC666 /* UserPreferences+CoreDataClass.swift */,
+				285B4E882DDB4E1900CAC666 /* UserPreferences+CoreDataProperties.swift */,
+				285B4E892DDB4E1900CAC666 /* UserStats+CoreDataClass.swift */,
+				285B4E8A2DDB4E1900CAC666 /* UserStats+CoreDataProperties.swift */,
+				285B4E722DDB3A0C00CAC666 /* DecodeyApp.xcdatamodeld */,
 				284A19F82DD21B7E00606222 /* loginboy */,
 				284A1A072DD21B7F00606222 /* loginboyTests */,
 				284A1A112DD21B7F00606222 /* loginboyUITests */,
@@ -290,6 +323,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				285B4E8B2DDB4E1900CAC666 /* User+CoreDataProperties.swift in Sources */,
+				285B4E8C2DDB4E1900CAC666 /* UserPreferences+CoreDataClass.swift in Sources */,
+				285B4E8D2DDB4E1900CAC666 /* UserStats+CoreDataClass.swift in Sources */,
+				285B4E8E2DDB4E1900CAC666 /* User+CoreDataClass.swift in Sources */,
+				285B4E8F2DDB4E1900CAC666 /* Game+CoreDataClass.swift in Sources */,
+				285B4E902DDB4E1900CAC666 /* UserPreferences+CoreDataProperties.swift in Sources */,
+				285B4E912DDB4E1900CAC666 /* Game+CoreDataProperties.swift in Sources */,
+				285B4E922DDB4E1900CAC666 /* UserStats+CoreDataProperties.swift in Sources */,
+				285B4E932DDB4E1900CAC666 /* Quote+CoreDataClass.swift in Sources */,
+				285B4E942DDB4E1900CAC666 /* Quote+CoreDataProperties.swift in Sources */,
+				285B4E742DDB3A0C00CAC666 /* DecodeyApp.xcdatamodeld in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -672,6 +716,19 @@
 			productName = RealmSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
+
+/* Begin XCVersionGroup section */
+		285B4E722DDB3A0C00CAC666 /* DecodeyApp.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				285B4E732DDB3A0C00CAC666 /* DecodeyApp.xcdatamodel */,
+			);
+			currentVersion = 285B4E732DDB3A0C00CAC666 /* DecodeyApp.xcdatamodel */;
+			path = DecodeyApp.xcdatamodeld;
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
+/* End XCVersionGroup section */
 	};
 	rootObject = 284A19EE2DD21B7E00606222 /* Project object */;
 }
