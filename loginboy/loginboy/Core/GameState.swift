@@ -363,17 +363,24 @@ class GameState: ObservableObject {
     /// Get a hint
     func getHint() {
         guard var game = currentGame else { return }
-        let _ = game.getHint()
-        self.currentGame = game
         
-        // Save game state
-        saveGameState(game)
-        
-        // Check game status after hint
-        if game.hasWon {
-            showWinMessage = true
-        } else if game.hasLost {
-            showLoseMessage = true
+        // Only allow getting hints if we haven't reached the maximum mistakes
+        if game.mistakes < game.maxMistakes {
+            let _ = game.getHint()
+            self.currentGame = game
+            
+            // Play hint sound
+            SoundManager.shared.play(.hint)
+            
+            // Save game state
+            saveGameState(game)
+            
+            // Check game status after hint
+            if game.hasWon {
+                showWinMessage = true
+            } else if game.hasLost {
+                showLoseMessage = true
+            }
         }
     }
     

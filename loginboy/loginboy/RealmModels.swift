@@ -36,6 +36,7 @@ class GameRealm: Object {
 // MARK: - Quote Model
 class QuoteRealm: Object {
     @Persisted(primaryKey: true) var id: ObjectId
+    @Persisted var serverId: Int? = nil // To track server's quote ID
     @Persisted var text: String = ""
     @Persisted var author: String = ""
     @Persisted var attribution: String? = nil
@@ -56,6 +57,8 @@ class QuoteRealm: Object {
         )
     }
 }
+
+
 
 // MARK: - User Model
 class UserRealm: Object {
@@ -101,6 +104,8 @@ class UserStatsRealm: EmbeddedObject {
     @Persisted var averageTime: Double = 0.0
     @Persisted var lastPlayedDate: Date? = nil
 }
+
+
 
 //
 //  RealmModels.swift

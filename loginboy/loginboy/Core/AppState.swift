@@ -54,7 +54,7 @@ class AppState: ObservableObject {
     // Sync user preferences to settings state
     private func syncUserPreferences() {
         guard let realm = realm,
-              let userId = userState.userId,
+              let userId = userState.userId.isEmpty ? nil : userState.userId,
               let user = realm.object(ofType: UserRealm.self, forPrimaryKey: userId),
               let prefs = user.preferences else {
             return
@@ -98,7 +98,7 @@ class AppState: ObservableObject {
     func saveUserPreferences() {
         guard let realm = realm,
               userState.isAuthenticated,
-              let userId = userState.userId,
+              let userId = userState.userId.isEmpty ? nil : userState.userId,
               let user = realm.object(ofType: UserRealm.self, forPrimaryKey: userId) else {
             return
         }

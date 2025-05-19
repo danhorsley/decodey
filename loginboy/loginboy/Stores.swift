@@ -10,13 +10,23 @@ class RealmManager {
     
     private init() {
         do {
+            // Get and print the default Realm path before we even try to open it
+            let defaultRealmPath = Realm.Configuration.defaultConfiguration.fileURL?.path ?? "unknown"
+            print("📂 Default Realm path: \(defaultRealmPath)")
+            
             // Configure the default Realm
             let config = Realm.Configuration(
-                schemaVersion: 1,
-                migrationBlock: { _, oldSchemaVersion in
-                    // Handle schema migrations if needed
+                schemaVersion: 2,
+                migrationBlock: { migration, oldSchemaVersion in
                     if oldSchemaVersion < 1 {
                         // Nothing to migrate for the first version
+                    }
+                    
+                    if oldSchemaVersion < 2 {
+                        // Migration for adding serverId to QuoteRealm
+                        migration.enumerateObjects(ofType: "QuoteRealm") { oldObject, newObject in
+                            // New properties are automatically initialized with default values
+                        }
                     }
                 }
             )
@@ -26,16 +36,74 @@ class RealmManager {
             
             // Initialize realm
             realm = try Realm()
-            print("Realm initialized at: \(config.fileURL?.path ?? "unknown")")
+            
+            // Print database details with emoji for visibility in console
+            print("✅ Realm successfully initialized!")
+            print("📊 Realm database location: \(config.fileURL?.path ?? "unknown")")
+            print("🔢 Current schema version: \(config.schemaVersion)")
             
             // Create initial data if needed
             createInitialData()
             
         } catch {
-            print("Failed to initialize Realm: \(error.localizedDescription)")
+            print("❌ Failed to initialize Realm: \(error.localizedDescription)")
+            
+            // Print additional information to help with debugging
+            if let fileURL = Realm.Configuration.defaultConfiguration.fileURL {
+                let fileExists = FileManager.default.fileExists(atPath: fileURL.path)
+                print("📂 Realm file exists: \(fileExists)")
+                
+                if fileExists {
+                    // Try to get file attributes for more info
+                    do {
+                        let attributes = try FileManager.default.attributesOfItem(atPath: fileURL.path)
+                        let fileSize = attributes[FileAttributeKey.size] as? UInt64 ?? 0
+                        let modificationDate = attributes[FileAttributeKey.modificationDate] as? Date
+                        
+                        print("📊 Realm file size: \(ByteCountFormatter.string(fromByteCount: Int64(fileSize), countStyle: .file))")
+                        if let modDate = modificationDate {
+                            print("🕒 Last modified: \(modDate)")
+                        }
+                    } catch {
+                        print("⚠️ Could not read file attributes: \(error.localizedDescription)")
+                    }
+                }
+            }
         }
     }
-    
+
+    // Public method to print database info anytime
+    func printDatabaseInfo() {
+        guard let realm = realm else {
+            print("❌ Realm not initialized")
+            return
+        }
+        
+        print("📊 Database Information:")
+        print("📂 Path: \(realm.configuration.fileURL?.path ?? "unknown")")
+        print("🔢 Schema Version: \(realm.configuration.schemaVersion)")
+        
+        // Print counts of objects
+        let quotes = realm.objects(QuoteRealm.self)
+        let activeQuotes = quotes.filter("isActive == true")
+        let games = realm.objects(GameRealm.self)
+        let users = realm.objects(UserRealm.self)
+        
+        print("📚 Total Quotes: \(quotes.count) (Active: \(activeQuotes.count))")
+        print("🎮 Total Games: \(games.count)")
+        print("👤 Total Users: \(users.count)")
+        
+        // Print file size
+        if let fileURL = realm.configuration.fileURL {
+            do {
+                let attributes = try FileManager.default.attributesOfItem(atPath: fileURL.path)
+                let fileSize = attributes[FileAttributeKey.size] as? UInt64 ?? 0
+                print("💾 Database Size: \(ByteCountFormatter.string(fromByteCount: Int64(fileSize), countStyle: .file))")
+            } catch {
+                print("⚠️ Could not get file size: \(error.localizedDescription)")
+            }
+        }
+    }
     func getRealm() -> Realm? {
         return realm
     }
@@ -298,23 +366,40 @@ class QuoteStore {
         var quotesQuery = realm.objects(QuoteRealm.self).filter("isActive == true")
         
         // Apply difficulty filter if provided
-        if let difficulty = difficulty {
-            switch difficulty {
-            case "easy":
-                quotesQuery = quotesQuery.filter("difficulty <= 1.0")
-            case "hard":
-                quotesQuery = quotesQuery.filter("difficulty >= 2.0")
-            default: // medium
-                quotesQuery = quotesQuery.filter("difficulty > 1.0 AND difficulty < 2.0")
-            }
-        }
+        //        if let difficulty = difficulty {
+        //            switch difficulty {
+        //            case "easy":
+        //                quotesQuery = quotesQuery.filter("difficulty <= 1.0")
+        //            case "hard":
+        //                quotesQuery = quotesQuery.filter("difficulty >= 2.0")
+        //            default: // medium
+        //                quotesQuery = quotesQuery.filter("difficulty > 1.0 AND difficulty < 2.0")
+        //            }
+        //        }
         
         // Get count and pick random
         let count = quotesQuery.count
         guard count > 0 else { return nil }
         
+        // Use a truly random index - the previous implementation might have been using
+        // a deterministic source for randomness or had a bug in the index calculation
         let randomIndex = Int.random(in: 0..<count)
-        guard let quote = quotesQuery[safe: randomIndex] else { return nil }
+        
+        // Convert to array to ensure we can access elements by index properly
+        let quotesArray = Array(quotesQuery)
+        guard randomIndex < quotesArray.count else { return nil }
+        
+        // Access the quote safely
+        let quote = quotesArray[randomIndex]
+        
+        // Update usage count
+        do {
+            try realm.write {
+                quote.timesUsed += 1
+            }
+        } catch {
+            print("Failed to update quote usage count: \(error.localizedDescription)")
+        }
         
         return quote.toQuote()
     }
@@ -371,11 +456,222 @@ class QuoteStore {
     
     // Sync quotes from server
     func syncQuotesFromServer(auth: AuthenticationCoordinator, completion: @escaping (Bool) -> Void) {
-        // Implementation for syncing quotes from server
-        // This calls your API and updates the local Realm
+        // Ensure we have a valid auth token
+        guard let token = auth.getAccessToken() else {
+            print("Cannot sync quotes: No authentication token")
+            completion(false)
+            return
+        }
+        
+        // Ensure we have access to Realm
+        guard let realm = realm else {
+            print("Cannot sync quotes: Realm not available")
+            completion(false)
+            return
+        }
+        
+        // Build URL
+        guard let url = URL(string: "\(auth.baseURL)/get_all_quotes") else {
+            print("Cannot sync quotes: Invalid URL")
+            completion(false)
+            return
+        }
+        
+        // Create request
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        // Execute request
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            // Check for errors
+            if let error = error {
+                print("Network error during quote sync: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    completion(false)
+                }
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                print("Invalid response during quote sync")
+                DispatchQueue.main.async {
+                    completion(false)
+                }
+                return
+            }
+            
+            // Check for HTTP errors
+            if httpResponse.statusCode != 200 {
+                print("Server error during quote sync: Status \(httpResponse.statusCode)")
+                DispatchQueue.main.async {
+                    completion(false)
+                }
+                return
+            }
+            
+            // Parse response data
+            guard let data = data else {
+                print("No data received during quote sync")
+                DispatchQueue.main.async {
+                    completion(false)
+                }
+                return
+            }
+            
+            do {
+                // Parse JSON response
+                let decoder = JSONDecoder()
+                let response = try decoder.decode(QuoteSyncResponse.self, from: data)
+                
+                guard response.success, let quotes = response.quotes else {
+                    print("Server response indicated failure during quote sync")
+                    DispatchQueue.main.async {
+                        completion(false)
+                    }
+                    return
+                }
+                
+                // Process quotes on a background thread
+                DispatchQueue.global(qos: .userInitiated).async {
+                    self?.processServerQuotes(quotes, realm: realm) { success in
+                        DispatchQueue.main.async {
+                            completion(success)
+                        }
+                    }
+                }
+            } catch {
+                print("Error parsing response during quote sync: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    completion(false)
+                }
+            }
+        }.resume()
+    }
+    
+    // Helper method to process server quotes and update Realm
+    private func processServerQuotes(_ serverQuotes: [ServerQuote], realm: Realm, completion: @escaping (Bool) -> Void) {
+        do {
+            // Get all existing quotes from Realm
+            let existingQuotes = realm.objects(QuoteRealm.self)
+            
+            // Track which quote IDs are received from the server
+            var serverQuoteIds = Set<Int>()
+            
+            try realm.write {
+                // Process each quote from the server
+                for serverQuote in serverQuotes {
+                    // Track this ID as seen
+                    serverQuoteIds.insert(serverQuote.id)
+                    
+                    // Check if this quote exists in Realm
+                    let existingQuote = existingQuotes.filter("id == %@", serverQuote.id).first
+                    
+                    if let existingQuote = existingQuote {
+                        // Quote exists - update it if needed
+                        updateExistingQuote(existingQuote, with: serverQuote)
+                    } else {
+                        // Quote doesn't exist - create it
+                        createNewQuote(from: serverQuote, in: realm)
+                    }
+                }
+                
+                // Set quotes that no longer exist on the server to inactive
+                for existingQuote in existingQuotes {
+                    // Skip quotes that don't have a server ID yet
+                    guard let quoteId = existingQuote.serverId else { continue }
+                    
+                    if !serverQuoteIds.contains(quoteId) {
+                        existingQuote.isActive = false
+                    }
+                }
+            }
+            
+            print("Successfully synchronized \(serverQuotes.count) quotes")
+            completion(true)
+        } catch {
+            print("Error updating Realm during quote sync: \(error.localizedDescription)")
+            completion(false)
+        }
+    }
+    
+    // Helper to update an existing quote
+    private func updateExistingQuote(_ quoteRealm: QuoteRealm, with serverQuote: ServerQuote) {
+        // Add server ID if not set
+        if quoteRealm.serverId == nil {
+            quoteRealm.serverId = serverQuote.id
+        }
+        
+        // Update quote properties
+        quoteRealm.text = serverQuote.text
+        quoteRealm.author = serverQuote.author
+        quoteRealm.attribution = serverQuote.minor_attribution
+        quoteRealm.difficulty = serverQuote.difficulty
+        quoteRealm.uniqueLetters = serverQuote.unique_letters
+        quoteRealm.isActive = true
+        
+        // Set daily date if available
+        if let dailyDateString = serverQuote.daily_date,
+           let dailyDate = ISO8601DateFormatter().date(from: dailyDateString) {
+            quoteRealm.isDaily = true
+            quoteRealm.dailyDate = dailyDate
+        } else {
+            quoteRealm.isDaily = false
+            quoteRealm.dailyDate = nil
+        }
+        
+        // Don't override timesUsed, as that's specific to this device
+    }
+    
+    // Helper to create a new quote
+    private func createNewQuote(from serverQuote: ServerQuote, in realm: Realm) {
+        let quoteRealm = QuoteRealm()
+        
+        // Set primary key (generates automatically)
+        
+        // Set properties
+        quoteRealm.serverId = serverQuote.id
+        quoteRealm.text = serverQuote.text
+        quoteRealm.author = serverQuote.author
+        quoteRealm.attribution = serverQuote.minor_attribution
+        quoteRealm.difficulty = serverQuote.difficulty
+        quoteRealm.uniqueLetters = serverQuote.unique_letters
+        quoteRealm.isActive = true
+        quoteRealm.timesUsed = 0
+        
+        // Set daily date if available
+        if let dailyDateString = serverQuote.daily_date,
+           let dailyDate = ISO8601DateFormatter().date(from: dailyDateString) {
+            quoteRealm.isDaily = true
+            quoteRealm.dailyDate = dailyDate
+        }
+        
+        // Add to Realm
+        realm.add(quoteRealm)
+    }
+    
+    // Models for server response
+    struct QuoteSyncResponse: Codable {
+        let success: Bool
+        let quotes_count: Int?
+        let quotes: [ServerQuote]?
+        let error: String?
+        let message: String?
+    }
+    
+    struct ServerQuote: Codable {
+        let id: Int
+        let text: String
+        let author: String
+        let minor_attribution: String?
+        let difficulty: Double
+        let daily_date: String?
+        let times_used: Int?
+        let unique_letters: Int
+        let created_at: String?
+        let updated_at: String?
     }
 }
-
 // MARK: - User Store
 class UserStore {
     static let shared = UserStore()

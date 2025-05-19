@@ -138,7 +138,7 @@ struct GameGridsView: View {
     // Hint button
     private var hintButton: some View {
         HintButtonView(
-            remainingHints: gameState.currentGame?.maxMistakes ?? 5 - (gameState.currentGame?.mistakes ?? 0),
+            remainingHints: max(0, (gameState.currentGame?.maxMistakes ?? 5) - (gameState.currentGame?.mistakes ?? 0)),
             isLoading: isHintInProgress,
             isDarkMode: colorScheme == .dark,
             onHintRequested: {
@@ -147,6 +147,9 @@ struct GameGridsView: View {
                 
                 // Show loading state
                 isHintInProgress = true
+                
+                // Play hint sound
+                SoundManager.shared.play(.hint)
                 
                 // Process hint with slight delay
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {

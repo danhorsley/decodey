@@ -165,14 +165,26 @@ struct Game {
         
         if let hintLetter = unguessedLetters.randomElement(),
            let originalLetter = correctMappings[hintLetter] {
+            // Add hint to guessed mappings
             guessedMappings[hintLetter] = originalLetter
+            
+            // Update the display to show the letter
             updateDisplay()
+            
+            // IMPORTANT: Increment the mistakes counter to track hint usage
             mistakes += 1
+            
+            // Check if the game is won after this hint
             checkWinCondition()
             
+            // Check if we've reached the maximum mistakes
             if mistakes >= maxMistakes {
                 hasLost = true
             }
+            
+            // Track last update time
+            lastUpdateTime = Date()
+            
             return true
         }
         return false
