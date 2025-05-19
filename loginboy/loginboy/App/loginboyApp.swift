@@ -17,6 +17,8 @@ struct DecodeyApp: App {
         
         // Perform one-time setup tasks
         performFirstLaunchSetup()
+        // Clean up any duplicate games
+        GameState.shared.cleanupDuplicateGames()
     }
     
     var body: some Scene {

@@ -616,22 +616,89 @@ class GameState: ObservableObject {
         entity.lastUpdateTime = model.lastUpdateTime
         entity.isDaily = isDailyChallenge
         
-        // Calculate and store score and time taken if game is complete
-        if model.hasWon || model.hasLost {
-            entity.score = Int32(model.calculateScore())
-            entity.timeTaken = Int32(model.lastUpdateTime.timeIntervalSince(model.startTime))
-        }
-        
-        // Store mappings as serialized data
+        // Serialize mappings
         do {
-            entity.mappingData = try JSONEncoder().encode(characterDictionaryToStringDictionary(model.mapping))
-            entity.correctMappingsData = try JSONEncoder().encode(characterDictionaryToStringDictionary(model.correctMappings))
-            entity.guessedMappingsData = try JSONEncoder().encode(characterDictionaryToStringDictionary(model.guessedMappings))
+            entity.mapping = try JSONEncoder().encode(characterDictionaryToStringDictionary(model.mapping))
+            entity.correctMappings = try JSONEncoder().encode(characterDictionaryToStringDictionary(model.correctMappings))
+            entity.guessedMappings = try JSONEncoder().encode(characterDictionaryToStringDictionary(model.guessedMappings))
         } catch {
-            print("Error encoding mappings: \(error)")
+            print("Error encoding mappings: \(error.localizedDescription)")
         }
     }
-    
+    //tidy DB in case of error
+    func cleanupDuplicateGames() {
+        let context = coreData.mainContext
+        
+        // Get all games
+        let fetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
+        
+        do {
+            let allGames = try context.fetch(fetchRequest)
+            print("Found \(allGames.count) total game records")
+            
+            // Dictionary to count occurrences of each game ID
+            var gameIDCounts: [UUID: Int] = [:]
+            var gameIDObjects: [UUID: [GameCD]] = [:]
+            
+            // Count occurrences of each game ID
+            for game in allGames {
+                if let id = game.gameId {
+                    print("Game ID: \(id)")
+                    gameIDCounts[id, default: 0] += 1
+                    
+                    if gameIDObjects[id] == nil {
+                        gameIDObjects[id] = [game]
+                    } else {
+                        gameIDObjects[id]?.append(game)
+                    }
+                } else {
+                    print("Warning: Found game record with nil gameId")
+                }
+            }
+            
+            // Find IDs with multiple occurrences
+            let duplicateIDs = gameIDCounts.filter { $0.value > 1 }.keys
+            print("Found \(gameIDCounts.count) unique game IDs")
+            print("Found \(duplicateIDs.count) IDs with duplicates")
+            
+            // Clean up duplicates
+            var deletedCount = 0
+            
+            for id in duplicateIDs {
+                guard let games = gameIDObjects[id], games.count > 1 else { continue }
+                
+                print("Game ID \(id.uuidString) has \(games.count) duplicates")
+                
+                // Sort by last update time (newest first)
+                let sortedGames = games.sorted {
+                    ($0.lastUpdateTime ?? Date.distantPast) > ($1.lastUpdateTime ?? Date.distantPast)
+                }
+                
+                // Keep the newest, delete the rest
+                for i in 1..<sortedGames.count {
+                    let game = sortedGames[i]
+                    context.delete(game)
+                    deletedCount += 1
+                    print("  Deleted duplicate updated at: \(game.lastUpdateTime ?? Date.distantPast)")
+                }
+                
+                print("  Kept newest updated at: \(sortedGames[0].lastUpdateTime ?? Date.distantPast)")
+            }
+            
+            if duplicateIDs.isEmpty {
+                print("✅ No duplicates found - database is clean!")
+            } else {
+                print("🧹 Cleanup complete. Deleted \(deletedCount) duplicate records")
+            }
+            
+            // Save changes
+            if context.hasChanges {
+                try context.save()
+            }
+        } catch {
+            print("❌ Error during cleanup: \(error.localizedDescription)")
+        }
+    }
     /// Submit score for daily challenge
     func submitDailyScore(userId: String) {
         guard let game = currentGame, game.hasWon || game.hasLost else { return }
@@ -720,86 +787,70 @@ class GameState: ObservableObject {
     }
     
     private func saveGameState(_ game: GameModel) {
+        guard let gameId = game.gameId else {
+            print("Error: Trying to save game state with no game ID")
+            return
+        }
+        
         let context = coreData.mainContext
         
-        // Check if game exists by ID
-        let gameFetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
+        // Try to convert to UUID
+        guard let gameUUID = UUID(uuidString: gameId) else {
+            print("Error: Invalid UUID format in game ID: \(gameId)")
+            return
+        }
         
-        if let gameIdString = game.gameId {
-            // Try to convert string to UUID for the query
-            if let gameIdUUID = UUID(uuidString: gameIdString) {
-                gameFetchRequest.predicate = NSPredicate(format: "gameId == %@", gameIdUUID as CVarArg)
-                
-                do {
-                    let existingGames = try context.fetch(gameFetchRequest)
-                    
-                    if let gameEntity = existingGames.first {
-                        // Update existing game
-                        updateGameEntity(gameEntity, from: game)
-                    } else {
-                        // Create new game
-                        let newGame = createGameEntity(from: game)
-                        
-                        // Set userId relationship if user is authenticated
-                        if !UserState.shared.userId.isEmpty {
-                            let userFetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
-                            userFetchRequest.predicate = NSPredicate(format: "userId == %@", UserState.shared.userId)
-                            let users = try context.fetch(userFetchRequest)
-                            
-                            if let user = users.first {
-                                newGame.user = user
-                            }
-                        }
-                    }
-                    
-                    try context.save()
-                } catch {
-                    print("Error saving game state: \(error.localizedDescription)")
-                }
-            } else {
-                print("Invalid UUID string format: \(gameIdString)")
-            }
-        } else {
-            // No game ID, create a new game
-            let gameEntity = GameCD(context: context)
-            // gameEntity.id = UUID() // Remove this if id is now gameId
-            gameEntity.gameId = UUID() // Use UUID directly
-            updateGameEntity(gameEntity, from: game)
+        // Try to find the existing game
+        let fetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
+        fetchRequest.predicate = NSPredicate(format: "gameId == %@", gameUUID as CVarArg)
+        
+        do {
+            let existingGames = try context.fetch(fetchRequest)
             
-            // Set userId relationship if user is authenticated
-            if !UserState.shared.userId.isEmpty {
-                let userFetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
-                userFetchRequest.predicate = NSPredicate(format: "userId == %@", UserState.shared.userId)
+            // Check if we have multiple matches - this shouldn't happen, but let's handle it
+            if existingGames.count > 1 {
+                print("Warning: Found \(existingGames.count) games with the same ID \(gameId). Using the most recent one.")
                 
-                do {
+                // Sort by last update time, descending
+                let sortedGames = existingGames.sorted {
+                    ($0.lastUpdateTime ?? Date.distantPast) > ($1.lastUpdateTime ?? Date.distantPast)
+                }
+                
+                // Keep the most recent one, delete others
+                for i in 1..<sortedGames.count {
+                    context.delete(sortedGames[i])
+                    print("Deleted duplicate game with ID: \(sortedGames[i].gameId?.uuidString ?? "nil")")
+                }
+                
+                // Update the most recent one
+                updateGameEntity(sortedGames[0], from: game)
+            } else if let existingGame = existingGames.first {
+                // Normal case - just update the existing game
+                updateGameEntity(existingGame, from: game)
+            } else {
+                // No existing game - create a new one
+                let gameEntity = GameCD(context: context)
+                gameEntity.gameId = gameUUID
+                gameEntity.startTime = game.startTime
+                
+                // Set user relationship if available
+                if !UserState.shared.userId.isEmpty {
+                    let userFetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
+                    userFetchRequest.predicate = NSPredicate(format: "userId == %@", UserState.shared.userId)
                     let users = try context.fetch(userFetchRequest)
                     
                     if let user = users.first {
                         gameEntity.user = user
                     }
-                    
-                    try context.save()
-                    
-                    // Update the game model with the new ID
-                    var updatedGame = game
-                    updatedGame.gameId = gameEntity.gameId?.uuidString // Convert UUID to string
-                    self.currentGame = updatedGame
-                } catch {
-                    print("Error creating new game: \(error.localizedDescription)")
                 }
-            } else {
-                // No user ID, just save the game
-                do {
-                    try context.save()
-                    
-                    // Update the game model with the new ID
-                    var updatedGame = game
-                    updatedGame.gameId = gameEntity.gameId?.uuidString // Convert UUID to string
-                    self.currentGame = updatedGame
-                } catch {
-                    print("Error creating new game: \(error.localizedDescription)")
-                }
+                
+                // Update with game data
+                updateGameEntity(gameEntity, from: game)
             }
+            
+            try context.save()
+        } catch {
+            print("Error saving game state: \(error.localizedDescription)")
         }
     }
     private func stringDictionaryToCharacterDictionary(_ dict: [String: String]) -> [Character: Character] {
