@@ -57,7 +57,7 @@ class SettingsState: ObservableObject {
     let appVersion: String
     
     // Core Data access
-    private let coreData = CoreDataStack.shared
+    private let cdStack = CoreDataStack.shared
     private var cancellables = Set<AnyCancellable>()
     
     // UserDefaults keys
@@ -131,7 +131,7 @@ class SettingsState: ObservableObject {
         UserState.shared.$isAuthenticated
             .sink { [weak self] isAuthenticated in
                 if isAuthenticated {
-                    self?.loadFromUserPreferences(userId: UserState.shared.userId)
+                    self?.loadFromUserPreferencesCD(userId: UserState.shared.userId)
                 }
             }
             .store(in: &cancellables)
@@ -190,37 +190,37 @@ class SettingsState: ObservableObject {
     }
     
     /// Save current settings to a logged-in user's preferences in Core Data
-    func saveToUserPreferences(userId: String) {
-        let context = coreData.mainContext
+    func saveToUserPreferencesCD(userId: String) {
+        let context = cdStack.mainContext
         
-        // Find the user
+        // Find the user in Core Data
         let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
         
         do {
-            let users = try context.fetch(fetchRequest)
+            let usersCD = try context.fetch(fetchRequest)
             
-            guard let user = users.first else { return }
+            guard let userCD = usersCD.first else { return }
             
             // Get or create preferences
-            let preferences: UserPreferences
-            if let existingPrefs = user.preferences {
-                preferences = existingPrefs
+            let preferencesCD: UserPreferences
+            if let existingPrefs = userCD.preferences {
+                preferencesCD = existingPrefs
             } else {
-                preferences = UserPreferences(context: context)
-                user.preferences = preferences
-                preferences.user = user
+                preferencesCD = UserPreferences(context: context)
+                userCD.preferences = preferencesCD
+                preferencesCD.user = userCD
             }
             
             // Update from settings
-            preferences.darkMode = isDarkMode
-            preferences.showTextHelpers = showTextHelpers
-            preferences.accessibilityTextSize = useAccessibilityTextSize
-            preferences.gameDifficulty = gameDifficulty
-            preferences.soundEnabled = soundEnabled
-            preferences.soundVolume = soundVolume
-            preferences.useBiometricAuth = useBiometricAuth
-            preferences.lastSyncDate = Date()
+            preferencesCD.darkMode = isDarkMode
+            preferencesCD.showTextHelpers = showTextHelpers
+            preferencesCD.accessibilityTextSize = useAccessibilityTextSize
+            preferencesCD.gameDifficulty = gameDifficulty
+            preferencesCD.soundEnabled = soundEnabled
+            preferencesCD.soundVolume = soundVolume
+            preferencesCD.useBiometricAuth = useBiometricAuth
+            preferencesCD.lastSyncDate = Date()
             
             // Save changes
             try context.save()
@@ -234,7 +234,7 @@ class SettingsState: ObservableObject {
                     soundEnabled: soundEnabled,
                     soundVolume: soundVolume,
                     useBiometricAuth: useBiometricAuth,
-                    notificationsEnabled: preferences.notificationsEnabled,
+                    notificationsEnabled: preferencesCD.notificationsEnabled,
                     lastSyncDate: Date()
                 ))
             }
@@ -244,28 +244,28 @@ class SettingsState: ObservableObject {
     }
     
     /// Load settings from a user's preferences in Core Data
-    func loadFromUserPreferences(userId: String) {
-        let context = coreData.mainContext
+    func loadFromUserPreferencesCD(userId: String) {
+        let context = cdStack.mainContext
         
         // Find user and preferences
         let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
         
         do {
-            let users = try context.fetch(fetchRequest)
-            guard let user = users.first, let prefs = user.preferences else {
+            let usersCD = try context.fetch(fetchRequest)
+            guard let userCD = usersCD.first, let prefsCD = userCD.preferences else {
                 return
             }
             
             // Update settings from preferences
             DispatchQueue.main.async {
-                self.isDarkMode = prefs.darkMode
-                self.showTextHelpers = prefs.showTextHelpers
-                self.useAccessibilityTextSize = prefs.accessibilityTextSize
-                self.gameDifficulty = prefs.gameDifficulty
-                self.soundEnabled = prefs.soundEnabled
-                self.soundVolume = prefs.soundVolume
-                self.useBiometricAuth = prefs.useBiometricAuth
+                self.isDarkMode = prefsCD.darkMode
+                self.showTextHelpers = prefsCD.showTextHelpers
+                self.useAccessibilityTextSize = prefsCD.accessibilityTextSize
+                self.gameDifficulty = prefsCD.gameDifficulty ?? "medium"
+                self.soundEnabled = prefsCD.soundEnabled
+                self.soundVolume = prefsCD.soundVolume
+                self.useBiometricAuth = prefsCD.useBiometricAuth
             }
         } catch {
             print("Error loading user preferences: \(error.localizedDescription)")
@@ -295,11 +295,4 @@ extension UserDefaults {
 // Protocol for syncing settings to server
 protocol SettingsSync {
     func syncSettingsToServer(preferences: UserPreferencesModel)
-}
-
-// MARK: - NSFetchRequest Extension
-extension NSFetchRequest where ResultType == User {
-    static func fetchRequest() -> NSFetchRequest<User> {
-        return NSFetchRequest<User>(entityName: "User")
-    }
 }

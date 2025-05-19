@@ -2,8 +2,8 @@ import Foundation
 import CoreData
 import SwiftUI
 
-// MARK: - Core Data Extensions for Game
-extension Game {
+// MARK: - Core Data Extensions for GameScoreModel
+extension GameCD {
     
     // MARK: - Computed properties for mappings
     
@@ -28,7 +28,6 @@ extension Game {
     /// Gets the game ID (safe unwrapping)
     var gameId: String? {
         get {
-            // You need to define a "gameId" attribute in your Core Data model
             return value(forKey: "gameId") as? String
         }
         set {
@@ -78,8 +77,8 @@ extension Game {
     
     // MARK: - Helper methods
     
-    /// Converts to a GameModel struct for use in business logic
-    func toModel() -> GameModel {
+    /// Converts to a GameData struct for use in business logic
+    func toData() -> GameData {
         // Deserialize mappings
         var mapping: [Character: Character] = [:]
         var correctMappings: [Character: Character] = [:]
@@ -100,7 +99,7 @@ extension Game {
             guessedMappings = guessedDict.convertToCharacterDictionary()
         }
         
-        return GameModel(
+        return GameData(
             gameId: self.gameId,
             encrypted: self.encrypted ?? "",
             solution: self.solution ?? "",
@@ -119,11 +118,11 @@ extension Game {
     }
 }
 
-// MARK: - Quote Extensions - Just for quote properties, not game settings
-extension Quote {
-    /// Converts to a QuoteModel struct for use in business logic
-    func toModel() -> QuoteModel {
-        return QuoteModel(
+// MARK: - QuoteModel Extensions
+extension QuoteCD {
+    /// Converts to a QuoteData struct for use in business logic
+    func toData() -> QuoteData {
+        return QuoteData(
             text: text ?? "",
             author: author ?? "",
             attribution: attribution,
@@ -157,21 +156,33 @@ extension Dictionary where Key == String, Value == String {
 }
 
 // MARK: - NSFetchRequest Extensions
-extension NSFetchRequest where ResultType == Game {
-    static func fetchRequest() -> NSFetchRequest<Game> {
-        return NSFetchRequest<Game>(entityName: "Game")
+extension NSFetchRequest where ResultType == GameScoreModel {
+    static func fetchRequest() -> NSFetchRequest<GameScoreModel> {
+        return NSFetchRequest<GameScoreModel>(entityName: "GameScoreModel")
     }
 }
 
-extension NSFetchRequest where ResultType == Quote {
-    static func fetchRequest() -> NSFetchRequest<Quote> {
-        return NSFetchRequest<Quote>(entityName: "Quote")
+extension NSFetchRequest where ResultType == QuoteModel {
+    static func fetchRequest() -> NSFetchRequest<QuoteModel> {
+        return NSFetchRequest<QuoteModel>(entityName: "QuoteModel")
     }
 }
 
-extension NSFetchRequest where ResultType == User {
-    static func fetchRequest() -> NSFetchRequest<User> {
-        return NSFetchRequest<User>(entityName: "User")
+extension NSFetchRequest where ResultType == UserModel {
+    static func fetchRequest() -> NSFetchRequest<UserModel> {
+        return NSFetchRequest<UserModel>(entityName: "UserModel")
+    }
+}
+
+extension NSFetchRequest where ResultType == UserStatsModel {
+    static func fetchRequest() -> NSFetchRequest<UserStatsModel> {
+        return NSFetchRequest<UserStatsModel>(entityName: "UserStatsModel")
+    }
+}
+
+extension NSFetchRequest where ResultType == UserPreferencesModel {
+    static func fetchRequest() -> NSFetchRequest<UserPreferencesModel> {
+        return NSFetchRequest<UserPreferencesModel>(entityName: "UserPreferencesModel")
     }
 }
 
