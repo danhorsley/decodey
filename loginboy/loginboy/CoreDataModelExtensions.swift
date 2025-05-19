@@ -105,7 +105,7 @@ extension GameCD {
         }
         
         return GameModel(
-            gameId: self.gameId?.uuidString ?? "",
+            gameId: self.gameId?.uuidString ?? "", // Convert UUID to string
             encrypted: self.encrypted ?? "",
             solution: self.solution ?? "",
             currentDisplay: self.currentDisplay ?? "",

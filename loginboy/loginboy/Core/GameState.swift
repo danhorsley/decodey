@@ -101,13 +101,17 @@ class GameState: ObservableObject {
                     difficulty: quote.difficulty
                 )
                 
-                // Create game with quote and appropriate ID prefix
+                // Create game with quote and appropriate ID
                 var newGame = GameModel(quote: quoteModel)
                 // Get difficulty from settings instead of quote
                 newGame.difficulty = SettingsState.shared.gameDifficulty
                 // Set max mistakes based on difficulty settings
                 newGame.maxMistakes = getMaxMistakesForDifficulty(newGame.difficulty)
-                newGame.gameId = "custom-\(UUID().uuidString)" // Mark as custom game
+                
+                // Create a UUID for the game - store just the UUID in the model
+                let gameUUID = UUID()
+                newGame.gameId = gameUUID.uuidString // Store as a string for compatibility
+                
                 currentGame = newGame
                 
                 showWinMessage = false
@@ -226,7 +230,8 @@ class GameState: ObservableObject {
         game.difficulty = SettingsState.shared.gameDifficulty
         // Set max mistakes based on difficulty settings
         game.maxMistakes = getMaxMistakesForDifficulty(game.difficulty)
-        game.gameId = "daily-\(ISO8601DateFormatter().string(from: quote.dailyDate ?? Date()))" // Mark as daily game with date
+        let gameUUID = UUID()
+        game.gameId = gameUUID.uuidString // Store as a string
         currentGame = game
         
         showWinMessage = false
@@ -367,7 +372,16 @@ class GameState: ObservableObject {
         
         // Query for unfinished games
         let fetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
-        fetchRequest.predicate = NSPredicate(format: "hasWon == NO AND hasLost == NO")
+        
+        // Add isDaily filter based on current mode
+        let dailyPredicate = NSPredicate(format: "isDaily == %@", NSNumber(value: isDailyChallenge))
+        let unfinishedPredicate = NSPredicate(format: "hasWon == NO AND hasLost == NO")
+        
+        // Combine predicates
+        fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            dailyPredicate, unfinishedPredicate
+        ])
+        
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "lastUpdateTime", ascending: false)]
         fetchRequest.fetchLimit = 1
         
@@ -376,21 +390,6 @@ class GameState: ObservableObject {
             if let latestGame = games.first {
                 // Convert to model
                 let gameModel = latestGame.toModel()
-                
-                // Check if it's the right type (daily vs custom)
-                let isDaily = isDailyChallenge
-                
-                // If we want to show daily but the saved game isn't daily, don't show modal
-                if isDaily && gameModel.gameId?.starts(with: "custom-") == true {
-                    return
-                }
-                
-                // If we want to show custom but the saved game is daily, don't show modal
-                if !isDaily && gameModel.gameId?.starts(with: "daily-") == true {
-                    return
-                }
-                
-                // We have a matching in-progress game
                 self.savedGame = gameModel
                 self.showContinueGameModal = true
             }
@@ -494,6 +493,7 @@ class GameState: ObservableObject {
             self.currentGame = game
             
             // Save game state
+            printGameDetails() // Debug
             saveGameState(game)
             
             // Check game status
@@ -525,6 +525,7 @@ class GameState: ObservableObject {
             SoundManager.shared.play(.hint)
             
             // Save game state
+            printGameDetails() // Debug
             saveGameState(game)
             
             // Check game status after hint
@@ -535,7 +536,21 @@ class GameState: ObservableObject {
             }
         }
     }
-    
+    //debug tool for game state
+    func printGameDetails() {
+        if let game = currentGame {
+            print("Current Game ID: \(game.gameId ?? "nil")")
+            if let gameId = game.gameId, let uuid = UUID(uuidString: gameId) {
+                print("Valid UUID format: \(uuid.uuidString)")
+            } else {
+                print("Not a valid UUID format")
+            }
+            print("Is Daily Challenge: \(isDailyChallenge)")
+            print("Current mistakes: \(game.mistakes)/\(game.maxMistakes)")
+        } else {
+            print("No current game")
+        }
+    }
     // Save current game state to Core Data
     private func convertToGameModel(_ game: GameCD) -> GameModel {
         var mapping: [Character: Character] = [:]
@@ -599,7 +614,7 @@ class GameState: ObservableObject {
         entity.hasLost = model.hasLost
         entity.difficulty = model.difficulty
         entity.lastUpdateTime = model.lastUpdateTime
-        entity.isDaily = model.gameId?.starts(with: "daily-") ?? false
+        entity.isDaily = isDailyChallenge
         
         // Calculate and store score and time taken if game is complete
         if model.hasWon || model.hasLost {
