@@ -353,3 +353,52 @@ class UserState: ObservableObject {
         }
     }
 }
+
+//  MARK: game rec integration
+
+extension UserState {
+    
+    /// Sync games with server after login
+    func syncGamesAfterLogin() {
+        // Don't sync immediately - wait a bit for UI to settle
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            self.performGameSync()
+        }
+    }
+    
+    private func performGameSync() {
+        guard isAuthenticated else { return }
+        
+        // Check if we should sync (not too frequently)
+        let lastSyncKey = "lastGameSyncCheck"
+        let lastSync = UserDefaults.standard.object(forKey: lastSyncKey) as? Date
+        
+        let shouldSync: Bool
+        if let lastSync = lastSync {
+            // Only sync if it's been more than 30 minutes
+            shouldSync = Date().timeIntervalSince(lastSync) > 1800
+        } else {
+            shouldSync = true
+        }
+        
+        if shouldSync {
+            print("🔄 Starting game synchronization...")
+            
+            GameReconciliationManager.shared.reconcileGames { success, error in
+                DispatchQueue.main.async {
+                    if success {
+                        print("✅ Game sync completed successfully")
+                        UserDefaults.standard.set(Date(), forKey: lastSyncKey)
+                        
+                        // Refresh user stats after sync
+                        self.refreshStats()
+                    } else {
+                        print("❌ Game sync failed: \(error ?? "Unknown error")")
+                    }
+                }
+            }
+        } else {
+            print("⏭️ Skipping game sync - too recent")
+        }
+    }
+}
