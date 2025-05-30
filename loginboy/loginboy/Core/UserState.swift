@@ -58,6 +58,8 @@ class UserState: ObservableObject {
             .sink { [weak self] isAuthenticated in
                 if isAuthenticated {
                     self?.fetchUserData()
+                    // Trigger game sync after login
+                    self?.syncGamesAfterLogin()
                 } else {
                     self?.profile = nil
                     self?.stats = nil
@@ -101,7 +103,7 @@ class UserState: ObservableObject {
         authCoordinator.logout()
     }
     
-    /// Fetch user data from Core Data
+    /// Fetch user data from Core Data only - no server calls
     func fetchUserData() {
         guard isAuthenticated, !userId.isEmpty else { return }
         
@@ -121,12 +123,15 @@ class UserState: ObservableObject {
                 // Create a new user in Core Data
                 createUserInCoreData()
             }
+            
+            // Always refresh local stats
+            refreshStats()
         } catch {
             print("Error fetching user data: \(error.localizedDescription)")
         }
     }
     
-    /// Update user statistics after game completion
+    /// Update user statistics after game completion - LOCAL ONLY
     func updateStats(gameWon: Bool, score: Int, timeTaken: Int, mistakes: Int = 0) {
         guard isAuthenticated, !userId.isEmpty else { return }
         
@@ -195,7 +200,7 @@ class UserState: ObservableObject {
         }
     }
     
-    /// Get user's statistics
+    /// Get user's statistics from local Core Data only
     func refreshStats() {
         guard isAuthenticated, !userId.isEmpty else {
             stats = nil
@@ -266,6 +271,90 @@ class UserState: ObservableObject {
             updateProfileFromCoreData(user)
         } catch {
             print("Error updating profile: \(error.localizedDescription)")
+        }
+    }
+    
+    /// Recalculate stats from all games (useful after sync)
+    func recalculateStatsFromGames() {
+        guard isAuthenticated, !userId.isEmpty else { return }
+        
+        let context = coreData.mainContext
+        
+        // Get all completed games for this user
+        let gameFetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
+        gameFetchRequest.predicate = NSPredicate(format: "user.userId == %@ AND (hasWon == YES OR hasLost == YES)", userId)
+        gameFetchRequest.sortDescriptors = [NSSortDescriptor(key: "lastUpdateTime", ascending: true)]
+        
+        do {
+            let completedGames = try context.fetch(gameFetchRequest)
+            
+            // Find user
+            let userFetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
+            userFetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
+            let users = try context.fetch(userFetchRequest)
+            
+            guard let user = users.first else { return }
+            
+            // Get or create stats
+            let stats: UserStatsCD
+            if let existingStats = user.stats {
+                stats = existingStats
+            } else {
+                stats = UserStatsCD(context: context)
+                user.stats = stats
+                stats.user = user
+            }
+            
+            // Reset and recalculate everything
+            var totalGames = 0
+            var gamesWon = 0
+            var totalScore = 0
+            var currentStreak = 0
+            var bestStreak = 0
+            var totalTime = 0.0
+            var totalMistakes = 0
+            var lastPlayedDate: Date?
+            
+            // Calculate stats from all games
+            for game in completedGames {
+                totalGames += 1
+                totalScore += Int(game.score)
+                totalMistakes += Int(game.mistakes)
+                lastPlayedDate = max(lastPlayedDate ?? Date.distantPast, game.lastUpdateTime ?? Date.distantPast)
+                
+                // Calculate time taken for this game
+                if let startTime = game.startTime, let endTime = game.lastUpdateTime {
+                    totalTime += endTime.timeIntervalSince(startTime)
+                }
+                
+                if game.hasWon {
+                    gamesWon += 1
+                    currentStreak += 1
+                    bestStreak = max(bestStreak, currentStreak)
+                } else if game.hasLost {
+                    currentStreak = 0
+                }
+            }
+            
+            // Update stats
+            stats.gamesPlayed = Int32(totalGames)
+            stats.gamesWon = Int32(gamesWon)
+            stats.totalScore = Int32(totalScore)
+            stats.currentStreak = Int32(currentStreak)
+            stats.bestStreak = Int32(bestStreak)
+            stats.averageTime = totalGames > 0 ? totalTime / Double(totalGames) : 0
+            stats.averageMistakes = totalGames > 0 ? Double(totalMistakes) / Double(totalGames) : 0
+            stats.lastPlayedDate = lastPlayedDate
+            
+            // Save changes
+            try context.save()
+            
+            // Update published stats
+            refreshStats()
+            
+            print("✅ Recalculated stats from \(totalGames) games: \(gamesWon) wins, streak: \(currentStreak)")
+        } catch {
+            print("Error recalculating stats: \(error.localizedDescription)")
         }
     }
     
@@ -354,7 +443,7 @@ class UserState: ObservableObject {
     }
 }
 
-//  MARK: game rec integration
+// MARK: - Game Reconciliation Integration
 
 extension UserState {
     
@@ -384,14 +473,14 @@ extension UserState {
         if shouldSync {
             print("🔄 Starting game synchronization...")
             
-            GameReconciliationManager.shared.reconcileGames { success, error in
+            GameReconciliationManager.shared.reconcileGames { [weak self] success, error in
                 DispatchQueue.main.async {
                     if success {
                         print("✅ Game sync completed successfully")
                         UserDefaults.standard.set(Date(), forKey: lastSyncKey)
                         
-                        // Refresh user stats after sync
-                        self.refreshStats()
+                        // IMPORTANT: Recalculate stats from synced games
+                        self?.recalculateStatsFromGames()
                     } else {
                         print("❌ Game sync failed: \(error ?? "Unknown error")")
                     }

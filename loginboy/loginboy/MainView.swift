@@ -135,14 +135,12 @@ struct MainView: View {
             .tag(NavigationCoordinator.AppRoute.TabRoute.leaderboard)
             
             NavigationViewWrapper {
-                Text("Stats Coming Soon")
-                    .font(.largeTitle)
-                    .padding()
-            }
-            .tabItem {
-                Label("Stats", systemImage: "chart.bar")
-            }
-            .tag(NavigationCoordinator.AppRoute.TabRoute.stats)
+                            UserStatsView()
+                        }
+                        .tabItem {
+                            Label("Stats", systemImage: "chart.bar")
+                        }
+                        .tag(NavigationCoordinator.AppRoute.TabRoute.stats)
             
             NavigationViewWrapper {
                 ProfileView()

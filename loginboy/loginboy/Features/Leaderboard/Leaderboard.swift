@@ -1,8 +1,6 @@
-
 import SwiftUI
 import CoreData
 
-// Use the existing LeaderboardEntry model or replace with this simplified version
 struct LeaderboardEntry: Identifiable {
     let rank: Int
     let username: String
@@ -17,7 +15,6 @@ struct LeaderboardEntry: Identifiable {
 
 struct EntryRow: View {
     let entry: LeaderboardEntry
-    var showDivider: Bool = false
     
     var body: some View {
         HStack {
@@ -72,18 +69,16 @@ struct LeaderboardView: View {
             }
             .pickerStyle(SegmentedPickerStyle())
             .padding(.horizontal)
-            .onChange(of: selectedPeriod) { _, newValue in
-                currentPage = 1 // Reset to first page when changing period
-                fetchLeaderboard()
+            .onChange(of: selectedPeriod) { _, _ in
+                currentPage = 1
+                loadLeaderboard()
             }
             
             if isLoading {
-                // Loading state
                 ProgressView("Loading leaderboard...")
                     .padding()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if let errorMessage = errorMessage {
-                // Error state
                 VStack {
                     Image(systemName: "exclamationmark.triangle")
                         .font(.system(size: 50))
@@ -96,7 +91,7 @@ struct LeaderboardView: View {
                         .padding()
                     
                     Button("Try Again") {
-                        fetchLeaderboard()
+                        loadLeaderboard()
                     }
                     .padding()
                     .background(Color.blue)
@@ -106,7 +101,6 @@ struct LeaderboardView: View {
                 .padding()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if !entries.isEmpty {
-                // Leaderboard content
                 VStack {
                     // Table header
                     HStack {
@@ -134,12 +128,12 @@ struct LeaderboardView: View {
                     .padding(.vertical, 8)
                     .background(Color.gray.opacity(0.1))
                     
-                    // Entries list
                     ScrollView {
                         LazyVStack(spacing: 0) {
-                            // Show the users's entry at the top if not in the visible range
-                            if let currentUserEntry = currentUserEntry, !entries.contains(where: { $0.userId == userState.userId }) {
-                                EntryRow(entry: currentUserEntry, showDivider: true)
+                            // Show current user entry at top if not in visible range
+                            if let currentUserEntry = currentUserEntry,
+                               !entries.contains(where: { $0.userId == userState.userId }) {
+                                EntryRow(entry: currentUserEntry)
                                     .padding(.vertical, 8)
                                     .background(Color.yellow.opacity(0.2))
                                 
@@ -166,7 +160,7 @@ struct LeaderboardView: View {
                         Button(action: {
                             if currentPage > 1 {
                                 currentPage -= 1
-                                fetchLeaderboard()
+                                loadLeaderboard()
                             }
                         }) {
                             Image(systemName: "chevron.left")
@@ -181,7 +175,7 @@ struct LeaderboardView: View {
                         Button(action: {
                             if currentPage < totalPages {
                                 currentPage += 1
-                                fetchLeaderboard()
+                                loadLeaderboard()
                             }
                         }) {
                             Image(systemName: "chevron.right")
@@ -193,7 +187,6 @@ struct LeaderboardView: View {
                     .padding()
                 }
             } else {
-                // Empty state
                 VStack {
                     Image(systemName: "trophy")
                         .font(.system(size: 50))
@@ -203,8 +196,13 @@ struct LeaderboardView: View {
                     Text("No leaderboard data available")
                         .foregroundColor(.secondary)
                     
+                    Text("Games need to be synced from other players")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .padding(.top, 4)
+                    
                     Button("Refresh") {
-                        fetchLeaderboard()
+                        loadLeaderboard()
                     }
                     .padding()
                     .background(Color.blue)
@@ -218,236 +216,145 @@ struct LeaderboardView: View {
         }
         .padding(.bottom)
         .onAppear {
-            fetchLeaderboard()
+            loadLeaderboard()
+        }
+        .refreshable {
+            loadLeaderboard()
         }
     }
     
-    // Fetch leaderboard data - either from Core Data or API depending on needs
-    private func fetchLeaderboard() {
+    // MARK: - Local Leaderboard Calculation
+    
+    private func loadLeaderboard() {
         isLoading = true
         errorMessage = nil
         
-        if selectedPeriod == "all-time" {
-            // For all time, we can use local Core Data
-            fetchLeaderboardFromCoreData()
-        } else {
-            // For weekly, we might need API data
-            fetchLeaderboardFromAPI()
-        }
-    }
-    
-    // Fetch leaderboard from local Core Data
-    private func fetchLeaderboardFromCoreData() {
+        // Calculate leaderboard from local Core Data
         let context = coreData.mainContext
         
-        // Get all users with stats
-        let fetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
-        fetchRequest.predicate = NSPredicate(format: "stats != nil")
-        
         do {
-            // First get all users
-            let users = try context.fetch(fetchRequest)
+            var leaderboardData: [(userId: String, username: String, totalScore: Int, gamesPlayed: Int, avgScore: Double)] = []
             
-            // Sort by total score
-            let sortedUsers = users.sorted {
-                guard let stats1 = $0.stats, let stats2 = $1.stats else { return false }
-                return stats1.totalScore > stats2.totalScore
+            if selectedPeriod == "weekly" {
+                leaderboardData = try calculateWeeklyLeaderboard(context: context)
+            } else {
+                leaderboardData = try calculateAllTimeLeaderboard(context: context)
             }
             
-            // Convert to entries
-            var leaderboardEntries: [LeaderboardEntry] = []
-            var userRank = 0
+            // Sort by total score descending
+            leaderboardData.sort { $0.totalScore > $1.totalScore }
+            
+            // Convert to LeaderboardEntry objects with ranks
+            var allEntries: [LeaderboardEntry] = []
             var currentUserFound = false
             
-            for (index, user) in sortedUsers.enumerated() {
-                guard let stats = user.stats else { continue }
-                
+            for (index, data) in leaderboardData.enumerated() {
                 let rank = index + 1
-                let isCurrentUser = user.userId == userState.userId
+                let isCurrentUser = data.userId == userState.userId
                 
                 let entry = LeaderboardEntry(
                     rank: rank,
-                    username: user.username ?? "Unknown",
-                    userId: user.userId ?? "",
-                    score: Int(stats.totalScore),
-                    gamesPlayed: Int(stats.gamesPlayed),
-                    avgScore: stats.gamesPlayed > 0 ? Double(stats.totalScore) / Double(stats.gamesPlayed) : 0,
+                    username: data.username,
+                    userId: data.userId,
+                    score: data.totalScore,
+                    gamesPlayed: data.gamesPlayed,
+                    avgScore: data.avgScore,
                     isCurrentUser: isCurrentUser
                 )
                 
-                leaderboardEntries.append(entry)
+                allEntries.append(entry)
                 
                 if isCurrentUser {
                     currentUserFound = true
-                    userRank = rank
                     currentUserEntry = entry
                 }
             }
             
-            // If current user not found but has stats, add them
-            if !currentUserFound && userState.isAuthenticated, let stats = userState.stats {
+            // If current user not found but they have games, create entry with 0 scores
+            if !currentUserFound && userState.isAuthenticated {
                 currentUserEntry = LeaderboardEntry(
-                    rank: userRank,
+                    rank: allEntries.count + 1,
                     username: userState.username,
                     userId: userState.userId,
-                    score: stats.totalScore,
-                    gamesPlayed: stats.gamesPlayed,
-                    avgScore: stats.averageScore,
+                    score: 0,
+                    gamesPlayed: 0,
+                    avgScore: 0,
                     isCurrentUser: true
                 )
             }
             
-            // Paginate results - 10 per page
+            // Paginate results
             let pageSize = 10
-            totalPages = max(1, (leaderboardEntries.count + pageSize - 1) / pageSize)
+            totalPages = max(1, (allEntries.count + pageSize - 1) / pageSize)
             
-            // Calculate start and end indices
             let startIndex = (currentPage - 1) * pageSize
-            let endIndex = min(startIndex + pageSize, leaderboardEntries.count)
+            let endIndex = min(startIndex + pageSize, allEntries.count)
             
-            // Get entries for current page
-            if startIndex < leaderboardEntries.count {
-                entries = Array(leaderboardEntries[startIndex..<endIndex])
+            if startIndex < allEntries.count {
+                entries = Array(allEntries[startIndex..<endIndex])
             } else {
                 entries = []
             }
             
             isLoading = false
         } catch {
-            print("Error fetching leaderboard data: \(error.localizedDescription)")
             errorMessage = "Failed to load leaderboard: \(error.localizedDescription)"
             isLoading = false
         }
     }
     
-    // Fetch leaderboard from API
-    private func fetchLeaderboardFromAPI() {
-        guard let token = userState.authCoordinator.getAccessToken() else {
-            isLoading = false
-            errorMessage = "Authentication required"
-            return
+    private func calculateAllTimeLeaderboard(context: NSManagedObjectContext) throws -> [(userId: String, username: String, totalScore: Int, gamesPlayed: Int, avgScore: Double)] {
+        // Get all users with stats
+        let userFetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
+        userFetchRequest.predicate = NSPredicate(format: "stats != nil")
+        
+        let users = try context.fetch(userFetchRequest)
+        
+        return users.compactMap { user in
+            guard let stats = user.stats,
+                  let userId = user.userId,
+                  let username = user.username,
+                  stats.gamesPlayed > 0 else { return nil }
+            
+            let totalScore = Int(stats.totalScore)
+            let gamesPlayed = Int(stats.gamesPlayed)
+            let avgScore = gamesPlayed > 0 ? Double(totalScore) / Double(gamesPlayed) : 0
+            
+            return (userId: userId, username: username, totalScore: totalScore, gamesPlayed: gamesPlayed, avgScore: avgScore)
         }
-        
-        // Build URL
-        guard let url = URL(string: "\(userState.authCoordinator.baseURL)/api/leaderboard") else {
-            isLoading = false
-            errorMessage = "Invalid URL configuration"
-            return
-        }
-        
-        // Add query parameters
-        var components = URLComponents(url: url, resolvingAgainstBaseURL: true)
-        components?.queryItems = [
-            URLQueryItem(name: "period", value: selectedPeriod),
-            URLQueryItem(name: "page", value: "\(currentPage)"),
-            URLQueryItem(name: "per_page", value: "10")
-        ]
-        
-        guard let requestURL = components?.url else {
-            isLoading = false
-            errorMessage = "Invalid URL configuration"
-            return
-        }
-        
-        // Create request
-        var request = URLRequest(url: requestURL)
-        request.httpMethod = "GET"
-        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        
-        // Execute request
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            DispatchQueue.main.async {
-                self.isLoading = false
-                
-                if let error = error {
-                    self.errorMessage = "Network error: \(error.localizedDescription)"
-                    return
-                }
-                
-                guard let httpResponse = response as? HTTPURLResponse else {
-                    self.errorMessage = "Invalid response from server"
-                    return
-                }
-                
-                if httpResponse.statusCode != 200 {
-                    self.errorMessage = "Server error (Status \(httpResponse.statusCode))"
-                    return
-                }
-                
-                guard let data = data else {
-                    self.errorMessage = "No data received"
-                    return
-                }
-                
-                // Parse response
-                do {
-                    let decoder = JSONDecoder()
-                    let response = try decoder.decode(LeaderboardResponse.self, from: data)
-                    
-                    // Update state
-                    self.entries = response.entries.map { entry in
-                        LeaderboardEntry(
-                            rank: entry.rank,
-                            username: entry.username,
-                            userId: entry.user_id,
-                            score: entry.score,
-                            gamesPlayed: entry.games_played,
-                            avgScore: entry.avg_score,
-                            isCurrentUser: entry.is_current_user
-                        )
-                    }
-                    
-                    if let userEntry = response.currentUserEntry {
-                        self.currentUserEntry = LeaderboardEntry(
-                            rank: userEntry.rank,
-                            username: userEntry.username,
-                            userId: userEntry.user_id,
-                            score: userEntry.score,
-                            gamesPlayed: userEntry.games_played,
-                            avgScore: userEntry.avg_score,
-                            isCurrentUser: true
-                        )
-                    }
-                    
-                    self.totalPages = response.pagination.total_pages
-                } catch {
-                    self.errorMessage = "Failed to parse response: \(error.localizedDescription)"
-                }
-            }
-        }.resume()
     }
-}
-
-// API response model
-struct LeaderboardResponse: Codable {
-    let entries: [LeaderboardEntryResponse]
-    let currentUserEntry: LeaderboardEntryResponse?
-    let pagination: PaginationResponse
-    let period: String
     
-    enum CodingKeys: String, CodingKey {
-        case entries
-        case currentUserEntry = "current_user_entry"
-        case pagination
-        case period
+    private func calculateWeeklyLeaderboard(context: NSManagedObjectContext) throws -> [(userId: String, username: String, totalScore: Int, gamesPlayed: Int, avgScore: Double)] {
+        // Calculate start of current week
+        let now = Date()
+        let calendar = Calendar.current
+        let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: now)?.start ?? now
+        
+        // Get all completed games from this week
+        let gameFetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
+        gameFetchRequest.predicate = NSPredicate(format: "lastUpdateTime >= %@ AND (hasWon == YES OR hasLost == YES)", startOfWeek as NSDate)
+        
+        let weeklyGames = try context.fetch(gameFetchRequest)
+        
+        // Group by user and calculate weekly scores
+        var userWeeklyData: [String: (username: String, totalScore: Int, gamesPlayed: Int)] = [:]
+        
+        for game in weeklyGames {
+            guard let user = game.user,
+                  let userId = user.userId,
+                  let username = user.username else { continue }
+            
+            let currentData = userWeeklyData[userId] ?? (username: username, totalScore: 0, gamesPlayed: 0)
+            userWeeklyData[userId] = (
+                username: username,
+                totalScore: currentData.totalScore + Int(game.score),
+                gamesPlayed: currentData.gamesPlayed + 1
+            )
+        }
+        
+        return userWeeklyData.map { (userId, data) in
+            let avgScore = data.gamesPlayed > 0 ? Double(data.totalScore) / Double(data.gamesPlayed) : 0
+            return (userId: userId, username: data.username, totalScore: data.totalScore, gamesPlayed: data.gamesPlayed, avgScore: avgScore)
+        }
     }
-}
-
-struct LeaderboardEntryResponse: Codable, Identifiable {
-    let rank: Int
-    let username: String
-    let user_id: String
-    let score: Int
-    let games_played: Int
-    let avg_score: Double
-    let is_current_user: Bool
-    
-    var id: String { user_id }
-}
-
-struct PaginationResponse: Codable {
-    let current_page: Int
-    let total_pages: Int
-    let total_entries: Int
-    let per_page: Int
 }
