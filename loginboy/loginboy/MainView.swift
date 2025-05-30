@@ -58,18 +58,32 @@ struct MainView: View {
     
     // Home screen view
     private var homeView: some View {
-        HomeScreen(
-            onBegin: {
-                if userState.isAuthenticated {
-                    coordinator.navigate(to: .main(.daily))
-                } else {
-                    coordinator.navigate(to: .login)
+        ZStack {
+            OptimizedHomeScreen(
+                onBegin: {
+                    if userState.isAuthenticated {
+                        coordinator.navigate(to: .main(.daily))
+                    } else {
+                        coordinator.navigate(to: .login)
+                    }
+                },
+                onShowLogin: {
+                    showLoginSheet = true
                 }
-            },
-            onShowLogin: {
-                showLoginSheet = true
+            )
+            
+            #if DEBUG
+            // Add performance monitor in debug builds
+            VStack {
+                HStack {
+                    Spacer()
+                    PerformanceMonitor()
+                }
+                Spacer()
             }
-        )
+            .padding()
+            #endif
+        }
     }
     
     // Login view

@@ -1032,81 +1032,132 @@ struct GameSyncDetailsView: View {
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
-        NavigationView {
-            VStack(spacing: 20) {
-                VStack {
-                    Text("Sync Status")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                    
-                    HStack {
-                        Circle()
-                            .fill(syncManager.isOnline ? Color.green : Color.red)
-                            .frame(width: 12, height: 12)
-                        Text(syncManager.isOnline ? "Online" : "Offline")
-                    }
-                }
-                
-                if let stats = syncManager.syncStats {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Game Statistics")
-                            .font(.headline)
-                        
-                        InfoRow(title: "Total Games", value: "\(stats.totalGames)")
-                        InfoRow(title: "Completed Games", value: "\(stats.completedGames)")
-                        InfoRow(title: "Active Games", value: "\(stats.activeGames)")
-                        
-                        if let lastActivity = stats.lastActivity {
-                            InfoRow(title: "Last Activity", value: formatDate(lastActivity))
-                        }
-                    }
-                    .padding()
-                    .background(Color.gray.opacity(0.1))
-                    .cornerRadius(8)
-                }
-                
-                VStack(spacing: 12) {
-                    Button(action: {
-                        syncManager.manualSync()
-                    }) {
-                        HStack {
-                            if syncManager.isSyncing {
-                                ProgressView()
-                                    .scaleEffect(0.8)
-                            } else {
-                                Image(systemName: "arrow.clockwise")
-                            }
-                            Text("Sync Now")
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                    }
-                    .disabled(syncManager.isSyncing || !syncManager.isOnline)
-                    
-                    if let lastError = syncManager.lastError {
-                        Text("Last error: \(lastError)")
-                            .font(.caption)
-                            .foregroundColor(.red)
-                            .multilineTextAlignment(.center)
-                    }
-                }
+        VStack(spacing: 0) {
+            // Custom header
+            HStack {
+                Text("Game Sync")
+                    .font(.title2)
+                    .fontWeight(.bold)
                 
                 Spacer()
+                
+                Button("Done") {
+                    dismiss()
+                }
+                .buttonStyle(.bordered)
             }
             .padding()
-            .navigationTitle("Game Sync")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
+            .background(primaryBackgroundColor)
+            .overlay(
+                Divider(),
+                alignment: .bottom
+            )
+            
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Status section
+                    VStack(spacing: 12) {
+                        HStack {
+                            Circle()
+                                .fill(syncManager.isOnline ? Color.green : Color.red)
+                                .frame(width: 12, height: 12)
+                            Text(syncManager.isOnline ? "Online" : "Offline")
+                                .font(.headline)
+                        }
+                        
+                        Text("Last sync: \(syncManager.lastSyncText)")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .background(secondaryBackgroundColor)
+                    .cornerRadius(12)
+                    
+                    // Game statistics
+                    if let stats = syncManager.syncStats {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Game Statistics")
+                                .font(.headline)
+                            
+                            VStack(spacing: 8) {
+                                InfoRow(title: "Total Games", value: "\(stats.totalGames)")
+                                InfoRow(title: "Completed Games", value: "\(stats.completedGames)")
+                                InfoRow(title: "Active Games", value: "\(stats.activeGames)")
+                                
+                                if let lastActivity = stats.lastActivity {
+                                    InfoRow(title: "Last Activity", value: formatDate(lastActivity))
+                                }
+                            }
+                        }
+                        .padding()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(secondaryBackgroundColor)
+                        .cornerRadius(12)
+                    }
+                    
+                    // Sync controls
+                    VStack(spacing: 12) {
+                        Button(action: {
+                            syncManager.manualSync()
+                        }) {
+                            HStack {
+                                if syncManager.isSyncing {
+                                    ProgressView()
+                                        .scaleEffect(0.8)
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                } else {
+                                    Image(systemName: "arrow.clockwise")
+                                }
+                                Text("Sync Now")
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(syncManager.isSyncing || !syncManager.isOnline ? Color.gray : Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                        }
+                        .disabled(syncManager.isSyncing || !syncManager.isOnline)
+                        
+                        if let lastError = syncManager.lastError {
+                            Text("Last error: \(lastError)")
+                                .font(.caption)
+                                .foregroundColor(.red)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal)
+                        }
                     }
                 }
+                .padding()
             }
         }
+        .background(groupedBackgroundColor)
+    }
+    
+    // MARK: - Cross-platform colors
+    
+    private var primaryBackgroundColor: Color {
+        #if os(iOS)
+        return Color(.systemBackground)
+        #else
+        return Color(NSColor.windowBackgroundColor)
+        #endif
+    }
+    
+    private var secondaryBackgroundColor: Color {
+        #if os(iOS)
+        return Color(.secondarySystemBackground)
+        #else
+        return Color(NSColor.controlBackgroundColor)
+        #endif
+    }
+    
+    private var groupedBackgroundColor: Color {
+        #if os(iOS)
+        return Color(.systemGroupedBackground)
+        #else
+        return Color(NSColor.windowBackgroundColor)
+        #endif
     }
     
     private func formatDate(_ date: Date) -> String {
