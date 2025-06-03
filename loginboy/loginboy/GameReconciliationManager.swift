@@ -316,64 +316,90 @@ class GameReconciliationManager {
     // MARK: - Individual Game Operations with Detailed Logging
     
     private func downloadGame(gameId: String, token: String, completion: @escaping (Bool, String?) -> Void) {
-        let urlString = "\(authCoordinator.baseURL)/api/games/\(gameId)"
-        print("⬇️ [GameSync] Downloading from: \(urlString)")
-        
-        guard let url = URL(string: urlString) else {
-            let error = "Invalid download URL: \(urlString)"
-            print("❌ [GameSync] \(error)")
-            completion(false, error)
-            return
+            let urlString = "\(authCoordinator.baseURL)/api/games/\(gameId)"
+            print("⬇️ [GameSync] Downloading from: \(urlString)")
+            
+            guard let url = URL(string: urlString) else {
+                let error = "Invalid download URL: \(urlString)"
+                print("❌ [GameSync] \(error)")
+                completion(false, error)
+                return
+            }
+            
+            var request = URLRequest(url: url)
+            request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            request.timeoutInterval = 30.0
+            
+            URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+                if let error = error {
+                    print("❌ [GameSync] Download network error for \(gameId.prefix(8))...: \(error.localizedDescription)")
+                    completion(false, error.localizedDescription)
+                    return
+                }
+                
+                guard let httpResponse = response as? HTTPURLResponse else {
+                    let error = "Invalid response type for download"
+                    print("❌ [GameSync] \(error)")
+                    completion(false, error)
+                    return
+                }
+                
+                print("📥 [GameSync] Download response status: \(httpResponse.statusCode)")
+                
+                guard let data = data else {
+                    let error = "No data in download response"
+                    print("❌ [GameSync] \(error)")
+                    completion(false, error)
+                    return
+                }
+                
+                if httpResponse.statusCode == 200 {
+                    do {
+                        // Debug: Print raw JSON
+                        if let jsonString = String(data: data, encoding: .utf8) {
+                            print("📥 [GameSync] Raw JSON for \(gameId.prefix(8))...: \(String(jsonString.prefix(500)))")
+                        }
+                        
+                        // Use the custom decoder that handles dates properly
+                        let serverGame = try JSONDecoder.apiDecoder.decode(ServerGameData.self, from: data)
+                        print("✅ [GameSync] Successfully decoded game data for \(gameId.prefix(8))...")
+                        print("✅ [GameSync] Start time: \(serverGame.startTime)")
+                        print("✅ [GameSync] Last update: \(serverGame.lastUpdateTime)")
+                        
+                        self?.saveServerGameToLocal(serverGame)
+                        completion(true, nil)
+                    } catch {
+                        let errorMsg = "Failed to parse downloaded game data: \(error.localizedDescription)"
+                        print("❌ [GameSync] \(errorMsg)")
+                        
+                        // Enhanced error logging for debugging
+                        if let decodingError = error as? DecodingError {
+                            switch decodingError {
+                            case .dataCorrupted(let context):
+                                print("❌ [GameSync] Data corrupted: \(context.debugDescription)")
+                            case .keyNotFound(let key, let context):
+                                print("❌ [GameSync] Key '\(key.stringValue)' not found: \(context.debugDescription)")
+                            case .typeMismatch(let type, let context):
+                                print("❌ [GameSync] Type mismatch for \(type): \(context.debugDescription)")
+                            case .valueNotFound(let type, let context):
+                                print("❌ [GameSync] Value not found for \(type): \(context.debugDescription)")
+                            @unknown default:
+                                print("❌ [GameSync] Unknown decoding error")
+                            }
+                        }
+                        
+                        completion(false, errorMsg)
+                    }
+                } else {
+                    var errorMessage = "Download failed with status \(httpResponse.statusCode)"
+                    if let responseString = String(data: data, encoding: .utf8) {
+                        errorMessage += ": \(responseString)"
+                    }
+                    print("❌ [GameSync] \(errorMessage)")
+                    completion(false, errorMessage)
+                }
+            }.resume()
         }
-        
-        var request = URLRequest(url: url)
-        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.timeoutInterval = 30.0
-        
-        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            if let error = error {
-                print("❌ [GameSync] Download network error for \(gameId.prefix(8))...: \(error.localizedDescription)")
-                completion(false, error.localizedDescription)
-                return
-            }
-            
-            guard let httpResponse = response as? HTTPURLResponse else {
-                let error = "Invalid response type for download"
-                print("❌ [GameSync] \(error)")
-                completion(false, error)
-                return
-            }
-            
-            print("📥 [GameSync] Download response status: \(httpResponse.statusCode)")
-            
-            guard let data = data else {
-                let error = "No data in download response"
-                print("❌ [GameSync] \(error)")
-                completion(false, error)
-                return
-            }
-            
-            if httpResponse.statusCode == 200 {
-                do {
-                    let serverGame = try JSONDecoder().decode(ServerGameData.self, from: data)
-                    print("✅ [GameSync] Successfully decoded game data for \(gameId.prefix(8))...")
-                    self?.saveServerGameToLocal(serverGame)
-                    completion(true, nil)
-                } catch {
-                    let errorMsg = "Failed to parse downloaded game data: \(error.localizedDescription)"
-                    print("❌ [GameSync] \(errorMsg)")
-                    completion(false, errorMsg)
-                }
-            } else {
-                var errorMessage = "Download failed with status \(httpResponse.statusCode)"
-                if let responseString = String(data: data, encoding: .utf8) {
-                    errorMessage += ": \(responseString)"
-                }
-                print("❌ [GameSync] \(errorMessage)")
-                completion(false, errorMessage)
-            }
-        }.resume()
-    }
     
     private func uploadGame(gameId: String, token: String, completion: @escaping (Bool, String?) -> Void) {
         print("⬆️ [GameSync] Preparing upload for game \(gameId.prefix(8))...")
@@ -724,11 +750,89 @@ struct ServerGameData: Codable {
     let isDaily: Bool
     let score: Int
     let timeTaken: Int
-    let startTime: Date
-    let lastUpdateTime: Date
+    let startTime: Date        // ✅ Now using Date
+    let lastUpdateTime: Date   // ✅ Now using Date
     let mapping: [String: String]
     let correctMappings: [String: String]
     let guessedMappings: [String: String]
+    
+    // MARK: - Custom Coding (for robust date handling)
+    
+    enum CodingKeys: String, CodingKey {
+        case gameId, userId, encrypted, solution, currentDisplay
+        case mistakes, maxMistakes, hasWon, hasLost, difficulty
+        case isDaily, score, timeTaken, startTime, lastUpdateTime
+        case mapping, correctMappings, guessedMappings
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        // Decode all the regular fields
+        gameId = try container.decode(String.self, forKey: .gameId)
+        userId = try container.decode(String.self, forKey: .userId)
+        encrypted = try container.decode(String.self, forKey: .encrypted)
+        solution = try container.decode(String.self, forKey: .solution)
+        currentDisplay = try container.decode(String.self, forKey: .currentDisplay)
+        mistakes = try container.decode(Int.self, forKey: .mistakes)
+        maxMistakes = try container.decode(Int.self, forKey: .maxMistakes)
+        hasWon = try container.decode(Bool.self, forKey: .hasWon)
+        hasLost = try container.decode(Bool.self, forKey: .hasLost)
+        difficulty = try container.decode(String.self, forKey: .difficulty)
+        isDaily = try container.decode(Bool.self, forKey: .isDaily)
+        score = try container.decode(Int.self, forKey: .score)
+        timeTaken = try container.decode(Int.self, forKey: .timeTaken)
+        mapping = try container.decode([String: String].self, forKey: .mapping)
+        correctMappings = try container.decode([String: String].self, forKey: .correctMappings)
+        guessedMappings = try container.decode([String: String].self, forKey: .guessedMappings)
+        
+        // Custom date decoding with detailed error handling
+        let startTimeString = try container.decode(String.self, forKey: .startTime)
+        guard let parsedStartTime = APIDateFormatter.shared.date(from: startTimeString) else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .startTime,
+                in: container,
+                debugDescription: "Cannot decode startTime from: '\(startTimeString)'"
+            )
+        }
+        startTime = parsedStartTime
+        
+        let lastUpdateString = try container.decode(String.self, forKey: .lastUpdateTime)
+        guard let parsedUpdateTime = APIDateFormatter.shared.date(from: lastUpdateString) else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .lastUpdateTime,
+                in: container,
+                debugDescription: "Cannot decode lastUpdateTime from: '\(lastUpdateString)'"
+            )
+        }
+        lastUpdateTime = parsedUpdateTime
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        // Encode all regular fields
+        try container.encode(gameId, forKey: .gameId)
+        try container.encode(userId, forKey: .userId)
+        try container.encode(encrypted, forKey: .encrypted)
+        try container.encode(solution, forKey: .solution)
+        try container.encode(currentDisplay, forKey: .currentDisplay)
+        try container.encode(mistakes, forKey: .mistakes)
+        try container.encode(maxMistakes, forKey: .maxMistakes)
+        try container.encode(hasWon, forKey: .hasWon)
+        try container.encode(hasLost, forKey: .hasLost)
+        try container.encode(difficulty, forKey: .difficulty)
+        try container.encode(isDaily, forKey: .isDaily)
+        try container.encode(score, forKey: .score)
+        try container.encode(timeTaken, forKey: .timeTaken)
+        try container.encode(mapping, forKey: .mapping)
+        try container.encode(correctMappings, forKey: .correctMappings)
+        try container.encode(guessedMappings, forKey: .guessedMappings)
+        
+        // Custom date encoding
+        try container.encode(APIDateFormatter.shared.string(from: startTime), forKey: .startTime)
+        try container.encode(APIDateFormatter.shared.string(from: lastUpdateTime), forKey: .lastUpdateTime)
+    }
 }
 
 extension GameReconciliationManager {
@@ -1078,3 +1182,5 @@ extension SmartSyncMonitor.ConnectionStatus: CustomStringConvertible {
         }
     }
 }
+
+
