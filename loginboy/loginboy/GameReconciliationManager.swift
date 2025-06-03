@@ -1,5 +1,6 @@
 import Foundation
 import CoreData
+import SwiftUI
 
 // MARK: - Game Reconciliation Manager
 class GameReconciliationManager {
@@ -518,6 +519,351 @@ struct ServerGameData: Codable {
     let guessedMappings: [String: String]
 }
 
+
+extension GameReconciliationManager {
+    
+    /// Enhanced reconciliation with intelligent timing
+    func smartReconcileGames(trigger: ReconciliationTrigger, completion: @escaping (Bool, String?) -> Void) {
+        guard let token = authCoordinator.getAccessToken() else {
+            completion(false, "Authentication required")
+            return
+        }
+        
+        let strategy = determineReconciliationStrategy(for: trigger)
+        
+        switch strategy {
+        case .skip(let reason):
+            print("🔄 Skipping reconciliation: \(reason)")
+            completion(true, nil)
+            
+        case .incremental:
+            performIncrementalReconciliation(token: token, completion: completion)
+            
+        case .full:
+            performFullReconciliation(token: token, completion: completion)
+            
+        case .deferred(let delay):
+            print("🔄 Deferring reconciliation for \(delay) seconds")
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                self.performIncrementalReconciliation(token: token, completion: completion)
+            }
+        }
+    }
+    
+    private func determineReconciliationStrategy(for trigger: ReconciliationTrigger) -> ReconciliationStrategy {
+        let lastSyncKey = "lastGameSyncTimestamp"
+        let lastFullSyncKey = "lastFullGameSync"
+        let appLaunchCountKey = "appLaunchCount"
+        
+        let lastSync = UserDefaults.standard.object(forKey: lastSyncKey) as? Date
+        let lastFullSync = UserDefaults.standard.object(forKey: lastFullSyncKey) as? Date
+        let launchCount = UserDefaults.standard.integer(forKey: appLaunchCountKey)
+        
+        let now = Date()
+        
+        switch trigger {
+        case .appLaunch:
+            // Increment launch count
+            UserDefaults.standard.set(launchCount + 1, forKey: appLaunchCountKey)
+            
+            // Full sync on first launch or every 10th launch
+            if lastFullSync == nil || launchCount % 10 == 0 {
+                return .full
+            }
+            
+            // Skip if synced recently (within 30 minutes)
+            if let lastSync = lastSync, now.timeIntervalSince(lastSync) < 1800 {
+                return .skip("Recently synced")
+            }
+            
+            // Defer sync for 3 seconds to let UI settle
+            return .deferred(3.0)
+            
+        case .userLogin:
+            // Always sync on login, but defer to let auth complete
+            if let lastSync = lastSync, now.timeIntervalSince(lastSync) < 300 {
+                return .deferred(2.0) // Short delay if recent sync
+            } else {
+                return .deferred(5.0) // Longer delay for full sync
+            }
+            
+        case .gameCompletion:
+            // Quick incremental sync after game completion
+            if let lastSync = lastSync, now.timeIntervalSince(lastSync) < 60 {
+                return .skip("Very recent sync")
+            }
+            return .incremental
+            
+        case .manual:
+            // Always honor manual sync requests
+            if let lastSync = lastSync, now.timeIntervalSince(lastSync) < 60 {
+                return .incremental
+            } else {
+                return .full
+            }
+            
+        case .background:
+            // Background sync only if it's been a while
+            if let lastSync = lastSync, now.timeIntervalSince(lastSync) < 3600 {
+                return .skip("Recent background sync")
+            }
+            return .incremental
+        }
+    }
+    
+    private func performFullReconciliation(token: String, completion: @escaping (Bool, String?) -> Void) {
+        print("🔄 Starting FULL game reconciliation...")
+        
+        fullReconciliation(token: token) { [weak self] success, error in
+            if success {
+                UserDefaults.standard.set(Date(), forKey: "lastFullGameSync")
+                print("✅ Full reconciliation completed")
+            }
+            completion(success, error)
+        }
+    }
+    
+    private func performIncrementalReconciliation(token: String, completion: @escaping (Bool, String?) -> Void) {
+        let lastSyncKey = "lastGameSyncTimestamp"
+        let lastSync = UserDefaults.standard.object(forKey: lastSyncKey) as? Date ?? Date.distantPast
+        
+        print("🔄 Starting INCREMENTAL game reconciliation since \(lastSync)...")
+        
+        incrementalReconciliation(since: lastSync, token: token, completion: completion)
+    }
+}
+
+// MARK: - Reconciliation Types
+
+enum ReconciliationTrigger {
+    case appLaunch
+    case userLogin
+    case gameCompletion
+    case manual
+    case background
+}
+
+enum ReconciliationStrategy {
+    case skip(String)
+    case incremental
+    case full
+    case deferred(TimeInterval)
+}
+
+// MARK: - Background Sync Manager
+
+class BackgroundSyncManager {
+    static let shared = BackgroundSyncManager()
+    
+    private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
+    private let syncInterval: TimeInterval = 300 // 5 minutes
+    
+    func startBackgroundSync() {
+        #if os(iOS)
+        // Register for background app refresh
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appDidEnterBackground),
+            name: UIApplication.didEnterBackgroundNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(appWillEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+        #endif
+    }
+    
+    #if os(iOS)
+    @objc private func appDidEnterBackground() {
+        backgroundTask = UIApplication.shared.beginBackgroundTask { [weak self] in
+            self?.endBackgroundTask()
+        }
+        
+        // Perform a quick sync before going to background
+        GameReconciliationManager.shared.smartReconcileGames(trigger: .background) { [weak self] _, _ in
+            self?.endBackgroundTask()
+        }
+    }
+    
+    @objc private func appWillEnterForeground() {
+        endBackgroundTask()
+        
+        // Sync when coming back to foreground
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            GameReconciliationManager.shared.smartReconcileGames(trigger: .appLaunch) { _, _ in
+                // Update UI if needed
+            }
+        }
+    }
+    
+    private func endBackgroundTask() {
+        if backgroundTask != .invalid {
+            UIApplication.shared.endBackgroundTask(backgroundTask)
+            backgroundTask = .invalid
+        }
+    }
+    #endif
+}
+
+// MARK: - Smart Sync Status Indicator
+
+struct SmartSyncStatusView: View {
+    @StateObject private var syncMonitor = SmartSyncMonitor()
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            // Connection status
+            Circle()
+                .fill(syncMonitor.connectionStatus.color)
+                .frame(width: 8, height: 8)
+            
+            // Sync status text
+            Text(syncMonitor.statusText)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            // Progress indicator when syncing
+            if syncMonitor.isSyncing {
+                ProgressView()
+                    .scaleEffect(0.7)
+                    .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(Color.secondary.opacity(0.1))
+        .cornerRadius(12)
+        .onTapGesture {
+            syncMonitor.showDetails = true
+        }
+        .sheet(isPresented: $syncMonitor.showDetails) {
+            SyncDetailsView(monitor: syncMonitor)
+        }
+    }
+}
+
+class SmartSyncMonitor: ObservableObject {
+    @Published var isSyncing = false
+    @Published var connectionStatus: ConnectionStatus = .unknown
+    @Published var lastSyncDate: Date?
+    @Published var showDetails = false
+    @Published var syncProgress: Double = 0.0
+    
+    enum ConnectionStatus {
+        case online, offline, syncing, unknown
+        
+        var color: Color {
+            switch self {
+            case .online: return .green
+            case .offline: return .red
+            case .syncing: return .blue
+            case .unknown: return .gray
+            }
+        }
+    }
+    
+    var statusText: String {
+        if isSyncing {
+            return "Syncing..."
+        } else if let lastSync = lastSyncDate {
+            let formatter = RelativeDateTimeFormatter()
+            return formatter.localizedString(for: lastSync, relativeTo: Date())
+        } else {
+            return "Never synced"
+        }
+    }
+    
+    init() {
+        loadLastSyncDate()
+        checkConnectionStatus()
+    }
+    
+    private func loadLastSyncDate() {
+        lastSyncDate = UserDefaults.standard.object(forKey: "lastGameSyncTimestamp") as? Date
+    }
+    
+    private func checkConnectionStatus() {
+        // Simple connectivity check
+        connectionStatus = .unknown
+        // Implement actual connectivity check here
+    }
+}
+
+struct SyncDetailsView: View {
+    @ObservedObject var monitor: SmartSyncMonitor
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                Text("Sync Details")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                Spacer()
+                Button("Done") { dismiss() }
+            }
+            .padding()
+            
+            // Content
+            ScrollView {
+                VStack(spacing: 16) {
+                    // Manual sync button
+                    Button(action: {
+                        GameReconciliationManager.shared.smartReconcileGames(trigger: .manual) { _, _ in
+                            monitor.loadLastSyncDate()
+                        }
+                    }) {
+                        HStack {
+                            Image(systemName: "arrow.clockwise")
+                            Text("Sync Now")
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
+                    }
+                    .disabled(monitor.isSyncing)
+                    
+                    // Sync statistics
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Sync Statistics")
+                            .font(.headline)
+                        
+                        if let lastSync = monitor.lastSyncDate {
+                            Text("Last sync: \(lastSync, style: .relative)")
+                        } else {
+                            Text("Never synced")
+                        }
+                        
+                        Text("Connection: \(monitor.connectionStatus)")
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding()
+                    .background(Color.secondary.opacity(0.1))
+                    .cornerRadius(10)
+                }
+                .padding()
+            }
+        }
+    }
+}
+
+extension SmartSyncMonitor.ConnectionStatus: CustomStringConvertible {
+    var description: String {
+        switch self {
+        case .online: return "Online"
+        case .offline: return "Offline"
+        case .syncing: return "Syncing"
+        case .unknown: return "Unknown"
+        }
+    }
+}
 //
 //  GameReconciliationManager.swift
 //  loginboy
