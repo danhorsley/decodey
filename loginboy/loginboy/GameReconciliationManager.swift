@@ -112,7 +112,7 @@ class GameReconciliationManager {
         request.httpMethod = "POST"
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.timeoutInterval = 30.0
+        request.timeoutInterval = 120.0 // Increased timeout for large datasets
         
         let requestBody = ReconciliationRequest(
             type: type,
@@ -122,27 +122,22 @@ class GameReconciliationManager {
             localChanges: localChanges
         )
         
-        print("📤 [GameSync] Request body:")
+        print("📤 [GameSync] Request details:")
         print("   - Type: \(type)")
         print("   - User ID: \(UserState.shared.userId)")
         if let summary = localSummary {
-            print("   - Local games: \(summary.totalGames)")
+            print("   - Local games: \(summary.totalGames) (completed: \(summary.completedGames))")
         }
         if let changes = localChanges {
             print("   - Local changes: \(changes.count)")
+        }
+        if let timestamp = sinceTimestamp {
+            print("   - Since: \(timestamp)")
         }
         
         do {
             let jsonData = try JSONEncoder().encode(requestBody)
             request.httpBody = jsonData
-            
-            if let jsonString = String(data: jsonData, encoding: .utf8) {
-                print("📤 [GameSync] Request JSON (first 500 chars):")
-                print("   \(String(jsonString.prefix(500)))")
-                if jsonString.count > 500 {
-                    print("   ... (truncated)")
-                }
-            }
         } catch {
             print("❌ [GameSync] Failed to encode request: \(error.localizedDescription)")
             completion(.failure(error))
@@ -154,10 +149,6 @@ class GameReconciliationManager {
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 print("❌ [GameSync] Network error: \(error.localizedDescription)")
-                if let nsError = error as NSError? {
-                    print("❌ [GameSync] Error details: Domain=\(nsError.domain), Code=\(nsError.code)")
-                    print("❌ [GameSync] User info: \(nsError.userInfo)")
-                }
                 completion(.failure(error))
                 return
             }
@@ -169,25 +160,13 @@ class GameReconciliationManager {
                 return
             }
             
-            print("📥 [GameSync] Response received:")
-            print("   - Status Code: \(httpResponse.statusCode)")
-            print("   - Headers: \(httpResponse.allHeaderFields)")
+            print("📥 [GameSync] Response status: \(httpResponse.statusCode)")
             
             guard let data = data else {
                 let error = NSError(domain: "GameSync", code: -1, userInfo: [NSLocalizedDescriptionKey: "No response data"])
                 print("❌ [GameSync] No response data")
                 completion(.failure(error))
                 return
-            }
-            
-            print("📥 [GameSync] Response data length: \(data.count) bytes")
-            
-            if let responseString = String(data: data, encoding: .utf8) {
-                print("📥 [GameSync] Response body (first 1000 chars):")
-                print("   \(String(responseString.prefix(1000)))")
-                if responseString.count > 1000 {
-                    print("   ... (truncated)")
-                }
             }
             
             if httpResponse.statusCode == 200 {
@@ -197,27 +176,19 @@ class GameReconciliationManager {
                     completion(.success(plan))
                 } catch {
                     print("❌ [GameSync] Failed to decode response: \(error.localizedDescription)")
-                    if let decodingError = error as? DecodingError {
-                        print("❌ [GameSync] Decoding error details: \(decodingError)")
-                    }
                     completion(.failure(error))
                 }
             } else {
-                // Parse error response
+                // Enhanced error handling
                 var errorMessage = "Server returned status \(httpResponse.statusCode)"
                 
                 if let responseString = String(data: data, encoding: .utf8) {
-                    // Try to parse as JSON error
                     if let errorData = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
                         if let message = errorData["message"] as? String {
                             errorMessage += ": \(message)"
                         } else if let error = errorData["error"] as? String {
                             errorMessage += ": \(error)"
-                        } else {
-                            errorMessage += ": \(responseString)"
                         }
-                    } else {
-                        errorMessage += ": \(responseString)"
                     }
                 }
                 
@@ -537,17 +508,28 @@ class GameReconciliationManager {
         let localChanges = getLocalChanges(since: since)
         print("📊 [GameSync] Found \(localChanges.count) local changes since last sync")
         
+        // IMPORTANT: Also get a summary of ALL local games to detect missing ones
+        let localSummary = getLocalGamesSummary()
+        print("📊 [GameSync] Local summary: \(localSummary.totalGames) total games")
+        
+        // Send both changes and summary for comprehensive incremental sync
         sendReconciliationRequest(
-            type: "incremental",
-            localSummary: nil,
-            localChanges: localChanges,
+            type: "incremental_enhanced", // Use enhanced type
+            localSummary: localSummary,   // Include full summary
+            localChanges: localChanges,   // Include changes since date
             sinceTimestamp: since,
             token: token
         ) { [weak self] result in
             switch result {
             case .success(let plan):
+                print("✅ [GameSync] Enhanced incremental plan received:")
+                print("   - Downloads (missing/updated): \(plan.downloadFromServer.count)")
+                print("   - Uploads (new/changed): \(plan.uploadToServer.count)")
+                print("   - Conflicts: \(plan.conflicts.count)")
+                
                 self?.executeReconciliationPlan(plan, token: token, completion: completion)
             case .failure(let error):
+                print("❌ [GameSync] Enhanced incremental sync failed: \(error.localizedDescription)")
                 completion(false, error.localizedDescription)
             }
         }
@@ -564,6 +546,7 @@ class GameReconciliationManager {
         
         do {
             let games = try context.fetch(fetchRequest)
+            print("📊 [GameSync] Processing \(games.count) local games for summary")
             
             let summaries = games.compactMap { game -> GameSummary? in
                 guard let gameId = game.gameId?.uuidString,
@@ -573,15 +556,23 @@ class GameReconciliationManager {
                     gameId: gameId,
                     lastModified: lastUpdate,
                     isCompleted: game.hasWon || game.hasLost,
-                    score: game.hasWon || game.hasLost ? Int(game.score) : nil,
+                    score: (game.hasWon || game.hasLost) ? Int(game.score) : nil,
                     checksum: generateGameChecksum(game)
                 )
             }
             
+            let completedGames = summaries.filter { $0.isCompleted }.count
+            let lastModified = summaries.map { $0.lastModified }.max()
+            
+            print("📊 [GameSync] Summary: \(summaries.count) total, \(completedGames) completed")
+            if let lastMod = lastModified {
+                print("📊 [GameSync] Most recent modification: \(lastMod)")
+            }
+            
             return LocalGamesSummary(
                 totalGames: summaries.count,
-                completedGames: summaries.filter { $0.isCompleted }.count,
-                lastModified: summaries.map { $0.lastModified }.max(),
+                completedGames: completedGames,
+                lastModified: lastModified,
                 games: summaries
             )
         } catch {
@@ -599,16 +590,19 @@ class GameReconciliationManager {
         
         do {
             let games = try context.fetch(fetchRequest)
+            print("📊 [GameSync] Found \(games.count) games modified since \(since)")
             
             return games.compactMap { game -> GameChange? in
                 guard let gameId = game.gameId?.uuidString,
                       let lastUpdate = game.lastUpdateTime else { return nil }
                 
+                let changeType = determineChangeType(game, since: since)
+                
                 return GameChange(
                     gameId: gameId,
-                    changeType: determineChangeType(game, since: since),
+                    changeType: changeType,
                     lastModified: lastUpdate,
-                    data: game.hasWon || game.hasLost ? convertToGameData(game) : nil
+                    data: (game.hasWon || game.hasLost) ? convertToGameData(game) : nil
                 )
             }
         } catch {
@@ -680,21 +674,173 @@ class GameReconciliationManager {
     }
     
     private func extractUUID(from gameId: String) -> UUID? {
-        let actualUUIDString: String
+        print("🔍 [GameSync] Extracting UUID from: '\(gameId)'")
         
-        if gameId.hasPrefix("easy-") {
-            actualUUIDString = String(gameId.dropFirst(5)) // Remove "easy-"
-        } else if gameId.hasPrefix("medium-") {
-            actualUUIDString = String(gameId.dropFirst(7)) // Remove "medium-"
-        } else if gameId.hasPrefix("hard-") {
-            actualUUIDString = String(gameId.dropFirst(5)) // Remove "hard-"
-        } else if gameId.hasPrefix("daily-") {
-            actualUUIDString = String(gameId.dropFirst(6)) // Remove "daily-"
-        } else {
-            actualUUIDString = gameId
+        // Handle daily games with date format: easy-daily-2025-04-19-[UUID]
+        if gameId.contains("-daily-") {
+            return extractUUIDFromDaily(gameId: gameId)
         }
         
-        return UUID(uuidString: actualUUIDString)
+        // Handle hardcore games: difficulty-hardcore-[UUID]
+        if gameId.contains("-hardcore-") {
+            return extractUUIDFromHardcore(gameId: gameId)
+        }
+        
+        // Handle regular difficulty games: difficulty-[UUID]
+        let knownDifficultyPrefixes = ["easy-", "medium-", "hard-", "daily-", "hardcore-"]
+        
+        for prefix in knownDifficultyPrefixes {
+            if gameId.hasPrefix(prefix) {
+                let cleanGameId = String(gameId.dropFirst(prefix.count))
+                return validateAndCreateUUID(cleanGameId, originalGameId: gameId)
+            }
+        }
+        
+        // Try as pure UUID (no prefix)
+        return validateAndCreateUUID(gameId, originalGameId: gameId)
+    }
+
+    private func extractUUIDFromDaily(gameId: String) -> UUID? {
+        // Format: easy-daily-2025-04-19-[UUID] or daily-2025-04-19-[UUID]
+        
+        let dailyPattern = #"-daily-\d{4}-\d{2}-\d{2}-(.+)$"#
+        
+        guard let regex = try? NSRegularExpression(pattern: dailyPattern),
+              let match = regex.firstMatch(in: gameId, options: [], range: NSRange(location: 0, length: gameId.count)),
+              match.numberOfRanges > 1 else {
+            print("❌ [GameSync] Could not match daily pattern in: '\(gameId)'")
+            return nil
+        }
+        
+        let uuidRange = match.range(at: 1)
+        guard let swiftRange = Range(uuidRange, in: gameId) else {
+            print("❌ [GameSync] Could not extract UUID range from daily game: '\(gameId)'")
+            return nil
+        }
+        
+        let extractedUUID = String(gameId[swiftRange])
+        print("🔍 [GameSync] Extracted UUID from daily: '\(extractedUUID)'")
+        
+        return validateAndCreateUUID(extractedUUID, originalGameId: gameId)
+    }
+
+    private func extractUUIDFromHardcore(gameId: String) -> UUID? {
+        // Format: difficulty-hardcore-[UUID]
+        
+        let hardcorePattern = #"^(easy|medium|hard)-hardcore-(.+)$"#
+        
+        guard let regex = try? NSRegularExpression(pattern: hardcorePattern),
+              let match = regex.firstMatch(in: gameId, options: [], range: NSRange(location: 0, length: gameId.count)),
+              match.numberOfRanges > 2 else {
+            print("❌ [GameSync] Could not match hardcore pattern in: '\(gameId)'")
+            return nil
+        }
+        
+        let uuidRange = match.range(at: 2)
+        guard let swiftRange = Range(uuidRange, in: gameId) else {
+            print("❌ [GameSync] Could not extract UUID range from hardcore game: '\(gameId)'")
+            return nil
+        }
+        
+        let extractedUUID = String(gameId[swiftRange])
+        print("🔍 [GameSync] Extracted UUID from hardcore: '\(extractedUUID)'")
+        
+        return validateAndCreateUUID(extractedUUID, originalGameId: gameId)
+    }
+
+    private func validateAndCreateUUID(_ uuidString: String, originalGameId: String) -> UUID? {
+        // Validate that it looks like a UUID
+        // UUIDs are 36 characters with specific format: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+        guard uuidString.count == 36,
+              uuidString.filter({ $0 == "-" }).count == 4 else {
+            print("❌ [GameSync] Invalid UUID format: '\(uuidString)' from original: '\(originalGameId)'")
+            return nil
+        }
+        
+        // Try to create UUID
+        guard let uuid = UUID(uuidString: uuidString) else {
+            print("❌ [GameSync] Failed to create UUID from: '\(uuidString)' (original: '\(originalGameId)')")
+            return nil
+        }
+        
+        print("✅ [GameSync] Successfully extracted UUID \(uuidString) from game ID: \(originalGameId)")
+        return uuid
+    }
+
+    // Alternative approach using regex (more robust but slightly more complex)
+    private func extractUUIDWithRegex(from gameId: String) -> UUID? {
+        // UUID pattern: 8-4-4-4-12 hexadecimal characters
+        let uuidPattern = #"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"#
+        
+        guard let regex = try? NSRegularExpression(pattern: uuidPattern),
+              let match = regex.firstMatch(in: gameId, options: [], range: NSRange(location: 0, length: gameId.count)) else {
+            print("❌ [GameSync] No UUID found in game ID: '\(gameId)'")
+            return nil
+        }
+        
+        let uuidString = String(gameId[Range(match.range, in: gameId)!])
+        
+        guard let uuid = UUID(uuidString: uuidString) else {
+            print("❌ [GameSync] Invalid UUID format: '\(uuidString)' from game ID: '\(gameId)'")
+            return nil
+        }
+        
+        print("✅ [GameSync] Successfully extracted UUID \(uuidString) from game ID: \(gameId)")
+        return uuid
+    }
+
+    // Helper function to reconstruct game ID with proper prefixes (useful for consistency)
+    private func constructGameId(uuid: UUID, difficulty: String? = nil, isDaily: Bool = false, isHardcore: Bool = false) -> String {
+        let uuidString = uuid.uuidString
+        
+        var prefix = ""
+        
+        if isDaily {
+            // Daily games are always easy according to your comment
+            prefix = "easy-daily-"
+        } else if isHardcore {
+            let difficultyPrefix = difficulty?.lowercased() ?? "medium"
+            prefix = "\(difficultyPrefix)-hardcore-"
+        } else if let difficulty = difficulty {
+            prefix = "\(difficulty.lowercased())-"
+        }
+        
+        return prefix + uuidString
+    }
+
+    // Test function to validate the extraction logic (for debugging)
+    private func testUUIDExtraction() {
+        let testCases = [
+            // Daily games with dates
+            "easy-daily-2025-04-19-550e8400-e29b-41d4-a716-446655440000",
+            "daily-2025-12-25-550e8400-e29b-41d4-a716-446655440001",
+            
+            // Hardcore games
+            "easy-hardcore-550e8400-e29b-41d4-a716-446655440002",
+            "medium-hardcore-550e8400-e29b-41d4-a716-446655440003",
+            "hard-hardcore-550e8400-e29b-41d4-a716-446655440004",
+            
+            // Regular difficulty games
+            "easy-550e8400-e29b-41d4-a716-446655440005",
+            "medium-550e8400-e29b-41d4-a716-446655440006",
+            "hard-550e8400-e29b-41d4-a716-446655440007",
+            
+            // Legacy formats
+            "daily-550e8400-e29b-41d4-a716-446655440008",
+            "hardcore-550e8400-e29b-41d4-a716-446655440009",
+            
+            // Pure UUID (no prefix)
+            "550e8400-e29b-41d4-a716-446655440010"
+        ]
+        
+        print("🧪 [GameSync] Testing UUID extraction:")
+        for testCase in testCases {
+            if let extracted = extractUUID(from: testCase) {
+                print("   ✅ '\(testCase)' -> \(extracted.uuidString)")
+            } else {
+                print("   ❌ '\(testCase)' -> FAILED")
+            }
+        }
     }
     
     private func saveServerGameToLocal(_ serverGame: ServerGameData) {
