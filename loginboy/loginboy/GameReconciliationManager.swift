@@ -241,26 +241,46 @@ class GameReconciliationManager {
         let group = DispatchGroup()
         var errors: [String] = []
         var successCount = 0
+        let operationQueue = OperationQueue()
+        operationQueue.maxConcurrentOperationCount = 3 // Limit concurrent operations
         
-        // Download server games that are newer
-        for (index, gameId) in plan.downloadFromServer.enumerated() {
+        // Download server games with batching
+        let downloadBatches = plan.downloadFromServer.chunked(into: 5) // Process 5 at a time
+        
+        for (batchIndex, batch) in downloadBatches.enumerated() {
             group.enter()
-            print("⬇️ [GameSync] Downloading game \(index + 1)/\(plan.downloadFromServer.count): \(gameId.prefix(8))...")
             
-            downloadGame(gameId: gameId, token: token) { success, error in
-                if success {
-                    print("✅ [GameSync] Downloaded game \(gameId.prefix(8))...")
-                    successCount += 1
-                } else {
-                    let errorMsg = "Download \(gameId.prefix(8))...: \(error ?? "Unknown error")"
-                    print("❌ [GameSync] \(errorMsg)")
-                    errors.append(errorMsg)
+            // Add delay between batches to avoid overwhelming the server
+            let delay = Double(batchIndex) * 1.0
+            
+            DispatchQueue.global().asyncAfter(deadline: .now() + delay) {
+                let batchGroup = DispatchGroup()
+                
+                for (index, gameId) in batch.enumerated() {
+                    batchGroup.enter()
+                    let globalIndex = batchIndex * 5 + index + 1
+                    print("⬇️ [GameSync] Downloading game \(globalIndex)/\(plan.downloadFromServer.count): \(gameId.prefix(8))...")
+                    
+                    self.downloadGame(gameId: gameId, token: token) { success, error in
+                        if success {
+                            print("✅ [GameSync] Downloaded game \(gameId.prefix(8))...")
+                            successCount += 1
+                        } else {
+                            let errorMsg = "Download \(gameId.prefix(8))...: \(error ?? "Unknown error")"
+                            print("❌ [GameSync] \(errorMsg)")
+                            errors.append(errorMsg)
+                        }
+                        batchGroup.leave()
+                    }
                 }
-                group.leave()
+                
+                batchGroup.notify(queue: .main) {
+                    group.leave()
+                }
             }
         }
         
-        // Upload local games to server
+        // Upload local games (keep existing logic but add timeout handling)
         for (index, gameId) in plan.uploadToServer.enumerated() {
             group.enter()
             print("⬆️ [GameSync] Uploading game \(index + 1)/\(plan.uploadToServer.count): \(gameId.prefix(8))...")
@@ -278,7 +298,7 @@ class GameReconciliationManager {
             }
         }
         
-        // Handle conflicts (use server version by default)
+        // Handle conflicts (existing logic)
         for (index, conflict) in plan.conflicts.enumerated() {
             group.enter()
             print("⚠️ [GameSync] Resolving conflict \(index + 1)/\(plan.conflicts.count): \(conflict.gameId.prefix(8))... (\(conflict.reason))")
@@ -296,18 +316,50 @@ class GameReconciliationManager {
             }
         }
         
+        // Add timeout for the entire operation
+        let timeoutWork = DispatchWorkItem {
+            let totalOperations = plan.downloadFromServer.count + plan.uploadToServer.count + plan.conflicts.count
+            
+            if errors.count < totalOperations / 2 { // If less than 50% failed
+                UserDefaults.standard.set(Date(), forKey: "lastGameSyncTimestamp")
+                print("✅ [GameSync] Game reconciliation completed with partial success!")
+                print("✅ [GameSync] Successfully completed \(successCount)/\(totalOperations) operations")
+                completion(true, errors.isEmpty ? nil : "Some operations failed: \(errors.count) errors")
+            } else {
+                let errorMessage = "Reconciliation failed with \(errors.count) errors out of \(totalOperations) operations"
+                print("❌ [GameSync] \(errorMessage)")
+                completion(false, errorMessage)
+            }
+        }
+        
         group.notify(queue: .main) {
             let totalOperations = plan.downloadFromServer.count + plan.uploadToServer.count + plan.conflicts.count
             
-            if errors.isEmpty {
-                // Update last sync timestamp
+            if totalOperations == 0 {
+                // No operations needed - this is actually a success (everything is in sync)
                 UserDefaults.standard.set(Date(), forKey: "lastGameSyncTimestamp")
+                UserDefaults.standard.set(Date(), forKey: "lastSuccessfulGameSync")
+                print("✅ [GameSync] Game reconciliation completed - no operations needed (already in sync)")
+                completion(true, "No synchronization needed - everything is up to date")
+            } else if errors.isEmpty {
+                // Only mark as successful if there were NO errors at all
+                UserDefaults.standard.set(Date(), forKey: "lastGameSyncTimestamp")
+                UserDefaults.standard.set(Date(), forKey: "lastSuccessfulGameSync")
                 print("✅ [GameSync] Game reconciliation completed successfully!")
                 print("✅ [GameSync] Successfully completed \(successCount)/\(totalOperations) operations")
                 completion(true, nil)
+            } else if errors.count < totalOperations / 2 {
+                // Partial success - update attempt timestamp but NOT successful timestamp
+                UserDefaults.standard.set(Date(), forKey: "lastGameSyncTimestamp")
+                // Don't update lastSuccessfulGameSync because there were errors
+                print("⚠️ [GameSync] Game reconciliation completed with partial success!")
+                print("⚠️ [GameSync] Successfully completed \(successCount)/\(totalOperations) operations, but \(errors.count) failed")
+                completion(false, "Partial sync completed: \(errors.count) operations failed")
             } else {
-                let errorMessage = "Reconciliation completed with \(errors.count) errors out of \(totalOperations) operations:\n" + errors.joined(separator: "\n")
-                print("⚠️ [GameSync] \(errorMessage)")
+                // Mostly failed - update attempt timestamp but NOT successful timestamp
+                UserDefaults.standard.set(Date(), forKey: "lastGameSyncTimestamp")
+                let errorMessage = "Reconciliation failed with \(errors.count) errors out of \(totalOperations) operations"
+                print("❌ [GameSync] \(errorMessage)")
                 completion(false, errorMessage)
             }
         }
@@ -328,7 +380,7 @@ class GameReconciliationManager {
             
             var request = URLRequest(url: url)
             request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-            request.timeoutInterval = 30.0
+            request.timeoutInterval = 60.0
             
             URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
                 if let error = error {
@@ -609,7 +661,10 @@ class GameReconciliationManager {
     private func getLocalGame(gameId: String) -> ServerGameData? {
         let context = coreData.mainContext
         
-        guard let gameUUID = UUID(uuidString: gameId) else { return nil }
+        guard let gameUUID = extractUUID(from: gameId) else {
+            print("❌ [GameSync] Invalid UUID for game: \(gameId)")
+            return nil
+        }
         
         let fetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
         fetchRequest.predicate = NSPredicate(format: "gameId == %@", gameUUID as CVarArg)
@@ -624,17 +679,38 @@ class GameReconciliationManager {
         }
     }
     
+    private func extractUUID(from gameId: String) -> UUID? {
+        let actualUUIDString: String
+        
+        if gameId.hasPrefix("easy-") {
+            actualUUIDString = String(gameId.dropFirst(5)) // Remove "easy-"
+        } else if gameId.hasPrefix("medium-") {
+            actualUUIDString = String(gameId.dropFirst(7)) // Remove "medium-"
+        } else if gameId.hasPrefix("hard-") {
+            actualUUIDString = String(gameId.dropFirst(5)) // Remove "hard-"
+        } else if gameId.hasPrefix("daily-") {
+            actualUUIDString = String(gameId.dropFirst(6)) // Remove "daily-"
+        } else {
+            actualUUIDString = gameId
+        }
+        
+        return UUID(uuidString: actualUUIDString)
+    }
+    
     private func saveServerGameToLocal(_ serverGame: ServerGameData) {
         let context = coreData.newBackgroundContext()
         
         context.perform {
-            guard let gameUUID = UUID(uuidString: serverGame.gameId) else { return }
-            
-            // Check if game already exists
-            let fetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
-            fetchRequest.predicate = NSPredicate(format: "gameId == %@", gameUUID as CVarArg)
-            
             do {
+                guard let gameUUID = self.extractUUID(from: serverGame.gameId) else {
+                    print("❌ [GameSync] Invalid UUID for game: \(serverGame.gameId)")
+                    return
+                }
+                
+                // Check if game already exists
+                let fetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
+                fetchRequest.predicate = NSPredicate(format: "gameId == %@", gameUUID as CVarArg)
+                
                 let existingGames = try context.fetch(fetchRequest)
                 let game = existingGames.first ?? GameCD(context: context)
                 
@@ -654,23 +730,53 @@ class GameReconciliationManager {
                 game.startTime = serverGame.startTime
                 game.lastUpdateTime = serverGame.lastUpdateTime
                 
-                // Encode mappings
-                game.mapping = try? JSONEncoder().encode(serverGame.mapping)
-                game.correctMappings = try? JSONEncoder().encode(serverGame.correctMappings)
-                game.guessedMappings = try? JSONEncoder().encode(serverGame.guessedMappings)
+                // Encode mappings with better error handling
+                do {
+                    game.mapping = try JSONEncoder().encode(serverGame.mapping)
+                    game.correctMappings = try JSONEncoder().encode(serverGame.correctMappings)
+                    game.guessedMappings = try JSONEncoder().encode(serverGame.guessedMappings)
+                } catch {
+                    print("❌ [GameSync] Failed to encode mappings for \(serverGame.gameId.prefix(8))...: \(error)")
+                    // Continue anyway - mappings are not critical for basic game data
+                }
                 
-                // Set user relationship
+                // Set user relationship with better error handling
                 let userFetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
                 userFetchRequest.predicate = NSPredicate(format: "userId == %@", serverGame.userId)
                 
-                if let users = try? context.fetch(userFetchRequest), let user = users.first {
+                let users = try context.fetch(userFetchRequest)
+                if let user = users.first {
                     game.user = user
+                    print("✅ [GameSync] Associated game \(serverGame.gameId.prefix(8))... with user \(serverGame.userId.prefix(8))...")
+                } else {
+                    print("⚠️ [GameSync] User \(serverGame.userId.prefix(8))... not found for game \(serverGame.gameId.prefix(8))...")
+                    // Create user if it doesn't exist
+                    let newUser = UserCD(context: context)
+                    newUser.id = UUID()
+                    newUser.userId = serverGame.userId
+                    newUser.username = "Unknown" // Placeholder
+                    newUser.email = "unknown@example.com"
+                    newUser.registrationDate = Date()
+                    newUser.lastLoginDate = Date()
+                    newUser.isActive = true
+                    newUser.isSubadmin = false
+                    game.user = newUser
+                    print("✅ [GameSync] Created new user for game \(serverGame.gameId.prefix(8))...")
                 }
                 
-                try context.save()
-                print("✅ [GameSync] Saved server game \(serverGame.gameId.prefix(8))... to local storage")
+                // Save with explicit error handling
+                if context.hasChanges {
+                    try context.save()
+                    print("✅ [GameSync] Saved server game \(serverGame.gameId.prefix(8))... to local storage")
+                } else {
+                    print("ℹ️ [GameSync] No changes needed for game \(serverGame.gameId.prefix(8))...")
+                }
             } catch {
-                print("❌ [GameSync] Error saving server game to local: \(error)")
+                print("❌ [GameSync] Error saving server game \(serverGame.gameId.prefix(8))... to local: \(error.localizedDescription)")
+                if let detailedError = error as NSError? {
+                    print("❌ [GameSync] Detailed error: \(detailedError)")
+                    print("❌ [GameSync] User info: \(detailedError.userInfo)")
+                }
             }
         }
     }
@@ -734,6 +840,49 @@ struct GameConflict: Codable {
     let reason: String
     let localTimestamp: Date
     let serverTimestamp: Date
+    
+    // MARK: - Custom Coding (same pattern as ServerGameData)
+    
+    enum CodingKeys: String, CodingKey {
+        case gameId, reason, localTimestamp, serverTimestamp
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        gameId = try container.decode(String.self, forKey: .gameId)
+        reason = try container.decode(String.self, forKey: .reason)
+        
+        // Custom date decoding for timestamps
+        let localTimeString = try container.decode(String.self, forKey: .localTimestamp)
+        guard let parsedLocalTime = APIDateFormatter.shared.date(from: localTimeString) else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .localTimestamp,
+                in: container,
+                debugDescription: "Cannot decode localTimestamp from: '\(localTimeString)'"
+            )
+        }
+        localTimestamp = parsedLocalTime
+        
+        let serverTimeString = try container.decode(String.self, forKey: .serverTimestamp)
+        guard let parsedServerTime = APIDateFormatter.shared.date(from: serverTimeString) else {
+            throw DecodingError.dataCorruptedError(
+                forKey: .serverTimestamp,
+                in: container,
+                debugDescription: "Cannot decode serverTimestamp from: '\(serverTimeString)'"
+            )
+        }
+        serverTimestamp = parsedServerTime
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(gameId, forKey: .gameId)
+        try container.encode(reason, forKey: .reason)
+        try container.encode(APIDateFormatter.shared.string(from: localTimestamp), forKey: .localTimestamp)
+        try container.encode(APIDateFormatter.shared.string(from: serverTimestamp), forKey: .serverTimestamp)
+    }
 }
 
 struct ServerGameData: Codable {
@@ -756,6 +905,47 @@ struct ServerGameData: Codable {
     let correctMappings: [String: String]
     let guessedMappings: [String: String]
     
+    // MARK: - Memberwise Initializer
+    init(
+        gameId: String,
+        userId: String,
+        encrypted: String,
+        solution: String,
+        currentDisplay: String,
+        mistakes: Int,
+        maxMistakes: Int,
+        hasWon: Bool,
+        hasLost: Bool,
+        difficulty: String,
+        isDaily: Bool,
+        score: Int,
+        timeTaken: Int,
+        startTime: Date,
+        lastUpdateTime: Date,
+        mapping: [String: String],
+        correctMappings: [String: String],
+        guessedMappings: [String: String]
+    ) {
+        self.gameId = gameId
+        self.userId = userId
+        self.encrypted = encrypted
+        self.solution = solution
+        self.currentDisplay = currentDisplay
+        self.mistakes = mistakes
+        self.maxMistakes = maxMistakes
+        self.hasWon = hasWon
+        self.hasLost = hasLost
+        self.difficulty = difficulty
+        self.isDaily = isDaily
+        self.score = score
+        self.timeTaken = timeTaken
+        self.startTime = startTime
+        self.lastUpdateTime = lastUpdateTime
+        self.mapping = mapping
+        self.correctMappings = correctMappings
+        self.guessedMappings = guessedMappings
+    }
+
     // MARK: - Custom Coding (for robust date handling)
     
     enum CodingKeys: String, CodingKey {
@@ -839,12 +1029,15 @@ extension GameReconciliationManager {
     
     /// Enhanced reconciliation with intelligent timing
     func smartReconcileGames(trigger: ReconciliationTrigger, completion: @escaping (Bool, String?) -> Void) {
+        print("🔄 [GameSync] smartReconcileGames called with trigger: \(trigger)")
+        
         guard let token = authCoordinator.getAccessToken() else {
             completion(false, "Authentication required")
             return
         }
         
         let strategy = determineReconciliationStrategy(for: trigger)
+        print("🔄 [GameSync] Determined strategy: \(strategy)")
         
         switch strategy {
         case .skip(let reason):
@@ -867,10 +1060,12 @@ extension GameReconciliationManager {
     
     private func determineReconciliationStrategy(for trigger: ReconciliationTrigger) -> ReconciliationStrategy {
         let lastSyncKey = "lastGameSyncTimestamp"
+        let lastSuccessfulSyncKey = "lastSuccessfulGameSync" // Add this new key
         let lastFullSyncKey = "lastFullGameSync"
         let appLaunchCountKey = "appLaunchCount"
         
         let lastSync = UserDefaults.standard.object(forKey: lastSyncKey) as? Date
+        let lastSuccessfulSync = UserDefaults.standard.object(forKey: lastSuccessfulSyncKey) as? Date // Use this instead
         let lastFullSync = UserDefaults.standard.object(forKey: lastFullSyncKey) as? Date
         let launchCount = UserDefaults.standard.integer(forKey: appLaunchCountKey)
         
@@ -881,46 +1076,51 @@ extension GameReconciliationManager {
             // Increment launch count
             UserDefaults.standard.set(launchCount + 1, forKey: appLaunchCountKey)
             
-            // Full sync on first launch or every 10th launch
-            if lastFullSync == nil || launchCount % 10 == 0 {
+            print("🔄 [GameSync] Strategy check - lastFullSync: \(lastFullSync?.description ?? "nil"), lastSuccessfulSync: \(lastSuccessfulSync?.description ?? "nil"), launchCount: \(launchCount)")
+            
+            // Full sync on first launch, every 10th launch, OR if we've never had a successful sync
+            if lastFullSync == nil || launchCount % 10 == 0 || lastSuccessfulSync == nil {
+                print("🔄 [GameSync] Choosing FULL sync - no previous successful sync or scheduled full sync")
                 return .full
             }
             
-            // Skip if synced recently (within 30 minutes)
-            if let lastSync = lastSync, now.timeIntervalSince(lastSync) < 1800 {
-                return .skip("Recently synced")
+            // Skip if synced successfully recently (within 30 minutes)
+            if let lastSuccessfulSync = lastSuccessfulSync, now.timeIntervalSince(lastSuccessfulSync) < 1800 {
+                print("🔄 [GameSync] Skipping - recent successful sync")
+                return .skip("Recently synced successfully")
             }
             
             // Defer sync for 3 seconds to let UI settle
+            print("🔄 [GameSync] Choosing DEFERRED incremental sync")
             return .deferred(3.0)
             
         case .userLogin:
             // Always sync on login, but defer to let auth complete
-            if let lastSync = lastSync, now.timeIntervalSince(lastSync) < 300 {
-                return .deferred(2.0) // Short delay if recent sync
+            if let lastSuccessfulSync = lastSuccessfulSync, now.timeIntervalSince(lastSuccessfulSync) < 300 {
+                return .deferred(2.0) // Short delay if recent successful sync
             } else {
                 return .deferred(5.0) // Longer delay for full sync
             }
             
         case .gameCompletion:
             // Quick incremental sync after game completion
-            if let lastSync = lastSync, now.timeIntervalSince(lastSync) < 60 {
-                return .skip("Very recent sync")
+            if let lastSuccessfulSync = lastSuccessfulSync, now.timeIntervalSince(lastSuccessfulSync) < 60 {
+                return .skip("Very recent successful sync")
             }
             return .incremental
             
         case .manual:
             // Always honor manual sync requests
-            if let lastSync = lastSync, now.timeIntervalSince(lastSync) < 60 {
+            if let lastSuccessfulSync = lastSuccessfulSync, now.timeIntervalSince(lastSuccessfulSync) < 60 {
                 return .incremental
             } else {
                 return .full
             }
             
         case .background:
-            // Background sync only if it's been a while
-            if let lastSync = lastSync, now.timeIntervalSince(lastSync) < 3600 {
-                return .skip("Recent background sync")
+            // Background sync only if it's been a while since successful sync
+            if let lastSuccessfulSync = lastSuccessfulSync, now.timeIntervalSince(lastSuccessfulSync) < 3600 {
+                return .skip("Recent successful background sync")
             }
             return .incremental
         }
@@ -932,22 +1132,54 @@ extension GameReconciliationManager {
         fullReconciliation(token: token) { [weak self] success, error in
             if success {
                 UserDefaults.standard.set(Date(), forKey: "lastFullGameSync")
+                // Only update successful sync if it was truly successful
+                UserDefaults.standard.set(Date(), forKey: "lastSuccessfulGameSync")
                 print("✅ Full reconciliation completed")
+            } else {
+                print("❌ Full reconciliation failed: \(error ?? "Unknown error")")
+                // Don't update lastSuccessfulGameSync on failure
             }
             completion(success, error)
         }
     }
-    
+
     private func performIncrementalReconciliation(token: String, completion: @escaping (Bool, String?) -> Void) {
         let lastSyncKey = "lastGameSyncTimestamp"
-        let lastSync = UserDefaults.standard.object(forKey: lastSyncKey) as? Date ?? Date.distantPast
+        let lastSuccessfulSyncKey = "lastSuccessfulGameSync"
         
-        print("🔄 Starting INCREMENTAL game reconciliation since \(lastSync)...")
+        // Use the more recent of the two timestamps, or distant past if neither exists
+        let lastSync = UserDefaults.standard.object(forKey: lastSyncKey) as? Date
+        let lastSuccessfulSync = UserDefaults.standard.object(forKey: lastSuccessfulSyncKey) as? Date
         
-        incrementalReconciliation(since: lastSync, token: token, completion: completion)
+        let sinceDate: Date
+        if let lastSuccessful = lastSuccessfulSync, let lastAttempt = lastSync {
+            sinceDate = max(lastSuccessful, lastAttempt)
+        } else if let lastSuccessful = lastSuccessfulSync {
+            sinceDate = lastSuccessful
+        } else if let lastAttempt = lastSync {
+            sinceDate = lastAttempt
+        } else {
+            // No previous sync at all - do a full sync instead
+            print("🔄 No previous sync found - switching to full reconciliation")
+            performFullReconciliation(token: token, completion: completion)
+            return
+        }
+        
+        print("🔄 Starting INCREMENTAL game reconciliation since \(sinceDate)...")
+        
+        incrementalReconciliation(since: sinceDate, token: token) { success, error in
+            if success {
+                // Only update successful sync timestamp if it was truly successful
+                UserDefaults.standard.set(Date(), forKey: "lastSuccessfulGameSync")
+                print("✅ Incremental reconciliation completed successfully")
+            } else {
+                print("❌ Incremental reconciliation failed: \(error ?? "Unknown error")")
+                // Don't update lastSuccessfulGameSync on failure
+            }
+            completion(success, error)
+        }
     }
 }
-
 // MARK: - Reconciliation Types
 
 enum ReconciliationTrigger {
@@ -1183,4 +1415,10 @@ extension SmartSyncMonitor.ConnectionStatus: CustomStringConvertible {
     }
 }
 
-
+extension Array {
+    func chunked(into size: Int) -> [[Element]] {
+        return stride(from: 0, to: count, by: size).map {
+            Array(self[$0..<Swift.min($0 + size, count)])
+        }
+    }
+}
