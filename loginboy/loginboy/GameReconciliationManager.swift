@@ -1,43 +1,67 @@
 import Foundation
 import CoreData
 import SwiftUI
+#if os(iOS)
+import UIKit
+#endif
 
-// MARK: - Game Reconciliation Manager
+// MARK: - Game Reconciliation Manager with Detailed Logging
 class GameReconciliationManager {
     static let shared = GameReconciliationManager()
     
     private let coreData = CoreDataStack.shared
     private let authCoordinator = UserState.shared.authCoordinator
     
-    // MARK: - Reconciliation Strategy
+    // MARK: - Enhanced Reconciliation with Detailed Logging
     
     /// Main reconciliation method - decides which strategy to use
     func reconcileGames(completion: @escaping (Bool, String?) -> Void) {
+        print("🔄 [GameSync] Starting game reconciliation...")
+        print("🔄 [GameSync] User: \(UserState.shared.userId)")
+        print("🔄 [GameSync] Base URL: \(authCoordinator.baseURL)")
+        
         guard let token = authCoordinator.getAccessToken() else {
-            completion(false, "Authentication required")
+            let error = "Authentication required - no access token available"
+            print("❌ [GameSync] \(error)")
+            completion(false, error)
             return
         }
+        
+        print("✅ [GameSync] Access token available (length: \(token.count))")
         
         // Get last sync timestamp
         let lastSyncKey = "lastGameSyncTimestamp"
         let lastSync = UserDefaults.standard.object(forKey: lastSyncKey) as? Date
         
         if let lastSync = lastSync {
+            print("🔄 [GameSync] Last sync: \(lastSync)")
             // Incremental sync - only games modified since last sync
             incrementalReconciliation(since: lastSync, token: token, completion: completion)
         } else {
+            print("🔄 [GameSync] No previous sync found - performing full reconciliation")
             // Full reconciliation for first-time sync
             fullReconciliation(token: token, completion: completion)
         }
     }
     
-    // MARK: - Full Reconciliation (First Time)
+    // MARK: - Full Reconciliation with Detailed Logging
     
     private func fullReconciliation(token: String, completion: @escaping (Bool, String?) -> Void) {
-        print("🔄 Starting full game reconciliation...")
+        print("🔄 [GameSync] Starting FULL game reconciliation...")
         
         // Get local games summary
         let localSummary = getLocalGamesSummary()
+        print("📊 [GameSync] Local summary: \(localSummary.totalGames) total, \(localSummary.completedGames) completed")
+        
+        if !localSummary.games.isEmpty {
+            print("📊 [GameSync] Local games:")
+            for (index, game) in localSummary.games.prefix(5).enumerated() {
+                print("   \(index + 1). ID: \(game.gameId.prefix(8))... | Completed: \(game.isCompleted) | Score: \(game.score ?? 0)")
+            }
+            if localSummary.games.count > 5 {
+                print("   ... and \(localSummary.games.count - 5) more")
+            }
+        }
         
         // Send to server and get reconciliation plan
         sendReconciliationRequest(
@@ -48,20 +72,392 @@ class GameReconciliationManager {
         ) { [weak self] result in
             switch result {
             case .success(let plan):
+                print("✅ [GameSync] Received reconciliation plan: \(plan.summary)")
+                print("📋 [GameSync] Plan details:")
+                print("   - Download from server: \(plan.downloadFromServer.count) games")
+                print("   - Upload to server: \(plan.uploadToServer.count) games")
+                print("   - Conflicts: \(plan.conflicts.count) games")
+                print("   - Delete locally: \(plan.deleteFromLocal.count) games")
+                
                 self?.executeReconciliationPlan(plan, token: token, completion: completion)
             case .failure(let error):
-                completion(false, error.localizedDescription)
+                let errorMsg = "Failed to get reconciliation plan: \(error.localizedDescription)"
+                print("❌ [GameSync] \(errorMsg)")
+                completion(false, errorMsg)
             }
         }
     }
     
-    // MARK: - Incremental Reconciliation
+    // MARK: - Server Communication with Detailed Logging
+    
+    private func sendReconciliationRequest(
+        type: String,
+        localSummary: LocalGamesSummary? = nil,
+        localChanges: [GameChange]? = nil,
+        sinceTimestamp: Date? = nil,
+        token: String,
+        completion: @escaping (Result<ReconciliationPlan, Error>) -> Void
+    ) {
+        let urlString = "\(authCoordinator.baseURL)/api/games/reconcile"
+        print("🌐 [GameSync] Sending \(type) reconciliation request to: \(urlString)")
+        
+        guard let url = URL(string: urlString) else {
+            let error = NSError(domain: "GameSync", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL: \(urlString)"])
+            print("❌ [GameSync] Invalid URL: \(urlString)")
+            completion(.failure(error))
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 30.0
+        
+        let requestBody = ReconciliationRequest(
+            type: type,
+            userId: UserState.shared.userId,
+            sinceTimestamp: sinceTimestamp?.timeIntervalSince1970,
+            localSummary: localSummary,
+            localChanges: localChanges
+        )
+        
+        print("📤 [GameSync] Request body:")
+        print("   - Type: \(type)")
+        print("   - User ID: \(UserState.shared.userId)")
+        if let summary = localSummary {
+            print("   - Local games: \(summary.totalGames)")
+        }
+        if let changes = localChanges {
+            print("   - Local changes: \(changes.count)")
+        }
+        
+        do {
+            let jsonData = try JSONEncoder().encode(requestBody)
+            request.httpBody = jsonData
+            
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                print("📤 [GameSync] Request JSON (first 500 chars):")
+                print("   \(String(jsonString.prefix(500)))")
+                if jsonString.count > 500 {
+                    print("   ... (truncated)")
+                }
+            }
+        } catch {
+            print("❌ [GameSync] Failed to encode request: \(error.localizedDescription)")
+            completion(.failure(error))
+            return
+        }
+        
+        print("🌐 [GameSync] Making network request...")
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("❌ [GameSync] Network error: \(error.localizedDescription)")
+                if let nsError = error as NSError? {
+                    print("❌ [GameSync] Error details: Domain=\(nsError.domain), Code=\(nsError.code)")
+                    print("❌ [GameSync] User info: \(nsError.userInfo)")
+                }
+                completion(.failure(error))
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                let error = NSError(domain: "GameSync", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid response type"])
+                print("❌ [GameSync] Invalid response type")
+                completion(.failure(error))
+                return
+            }
+            
+            print("📥 [GameSync] Response received:")
+            print("   - Status Code: \(httpResponse.statusCode)")
+            print("   - Headers: \(httpResponse.allHeaderFields)")
+            
+            guard let data = data else {
+                let error = NSError(domain: "GameSync", code: -1, userInfo: [NSLocalizedDescriptionKey: "No response data"])
+                print("❌ [GameSync] No response data")
+                completion(.failure(error))
+                return
+            }
+            
+            print("📥 [GameSync] Response data length: \(data.count) bytes")
+            
+            if let responseString = String(data: data, encoding: .utf8) {
+                print("📥 [GameSync] Response body (first 1000 chars):")
+                print("   \(String(responseString.prefix(1000)))")
+                if responseString.count > 1000 {
+                    print("   ... (truncated)")
+                }
+            }
+            
+            if httpResponse.statusCode == 200 {
+                do {
+                    let plan = try JSONDecoder().decode(ReconciliationPlan.self, from: data)
+                    print("✅ [GameSync] Successfully decoded reconciliation plan")
+                    completion(.success(plan))
+                } catch {
+                    print("❌ [GameSync] Failed to decode response: \(error.localizedDescription)")
+                    if let decodingError = error as? DecodingError {
+                        print("❌ [GameSync] Decoding error details: \(decodingError)")
+                    }
+                    completion(.failure(error))
+                }
+            } else {
+                // Parse error response
+                var errorMessage = "Server returned status \(httpResponse.statusCode)"
+                
+                if let responseString = String(data: data, encoding: .utf8) {
+                    // Try to parse as JSON error
+                    if let errorData = try? JSONSerialization.jsonObject(with: data) as? [String: Any] {
+                        if let message = errorData["message"] as? String {
+                            errorMessage += ": \(message)"
+                        } else if let error = errorData["error"] as? String {
+                            errorMessage += ": \(error)"
+                        } else {
+                            errorMessage += ": \(responseString)"
+                        }
+                    } else {
+                        errorMessage += ": \(responseString)"
+                    }
+                }
+                
+                print("❌ [GameSync] Server error: \(errorMessage)")
+                let error = NSError(domain: "GameSync", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+                completion(.failure(error))
+            }
+        }.resume()
+    }
+    
+    // MARK: - Plan Execution with Detailed Logging
+    
+    private func executeReconciliationPlan(_ plan: ReconciliationPlan, token: String, completion: @escaping (Bool, String?) -> Void) {
+        print("📋 [GameSync] Executing reconciliation plan: \(plan.summary)")
+        print("📋 [GameSync] Operations to perform:")
+        print("   - Downloads: \(plan.downloadFromServer.count)")
+        print("   - Uploads: \(plan.uploadToServer.count)")
+        print("   - Conflicts: \(plan.conflicts.count)")
+        print("   - Deletions: \(plan.deleteFromLocal.count)")
+        
+        let group = DispatchGroup()
+        var errors: [String] = []
+        var successCount = 0
+        
+        // Download server games that are newer
+        for (index, gameId) in plan.downloadFromServer.enumerated() {
+            group.enter()
+            print("⬇️ [GameSync] Downloading game \(index + 1)/\(plan.downloadFromServer.count): \(gameId.prefix(8))...")
+            
+            downloadGame(gameId: gameId, token: token) { success, error in
+                if success {
+                    print("✅ [GameSync] Downloaded game \(gameId.prefix(8))...")
+                    successCount += 1
+                } else {
+                    let errorMsg = "Download \(gameId.prefix(8))...: \(error ?? "Unknown error")"
+                    print("❌ [GameSync] \(errorMsg)")
+                    errors.append(errorMsg)
+                }
+                group.leave()
+            }
+        }
+        
+        // Upload local games to server
+        for (index, gameId) in plan.uploadToServer.enumerated() {
+            group.enter()
+            print("⬆️ [GameSync] Uploading game \(index + 1)/\(plan.uploadToServer.count): \(gameId.prefix(8))...")
+            
+            uploadGame(gameId: gameId, token: token) { success, error in
+                if success {
+                    print("✅ [GameSync] Uploaded game \(gameId.prefix(8))...")
+                    successCount += 1
+                } else {
+                    let errorMsg = "Upload \(gameId.prefix(8))...: \(error ?? "Unknown error")"
+                    print("❌ [GameSync] \(errorMsg)")
+                    errors.append(errorMsg)
+                }
+                group.leave()
+            }
+        }
+        
+        // Handle conflicts (use server version by default)
+        for (index, conflict) in plan.conflicts.enumerated() {
+            group.enter()
+            print("⚠️ [GameSync] Resolving conflict \(index + 1)/\(plan.conflicts.count): \(conflict.gameId.prefix(8))... (\(conflict.reason))")
+            
+            resolveConflict(conflict, token: token) { success, error in
+                if success {
+                    print("✅ [GameSync] Resolved conflict for \(conflict.gameId.prefix(8))...")
+                    successCount += 1
+                } else {
+                    let errorMsg = "Conflict \(conflict.gameId.prefix(8))...: \(error ?? "Unknown error")"
+                    print("❌ [GameSync] \(errorMsg)")
+                    errors.append(errorMsg)
+                }
+                group.leave()
+            }
+        }
+        
+        group.notify(queue: .main) {
+            let totalOperations = plan.downloadFromServer.count + plan.uploadToServer.count + plan.conflicts.count
+            
+            if errors.isEmpty {
+                // Update last sync timestamp
+                UserDefaults.standard.set(Date(), forKey: "lastGameSyncTimestamp")
+                print("✅ [GameSync] Game reconciliation completed successfully!")
+                print("✅ [GameSync] Successfully completed \(successCount)/\(totalOperations) operations")
+                completion(true, nil)
+            } else {
+                let errorMessage = "Reconciliation completed with \(errors.count) errors out of \(totalOperations) operations:\n" + errors.joined(separator: "\n")
+                print("⚠️ [GameSync] \(errorMessage)")
+                completion(false, errorMessage)
+            }
+        }
+    }
+    
+    // MARK: - Individual Game Operations with Detailed Logging
+    
+    private func downloadGame(gameId: String, token: String, completion: @escaping (Bool, String?) -> Void) {
+        let urlString = "\(authCoordinator.baseURL)/api/games/\(gameId)"
+        print("⬇️ [GameSync] Downloading from: \(urlString)")
+        
+        guard let url = URL(string: urlString) else {
+            let error = "Invalid download URL: \(urlString)"
+            print("❌ [GameSync] \(error)")
+            completion(false, error)
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.timeoutInterval = 30.0
+        
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            if let error = error {
+                print("❌ [GameSync] Download network error for \(gameId.prefix(8))...: \(error.localizedDescription)")
+                completion(false, error.localizedDescription)
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                let error = "Invalid response type for download"
+                print("❌ [GameSync] \(error)")
+                completion(false, error)
+                return
+            }
+            
+            print("📥 [GameSync] Download response status: \(httpResponse.statusCode)")
+            
+            guard let data = data else {
+                let error = "No data in download response"
+                print("❌ [GameSync] \(error)")
+                completion(false, error)
+                return
+            }
+            
+            if httpResponse.statusCode == 200 {
+                do {
+                    let serverGame = try JSONDecoder().decode(ServerGameData.self, from: data)
+                    print("✅ [GameSync] Successfully decoded game data for \(gameId.prefix(8))...")
+                    self?.saveServerGameToLocal(serverGame)
+                    completion(true, nil)
+                } catch {
+                    let errorMsg = "Failed to parse downloaded game data: \(error.localizedDescription)"
+                    print("❌ [GameSync] \(errorMsg)")
+                    completion(false, errorMsg)
+                }
+            } else {
+                var errorMessage = "Download failed with status \(httpResponse.statusCode)"
+                if let responseString = String(data: data, encoding: .utf8) {
+                    errorMessage += ": \(responseString)"
+                }
+                print("❌ [GameSync] \(errorMessage)")
+                completion(false, errorMessage)
+            }
+        }.resume()
+    }
+    
+    private func uploadGame(gameId: String, token: String, completion: @escaping (Bool, String?) -> Void) {
+        print("⬆️ [GameSync] Preparing upload for game \(gameId.prefix(8))...")
+        
+        // Get local game
+        guard let localGame = getLocalGame(gameId: gameId) else {
+            let error = "Local game not found for upload: \(gameId.prefix(8))..."
+            print("❌ [GameSync] \(error)")
+            completion(false, error)
+            return
+        }
+        
+        print("📊 [GameSync] Local game data for \(gameId.prefix(8))...: Won=\(localGame.hasWon), Score=\(localGame.score)")
+        
+        let urlString = "\(authCoordinator.baseURL)/api/games"
+        guard let url = URL(string: urlString) else {
+            let error = "Invalid upload URL: \(urlString)"
+            print("❌ [GameSync] \(error)")
+            completion(false, error)
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.timeoutInterval = 30.0
+        
+        do {
+            let jsonData = try JSONEncoder().encode(localGame)
+            request.httpBody = jsonData
+            
+            if let jsonString = String(data: jsonData, encoding: .utf8) {
+                print("📤 [GameSync] Upload data (first 300 chars): \(String(jsonString.prefix(300)))")
+            }
+        } catch {
+            let errorMsg = "Failed to encode game for upload: \(error.localizedDescription)"
+            print("❌ [GameSync] \(errorMsg)")
+            completion(false, errorMsg)
+            return
+        }
+        
+        URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                print("❌ [GameSync] Upload network error for \(gameId.prefix(8))...: \(error.localizedDescription)")
+                completion(false, error.localizedDescription)
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse else {
+                let error = "Invalid response type for upload"
+                print("❌ [GameSync] \(error)")
+                completion(false, error)
+                return
+            }
+            
+            print("📥 [GameSync] Upload response status: \(httpResponse.statusCode)")
+            
+            if let data = data, let responseString = String(data: data, encoding: .utf8) {
+                print("📥 [GameSync] Upload response: \(responseString)")
+            }
+            
+            if httpResponse.statusCode == 200 || httpResponse.statusCode == 201 {
+                print("✅ [GameSync] Successfully uploaded game \(gameId.prefix(8))...")
+                completion(true, nil)
+            } else {
+                var errorMessage = "Upload failed with status \(httpResponse.statusCode)"
+                if let data = data, let responseString = String(data: data, encoding: .utf8) {
+                    errorMessage += ": \(responseString)"
+                }
+                print("❌ [GameSync] \(errorMessage)")
+                completion(false, errorMessage)
+            }
+        }.resume()
+    }
+    
+    // MARK: - Rest of the methods remain the same but with added logging...
     
     private func incrementalReconciliation(since: Date, token: String, completion: @escaping (Bool, String?) -> Void) {
-        print("🔄 Starting incremental game reconciliation since \(since)...")
+        print("🔄 [GameSync] Starting INCREMENTAL game reconciliation since \(since)...")
         
         // Get local games modified since last sync
         let localChanges = getLocalChanges(since: since)
+        print("📊 [GameSync] Found \(localChanges.count) local changes since last sync")
         
         sendReconciliationRequest(
             type: "incremental",
@@ -79,7 +475,8 @@ class GameReconciliationManager {
         }
     }
     
-    // MARK: - Local Data Collection
+    // All the helper methods from the original implementation...
+    // (getLocalGamesSummary, getLocalChanges, etc. - keeping these the same for brevity)
     
     private func getLocalGamesSummary() -> LocalGamesSummary {
         let context = coreData.mainContext
@@ -110,7 +507,7 @@ class GameReconciliationManager {
                 games: summaries
             )
         } catch {
-            print("Error getting local games summary: \(error)")
+            print("❌ [GameSync] Error getting local games summary: \(error)")
             return LocalGamesSummary(totalGames: 0, completedGames: 0, lastModified: nil, games: [])
         }
     }
@@ -137,7 +534,7 @@ class GameReconciliationManager {
                 )
             }
         } catch {
-            print("Error getting local changes: \(error)")
+            print("❌ [GameSync] Error getting local changes: \(error)")
             return []
         }
     }
@@ -147,198 +544,13 @@ class GameReconciliationManager {
         return created > since ? .created : .updated
     }
     
-    // MARK: - Server Communication
-    
-    private func sendReconciliationRequest(
-        type: String,
-        localSummary: LocalGamesSummary? = nil,
-        localChanges: [GameChange]? = nil,
-        sinceTimestamp: Date? = nil,
-        token: String,
-        completion: @escaping (Result<ReconciliationPlan, Error>) -> Void
-    ) {
-        guard let url = URL(string: "\(authCoordinator.baseURL)/api/games/reconcile") else {
-            completion(.failure(NSError(domain: "GameSync", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid URL"])))
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        let requestBody = ReconciliationRequest(
-            type: type,
-            userId: UserState.shared.userId,
-            sinceTimestamp: sinceTimestamp?.timeIntervalSince1970,
-            localSummary: localSummary,
-            localChanges: localChanges
-        )
-        
-        do {
-            request.httpBody = try JSONEncoder().encode(requestBody)
-        } catch {
-            completion(.failure(error))
-            return
-        }
-        
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            
-            guard let data = data,
-                  let httpResponse = response as? HTTPURLResponse,
-                  httpResponse.statusCode == 200 else {
-                completion(.failure(NSError(domain: "GameSync", code: -1, userInfo: [NSLocalizedDescriptionKey: "Server error"])))
-                return
-            }
-            
-            do {
-                let plan = try JSONDecoder().decode(ReconciliationPlan.self, from: data)
-                completion(.success(plan))
-            } catch {
-                completion(.failure(error))
-            }
-        }.resume()
-    }
-    
-    // MARK: - Plan Execution
-    
-    private func executeReconciliationPlan(_ plan: ReconciliationPlan, token: String, completion: @escaping (Bool, String?) -> Void) {
-        print("📋 Executing reconciliation plan: \(plan.summary)")
-        
-        let group = DispatchGroup()
-        var errors: [String] = []
-        
-        // Download server games that are newer
-        for gameId in plan.downloadFromServer {
-            group.enter()
-            downloadGame(gameId: gameId, token: token) { success, error in
-                if !success, let error = error {
-                    errors.append("Download \(gameId): \(error)")
-                }
-                group.leave()
-            }
-        }
-        
-        // Upload local games to server
-        for gameId in plan.uploadToServer {
-            group.enter()
-            uploadGame(gameId: gameId, token: token) { success, error in
-                if !success, let error = error {
-                    errors.append("Upload \(gameId): \(error)")
-                }
-                group.leave()
-            }
-        }
-        
-        // Handle conflicts (use server version by default)
-        for conflict in plan.conflicts {
-            group.enter()
-            resolveConflict(conflict, token: token) { success, error in
-                if !success, let error = error {
-                    errors.append("Conflict \(conflict.gameId): \(error)")
-                }
-                group.leave()
-            }
-        }
-        
-        group.notify(queue: .main) {
-            if errors.isEmpty {
-                // Update last sync timestamp
-                UserDefaults.standard.set(Date(), forKey: "lastGameSyncTimestamp")
-                print("✅ Game reconciliation completed successfully")
-                completion(true, nil)
-            } else {
-                let errorMessage = "Reconciliation completed with errors: \(errors.joined(separator: ", "))"
-                print("⚠️ \(errorMessage)")
-                completion(false, errorMessage)
-            }
-        }
-    }
-    
-    // MARK: - Individual Game Operations
-    
-    private func downloadGame(gameId: String, token: String, completion: @escaping (Bool, String?) -> Void) {
-        guard let url = URL(string: "\(authCoordinator.baseURL)/api/games/\(gameId)") else {
-            completion(false, "Invalid URL")
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        
-        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
-            if let error = error {
-                completion(false, error.localizedDescription)
-                return
-            }
-            
-            guard let data = data,
-                  let httpResponse = response as? HTTPURLResponse,
-                  httpResponse.statusCode == 200 else {
-                completion(false, "Server error")
-                return
-            }
-            
-            do {
-                let serverGame = try JSONDecoder().decode(ServerGameData.self, from: data)
-                self?.saveServerGameToLocal(serverGame)
-                completion(true, nil)
-            } catch {
-                completion(false, "Failed to parse game data: \(error.localizedDescription)")
-            }
-        }.resume()
-    }
-    
-    private func uploadGame(gameId: String, token: String, completion: @escaping (Bool, String?) -> Void) {
-        // Get local game
-        guard let localGame = getLocalGame(gameId: gameId) else {
-            completion(false, "Local game not found")
-            return
-        }
-        
-        guard let url = URL(string: "\(authCoordinator.baseURL)/api/games") else {
-            completion(false, "Invalid URL")
-            return
-        }
-        
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        do {
-            request.httpBody = try JSONEncoder().encode(localGame)
-        } catch {
-            completion(false, "Failed to encode game: \(error.localizedDescription)")
-            return
-        }
-        
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                completion(false, error.localizedDescription)
-                return
-            }
-            
-            guard let httpResponse = response as? HTTPURLResponse,
-                  httpResponse.statusCode == 200 || httpResponse.statusCode == 201 else {
-                completion(false, "Server error")
-                return
-            }
-            
-            completion(true, nil)
-        }.resume()
-    }
-    
     private func resolveConflict(_ conflict: GameConflict, token: String, completion: @escaping (Bool, String?) -> Void) {
         // For now, always use server version in conflicts
+        print("⚠️ [GameSync] Resolving conflict by using server version for \(conflict.gameId.prefix(8))...")
         downloadGame(gameId: conflict.gameId, token: token, completion: completion)
     }
     
-    // MARK: - Helper Methods
+    // ... rest of helper methods remain the same ...
     
     private func generateGameChecksum(_ game: GameCD) -> String {
         let content = "\(game.gameId?.uuidString ?? "")\(game.lastUpdateTime?.timeIntervalSince1970 ?? 0)\(game.hasWon)\(game.hasLost)\(game.score)"
@@ -381,7 +593,7 @@ class GameReconciliationManager {
             guard let game = games.first else { return nil }
             return convertToGameData(game)
         } catch {
-            print("Error fetching local game: \(error)")
+            print("❌ [GameSync] Error fetching local game: \(error)")
             return nil
         }
     }
@@ -430,8 +642,9 @@ class GameReconciliationManager {
                 }
                 
                 try context.save()
+                print("✅ [GameSync] Saved server game \(serverGame.gameId.prefix(8))... to local storage")
             } catch {
-                print("Error saving server game to local: \(error)")
+                print("❌ [GameSync] Error saving server game to local: \(error)")
             }
         }
     }
@@ -445,8 +658,7 @@ class GameReconciliationManager {
     }
 }
 
-// MARK: - Data Models
-
+// MARK: - Data Models (same as before)
 struct ReconciliationRequest: Codable {
     let type: String // "full" or "incremental"
     let userId: String
@@ -518,7 +730,6 @@ struct ServerGameData: Codable {
     let correctMappings: [String: String]
     let guessedMappings: [String: String]
 }
-
 
 extension GameReconciliationManager {
     
@@ -655,7 +866,9 @@ enum ReconciliationStrategy {
 class BackgroundSyncManager {
     static let shared = BackgroundSyncManager()
     
+    #if os(iOS)
     private var backgroundTask: UIBackgroundTaskIdentifier = .invalid
+    #endif
     private let syncInterval: TimeInterval = 300 // 5 minutes
     
     func startBackgroundSync() {
@@ -782,7 +995,8 @@ class SmartSyncMonitor: ObservableObject {
         checkConnectionStatus()
     }
     
-    private func loadLastSyncDate() {
+    // Changed from private to internal so it can be accessed
+    func loadLastSyncDate() {
         lastSyncDate = UserDefaults.standard.object(forKey: "lastGameSyncTimestamp") as? Date
     }
     
@@ -864,10 +1078,3 @@ extension SmartSyncMonitor.ConnectionStatus: CustomStringConvertible {
         }
     }
 }
-//
-//  GameReconciliationManager.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 26/05/2025.
-//
-

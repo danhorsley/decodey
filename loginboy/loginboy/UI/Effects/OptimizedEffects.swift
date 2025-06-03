@@ -38,31 +38,25 @@ struct PerformanceSettings {
     }
 }
 
-// MARK: - Optimized Code Rain Effect
+// MARK: - Optimized Code Rain Effect (Clean)
 struct OptimizedCodeRainView: View {
     @State private var columns: [SimpleCodeColumn] = []
-    @State private var lastUpdateTime: Date = Date()
+    @State private var isInitialized = false
     
     private let settings = PerformanceSettings.shared
     private let maxColumns = 8 // Greatly reduced from original
     
     var body: some View {
         if settings.effectsLevel.shouldUseEffects {
-            // Use TimelineView but with much lower frequency
-            TimelineView(.periodic(from: .now, by: settings.effectsLevel.updateInterval)) { timeline in
-                Canvas { context, size in
-                    // Only update if enough time has passed
-                    let now = timeline.date
-                    if now.timeIntervalSince(lastUpdateTime) >= settings.effectsLevel.updateInterval {
-                        updateColumns(size: size)
-                        lastUpdateTime = now
-                    }
-                    
-                    drawColumns(context: context, size: size)
-                }
+            // Simplified approach - just draw static columns with periodic updates
+            Canvas { context, size in
+                drawColumns(context: context, size: size)
             }
-            .onAppear {
-                setupColumns()
+            .task {
+                if !isInitialized {
+                    isInitialized = true
+                    await setupAndAnimateColumns()
+                }
             }
         } else {
             // Static fallback for low-end devices
@@ -70,23 +64,37 @@ struct OptimizedCodeRainView: View {
         }
     }
     
-    private func setupColumns() {
-        columns = (0..<maxColumns).map { i in
-            SimpleCodeColumn(
-                x: CGFloat(i) * 80, // Spread them out more
-                chars: generateRandomChars(count: 5), // Fewer characters
-                speed: Double.random(in: 0.5...1.0)
-            )
+    // Setup columns and start periodic updates
+    private func setupAndAnimateColumns() async {
+        // Initial setup
+        await MainActor.run {
+            columns = (0..<maxColumns).map { i in
+                SimpleCodeColumn(
+                    x: CGFloat(i) * 80,
+                    chars: generateRandomChars(count: 5),
+                    speed: Double.random(in: 0.5...1.0)
+                )
+            }
+        }
+        
+        // Start periodic updates
+        while !Task.isCancelled {
+            try? await Task.sleep(nanoseconds: UInt64(settings.effectsLevel.updateInterval * 1_000_000_000))
+            
+            await MainActor.run {
+                updateColumnsData()
+            }
         }
     }
     
-    private func updateColumns(size: CGSize) {
-        // Only update a subset of columns each frame to reduce work
+    // Update column data safely on main actor
+    private func updateColumnsData() {
         let columnsToUpdate = min(2, columns.count)
         
         for _ in 0..<columnsToUpdate {
+            guard !columns.isEmpty else { return }
             let index = Int.random(in: 0..<columns.count)
-            // Randomly change some characters
+            
             if Bool.random() {
                 columns[index].chars = generateRandomChars(count: 5)
             }
@@ -142,9 +150,10 @@ struct StaticMatrixBackground: View {
     }
 }
 
-// MARK: - Optimized Circuit Board View
+// MARK: - Optimized Circuit Board View (Clean)
 struct OptimizedCircuitBoardView: View {
     @State private var shouldAnimate = false
+    @State private var animationInitialized = false
     
     private let settings = PerformanceSettings.shared
     
@@ -158,17 +167,26 @@ struct OptimizedCircuitBoardView: View {
                     drawAnimatedNodes(context: context, size: size)
                 }
             }
-            .onAppear {
-                if settings.effectsLevel == .high {
-                    // Very slow animation - 3 second cycle
-                    withAnimation(.easeInOut(duration: 3.0).repeatForever(autoreverses: true)) {
-                        shouldAnimate = true
-                    }
+            .task {
+                // Use task instead of onAppear to avoid state modification during view update
+                if !animationInitialized && settings.effectsLevel == .high {
+                    animationInitialized = true
+                    await startAnimationAsync()
                 }
             }
         } else {
             // Static version
             StaticCircuitPattern()
+        }
+    }
+    
+    // Make animation startup async
+    private func startAnimationAsync() async {
+        await MainActor.run {
+            // Very slow animation - 3 second cycle
+            withAnimation(.easeInOut(duration: 3.0).repeatForever(autoreverses: true)) {
+                shouldAnimate = true
+            }
         }
     }
     
@@ -246,7 +264,7 @@ struct StaticCircuitPattern: View {
     }
 }
 
-// MARK: - Optimized Home Screen
+// MARK: - Optimized Home Screen (Clean)
 struct OptimizedHomeScreen: View {
     let onBegin: () -> Void
     var onShowLogin: (() -> Void)? = nil
@@ -255,7 +273,7 @@ struct OptimizedHomeScreen: View {
     @State private var decryptedChars: [Bool] = Array(repeating: false, count: "DECODEY".count)
     @State private var showSubtitle = false
     @State private var showButtons = false
-    @State private var pulseEffect = false
+    @State private var animationStarted = false // Add flag to prevent re-triggering
     
     private let settings = PerformanceSettings.shared
     
@@ -354,22 +372,32 @@ struct OptimizedHomeScreen: View {
                 }
                 .padding()
             }
-            .onAppear {
-                startOptimizedAnimationSequence()
+        }
+        .task {
+            // Use task instead of onAppear to avoid state modification during view update
+            if !animationStarted {
+                animationStarted = true
+                await startOptimizedAnimationSequence()
             }
         }
     }
     
-    private func startOptimizedAnimationSequence() {
-        // Much simpler animation sequence
-        withAnimation(.easeIn(duration: 0.6)) {
-            showTitle = true
+    // Make this async to properly sequence the animations
+    private func startOptimizedAnimationSequence() async {
+        // Animate title appearance
+        await MainActor.run {
+            withAnimation(.easeIn(duration: 0.6)) {
+                showTitle = true
+            }
         }
         
-        // Decrypt characters - but only trigger sound effects on high-performance devices
+        // Decrypt characters one by one
         for (index, _) in "DECODEY".enumerated() {
             let delay = 0.6 + Double(index) * 0.15
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            
+            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            
+            await MainActor.run {
                 if settings.effectsLevel == .high {
                     SoundManager.shared.play(.letterClick)
                 }
@@ -380,13 +408,17 @@ struct OptimizedHomeScreen: View {
             }
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+        // Show subtitle after title is decrypted
+        try? await Task.sleep(nanoseconds: UInt64(0.8 * 1_000_000_000))
+        await MainActor.run {
             withAnimation(.easeIn(duration: 0.8)) {
                 showSubtitle = true
             }
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+        // Finally show the buttons
+        try? await Task.sleep(nanoseconds: UInt64(0.5 * 1_000_000_000))
+        await MainActor.run {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
                 showButtons = true
             }
@@ -453,11 +485,3 @@ extension PerformanceSettings.EffectsLevel: CustomStringConvertible {
     }
 }
 #endif
-
-//
-//  OptimizedEffects.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 30/05/2025.
-//
-
