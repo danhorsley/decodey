@@ -1,10 +1,14 @@
 import SwiftUI
 import Combine
+import AuthenticationServices
 
 struct HomeScreen: View {
     // Callback for when the welcome animation completes
     let onBegin: () -> Void
     var onShowLogin: (() -> Void)? = nil
+    
+    // Add auth coordinator for Apple Sign-In
+    @EnvironmentObject var authCoordinator: AuthenticationCoordinator
     
     // Animation states
     @State private var showTitle = false
@@ -14,7 +18,6 @@ struct HomeScreen: View {
     @State private var codeRain = true
     @State private var pulseEffect = false
     @State private var buttonScale: CGFloat = 1.0
-    // Removed showLoginSheet as we're now using a callback approach
     
     // For the code rain effect
     @State private var columns: [CodeColumn] = []
@@ -77,7 +80,7 @@ struct HomeScreen: View {
                     
                     // Buttons container
                     VStack(spacing: 16) {
-                        // Play button
+                        // Play button (for guests/current users)
                         Button(action: {
                             // Play button sound
                             SoundManager.shared.play(.correctGuess)
@@ -95,7 +98,6 @@ struct HomeScreen: View {
                             // Short delay before completing
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                                 withAnimation {
-                                    // Trigger onBegin callback instead of onComplete
                                     onBegin()
                                 }
                             }
@@ -132,34 +134,76 @@ struct HomeScreen: View {
                         .scaleEffect(buttonScale)
                         .opacity(showButtons ? 1 : 0)
                         
-                        // Login button (styled more subtly)
-                        Button(action: {
-                            // Play a subtle click sound
-                            SoundManager.shared.play(.letterClick)
-                            
-                            // Call the login callback if provided
-                            if let onShowLogin = onShowLogin {
-                                // Short delay for animation to complete
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                    onShowLogin()
+                        // Sign in with Apple (Apple's preferred placement)
+                        if !authCoordinator.isAuthenticated {
+                            SignInWithAppleButton(.signIn) { request in
+                                request.requestedScopes = [.fullName, .email]
+                            } onCompletion: { result in
+                                handleAppleSignIn(result: result)
+                            }
+                            .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
+                            .frame(height: 50)
+                            .cornerRadius(8)
+                            .opacity(showButtons ? 1 : 0)
+                            .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.2), value: showButtons)
+                        }
+                        
+                        // Traditional login button (now more subtle)
+                        if !authCoordinator.isAuthenticated {
+                            Button(action: {
+                                // Play a subtle click sound
+                                SoundManager.shared.play(.letterClick)
+                                
+                                // Call the login callback if provided
+                                if let onShowLogin = onShowLogin {
+                                    // Short delay for animation to complete
+                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                        onShowLogin()
+                                    }
+                                }
+                            }) {
+                                HStack {
+                                    Image(systemName: "person.circle")
+                                        .font(.system(size: 16))
+                                    Text("Other Sign In Options")
+                                        .font(.system(size: 16, weight: .medium, design: .monospaced))
+                                }
+                                .foregroundColor(.white.opacity(0.8))
+                                .padding(.horizontal, 32)
+                                .padding(.vertical, 12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.white.opacity(0.4), lineWidth: 1)
+                                )
+                            }
+                            .opacity(showButtons ? 0.8 : 0)
+                            .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.4), value: showButtons)
+                        }
+                        
+                        // If already authenticated, show user info
+                        if authCoordinator.isAuthenticated {
+                            VStack(spacing: 8) {
+                                Text("Welcome back, \(authCoordinator.username)!")
+                                    .font(.system(size: 18, weight: .medium, design: .monospaced))
+                                    .foregroundColor(.green)
+                                
+                                Button(action: {
+                                    authCoordinator.logout()
+                                }) {
+                                    Text("Sign Out")
+                                        .font(.system(size: 14, weight: .medium))
+                                        .foregroundColor(.white.opacity(0.7))
+                                        .padding(.horizontal, 20)
+                                        .padding(.vertical, 8)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 6)
+                                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                        )
                                 }
                             }
-                        }) {
-                            HStack {
-                                Image(systemName: "person.circle.fill")
-                                    .font(.system(size: 16))
-                                Text("Log In")
-                                    .font(.system(size: 16, weight: .semibold, design: .monospaced))
-                            }
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 32)
-                            .padding(.vertical, 12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.white.opacity(0.6), lineWidth: 1)
-                            )
+                            .opacity(showButtons ? 1 : 0)
+                            .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.2), value: showButtons)
                         }
-                        .opacity(showButtons ? 1 : 0)
                     }
                     .padding(.bottom, 60)
                 }
@@ -188,7 +232,37 @@ struct HomeScreen: View {
         }
     }
     
-    // MARK: - Animations and Setup
+    // MARK: - Apple Sign-In Handler
+    
+    private func handleAppleSignIn(result: Result<ASAuthorization, Error>) {
+        switch result {
+        case .success(let authorization):
+            // Play success sound
+            SoundManager.shared.play(.correctGuess)
+            
+            authCoordinator.signInWithApple(authorization: authorization) { success, error in
+                if success {
+                    print("Apple Sign-In successful!")
+                    // Navigate to main game after successful login
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        onBegin()
+                    }
+                } else {
+                    print("Apple Sign-In failed: \(error ?? "Unknown error")")
+                    // Error handling - could show an alert here
+                }
+            }
+            
+        case .failure(let error):
+            // Handle cancellation gracefully (don't show error for user cancellation)
+            if (error as NSError).code != ASAuthorizationError.canceled.rawValue {
+                print("Apple Sign-In error: \(error.localizedDescription)")
+                // Could show error alert here for non-cancellation errors
+            }
+        }
+    }
+    
+    // MARK: - All your existing animation methods stay the same...
     
     private func setupCodeColumns(screenWidth: CGFloat) {
         // Create columns of varying height and speed for the code rain effect
@@ -281,25 +355,3 @@ struct HomeScreen: View {
         return (0..<count).map { _ in String(cryptoChars.randomElement()!) }
     }
 }
-
-
-
-
-
-
-
-// MARK: - Preview
-//#Preview {
-//    HomeScreen(onComplete: {
-//        print("Welcome complete!")
-//    })
-//}
-
-
-//
-//  WelcomeScreen.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 13/05/2025.
-//
-

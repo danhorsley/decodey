@@ -59,7 +59,7 @@ struct MainView: View {
     // Home screen view
     private var homeView: some View {
         ZStack {
-            OptimizedHomeScreen(
+            HomeScreen(
                 onBegin: {
                     if userState.isAuthenticated {
                         coordinator.navigate(to: .main(.daily))
@@ -71,6 +71,7 @@ struct MainView: View {
                     showLoginSheet = true
                 }
             )
+            .environmentObject(userState.authCoordinator) // Add this line!
             
             #if DEBUG
             // Add performance monitor in debug builds

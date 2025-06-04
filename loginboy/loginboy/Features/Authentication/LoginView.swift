@@ -1,17 +1,18 @@
 import SwiftUI
+import AuthenticationServices
 
 struct LoginView: View {
     @EnvironmentObject private var auth: AuthenticationCoordinator
     @State private var username = ""
     @State private var password = ""
     @State private var rememberMe = true
-    @State private var backendURL = "https://7264097a-b4a2-42c7-988c-db8c0c9b107a-00-1lx57x7wg68m5.janeway.replit.dev/login"
+    @State private var backendURL = "https://7264097a-b4a2-42c7-988c-db8c0c9b107a-00-1lx57x7wg68m5.janeway.replit.dev"
     
     @FocusState private var isURLFieldFocused: Bool
     
     var body: some View {
         VStack(spacing: 20) {
-            Text("Auth Test")
+            Text("Welcome to Decodey")
                 .font(.largeTitle)
                 .fontWeight(.bold)
             
@@ -36,56 +37,81 @@ struct LoginView: View {
             }
             .padding(.bottom, 10)
             
-            // Username field
-            VStack(alignment: .leading) {
-                Text("Username or Email")
-                    .font(.caption)
-                TextField("Username or Email", text: $username)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .disableAutocorrection(true)
+            // Apple Sign-In Button (prominent placement)
+            SignInWithAppleButton(.signIn) { request in
+                request.requestedScopes = [.fullName, .email]
+            } onCompletion: { result in
+                handleAppleSignIn(result: result)
             }
+            .signInWithAppleButtonStyle(.black)
+            .frame(height: 50)
+            .cornerRadius(8)
             
-            // Password field
-            VStack(alignment: .leading) {
-                Text("Password")
-                    .font(.caption)
-                SecureField("Password", text: $password)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
+            // Divider
+            HStack {
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundColor(.gray.opacity(0.3))
+                
+                Text("or")
+                    .foregroundColor(.gray)
+                    .padding(.horizontal)
+                
+                Rectangle()
+                    .frame(height: 1)
+                    .foregroundColor(.gray.opacity(0.3))
             }
+            .padding(.vertical, 8)
             
-            // Remember me toggle
-            Toggle(isOn: $rememberMe) {
-                Text("Remember me")
-            }
-            
-            // Login button
-            Button(action: {
-                auth.login(username: username, password: password, rememberMe: rememberMe) { success, error in
-                    if success {
-                        print("Login successful!")
+            // Traditional login form
+            VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading) {
+                    Text("Username or Email")
+                        .font(.caption)
+                    TextField("Username or Email", text: $username)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .disableAutocorrection(true)
+                }
+                
+                VStack(alignment: .leading) {
+                    Text("Password")
+                        .font(.caption)
+                    SecureField("Password", text: $password)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                }
+                
+                Toggle(isOn: $rememberMe) {
+                    Text("Remember me")
+                }
+                
+                Button(action: {
+                    auth.login(username: username, password: password, rememberMe: rememberMe) { success, error in
+                        if success {
+                            print("Login successful!")
+                        } else {
+                            print("Login failed: \(error ?? "Unknown error")")
+                        }
+                    }
+                }) {
+                    if auth.isLoading {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle())
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
                     } else {
-                        print("Login failed: \(error ?? "Unknown error")")
+                        Text("Login with Password")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(8)
                     }
                 }
-            }) {
-                if auth.isLoading {
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle())
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                } else {
-                    Text("Login")
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                }
+                .disabled(username.isEmpty || password.isEmpty || auth.isLoading)
             }
-            .disabled(username.isEmpty || password.isEmpty || auth.isLoading)
             
             // Error message
             if let errorMessage = auth.errorMessage {
@@ -112,7 +138,6 @@ struct LoginView: View {
                 .background(Color.green.opacity(0.1))
                 .cornerRadius(8)
                 
-                // Logout button
                 Button(action: {
                     auth.logout()
                 }) {
@@ -150,11 +175,22 @@ struct LoginView: View {
             isURLFieldFocused = true
         }
     }
+    
+    // MARK: - Apple Sign-In Handler
+    
+    private func handleAppleSignIn(result: Result<ASAuthorization, Error>) {
+        switch result {
+        case .success(let authorization):
+            auth.signInWithApple(authorization: authorization) { success, error in
+                if success {
+                    print("Apple Sign-In successful!")
+                } else {
+                    print("Apple Sign-In failed: \(error ?? "Unknown error")")
+                }
+            }
+            
+        case .failure(let error):
+            auth.errorMessage = "Apple Sign-In was cancelled or failed: \(error.localizedDescription)"
+        }
+    }
 }
-//
-//  LoginView.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 13/05/2025.
-//
-

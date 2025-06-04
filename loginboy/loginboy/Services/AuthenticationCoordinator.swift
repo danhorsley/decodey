@@ -1,6 +1,7 @@
 import Foundation
 import Combine
 import Security
+import AuthenticationServices
 
 class AuthenticationCoordinator: ObservableObject {
     // Published properties for UI binding
@@ -317,4 +318,92 @@ extension AuthenticationCoordinator {
 extension Notification.Name {
     static let userDidLogin = Notification.Name("com.yourapp.userDidLogin")
     static let userDidLogout = Notification.Name("com.yourapp.userDidLogout")
+}
+
+extension AuthenticationCoordinator {
+    
+    func signInWithApple(
+        authorization: ASAuthorization,
+        completion: @escaping (Bool, String?) -> Void
+    ) {
+        isLoading = true
+        errorMessage = nil
+        
+        guard let appleIDCredential = authorization.credential as? ASAuthorizationAppleIDCredential else {
+            self.isLoading = false
+            self.errorMessage = "Invalid Apple ID credential"
+            completion(false, "Invalid Apple ID credential")
+            return
+        }
+        
+        let appleUserId = appleIDCredential.user
+        let email = appleIDCredential.email
+        let fullName = appleIDCredential.fullName
+        
+        // Convert name to string if available
+        var fullNameString: String?
+        if let fullName = fullName {
+            let formatter = PersonNameComponentsFormatter()
+            fullNameString = formatter.string(from: fullName)
+        }
+        
+        // Use NetworkService for the API call
+        Task {
+            do {
+                let response = try await NetworkService.shared.signInWithApple(
+                    baseURL: baseURL,
+                    appleUserId: appleUserId,
+                    email: email,
+                    fullName: fullNameString,
+                    authorizationCode: appleIDCredential.authorizationCode,
+                    identityToken: appleIDCredential.identityToken
+                )
+                
+                await MainActor.run {
+                    self.handleAppleSignInSuccess(response: response, completion: completion)
+                }
+            } catch {
+                await MainActor.run {
+                    self.isLoading = false
+                    self.errorMessage = "Apple Sign-In failed: \(error.localizedDescription)"
+                    completion(false, self.errorMessage)
+                }
+            }
+        }
+    }
+    
+    private func handleAppleSignInSuccess(
+        response: AppleSignInResponse,
+        completion: @escaping (Bool, String?) -> Void
+    ) {
+        // Save tokens (same as regular login)
+        if let accessToken = response.access_token {
+            try? KeychainManager.save(
+                service: keychainService,
+                account: keyAccessToken,
+                password: accessToken.data(using: .utf8) ?? Data()
+            )
+        }
+        
+        if let refreshToken = response.refresh_token {
+            try? KeychainManager.save(
+                service: keychainService,
+                account: keyRefreshToken,
+                password: refreshToken.data(using: .utf8) ?? Data()
+            )
+        }
+        
+        // Update state (same as regular login)
+        self.isAuthenticated = true
+        self.username = response.username
+        self.userId = response.user_id
+        self.hasActiveGame = response.has_active_game ?? false
+        self.isSubadmin = response.subadmin ?? false
+        self.isLoading = false
+        
+        // Post notification
+        NotificationCenter.default.post(name: .userDidLogin, object: nil)
+        
+        completion(true, nil)
+    }
 }

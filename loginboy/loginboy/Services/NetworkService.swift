@@ -182,6 +182,51 @@ class NetworkService {
     }
 }
 
+struct AppleSignInRequest: Codable {
+    let appleUserId: String
+    let email: String?
+    let fullName: String?
+    let authorizationCode: String?
+    let identityToken: String?
+}
+
+struct AppleSignInResponse: Codable {
+    let access_token: String?
+    let refresh_token: String?
+    let username: String
+    let user_id: String
+    let has_active_game: Bool?
+    let subadmin: Bool?
+}
+
+extension NetworkService {
+    
+    /// Sign in with Apple
+    func signInWithApple(
+        baseURL: String,
+        appleUserId: String,
+        email: String?,
+        fullName: String?,
+        authorizationCode: Data?,
+        identityToken: Data?
+    ) async throws -> AppleSignInResponse {
+        
+        var builder = RequestBuilder(baseURL: baseURL, path: "/auth/apple")
+        builder.method = .post
+        
+        let request = AppleSignInRequest(
+            appleUserId: appleUserId,
+            email: email,
+            fullName: fullName,
+            authorizationCode: authorizationCode?.base64EncodedString(),
+            identityToken: identityToken?.base64EncodedString()
+        )
+        
+        try builder.setJSONBody(request)
+        
+        return try await self.request(builder, responseType: AppleSignInResponse.self)
+    }
+}
 //
 //  NetworkService.swift
 //  loginboy
