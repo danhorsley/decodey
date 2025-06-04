@@ -630,8 +630,16 @@ class GameReconciliationManager {
     }
     
     private func convertToGameData(_ game: GameCD) -> ServerGameData {
+        
+        // Construct the proper backend ID from the stored UUID and game properties
+        let backendGameId = constructBackendGameId(
+            uuid: game.gameId!,
+            isDaily: game.isDaily,
+            difficulty: game.difficulty,
+            startTime: game.startTime
+        )
         return ServerGameData(
-            gameId: game.gameId?.uuidString ?? "",
+            gameId: backendGameId,
             userId: UserState.shared.userId,
             encrypted: game.encrypted ?? "",
             solution: game.solution ?? "",
@@ -651,7 +659,22 @@ class GameReconciliationManager {
             guessedMappings: decodeMapping(game.guessedMappings)
         )
     }
-    
+    // helper function for constructing backend uuids
+    private func constructBackendGameId(uuid: UUID, isDaily: Bool, difficulty: String?, startTime: Date?) -> String {
+        let uuidString = uuid.uuidString.lowercased()
+        
+        if isDaily {
+            // For daily games: easy-daily-2025-04-19-[UUID]
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd"
+            let dateString = dateFormatter.string(from: startTime ?? Date())
+            return "easy-daily-\(dateString)-\(uuidString)"
+        } else {
+            // For regular games: difficulty-[UUID]
+            let difficultyPrefix = difficulty?.lowercased() ?? "medium"
+            return "\(difficultyPrefix)-\(uuidString)"
+        }
+    }
     private func getLocalGame(gameId: String) -> ServerGameData? {
         let context = coreData.mainContext
         
