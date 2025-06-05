@@ -13,34 +13,6 @@ struct LeaderboardEntry: Identifiable {
     var id: String { userId }
 }
 
-struct EntryRow: View {
-    let entry: LeaderboardEntry
-    
-    var body: some View {
-        HStack {
-            Text("#\(entry.rank)")
-                .fontWeight(.bold)
-                .frame(width: 60, alignment: .leading)
-            
-            Text(entry.username)
-                .fontWeight(.medium)
-                .lineLimit(1)
-                .frame(minWidth: 100, maxWidth: .infinity, alignment: .leading)
-            
-            Text("\(entry.score)")
-                .fontWeight(.medium)
-                .frame(width: 80, alignment: .trailing)
-            
-            Text("\(entry.gamesPlayed)")
-                .frame(width: 60, alignment: .trailing)
-            
-            Text(String(format: "%.1f", entry.avgScore))
-                .frame(width: 60, alignment: .trailing)
-        }
-        .padding(.horizontal)
-    }
-}
-
 struct LeaderboardView: View {
     @EnvironmentObject var userState: UserState
     @State private var isLoading = false
@@ -51,16 +23,28 @@ struct LeaderboardView: View {
     @State private var totalPages = 1
     @State private var selectedPeriod = "all-time"
     
-    // Core Data access
-    private let coreData = CoreDataStack.shared
-    
     var body: some View {
-        VStack {
-            // Header
-            Text("Leaderboard")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-                .padding(.top)
+        VStack(spacing: 0) {
+            // Custom header
+            HStack {
+                Text("Leaderboard")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                
+                Spacer()
+                
+                Button(action: loadLeaderboard) {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.title3)
+                }
+                .disabled(isLoading)
+            }
+            .padding()
+            .background(primaryBackgroundColor)
+            .overlay(
+                Divider(),
+                alignment: .bottom
+            )
             
             // Period selector
             Picker("Time Period", selection: $selectedPeriod) {
@@ -75,15 +59,24 @@ struct LeaderboardView: View {
             }
             
             if isLoading {
-                ProgressView("Loading leaderboard...")
-                    .padding()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                VStack {
+                    ProgressView()
+                        .scaleEffect(1.5)
+                        .padding()
+                    Text("Loading leaderboard...")
+                        .font(.headline)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if let errorMessage = errorMessage {
                 VStack {
                     Image(systemName: "exclamationmark.triangle")
                         .font(.system(size: 50))
                         .foregroundColor(.orange)
                         .padding()
+                    
+                    Text("Error loading leaderboard")
+                        .font(.title2)
+                        .fontWeight(.bold)
                     
                     Text(errorMessage)
                         .foregroundColor(.red)
@@ -93,15 +86,14 @@ struct LeaderboardView: View {
                     Button("Try Again") {
                         loadLeaderboard()
                     }
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.roundedRectangle)
+                    .padding(.top)
                 }
                 .padding()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if !entries.isEmpty {
-                VStack {
+            } else if !entries.isEmpty || currentUserEntry != nil {
+                VStack(spacing: 0) {
                     // Table header
                     HStack {
                         Text("Rank")
@@ -126,7 +118,7 @@ struct LeaderboardView: View {
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 8)
-                    .background(Color.gray.opacity(0.1))
+                    .background(secondaryBackgroundColor)
                     
                     ScrollView {
                         LazyVStack(spacing: 0) {
@@ -148,9 +140,11 @@ struct LeaderboardView: View {
                                     .padding(.vertical, 8)
                                     .background(entry.isCurrentUser ? Color.green.opacity(0.2) : Color.clear)
                                 
-                                Divider()
-                                    .background(Color.gray.opacity(0.3))
-                                    .padding(.horizontal)
+                                if entry.id != entries.last?.id {
+                                    Divider()
+                                        .background(Color.gray.opacity(0.3))
+                                        .padding(.horizontal)
+                                }
                             }
                         }
                     }
@@ -194,9 +188,10 @@ struct LeaderboardView: View {
                         .padding()
                     
                     Text("No leaderboard data available")
+                        .font(.title3)
                         .foregroundColor(.secondary)
                     
-                    Text("Games need to be synced from other players")
+                    Text("Play some games to see the leaderboard!")
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .padding(.top, 4)
@@ -204,97 +199,79 @@ struct LeaderboardView: View {
                     Button("Refresh") {
                         loadLeaderboard()
                     }
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+                    .buttonStyle(.bordered)
+                    .buttonBorderShape(.roundedRectangle)
                     .padding(.top)
                 }
                 .padding()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .padding(.bottom)
+        .background(groupedBackgroundColor)
         .onAppear {
             loadLeaderboard()
         }
         .refreshable {
-            loadLeaderboard()
+            await loadLeaderboardAsync()
         }
     }
     
-    // MARK: - Local Leaderboard Calculation
+    // MARK: - API Call to Backend
     
     private func loadLeaderboard() {
+        Task {
+            await loadLeaderboardAsync()
+        }
+    }
+    
+    @MainActor
+    private func loadLeaderboardAsync() async {
         isLoading = true
         errorMessage = nil
         
-        // Calculate leaderboard from local Core Data
-        let context = coreData.mainContext
+        guard let token = userState.authCoordinator.getAccessToken() else {
+            errorMessage = "Authentication required"
+            isLoading = false
+            return
+        }
         
         do {
-            var leaderboardData: [(userId: String, username: String, totalScore: Int, gamesPlayed: Int, avgScore: Double)] = []
+            let response = try await fetchLeaderboardFromAPI(
+                token: token,
+                period: selectedPeriod,
+                page: currentPage,
+                perPage: 10
+            )
             
-            if selectedPeriod == "weekly" {
-                leaderboardData = try calculateWeeklyLeaderboard(context: context)
-            } else {
-                leaderboardData = try calculateAllTimeLeaderboard(context: context)
-            }
-            
-            // Sort by total score descending
-            leaderboardData.sort { $0.totalScore > $1.totalScore }
-            
-            // Convert to LeaderboardEntry objects with ranks
-            var allEntries: [LeaderboardEntry] = []
-            var currentUserFound = false
-            
-            for (index, data) in leaderboardData.enumerated() {
-                let rank = index + 1
-                let isCurrentUser = data.userId == userState.userId
-                
-                let entry = LeaderboardEntry(
-                    rank: rank,
-                    username: data.username,
-                    userId: data.userId,
-                    score: data.totalScore,
-                    gamesPlayed: data.gamesPlayed,
-                    avgScore: data.avgScore,
-                    isCurrentUser: isCurrentUser
+            // Convert API response to our LeaderboardEntry model
+            entries = response.entries.map { apiEntry in
+                LeaderboardEntry(
+                    rank: apiEntry.rank,
+                    username: apiEntry.username,
+                    userId: apiEntry.user_id,
+                    score: apiEntry.score,
+                    gamesPlayed: apiEntry.games_played,
+                    avgScore: apiEntry.avg_score,
+                    isCurrentUser: apiEntry.is_current_user
                 )
-                
-                allEntries.append(entry)
-                
-                if isCurrentUser {
-                    currentUserFound = true
-                    currentUserEntry = entry
-                }
             }
             
-            // If current user not found but they have games, create entry with 0 scores
-            if !currentUserFound && userState.isAuthenticated {
+            // Set current user entry if provided
+            if let apiCurrentUser = response.currentUserEntry {
                 currentUserEntry = LeaderboardEntry(
-                    rank: allEntries.count + 1,
-                    username: userState.username,
-                    userId: userState.userId,
-                    score: 0,
-                    gamesPlayed: 0,
-                    avgScore: 0,
+                    rank: apiCurrentUser.rank,
+                    username: apiCurrentUser.username,
+                    userId: apiCurrentUser.user_id,
+                    score: apiCurrentUser.score,
+                    gamesPlayed: apiCurrentUser.games_played,
+                    avgScore: apiCurrentUser.avg_score,
                     isCurrentUser: true
                 )
             }
             
-            // Paginate results
-            let pageSize = 10
-            totalPages = max(1, (allEntries.count + pageSize - 1) / pageSize)
-            
-            let startIndex = (currentPage - 1) * pageSize
-            let endIndex = min(startIndex + pageSize, allEntries.count)
-            
-            if startIndex < allEntries.count {
-                entries = Array(allEntries[startIndex..<endIndex])
-            } else {
-                entries = []
-            }
+            // Update pagination
+            currentPage = response.pagination.current_page
+            totalPages = response.pagination.total_pages
             
             isLoading = false
         } catch {
@@ -303,58 +280,154 @@ struct LeaderboardView: View {
         }
     }
     
-    private func calculateAllTimeLeaderboard(context: NSManagedObjectContext) throws -> [(userId: String, username: String, totalScore: Int, gamesPlayed: Int, avgScore: Double)] {
-        // Get all users with stats
-        let userFetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
-        userFetchRequest.predicate = NSPredicate(format: "stats != nil")
+    private func fetchLeaderboardFromAPI(
+        token: String,
+        period: String,
+        page: Int,
+        perPage: Int
+    ) async throws -> LeaderboardAPIResponse {
         
-        let users = try context.fetch(userFetchRequest)
+        let baseURL = userState.authCoordinator.baseURL
         
-        return users.compactMap { user in
-            guard let stats = user.stats,
-                  let userId = user.userId,
-                  let username = user.username,
-                  stats.gamesPlayed > 0 else { return nil }
+        var components = URLComponents(string: "\(baseURL)/api/leaderboard")!
+        components.queryItems = [
+            URLQueryItem(name: "period", value: period),
+            URLQueryItem(name: "page", value: String(page)),
+            URLQueryItem(name: "per_page", value: String(perPage))
+        ]
+        
+        guard let url = components.url else {
+            throw URLError(.badURL)
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "GET"
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
+        
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw URLError(.badServerResponse)
+        }
+        
+        if httpResponse.statusCode == 401 {
+            // Token expired, need to re-authenticate
+            throw NSError(domain: "Leaderboard", code: 401, userInfo: [NSLocalizedDescriptionKey: "Authentication expired. Please log in again."])
+        }
+        
+        guard httpResponse.statusCode == 200 else {
+            throw NSError(domain: "Leaderboard", code: httpResponse.statusCode, userInfo: [NSLocalizedDescriptionKey: "Server returned status \(httpResponse.statusCode)"])
+        }
+        
+        let decoder = JSONDecoder()
+        return try decoder.decode(LeaderboardAPIResponse.self, from: data)
+    }
+    
+    // MARK: - Cross-platform colors
+    
+    private var primaryBackgroundColor: Color {
+        #if os(iOS)
+        return Color(.systemBackground)
+        #else
+        return Color(NSColor.windowBackgroundColor)
+        #endif
+    }
+    
+    private var secondaryBackgroundColor: Color {
+        #if os(iOS)
+        return Color(.secondarySystemBackground)
+        #else
+        return Color(NSColor.controlBackgroundColor)
+        #endif
+    }
+    
+    private var groupedBackgroundColor: Color {
+        #if os(iOS)
+        return Color(.systemGroupedBackground)
+        #else
+        return Color(NSColor.windowBackgroundColor)
+        #endif
+    }
+}
+
+// MARK: - API Response Models
+
+struct LeaderboardAPIResponse: Codable {
+    let entries: [APILeaderboardEntry]
+    let currentUserEntry: APILeaderboardEntry?
+    let pagination: APIPagination
+    let period: String
+}
+
+struct APILeaderboardEntry: Codable {
+    let rank: Int
+    let username: String
+    let user_id: String
+    let score: Int
+    let games_played: Int
+    let avg_score: Double
+    let is_current_user: Bool
+}
+
+struct APIPagination: Codable {
+    let current_page: Int
+    let total_pages: Int
+    let total_entries: Int
+    let per_page: Int
+}
+
+// Keep the existing EntryRow component
+struct EntryRow: View {
+    let entry: LeaderboardEntry
+    
+    var body: some View {
+        HStack {
+            // Rank with medal for top 3
+            HStack(spacing: 4) {
+                if entry.rank <= 3 {
+                    Image(systemName: medalIcon(for: entry.rank))
+                        .foregroundColor(medalColor(for: entry.rank))
+                        .font(.title3)
+                }
+                Text("#\(entry.rank)")
+                    .fontWeight(.bold)
+            }
+            .frame(width: 60, alignment: .leading)
             
-            let totalScore = Int(stats.totalScore)
-            let gamesPlayed = Int(stats.gamesPlayed)
-            let avgScore = gamesPlayed > 0 ? Double(totalScore) / Double(gamesPlayed) : 0
+            Text(entry.username)
+                .fontWeight(.medium)
+                .lineLimit(1)
+                .frame(minWidth: 100, maxWidth: .infinity, alignment: .leading)
             
-            return (userId: userId, username: username, totalScore: totalScore, gamesPlayed: gamesPlayed, avgScore: avgScore)
+            Text("\(entry.score)")
+                .fontWeight(.medium)
+                .frame(width: 80, alignment: .trailing)
+            
+            Text("\(entry.gamesPlayed)")
+                .frame(width: 60, alignment: .trailing)
+            
+            Text(String(format: "%.1f", entry.avgScore))
+                .frame(width: 60, alignment: .trailing)
+        }
+        .padding(.horizontal)
+    }
+    
+    private func medalIcon(for rank: Int) -> String {
+        switch rank {
+        case 1: return "medal.fill"
+        case 2: return "medal.fill"
+        case 3: return "medal.fill"
+        default: return ""
         }
     }
     
-    private func calculateWeeklyLeaderboard(context: NSManagedObjectContext) throws -> [(userId: String, username: String, totalScore: Int, gamesPlayed: Int, avgScore: Double)] {
-        // Calculate start of current week
-        let now = Date()
-        let calendar = Calendar.current
-        let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: now)?.start ?? now
-        
-        // Get all completed games from this week
-        let gameFetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
-        gameFetchRequest.predicate = NSPredicate(format: "lastUpdateTime >= %@ AND (hasWon == YES OR hasLost == YES)", startOfWeek as NSDate)
-        
-        let weeklyGames = try context.fetch(gameFetchRequest)
-        
-        // Group by user and calculate weekly scores
-        var userWeeklyData: [String: (username: String, totalScore: Int, gamesPlayed: Int)] = [:]
-        
-        for game in weeklyGames {
-            guard let user = game.user,
-                  let userId = user.userId,
-                  let username = user.username else { continue }
-            
-            let currentData = userWeeklyData[userId] ?? (username: username, totalScore: 0, gamesPlayed: 0)
-            userWeeklyData[userId] = (
-                username: username,
-                totalScore: currentData.totalScore + Int(game.score),
-                gamesPlayed: currentData.gamesPlayed + 1
-            )
-        }
-        
-        return userWeeklyData.map { (userId, data) in
-            let avgScore = data.gamesPlayed > 0 ? Double(data.totalScore) / Double(data.gamesPlayed) : 0
-            return (userId: userId, username: data.username, totalScore: data.totalScore, gamesPlayed: data.gamesPlayed, avgScore: avgScore)
+    private func medalColor(for rank: Int) -> Color {
+        switch rank {
+        case 1: return .yellow
+        case 2: return Color(white: 0.75) // Silver
+        case 3: return .orange // Bronze
+        default: return .clear
         }
     }
 }

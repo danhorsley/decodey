@@ -112,7 +112,7 @@ class GameReconciliationManager {
         request.httpMethod = "POST"
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.timeoutInterval = 120.0 // Increased timeout for large datasets
+        request.timeoutInterval = 500.0 // Increased timeout for large datasets
         
         let requestBody = ReconciliationRequest(
             type: type,
