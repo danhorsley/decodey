@@ -9,6 +9,7 @@ struct GameGridsView: View {
     // Design system references
     private let design = DesignSystem.shared
     private let colors = ColorSystem.shared
+    private let fonts = FontSystem.shared
     
     @Environment(\.colorScheme) var colorScheme
     
@@ -21,7 +22,7 @@ struct GameGridsView: View {
             VStack(alignment: .center, spacing: 8) {
                 if showTextHelpers {
                     Text("ENCRYPTED LETTERS")
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .font(fonts.encryptedLetterCell())
                         .tracking(1.5)
                         .foregroundColor(.secondary.opacity(0.7))
                 }
@@ -43,7 +44,7 @@ struct GameGridsView: View {
             VStack(alignment: .center, spacing: 8) {
                 if showTextHelpers {
                     Text("YOUR LETTERS")
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .font(fonts.guessLetterCell())
                         .tracking(1.5)
                         .foregroundColor(.secondary.opacity(0.7))
                 }

@@ -15,16 +15,16 @@ struct FontSystem {
     
     // Letter cells
     func encryptedLetterCell() -> Font {
-        courierNew(size: 22, weight: .semibold)
+        courierNew(size: 24, weight: .regular)
     }
     
     func guessLetterCell() -> Font {
-        courierNew(size: 22, weight: .semibold)
+        courierNew(size: 24, weight: .regular)
     }
     
     // Frequency indicator
     func frequencyIndicator() -> Font {
-        courierNew(size: 10, weight: .medium)
+        courierNew(size: 12, weight: .medium)
     }
     
     // Display text
