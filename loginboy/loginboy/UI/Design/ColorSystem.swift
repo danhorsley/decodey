@@ -1,6 +1,7 @@
 import SwiftUI
 
 /// ColorSystem provides consistent color theming across the application
+/// Rewritten to use modern SwiftUI cross-platform approach
 struct ColorSystem {
     static let shared = ColorSystem()
     
@@ -28,43 +29,30 @@ struct ColorSystem {
     // MARK: - Text Colors
     
     func primaryText(for colorScheme: ColorScheme) -> Color {
-        colorScheme == .dark ? Color.white : Color.black
+        // Using semantic color that automatically adapts
+        Color.primary
     }
     
     func secondaryText(for colorScheme: ColorScheme) -> Color {
-        colorScheme == .dark ? Color.white.opacity(0.7) : Color.black.opacity(0.6)
+        // Using semantic color for secondary text
+        Color.secondary
     }
     
     // MARK: - Background Colors
     
     func primaryBackground(for colorScheme: ColorScheme) -> Color {
-        #if os(iOS)
-        return colorScheme == .dark ? Color(UIColor.systemBackground) : Color(UIColor.systemBackground)
-        #elseif os(macOS)
-        return colorScheme == .dark ? Color(NSColor.windowBackgroundColor) : Color(NSColor.windowBackgroundColor)
-        #else
-        return colorScheme == .dark ? Color.black : Color.white
-        #endif
+        // True cross-platform approach using colorScheme
+        colorScheme == .dark ? Color.black : Color.white
     }
     
     func secondaryBackground(for colorScheme: ColorScheme) -> Color {
-        #if os(iOS)
-        return colorScheme == .dark ? Color(UIColor.secondarySystemBackground) : Color(UIColor.secondarySystemBackground)
-        #elseif os(macOS)
-        return colorScheme == .dark ? Color(NSColor.controlBackgroundColor) : Color(NSColor.controlBackgroundColor)
-        #else
-        return colorScheme == .dark ? Color(white: 0.15) : Color(white: 0.95)
-        #endif
+        // Cross-platform secondary background
+        colorScheme == .dark ? Color(white: 0.11) : Color(white: 0.95)
     }
     
     func tertiaryBackground(for colorScheme: ColorScheme) -> Color {
-        #if os(iOS)
-        return colorScheme == .dark ? Color(UIColor.systemGray6) : Color(UIColor.systemGray6)
-        #elseif os(macOS)
-        return colorScheme == .dark ? Color(NSColor.textBackgroundColor) : Color(NSColor.textBackgroundColor)
-        #else
-        return colorScheme == .dark ? Color(white: 0.2) : Color(white: 0.9)
-        #endif
+        // Platform-adaptive tertiary background
+        colorScheme == .dark ? Color(white: 0.15) : Color(white: 0.92)
     }
     
     // MARK: - Border Colors
@@ -85,7 +73,6 @@ struct ColorSystem {
         colorScheme == .dark ? Color(hex: "00ed99") : Color(hex: "0042aa")
     }
     
-    
     func cellBorder(for colorScheme: ColorScheme) -> Color {
         colorScheme == .dark ? Color.gray.opacity(0.4) : Color.gray.opacity(0.3)
     }
@@ -100,6 +87,7 @@ struct ColorSystem {
     }
     
     func selectedText(for colorScheme: ColorScheme) -> Color {
+        // Always high contrast for selected text
         colorScheme == .dark ? Color.black : Color.white
     }
     
@@ -141,8 +129,91 @@ struct ColorSystem {
     }
 }
 
-// MARK: - Hex Color Extension (if needed)
-// Keep this extension for creating colors from hex strings
+// MARK: - Modern SwiftUI Extensions
+
+extension Color {
+    /// True cross-platform background colors
+    static func background(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark ? Color.black : Color.white
+    }
+    
+    static func secondaryBackground(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark ? Color(white: 0.11) : Color(white: 0.95)
+    }
+    
+    static func tertiaryBackground(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark ? Color(white: 0.15) : Color(white: 0.92)
+    }
+}
+
+// MARK: - Platform-Adaptive Color Protocol
+
+/// For cases where you need platform-specific behavior
+@available(iOS 14.0, macOS 11.0, *)
+struct AdaptiveColor: ShapeStyle {
+    let light: Color
+    let dark: Color
+    
+    func resolve(in environment: EnvironmentValues) -> some ShapeStyle {
+        environment.colorScheme == .dark ? dark : light
+    }
+}
+
+// MARK: - Environment Extensions
+
+extension EnvironmentValues {
+    /// Convenience for accessing color system
+    var colors: ColorSystem {
+        ColorSystem.shared
+    }
+}
+
+// MARK: - View Extensions for Easy Access
+
+extension View {
+    /// Apply adaptive background color
+    func adaptiveBackground(_ colorScheme: ColorScheme, style: BackgroundStyle = .primary) -> some View {
+        let color: Color
+        switch style {
+        case .primary:
+            color = ColorSystem.shared.primaryBackground(for: colorScheme)
+        case .secondary:
+            color = ColorSystem.shared.secondaryBackground(for: colorScheme)
+        case .tertiary:
+            color = ColorSystem.shared.tertiaryBackground(for: colorScheme)
+        }
+        return self.background(color)
+    }
+    
+    /// Apply adaptive text color
+    func adaptiveText(_ colorScheme: ColorScheme, style: TextStyle = .primary) -> some View {
+        let color: Color
+        switch style {
+        case .primary:
+            color = ColorSystem.shared.primaryText(for: colorScheme)
+        case .secondary:
+            color = ColorSystem.shared.secondaryText(for: colorScheme)
+        case .encrypted:
+            color = ColorSystem.shared.encryptedColor(for: colorScheme)
+        case .guess:
+            color = ColorSystem.shared.guessColor(for: colorScheme)
+        }
+        return self.foregroundColor(color)
+    }
+}
+
+// MARK: - Supporting Types
+
+enum BackgroundStyle {
+    case primary, secondary, tertiary
+}
+
+enum TextStyle {
+    case primary, secondary, encrypted, guess
+}
+
+// MARK: - Hex Color Extension (keeping this as it's still useful)
+
 extension Color {
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
@@ -168,3 +239,25 @@ extension Color {
         )
     }
 }
+
+// MARK: - Usage Examples
+
+/*
+ // Old way:
+ #if os(iOS)
+ Color(UIColor.systemBackground)
+ #else
+ Color(NSColor.windowBackgroundColor)
+ #endif
+ 
+ // New way:
+ ColorSystem.shared.primaryBackground(for: colorScheme)
+ // or in a View:
+ @Environment(\.colorScheme) var colorScheme
+ Color.background(for: colorScheme)
+ 
+ // In a View:
+ Text("Hello")
+     .adaptiveText(colorScheme, style: .primary)
+     .adaptiveBackground(colorScheme, style: .secondary)
+*/

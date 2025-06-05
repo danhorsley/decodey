@@ -45,10 +45,10 @@ struct GameView: View {
     private var gameContentView: some View {
         VStack(spacing: 0) {
             // Header with styled title
-            UpdatedGameHeader(
-                isDailyChallenge: gameState.isDailyChallenge,
-                dateString: gameState.quoteDate
-            )
+            AnimatedGameHeader(
+                 isDailyChallenge: gameState.isDailyChallenge,
+                 dateString: gameState.quoteDate
+             )
             
             // Text display area
             VStack(spacing: 1) {
