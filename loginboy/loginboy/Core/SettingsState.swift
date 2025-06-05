@@ -288,10 +288,13 @@ class SettingsState: ObservableObject {
     
     private func updateAppAppearance() {
         #if os(iOS)
-        // Update UI appearance based on dark mode setting
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first {
-            window.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
+        // This needs to happen on the main thread
+        DispatchQueue.main.async {
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                windowScene.windows.forEach { window in
+                    window.overrideUserInterfaceStyle = self.isDarkMode ? .dark : .light
+                }
+            }
         }
         #endif
     }

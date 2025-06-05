@@ -29,11 +29,11 @@ struct FontSystem {
     
     // Display text
     func encryptedDisplayText() -> Font {
-        courierNew(size: 22, weight: .regular)
+        courierNew(size: 24, weight: .regular)
     }
     
     func solutionDisplayText() -> Font {
-        courierNew(size: 22, weight: .semibold)
+        courierNew(size: 24, weight: .semibold)
     }
     
     // Hint button

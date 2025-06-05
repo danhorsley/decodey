@@ -1,87 +1,111 @@
 import SwiftUI
 
 struct HintButtonView: View {
+    private var colors: ColorSystem { ColorSystem.shared }
     let remainingHints: Int
     let isLoading: Bool
     let isDarkMode: Bool
     let onHintRequested: () -> Void
     
-    // Use design systems
-    private let colors = ColorSystem.shared
-    private let fonts = FontSystem.shared
-    private let design = DesignSystem.shared
-    
     @Environment(\.colorScheme) var colorScheme
+    @State private var isPressed = false
+    
+    private let hintTexts = [
+        8: "SEVEN",
+        7: "█SIX█",
+        6: "█FIVE",
+        5: "FOUR█",
+        4: "THREE",
+        3: "█TWO█",
+        2: "█ONE█",
+        1: "ZERO█",
+        0: "█████"
+    ]
     
     var body: some View {
         Button(action: onHintRequested) {
-            hintButtonContent
+            VStack(spacing: 2) {
+                // Crossword-style display
+                Text(hintTexts[remainingHints] ?? "█████")
+                    .font(.system(size: 28, weight: .bold, design: .monospaced))
+                    .foregroundColor(textColor)
+                    .tracking(2)
+                    .frame(height: 40)
+                    .overlay(
+                        isLoading ?
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: textColor))
+                            .scaleEffect(0.8) : nil
+                    )
+                
+                // Label
+                Text("HINT TOKENS")
+                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                    .foregroundColor(textColor.opacity(0.7))
+                    .tracking(1)
+            }
+            .frame(width: 140, height: 80)
+            .background(backgroundGradient)
+            .cornerRadius(12)
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(borderColor, lineWidth: 1)
+            )
+            .shadow(color: shadowColor, radius: isPressed ? 2 : 8, x: 0, y: isPressed ? 1 : 4)
+            .scaleEffect(isPressed ? 0.95 : 1.0)
         }
         .buttonStyle(PlainButtonStyle())
         .disabled(isLoading || remainingHints <= 0)
-        .accessibilityLabel("Hint Button")
-        .accessibilityHint("You have \(remainingHints) hint tokens remaining")
-    }
-    
-    // Extract content into a separate computed property
-    private var hintButtonContent: some View {
-        VStack(spacing: 4) {
-            // Show spinner or hint count
-            if isLoading {
-                loadingView
-            } else {
-                hintCountView
+        .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isPressed = pressing
             }
-            
-            // Label underneath
-            Text("HINT TOKENS")
-                .font(fonts.hintLabel())
-                .foregroundColor(.secondary)
+        }, perform: {})
+    }
+    
+    private var backgroundGradient: some View {
+        Group {
+            if colorScheme == .light {
+                // Use the existing ColorSystem
+                LinearGradient(
+                    colors: [
+                        colors.primaryBackground(for: colorScheme),
+                        colors.secondaryBackground(for: colorScheme)
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            } else {
+                // Dark mode gradient using hex colors
+                LinearGradient(
+                    colors: [
+                        Color(hex: "1C1C1E"),
+                        Color(hex: "2C2C2E")
+                    ],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            }
         }
-        .frame(width: design.hintButtonWidth, height: design.hintButtonHeight)
-        .background(buttonBackground)
-        .overlay(buttonBorder)
-        .cornerRadius(10)
     }
     
-    // Loading indicator
-    private var loadingView: some View {
-        ProgressView()
-            .scaleEffect(1.2)
-            .progressViewStyle(CircularProgressViewStyle(tint: statusColor))
-            .frame(height: 30)
-            .padding(.vertical, 4)
-    }
-    
-    // Hint count display
-    private var hintCountView: some View {
-        Text("\(remainingHints)")
-            .font(fonts.hintValue())
-            .foregroundColor(statusColor)
-            .frame(height: 30)
-    }
-    
-    // Background color
-    private var buttonBackground: some View {
-        colorScheme == .dark ?
-            Color.black.opacity(0.3) :
-            Color.gray.opacity(0.1)
-    }
-    
-    // Border around button
-    private var buttonBorder: some View {
-        RoundedRectangle(cornerRadius: 10)
-            .stroke(statusColor, lineWidth: 2)
-    }
-    
-    // Determine the status color based on remaining hints
-    private var statusColor: Color {
-        if remainingHints <= 1 {
-            return colors.hintButtonDanger(for: colorScheme)
-        } else if remainingHints <= 3 {
-            return colors.hintButtonWarning(for: colorScheme)
-        } else {
-            return colors.hintButtonSafe(for: colorScheme)
+    private var textColor: Color {
+        switch remainingHints {
+        case 0...1: return .red
+        case 2...3: return .orange
+        default: return colorScheme == .light ? .black : Color(hex: "4cc9f0")
         }
+    }
+    
+    private var borderColor: Color {
+        colorScheme == .light ?
+            Color.gray.opacity(0.2) :  // Simple cross-platform solution
+            Color.white.opacity(0.1)
+    }
+    
+    private var shadowColor: Color {
+        colorScheme == .light ?
+            Color.black.opacity(0.1) :
+            Color.clear
     }
 }

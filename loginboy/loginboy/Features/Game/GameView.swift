@@ -6,6 +6,7 @@ struct GameView: View {
     @EnvironmentObject var settingsState: SettingsState
     
     @Environment(\.colorScheme) var colorScheme
+    private let fonts = FontSystem.shared
     
     var body: some View {
         ZStack {
@@ -91,7 +92,7 @@ struct GameView: View {
     }
     
     private var gameContentView: some View {
-        VStack(spacing: DesignSystem.shared.displayAreaPadding) {
+        VStack(spacing: 20) {
             // Header - only shown for daily challenge
             if gameState.isDailyChallenge, let dateString = gameState.quoteDate {
                 Text(dateString)
@@ -134,9 +135,9 @@ struct GameView: View {
     
     // Display area for the encrypted and solution text
     private var displayTextArea: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 2) {
             // Encrypted text
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading,  spacing: 1) {
                 if settingsState.showTextHelpers {
                     Text("Encrypted:")
                         .font(.caption)
@@ -144,16 +145,17 @@ struct GameView: View {
                 }
                 
                 Text(gameState.currentGame?.encrypted ?? "")
-                    .font(.system(size: DesignSystem.shared.displayFontSize, design: .monospaced))
+                    .font(fonts.encryptedDisplayText())
                     .foregroundColor(ColorSystem.shared.encryptedColor(for: colorScheme))
+                    .tracking(1.2)
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 8)
-                    .background(Color.secondary.opacity(0.1))
+                    .padding(.vertical, 1)
+                    .background(Color.clear)
                     .cornerRadius(8)
             }
             
             // Solution with blocks
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading,  spacing: 1) {
                 if settingsState.showTextHelpers {
                     Text("Your solution:")
                         .font(.caption)
@@ -161,11 +163,12 @@ struct GameView: View {
                 }
                 
                 Text(gameState.currentGame?.currentDisplay ?? "")
-                    .font(.system(size: DesignSystem.shared.displayFontSize, design: .monospaced))
+                    .font(fonts.solutionDisplayText())
                     .foregroundColor(ColorSystem.shared.guessColor(for: colorScheme))
+                    .tracking(1.2)
                     .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 8)
-                    .background(Color.secondary.opacity(0.1))
+                    .padding(.vertical, 1)
+                    .background(Color.clear)
                     .cornerRadius(8)
             }
         }

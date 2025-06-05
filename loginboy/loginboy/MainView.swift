@@ -5,7 +5,7 @@ struct MainView: View {
     // Environment state objects
     @StateObject private var userState = UserState.shared
     @StateObject private var gameState = GameState.shared
-    @StateObject private var settingsState = SettingsState.shared
+    @EnvironmentObject var settingsState: SettingsState
     
     // Use navigation coordinator
     @StateObject private var coordinator = NavigationCoordinator(auth: UserState.shared.authCoordinator)
@@ -71,7 +71,7 @@ struct MainView: View {
                     showLoginSheet = true
                 }
             )
-            .environmentObject(userState.authCoordinator) // Add this line!
+            .environmentObject(userState.authCoordinator) 
             
             #if DEBUG
             // Add performance monitor in debug builds
@@ -91,25 +91,14 @@ struct MainView: View {
     private var loginView: some View {
         LoginView()
             .environmentObject(userState.authCoordinator)
-            .overlay(
-                Button(action: {
-                    coordinator.navigate(to: .home)
-                }) {
-                    Image(systemName: "house")
-                        .font(.title)
-                        .padding()
-                        .background(Circle().fill(Color.black.opacity(0.7)))
-                        .foregroundColor(.white)
-                }
-                .padding(),
-                alignment: .topLeading
-            )
     }
     
     // Main tab view
     private var mainTabView: some View {
         TabView(selection: $coordinator.selectedTab) {
+            
             NavigationViewWrapper {
+                
                 DailyView()
                     .environmentObject(userState.authCoordinator)
             }
@@ -151,18 +140,6 @@ struct MainView: View {
             }
             .tag(NavigationCoordinator.AppRoute.TabRoute.profile)
         }
-        .overlay(
-            Button(action: {
-                coordinator.navigate(to: .home)
-            }) {
-                Image(systemName: "house")
-                    .font(.title)
-                    .padding()
-                    .background(Circle().fill(Color.black.opacity(0.7)))
-                    .foregroundColor(.white)
-            }
-            .padding(),
-            alignment: .topLeading
-        )
+        
     }
 }

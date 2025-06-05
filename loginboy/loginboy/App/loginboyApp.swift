@@ -33,6 +33,7 @@ struct DecodeyApp: App {
                 .environmentObject(UserState.shared)
                 .environmentObject(GameState.shared)
                 .environmentObject(SettingsState.shared)
+                .preferredColorScheme(SettingsState.shared.isDarkMode ? .dark : .light)
                 .onAppear {
                     handleAppLaunch()
                 }
