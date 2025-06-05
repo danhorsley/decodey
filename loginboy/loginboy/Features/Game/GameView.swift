@@ -44,62 +44,67 @@ struct GameView: View {
     
     private var gameContentView: some View {
         VStack(spacing: 0) {
-            // Header with styled title
-            GameViewHeader(
-                isDailyChallenge: gameState.isDailyChallenge,
-                dateString: gameState.quoteDate,
-                onRefresh: gameState.isDailyChallenge ? nil : gameState.resetGame
-            )
-            
-            // Text display area
-            VStack(spacing: 1) {
-                // Encrypted text
-                VStack(spacing: 1) {
-                    if settingsState.showTextHelpers {
-                        Text("ENCRYPTED")
-                            .font(.system(size: 10, weight: .medium, design: .rounded))
-                            .tracking(1.2)
-                            .foregroundColor(.secondary.opacity(0.6))
-                    }
-                    
-                    Text(gameState.currentGame?.encrypted ?? "")
-                        .font(fonts.encryptedDisplayText())
-                        .foregroundColor(colors.encryptedColor(for: colorScheme))
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(4)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 1)
-                        .frame(maxWidth: .infinity)
-                        .background(Color.clear)
-                }
+            // Top content grouped together
+            VStack(spacing: 0) {
+                // Header with styled title
+                GameViewHeader(
+                    isDailyChallenge: gameState.isDailyChallenge,
+                    dateString: gameState.quoteDate,
+                    onRefresh: gameState.isDailyChallenge ? nil : gameState.resetGame
+                )
                 
-                // Solution display
+                // Text display area
                 VStack(spacing: 1) {
-                    if settingsState.showTextHelpers {
-                        Text("YOUR SOLUTION")
-                            .font(.system(size: 10, weight: .medium, design: .rounded))
-                            .tracking(1.2)
-                            .foregroundColor(.secondary.opacity(0.6))
+                    // Encrypted text
+                    VStack(spacing: 1) {
+                        if settingsState.showTextHelpers {
+                            Text("ENCRYPTED")
+                                .font(.system(size: 10, weight: .medium, design: .rounded))
+                                .tracking(1.2)
+                                .foregroundColor(.secondary.opacity(0.6))
+                        }
+                        
+                        Text(gameState.currentGame?.encrypted ?? "")
+                            .font(fonts.encryptedDisplayText())
+                            .foregroundColor(colors.encryptedColor(for: colorScheme))
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(4)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 1)
+                            .frame(maxWidth: .infinity)
+                            .background(Color.clear)
                     }
                     
-                    Text(gameState.currentGame?.currentDisplay ?? "")
-                        .font(fonts.solutionDisplayText())
-                        .foregroundColor(colors.guessColor(for: colorScheme))
-                        .multilineTextAlignment(.center)
-                        .lineSpacing(4)
-                        .padding(.horizontal, 24)
-                        .padding(.vertical, 1)
-                        .frame(maxWidth: .infinity)
-                        .background(Color.clear)
+                    // Solution display
+                    VStack(spacing: 1) {
+                        if settingsState.showTextHelpers {
+                            Text("YOUR SOLUTION")
+                                .font(.system(size: 10, weight: .medium, design: .rounded))
+                                .tracking(1.2)
+                                .foregroundColor(.secondary.opacity(0.6))
+                        }
+                        
+                        Text(gameState.currentGame?.currentDisplay ?? "")
+                            .font(fonts.solutionDisplayText())
+                            .foregroundColor(colors.guessColor(for: colorScheme))
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(4)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 1)
+                            .frame(maxWidth: .infinity)
+                            .background(Color.clear)
+                    }
                 }
+                .padding(.horizontal, 20)
+                .padding(.bottom, 24)
+                
+                // Game grids
+                GameGridsView(showTextHelpers: settingsState.showTextHelpers)
             }
-            .padding(.horizontal, 20)
-            .padding(.bottom, 24)
             
-            // Game grids
-            GameGridsView(showTextHelpers: settingsState.showTextHelpers)
+            // This spacer pushes everything else down
+            Spacer(minLength: 0)
             
-            Spacer(minLength: 20)
         }
     }
     
