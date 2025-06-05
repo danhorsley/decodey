@@ -45,10 +45,11 @@ struct GameView: View {
     private var gameContentView: some View {
         VStack(spacing: 0) {
             // Header with styled title
-            AnimatedGameHeader(
-                 isDailyChallenge: gameState.isDailyChallenge,
-                 dateString: gameState.quoteDate
-             )
+            GameViewHeader(
+                isDailyChallenge: gameState.isDailyChallenge,
+                dateString: gameState.quoteDate,
+                onRefresh: gameState.isDailyChallenge ? nil : gameState.resetGame
+            )
             
             // Text display area
             VStack(spacing: 1) {
@@ -99,21 +100,6 @@ struct GameView: View {
             GameGridsView(showTextHelpers: settingsState.showTextHelpers)
             
             Spacer(minLength: 20)
-            
-            // Bottom controls with new styled button
-            if !gameState.isDailyChallenge {
-                // Option 1: Floating button style
-                HStack {
-                    Spacer()
-                    NewGameButton(action: gameState.resetGame)
-                        .padding(.trailing, 20)
-                        .padding(.bottom, 20)
-                }
-                
-                // Alternative - uncomment to use the horizontal button instead:
-                // NewGameButtonAlt(action: gameState.resetGame)
-                //     .padding(.bottom, 30)
-            }
         }
     }
     

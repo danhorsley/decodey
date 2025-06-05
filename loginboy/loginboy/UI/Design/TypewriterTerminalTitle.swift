@@ -277,24 +277,6 @@ struct AnimatedGameHeader: View {
     }
 }
 
-// MARK: - Integration Note
-
-/*
- To use this in GameView, replace:
- 
- UpdatedGameHeader(
-     isDailyChallenge: gameState.isDailyChallenge,
-     dateString: gameState.quoteDate
- )
- 
- With:
- 
- AnimatedGameHeader(
-     isDailyChallenge: gameState.isDailyChallenge,
-     dateString: gameState.quoteDate
- )
-*/
-
 // MARK: - Preview
 
 struct TypewriterTerminalTitle_Previews: PreviewProvider {
