@@ -5,7 +5,7 @@ struct MainView: View {
     // Environment state objects
     @StateObject private var userState = UserState.shared
     @StateObject private var gameState = GameState.shared
-    @EnvironmentObject var settingsState: SettingsState
+    @StateObject private var settingsState = SettingsState.shared
     
     // Use navigation coordinator
     @StateObject private var coordinator = NavigationCoordinator(auth: UserState.shared.authCoordinator)

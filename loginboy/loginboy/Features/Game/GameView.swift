@@ -7,11 +7,12 @@ struct GameView: View {
     
     @Environment(\.colorScheme) var colorScheme
     private let fonts = FontSystem.shared
+    private let colors = ColorSystem.shared
     
     var body: some View {
         ZStack {
-            // Background color
-            ColorSystem.shared.primaryBackground(for: colorScheme)
+            // Background
+            colors.primaryBackground(for: colorScheme)
                 .ignoresSafeArea()
             
             if gameState.isLoading {
@@ -22,12 +23,12 @@ struct GameView: View {
                 gameContentView
             }
             
-            // Win message overlay
+            // Win overlay
             if gameState.showWinMessage {
                 winMessageOverlay
             }
             
-            // Lose message overlay
+            // Lose overlay
             if gameState.showLoseMessage {
                 loseMessageOverlay
             }
@@ -37,147 +38,137 @@ struct GameView: View {
                 .presentationDetents([.medium])
         }
         .onAppear {
-            // Check for in-progress game when the view appears
             gameState.checkForInProgressGame()
         }
-        .navigationTitle(gameState.isDailyChallenge ? "Daily Challenge" : "Custom Game")
-        
-        // Use this modifier only on iOS/iPadOS
-        #if os(iOS)
-        .navigationBarTitleDisplayMode(.inline)
-        #endif
     }
     
-    // MARK: - Content Views
-    
-    private var loadingView: some View {
-        VStack {
-            ProgressView()
-                .scaleEffect(1.5)
-                .padding()
+    private var gameContentView: some View {
+        VStack(spacing: 0) {
+            // Header with styled title
+            UpdatedGameHeader(
+                isDailyChallenge: gameState.isDailyChallenge,
+                dateString: gameState.quoteDate
+            )
             
-            Text(gameState.isDailyChallenge ? "Loading daily challenge..." : "Loading game...")
-                .font(.headline)
-                .padding()
+            // Text display area
+            VStack(spacing: 1) {
+                // Encrypted text
+                VStack(spacing: 1) {
+                    if settingsState.showTextHelpers {
+                        Text("ENCRYPTED")
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                            .tracking(1.2)
+                            .foregroundColor(.secondary.opacity(0.6))
+                    }
+                    
+                    Text(gameState.currentGame?.encrypted ?? "")
+                        .font(fonts.encryptedDisplayText())
+                        .foregroundColor(colors.encryptedColor(for: colorScheme))
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 1)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.clear)
+                }
+                
+                // Solution display
+                VStack(spacing: 1) {
+                    if settingsState.showTextHelpers {
+                        Text("YOUR SOLUTION")
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                            .tracking(1.2)
+                            .foregroundColor(.secondary.opacity(0.6))
+                    }
+                    
+                    Text(gameState.currentGame?.currentDisplay ?? "")
+                        .font(fonts.solutionDisplayText())
+                        .foregroundColor(colors.guessColor(for: colorScheme))
+                        .multilineTextAlignment(.center)
+                        .lineSpacing(4)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 1)
+                        .frame(maxWidth: .infinity)
+                        .background(Color.clear)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 24)
+            
+            // Game grids
+            GameGridsView(showTextHelpers: settingsState.showTextHelpers)
+            
+            Spacer(minLength: 20)
+            
+            // Bottom controls with new styled button
+            if !gameState.isDailyChallenge {
+                // Option 1: Floating button style
+                HStack {
+                    Spacer()
+                    NewGameButton(action: gameState.resetGame)
+                        .padding(.trailing, 20)
+                        .padding(.bottom, 20)
+                }
+                
+                // Alternative - uncomment to use the horizontal button instead:
+                // NewGameButtonAlt(action: gameState.resetGame)
+                //     .padding(.bottom, 30)
+            }
         }
     }
     
+    // Loading view
+    private var loadingView: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+                .scaleEffect(1.5)
+            
+            Text("LOADING...")
+                .font(.system(size: 14, weight: .medium, design: .rounded))
+                .tracking(1.5)
+                .foregroundColor(.secondary)
+        }
+    }
+    
+    // Error view
     private func errorView(message: String) -> some View {
         VStack(spacing: 20) {
             Image(systemName: "exclamationmark.triangle")
                 .font(.system(size: 50))
                 .foregroundColor(.orange)
             
-            Text("Error loading game")
-                .font(.title2)
-                .fontWeight(.bold)
+            Text("ERROR")
+                .font(.system(size: 18, weight: .bold, design: .rounded))
+                .tracking(1.5)
             
             Text(message)
+                .font(.system(size: 14))
                 .multilineTextAlignment(.center)
-                .padding(.horizontal)
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 40)
             
-            Button(action: gameState.resetGame) {
-                HStack {
-                    Image(systemName: "arrow.clockwise")
-                    Text("Try Again")
-                }
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-            }
-            .padding(.top)
-        }
-        .padding()
-    }
-    
-    private var gameContentView: some View {
-        VStack(spacing: 20) {
-            // Header - only shown for daily challenge
-            if gameState.isDailyChallenge, let dateString = gameState.quoteDate {
-                Text(dateString)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .padding(.top)
-            }
-            
-            // Display area
-            displayTextArea
-            
-            // Game grid with letters
-            GameGridsView(
-                showTextHelpers: settingsState.showTextHelpers
-            )
-            
-            Spacer()
-            
-            // Controls for custom game
-            if !gameState.isDailyChallenge {
-                HStack {
-                    Button(action: gameState.resetGame) {
-                        HStack {
-                            Image(systemName: "arrow.clockwise")
-                            Text("New Game")
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        .background(ColorSystem.shared.accent)
-                        .foregroundColor(.white)
-                        .cornerRadius(8)
-                    }
-                }
-                .padding(.horizontal)
-                .padding(.bottom, 8)
-            }
-        }
-        .padding(DesignSystem.shared.displayAreaPadding)
-    }
-    
-    // Display area for the encrypted and solution text
-    private var displayTextArea: some View {
-        VStack(spacing: 2) {
-            // Encrypted text
-            VStack(alignment: .leading,  spacing: 1) {
-                if settingsState.showTextHelpers {
-                    Text("Encrypted:")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                
-                Text(gameState.currentGame?.encrypted ?? "")
-                    .font(fonts.encryptedDisplayText())
-                    .foregroundColor(ColorSystem.shared.encryptedColor(for: colorScheme))
-                    .tracking(1.2)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 1)
-                    .background(Color.clear)
-                    .cornerRadius(8)
-            }
-            
-            // Solution with blocks
-            VStack(alignment: .leading,  spacing: 1) {
-                if settingsState.showTextHelpers {
-                    Text("Your solution:")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                
-                Text(gameState.currentGame?.currentDisplay ?? "")
-                    .font(fonts.solutionDisplayText())
-                    .foregroundColor(ColorSystem.shared.guessColor(for: colorScheme))
-                    .tracking(1.2)
-                    .frame(maxWidth: .infinity, alignment: .center)
-                    .padding(.vertical, 1)
-                    .background(Color.clear)
-                    .cornerRadius(8)
+            Button(action: {
+                SoundManager.shared.play(.letterClick)
+                gameState.resetGame()
+            }) {
+                Text("TRY AGAIN")
+                    .font(.system(size: 14, weight: .semibold, design: .rounded))
+                    .tracking(1)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.orange)
+                    )
             }
         }
     }
     
-    // Win message overlay
+    // Win overlay
     private var winMessageOverlay: some View {
         ZStack {
-            // Matrix effect background
+            // Background with matrix effect
             MatrixTextWallEffect(
                 active: true,
                 density: .medium,
@@ -192,134 +183,160 @@ struct GameView: View {
                 .ignoresSafeArea()
                 .zIndex(2)
             
-            // Content
-            VStack(spacing: 20) {
-                // Win message - different for daily vs custom
-                Text(gameState.isDailyChallenge ? "DAILY CHALLENGE COMPLETE!" : "YOU WIN!")
-                    .font(.system(size: gameState.isDailyChallenge ? 28 : 36, weight: .bold))
+            // Win content
+            VStack(spacing: 24) {
+                Text(gameState.isDailyChallenge ? "DAILY COMPLETE!" : "YOU WIN!")
+                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                    .tracking(2)
                     .foregroundColor(.green)
-                    .shadow(color: .green.opacity(0.7), radius: 5)
-                    .multilineTextAlignment(.center)
+                    .shadow(color: .green.opacity(0.7), radius: 10)
                 
-                // Solution with author
-                VStack(spacing: 10) {
+                // Solution display
+                VStack(spacing: 12) {
                     Text(gameState.currentGame?.solution ?? "")
-                        .font(.headline)
+                        .font(.system(size: 18, weight: .medium, design: .monospaced))
                         .foregroundColor(.white)
                         .multilineTextAlignment(.center)
-                        .padding()
+                        .padding(.horizontal, 20)
                     
                     if !gameState.quoteAuthor.isEmpty {
                         Text("— \(gameState.quoteAuthor)")
-                            .font(.subheadline)
+                            .font(.system(size: 16))
                             .foregroundColor(.gray)
                     }
-                    
-                    if let attribution = gameState.quoteAttribution, !attribution.isEmpty {
-                        Text(attribution)
-                            .font(.caption)
-                            .foregroundColor(.gray.opacity(0.8))
-                    }
                 }
-                .padding()
-                .background(Color.black.opacity(0.7))
-                .cornerRadius(10)
+                .padding(20)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.black.opacity(0.7))
+                )
                 
                 // Score
-                VStack {
+                VStack(spacing: 8) {
                     Text("SCORE")
-                        .font(.subheadline)
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .tracking(1.5)
                         .foregroundColor(.gray)
                     
                     Text("\(gameState.currentGame?.calculateScore() ?? 0)")
-                        .font(.system(size: 48, weight: .bold))
+                        .font(.system(size: 48, weight: .bold, design: .rounded))
                         .foregroundColor(.green)
                 }
-                .padding()
-                .background(Color.black.opacity(0.7))
-                .cornerRadius(10)
                 
-                // Stats
+                // Stats row
                 HStack(spacing: 40) {
-                    VStack {
-                        Text("Mistakes")
-                            .font(.caption)
+                    VStack(spacing: 4) {
+                        Text("MISTAKES")
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                            .tracking(1)
                             .foregroundColor(.gray)
                         
                         Text("\(gameState.currentGame?.mistakes ?? 0)/\(gameState.currentGame?.maxMistakes ?? 0)")
-                            .font(.title3)
+                            .font(.system(size: 20, weight: .semibold))
                             .foregroundColor(.white)
                     }
                     
-                    VStack {
-                        Text("Time")
-                            .font(.caption)
+                    VStack(spacing: 4) {
+                        Text("TIME")
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
+                            .tracking(1)
                             .foregroundColor(.gray)
                         
                         if let game = gameState.currentGame {
                             Text(gameState.formatTime(Int(game.lastUpdateTime.timeIntervalSince(game.startTime))))
-                                .font(.title3)
+                                .font(.system(size: 20, weight: .semibold))
                                 .foregroundColor(.white)
                         }
                     }
                 }
                 
-                // Different buttons based on mode
-                if gameState.isDailyChallenge {
-                    Button(action: {
+                // Action button
+                Button(action: {
+                    if gameState.isDailyChallenge {
                         gameState.submitDailyScore(userId: userState.userId)
-                        gameState.showWinMessage = false
-                    }) {
-                        Text("Close")
-                            .font(.headline)
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 30)
-                            .padding(.vertical, 15)
-                            .background(Color.green)
-                            .cornerRadius(10)
                     }
-                    .padding(.top, 20)
-                } else {
-                    // Play again button for custom game
-                    Button(action: gameState.resetGame) {
-                        Text("Play Again")
-                            .font(.headline)
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 30)
-                            .padding(.vertical, 15)
-                            .background(Color.green)
-                            .cornerRadius(10)
+                    SoundManager.shared.play(.letterClick)
+                    gameState.showWinMessage = false
+                    if !gameState.isDailyChallenge {
+                        gameState.resetGame()
                     }
-                    .padding(.top, 20)
+                }) {
+                    Text(gameState.isDailyChallenge ? "CLOSE" : "PLAY AGAIN")
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .tracking(1.5)
+                        .foregroundColor(.black)
+                        .padding(.horizontal, 40)
+                        .padding(.vertical, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.green)
+                        )
                 }
+                .padding(.top, 8)
             }
-            .padding(40)
-            .background(Color.black.opacity(0.8))
-            .cornerRadius(20)
-            .shadow(radius: 10)
+            .padding(32)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color.black.opacity(0.85))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(Color.green.opacity(0.3), lineWidth: 1)
+            )
             .zIndex(3)
         }
     }
     
-    // Lose message overlay
+    // Lose overlay
     private var loseMessageOverlay: some View {
         ZStack {
-            ColorSystem.shared.overlayBackground()
+            colors.overlayBackground()
                 .ignoresSafeArea()
             
             if let game = gameState.currentGame {
-                LoseOverlayView(
-                    solution: game.solution,
-                    mistakes: game.mistakes,
-                    maxMistakes: game.maxMistakes,
-                    timeTaken: Int(game.lastUpdateTime.timeIntervalSince(game.startTime)),
-                    isDarkMode: colorScheme == .dark,
-                    onTryAgain: gameState.resetGame
+                VStack(spacing: 24) {
+                    Text("GAME OVER")
+                        .font(.system(size: 32, weight: .bold, design: .rounded))
+                        .tracking(2)
+                        .foregroundColor(.red)
+                    
+                    Text("The solution was:")
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                    
+                    Text(game.solution)
+                        .font(.system(size: 18, weight: .medium, design: .monospaced))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 20)
+                    
+                    Button(action: {
+                        SoundManager.shared.play(.letterClick)
+                        gameState.showLoseMessage = false
+                        gameState.resetGame()
+                    }) {
+                        Text("TRY AGAIN")
+                            .font(.system(size: 16, weight: .bold, design: .rounded))
+                            .tracking(1.5)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 40)
+                            .padding(.vertical, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(Color.red)
+                            )
+                    }
+                }
+                .padding(32)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Color.black.opacity(0.85))
                 )
-                .frame(width: DesignSystem.shared.overlayWidth)
-                .cornerRadius(DesignSystem.shared.overlayCornerRadius)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(Color.red.opacity(0.3), lineWidth: 1)
+                )
             }
         }
     }
 }
-

@@ -33,7 +33,7 @@ struct FontSystem {
     }
     
     func solutionDisplayText() -> Font {
-        courierNew(size: 24, weight: .semibold)
+        courierNew(size: 24, weight: .regular)
     }
     
     // Hint button

@@ -1,165 +1,124 @@
-// Updated GameGridsView.swift
-
 import SwiftUI
 
 struct GameGridsView: View {
     @EnvironmentObject var gameState: GameState
-    
     let showTextHelpers: Bool
     
     @State private var isHintInProgress = false
     
-    // Use DesignSystem for consistent sizing
+    // Design system references
     private let design = DesignSystem.shared
     private let colors = ColorSystem.shared
     
     @Environment(\.colorScheme) var colorScheme
-    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    
+    // Fixed grid columns for portrait mode
+    private let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 5)
     
     var body: some View {
-        GeometryReader { geometry in
-            // Detect orientation using GeometryReader instead of UIKit
-            let isLandscape = geometry.size.width > geometry.size.height
-            
-            if isLandscape || horizontalSizeClass == .regular {
-                // Landscape or iPad layout
-                HStack(alignment: .center) {
-                    encryptedGrid
-                    
-                    Spacer()
-                    
-                    hintButton
-                    
-                    Spacer()
-                    
-                    guessGrid
+        VStack(spacing: 24) {
+            // Encrypted letters grid
+            VStack(alignment: .center, spacing: 8) {
+                if showTextHelpers {
+                    Text("ENCRYPTED LETTERS")
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .tracking(1.5)
+                        .foregroundColor(.secondary.opacity(0.7))
                 }
-                .padding(.horizontal)
-            } else {
-                // Portrait layout for phones
-                VStack(spacing: 24) {
-                    encryptedGrid
-                    
-                    hintButton
-                        .padding(.vertical, 8)
-                    
-                    guessGrid
-                }
-            }
-        }
-        .background(colors.primaryBackground(for: colorScheme))
-    }
-    
-    // Encrypted grid
-    private var encryptedGrid: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            if showTextHelpers {
-                Text("Select a letter to decode:")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            
-            // Create grid with columns based on geometry
-            GeometryReader { gridGeometry in
-                // Create grid with number of columns based on size
-                let isLandscape = gridGeometry.size.width > gridGeometry.size.height
                 
-                if let game = gameState.currentGame {
-                    LazyVGrid(columns: createGridColumns(isLandscape: isLandscape), spacing: design.letterCellSpacing) {
-                        ForEach(game.uniqueEncryptedLetters(), id: \.self) { letter in
-                            EncryptedLetterCell(
-                                letter: letter,
-                                isSelected: game.selectedLetter == letter,
-                                isGuessed: game.correctlyGuessed().contains(letter),
-                                frequency: game.letterFrequency[letter] ?? 0,
-                                action: {
-                                    withAnimation {
-                                        gameState.selectLetter(letter)
-                                    }
-                                }
-                            )
-                            .frame(width: design.letterCellSize, height: design.letterCellSize)
+                encryptedGrid
+            }
+            
+            // Hint button - floating between grids
+            HintButtonView(
+                remainingHints: max(0, (gameState.currentGame?.maxMistakes ?? 5) - (gameState.currentGame?.mistakes ?? 0)),
+                isLoading: isHintInProgress,
+                isDarkMode: colorScheme == .dark,
+                onHintRequested: handleHintRequest
+            )
+            .frame(width: 140, height: 80)
+            .padding(.vertical, 8)
+            
+            // Guess letters grid
+            VStack(alignment: .center, spacing: 8) {
+                if showTextHelpers {
+                    Text("YOUR LETTERS")
+                        .font(.system(size: 11, weight: .medium, design: .rounded))
+                        .tracking(1.5)
+                        .foregroundColor(.secondary.opacity(0.7))
+                }
+                
+                guessGrid
+            }
+        }
+        .padding(.horizontal, 20)
+    }
+    
+    private var encryptedGrid: some View {
+        LazyVGrid(columns: gridColumns, spacing: 6) {
+            if let game = gameState.currentGame {
+                ForEach(game.uniqueEncryptedLetters(), id: \.self) { letter in
+                    EncryptedLetterCell(
+                        letter: letter,
+                        isSelected: game.selectedLetter == letter,
+                        isGuessed: game.correctlyGuessed().contains(letter),
+                        frequency: game.letterFrequency[letter] ?? 0,
+                        action: {
+                            withAnimation(.easeInOut(duration: 0.15)) {
+                                gameState.selectLetter(letter)
+                                // Play sound
+                                SoundManager.shared.play(.letterClick)
+                            }
                         }
-                    }
-                    .frame(width: gridGeometry.size.width)
+                    )
+                    .frame(width: 48, height: 48)
                 }
             }
         }
+        .frame(maxWidth: 280) // Constrain grid width
     }
     
-    // Guess grid
-    var guessGrid: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            if showTextHelpers {
-                Text("Guess with:")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            
-            // Get unique letters from the solution (not the encrypted version)
+    private var guessGrid: some View {
+        LazyVGrid(columns: gridColumns, spacing: 6) {
             if let game = gameState.currentGame {
                 let uniqueLetters = game.uniqueSolutionLetters()
                 
-                // Create grid with adaptive columns
-                GeometryReader { gridGeometry in
-                    let isLandscape = gridGeometry.size.width > gridGeometry.size.height
-                    
-                    LazyVGrid(columns: createGridColumns(isLandscape: isLandscape), spacing: design.letterCellSpacing) {
-                        ForEach(uniqueLetters, id: \.self) { letter in
-                            GuessLetterCell(
-                                letter: letter,
-                                isUsed: game.guessedMappings.values.contains(letter),
-                                action: {
-                                    if game.selectedLetter != nil {
-                                        withAnimation {
-                                            gameState.makeGuess(letter)
-                                        }
+                ForEach(uniqueLetters, id: \.self) { letter in
+                    GuessLetterCell(
+                        letter: letter,
+                        isUsed: game.guessedMappings.values.contains(letter),
+                        action: {
+                            if game.selectedLetter != nil {
+                                withAnimation(.easeInOut(duration: 0.15)) {
+                                    let wasCorrect = gameState.currentGame?.guessedMappings[game.selectedLetter!] == nil
+                                    gameState.makeGuess(letter)
+                                    
+                                    // Play appropriate sound after the guess
+                                    if wasCorrect && gameState.currentGame?.guessedMappings[game.selectedLetter ?? " "] != nil {
+                                        SoundManager.shared.play(.correctGuess)
+                                    } else if gameState.currentGame?.hasLost == false && gameState.currentGame?.hasWon == false {
+                                        SoundManager.shared.play(.incorrectGuess)
                                     }
                                 }
-                            )
-                            .frame(width: design.letterCellSize, height: design.letterCellSize)
+                            }
                         }
-                    }
-                    .frame(width: gridGeometry.size.width)
+                    )
+                    .frame(width: 48, height: 48)
                 }
             }
         }
+        .frame(maxWidth: 280) // Match encrypted grid width
     }
     
-    // Helper to create adaptive grid columns
-    private func createGridColumns(isLandscape: Bool) -> [GridItem] {
-        let columnCount = isLandscape ?
-            design.gridColumnsLandscape :
-            design.gridColumnsPortrait
-            
-        return Array(repeating: GridItem(.flexible(), spacing: design.letterCellSpacing), count: columnCount)
-    }
-    
-    // Hint button
-    private var hintButton: some View {
-        HintButtonView(
-            remainingHints: max(0, (gameState.currentGame?.maxMistakes ?? 5) - (gameState.currentGame?.mistakes ?? 0)),
-            isLoading: isHintInProgress,
-            isDarkMode: colorScheme == .dark,
-            onHintRequested: {
-                // Only perform action if not already in progress
-                guard !isHintInProgress else { return }
-                
-                // Show loading state
-                isHintInProgress = true
-                
-                // Play hint sound
-                SoundManager.shared.play(.hint)
-                
-                // Process hint with slight delay
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    gameState.getHint()
-                    
-                    // Reset loading state
-                    isHintInProgress = false
-                }
-            }
-        )
-        .frame(width: design.hintButtonWidth, height: design.hintButtonHeight)
+    private func handleHintRequest() {
+        guard !isHintInProgress else { return }
+        
+        isHintInProgress = true
+        SoundManager.shared.play(.hint)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            gameState.getHint()
+            isHintInProgress = false
+        }
     }
 }

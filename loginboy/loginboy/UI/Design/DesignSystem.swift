@@ -1,17 +1,15 @@
 import SwiftUI
 
-// A singleton that provides styling values based on device characteristics
+/// Simplified DesignSystem for portrait-only layout
 struct DesignSystem {
     static let shared = DesignSystem()
     
     // MARK: - Screen Size Categories
     enum ScreenSizeCategory {
         case small      // iPhone SE, iPhone 8
-        case medium     // iPhone X, iPhone 11, iPhone 12/13
-        case large      // iPhone Plus, iPhone Pro Max
-        case ipadSmall  // iPad mini
-        case ipadMedium // iPad
-        case ipadLarge  // iPad Pro
+        case medium     // iPhone X-14
+        case large      // iPhone Plus, Pro Max
+        case ipad       // All iPads
         case mac        // macOS
     }
     
@@ -28,137 +26,87 @@ struct DesignSystem {
             return .medium
         case 414..<768:
             return .large
-        case 768..<834:
-            return .ipadSmall
-        case 834..<1024:
-            return .ipadMedium
         default:
-            return .ipadLarge
+            return .ipad
         }
         #elseif os(macOS)
         return .mac
         #else
-        return .medium // Default
+        return .medium
         #endif
     }
     
-    // MARK: - Game Grid Values
+    // MARK: - Game Grid Values (Portrait Only)
     
+    /// Fixed cell size for portrait layout
     var letterCellSize: CGFloat {
         switch currentScreenSize {
         case .small:
-            return 34
-        case .medium:
-            return 40
-        case .large:
-            return 45
-        case .ipadSmall:
-            return 50
-        case .ipadMedium, .ipadLarge:
-            return 55
-        case .mac:
             return 48
-        }
-    }
-    
-    var letterCellSpacing: CGFloat {
-        switch currentScreenSize {
-        case .small:
-            return 4
-        case .medium, .large:
-            return 6
-        case .ipadSmall, .ipadMedium, .ipadLarge, .mac:
-            return 8
-        }
-    }
-    
-    var letterCellFontSize: CGFloat {
-        switch currentScreenSize {
-        case .small:
-            return 18
         case .medium:
-            return 22
+            return 48
         case .large:
-            return 24
-        case .ipadSmall, .ipadMedium, .ipadLarge, .mac:
-            return 28
-        }
-    }
-    
-    var gridColumnsPortrait: Int {
-        switch currentScreenSize {
-        case .small:
-            return 6
-        case .medium, .large:
-            return 5
-        case .ipadSmall, .ipadMedium:
-            return 5
-        case .ipadLarge, .mac:
-            return 5
-        }
-    }
-    
-    var gridColumnsLandscape: Int {
-        switch currentScreenSize {
-        case .small, .medium:
-            return 6
-        case .large:
-            return 5
-        case .ipadSmall:
-            return 5
-        case .ipadMedium, .ipadLarge, .mac:
-            return 5
-        }
-    }
-    
-    // MARK: - Hint Button Values
-    
-    var hintButtonWidth: CGFloat {
-        switch currentScreenSize {
-        case .small:
-            return 90
-        case .medium, .large:
-            return 110
-        case .ipadSmall, .ipadMedium, .ipadLarge, .mac:
-            return 130
-        }
-    }
-    
-    var hintButtonHeight: CGFloat {
-        switch currentScreenSize {
-        case .small:
+            return 52
+        case .ipad:
             return 60
-        case .medium, .large:
-            return 70
-        case .ipadSmall, .ipadMedium, .ipadLarge, .mac:
-            return 80
+        case .mac:
+            return 56
         }
     }
     
-    // MARK: - Text Display Area
+    /// Grid spacing
+    var letterCellSpacing: CGFloat {
+        return 8 // Consistent spacing across all sizes
+    }
     
+    /// Number of columns for portrait grid
+    var gridColumns: Int {
+        switch currentScreenSize {
+        case .small:
+            return 5
+        case .medium, .large:
+            return 5
+        case .ipad, .mac:
+            return 6
+        }
+    }
+    
+    // MARK: - Text Display
+    
+    /// Font size for encrypted/solution text
     var displayFontSize: CGFloat {
         switch currentScreenSize {
         case .small:
-            return 14
-        case .medium:
-            return 16
-        case .large:
             return 18
-        case .ipadSmall, .ipadMedium, .ipadLarge, .mac:
+        case .medium:
             return 20
+        case .large:
+            return 22
+        case .ipad, .mac:
+            return 24
         }
     }
     
+    /// Padding for display areas
     var displayAreaPadding: CGFloat {
         switch currentScreenSize {
         case .small:
-            return 8
-        case .medium, .large:
-            return 12
-        case .ipadSmall, .ipadMedium, .ipadLarge, .mac:
             return 16
+        case .medium, .large:
+            return 20
+        case .ipad, .mac:
+            return 24
         }
+    }
+    
+    // MARK: - Hint Button
+    
+    var hintButtonWidth: CGFloat {
+        return 140 // Fixed width for consistency
+    }
+    
+    var hintButtonHeight: CGFloat {
+        return 80 // Fixed height for consistency
     }
     
     // MARK: - Win/Lose Overlay
@@ -166,46 +114,33 @@ struct DesignSystem {
     var overlayWidth: CGFloat {
         switch currentScreenSize {
         case .small:
-            return 280
-        case .medium:
             return 320
+        case .medium:
+            return 340
         case .large:
-            return 350
-        case .ipadSmall:
+            return 360
+        case .ipad:
+            return 420
+        case .mac:
             return 400
-        case .ipadMedium, .ipadLarge, .mac:
-            return 450
         }
     }
     
     var overlayCornerRadius: CGFloat {
+        return 20
+    }
+    
+    // MARK: - Maximum Content Width
+    
+    /// Constrains content width on larger devices
+    var maxContentWidth: CGFloat {
         switch currentScreenSize {
         case .small, .medium, .large:
-            return 20
-        case .ipadSmall, .ipadMedium, .ipadLarge, .mac:
-            return 24
+            return .infinity
+        case .ipad:
+            return 600
+        case .mac:
+            return 500
         }
     }
-    
-    // MARK: - Colors and Themes
-    
-    // Colors could also be defined here to maintain a consistent palette
-    let primaryColor = Color.blue
-    let secondaryColor = Color.gray
-    let accentColor = Color.green
-    let errorColor = Color.red
-    let warningColor = Color.orange
-    
-    // Dark mode specific colors could be added too
-    func backgroundColor(for colorScheme: ColorScheme) -> Color {
-        colorScheme == .dark ? Color.black : Color.white
-    }
 }
-
-//
-//  DesignSystem.swift
-//  decodey
-//
-//  Created by Daniel Horsley on 07/05/2025.
-//
-

@@ -9,6 +9,11 @@ struct DecodeyApp: App {
     private let quoteStore = QuoteStore.shared
     private let backgroundSync = BackgroundSyncManager.shared
     
+    // Create state objects at the app level
+    @StateObject private var userState = UserState.shared
+    @StateObject private var gameState = GameState.shared
+    @StateObject private var settingsState = SettingsState.shared
+    
     // State to track sync status
     @State private var quoteSyncInProgress = false
     @State private var appDidFinishLaunching = false
@@ -30,10 +35,10 @@ struct DecodeyApp: App {
     var body: some Scene {
         WindowGroup {
             MainView()
-                .environmentObject(UserState.shared)
-                .environmentObject(GameState.shared)
-                .environmentObject(SettingsState.shared)
-                .preferredColorScheme(SettingsState.shared.isDarkMode ? .dark : .light)
+                .environmentObject(userState)
+                .environmentObject(gameState)
+                .environmentObject(settingsState)
+                .preferredColorScheme(settingsState.isDarkMode ? .dark : .light)
                 .onAppear {
                     handleAppLaunch()
                 }
@@ -79,8 +84,6 @@ struct DecodeyApp: App {
             }
         }
     }
-    
-    // ... rest of your existing methods remain the same
     
     private func printDatabasePath() {
         print("==================================")
