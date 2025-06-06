@@ -24,196 +24,142 @@ struct LeaderboardView: View {
     @State private var selectedPeriod = "all-time"
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Custom header
-            HStack {
-                Text("Leaderboard")
-                    .font(.title2)
-                    .fontWeight(.bold)
+        ThemedDataDisplay(title: "Leaderboard") {
+            VStack(spacing: 0) {
+                // Period selector
+                Picker("Time Period", selection: $selectedPeriod) {
+                    Text("All Time").tag("all-time")
+                    Text("This Week").tag("weekly")
+                }
+                .pickerStyle(SegmentedPickerStyle())
+                .padding(.horizontal)
+                .padding(.bottom, 16)
+                .onChange(of: selectedPeriod) { _, _ in
+                    currentPage = 1
+                    loadLeaderboard()
+                }
                 
-                Spacer()
-                
-                Button(action: loadLeaderboard) {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.title3)
+                if isLoading {
+                    ThemedLoadingView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                } else if let errorMessage = errorMessage {
+                    errorView(message: errorMessage)
+                } else if !entries.isEmpty || currentUserEntry != nil {
+                    leaderboardContent
+                } else {
+                    ThemedEmptyState(
+                        message: "No leaderboard data available.\nPlay some games to see the leaderboard!",
+                        icon: "trophy"
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
-                .disabled(isLoading)
-            }
-            .padding()
-            .background(primaryBackgroundColor)
-            .overlay(
-                Divider(),
-                alignment: .bottom
-            )
-            
-            // Period selector
-            Picker("Time Period", selection: $selectedPeriod) {
-                Text("All Time").tag("all-time")
-                Text("This Week").tag("weekly")
-            }
-            .pickerStyle(SegmentedPickerStyle())
-            .padding(.horizontal)
-            .onChange(of: selectedPeriod) { _, _ in
-                currentPage = 1
-                loadLeaderboard()
-            }
-            
-            if isLoading {
-                VStack {
-                    ProgressView()
-                        .scaleEffect(1.5)
-                        .padding()
-                    Text("Loading leaderboard...")
-                        .font(.headline)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let errorMessage = errorMessage {
-                VStack {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.system(size: 50))
-                        .foregroundColor(.orange)
-                        .padding()
-                    
-                    Text("Error loading leaderboard")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                    
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                        .multilineTextAlignment(.center)
-                        .padding()
-                    
-                    Button("Try Again") {
-                        loadLeaderboard()
-                    }
-                    .buttonStyle(.bordered)
-                    .buttonBorderShape(.roundedRectangle)
-                    .padding(.top)
-                }
-                .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if !entries.isEmpty || currentUserEntry != nil {
-                VStack(spacing: 0) {
-                    // Table header
-                    HStack {
-                        Text("Rank")
-                            .fontWeight(.bold)
-                            .frame(width: 60, alignment: .leading)
-                        
-                        Text("Player")
-                            .fontWeight(.bold)
-                            .frame(minWidth: 100, maxWidth: .infinity, alignment: .leading)
-                        
-                        Text("Score")
-                            .fontWeight(.bold)
-                            .frame(width: 80, alignment: .trailing)
-                        
-                        Text("Games")
-                            .fontWeight(.bold)
-                            .frame(width: 60, alignment: .trailing)
-                        
-                        Text("Avg")
-                            .fontWeight(.bold)
-                            .frame(width: 60, alignment: .trailing)
-                    }
-                    .padding(.horizontal)
-                    .padding(.vertical, 8)
-                    .background(secondaryBackgroundColor)
-                    
-                    ScrollView {
-                        LazyVStack(spacing: 0) {
-                            // Show current user entry at top if not in visible range
-                            if let currentUserEntry = currentUserEntry,
-                               !entries.contains(where: { $0.userId == userState.userId }) {
-                                EntryRow(entry: currentUserEntry)
-                                    .padding(.vertical, 8)
-                                    .background(Color.yellow.opacity(0.2))
-                                
-                                Divider()
-                                    .background(Color.gray.opacity(0.3))
-                                    .padding(.horizontal)
-                            }
-                            
-                            // Regular entries
-                            ForEach(entries) { entry in
-                                EntryRow(entry: entry)
-                                    .padding(.vertical, 8)
-                                    .background(entry.isCurrentUser ? Color.green.opacity(0.2) : Color.clear)
-                                
-                                if entry.id != entries.last?.id {
-                                    Divider()
-                                        .background(Color.gray.opacity(0.3))
-                                        .padding(.horizontal)
-                                }
-                            }
-                        }
-                    }
-                    
-                    // Pagination controls
-                    HStack {
-                        Button(action: {
-                            if currentPage > 1 {
-                                currentPage -= 1
-                                loadLeaderboard()
-                            }
-                        }) {
-                            Image(systemName: "chevron.left")
-                                .padding(.horizontal, 8)
-                        }
-                        .disabled(currentPage <= 1)
-                        .opacity(currentPage <= 1 ? 0.5 : 1)
-                        
-                        Text("Page \(currentPage) of \(totalPages)")
-                            .font(.caption)
-                        
-                        Button(action: {
-                            if currentPage < totalPages {
-                                currentPage += 1
-                                loadLeaderboard()
-                            }
-                        }) {
-                            Image(systemName: "chevron.right")
-                                .padding(.horizontal, 8)
-                        }
-                        .disabled(currentPage >= totalPages)
-                        .opacity(currentPage >= totalPages ? 0.5 : 1)
-                    }
-                    .padding()
-                }
-            } else {
-                VStack {
-                    Image(systemName: "trophy")
-                        .font(.system(size: 50))
-                        .foregroundColor(.yellow)
-                        .padding()
-                    
-                    Text("No leaderboard data available")
-                        .font(.title3)
-                        .foregroundColor(.secondary)
-                    
-                    Text("Play some games to see the leaderboard!")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                        .padding(.top, 4)
-                    
-                    Button("Refresh") {
-                        loadLeaderboard()
-                    }
-                    .buttonStyle(.bordered)
-                    .buttonBorderShape(.roundedRectangle)
-                    .padding(.top)
-                }
-                .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .background(groupedBackgroundColor)
         .onAppear {
             loadLeaderboard()
         }
         .refreshable {
             await loadLeaderboardAsync()
         }
+    }
+    
+    private var leaderboardContent: some View {
+        VStack(spacing: 0) {
+            // Table header
+            ThemedTableHeader(columns: ["Rank", "Player", "Score", "Games", "Avg"])
+            
+            ScrollView {
+                LazyVStack(spacing: 0) {
+                    // Show current user entry at top if not in visible range
+                    if let currentUserEntry = currentUserEntry,
+                       !entries.contains(where: { $0.userId == userState.userId }) {
+                        ThemedDataRow(
+                            data: formatEntryData(currentUserEntry),
+                            isHighlighted: true
+                        )
+                        .padding(.vertical, 4)
+                    }
+                    
+                    // Regular entries
+                    ForEach(entries) { entry in
+                        ThemedDataRow(
+                            data: formatEntryData(entry),
+                            isHighlighted: entry.isCurrentUser
+                        )
+                        .padding(.vertical, 2)
+                    }
+                }
+            }
+            
+            // Pagination controls
+            paginationControls
+                .padding(.top, 16)
+        }
+    }
+    
+    private var paginationControls: some View {
+        HStack {
+            Button(action: {
+                if currentPage > 1 {
+                    currentPage -= 1
+                    loadLeaderboard()
+                }
+            }) {
+                Image(systemName: "chevron.left")
+                    .padding(.horizontal, 8)
+            }
+            .disabled(currentPage <= 1)
+            .opacity(currentPage <= 1 ? 0.5 : 1)
+            
+            Text("Page \(currentPage) of \(totalPages)")
+                .font(.caption)
+            
+            Button(action: {
+                if currentPage < totalPages {
+                    currentPage += 1
+                    loadLeaderboard()
+                }
+            }) {
+                Image(systemName: "chevron.right")
+                    .padding(.horizontal, 8)
+            }
+            .disabled(currentPage >= totalPages)
+            .opacity(currentPage >= totalPages ? 0.5 : 1)
+        }
+    }
+    
+    private func formatEntryData(_ entry: LeaderboardEntry) -> [String] {
+        return [
+            "#\(entry.rank)",
+            entry.username,
+            "\(entry.score)",
+            "\(entry.gamesPlayed)",
+            String(format: "%.1f", entry.avgScore)
+        ]
+    }
+    
+    private func errorView(message: String) -> some View {
+        VStack(spacing: 20) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 50))
+                .foregroundColor(.orange)
+            
+            Text("Error loading leaderboard")
+                .font(.title2)
+                .fontWeight(.bold)
+            
+            Text(message)
+                .foregroundColor(.red)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+            
+            Button("Try Again") {
+                loadLeaderboard()
+            }
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.roundedRectangle)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     // MARK: - API Call to Backend
@@ -323,32 +269,6 @@ struct LeaderboardView: View {
         let decoder = JSONDecoder()
         return try decoder.decode(LeaderboardAPIResponse.self, from: data)
     }
-    
-    // MARK: - Cross-platform colors
-    
-    private var primaryBackgroundColor: Color {
-        #if os(iOS)
-        return Color(.systemBackground)
-        #else
-        return Color(NSColor.windowBackgroundColor)
-        #endif
-    }
-    
-    private var secondaryBackgroundColor: Color {
-        #if os(iOS)
-        return Color(.secondarySystemBackground)
-        #else
-        return Color(NSColor.controlBackgroundColor)
-        #endif
-    }
-    
-    private var groupedBackgroundColor: Color {
-        #if os(iOS)
-        return Color(.systemGroupedBackground)
-        #else
-        return Color(NSColor.windowBackgroundColor)
-        #endif
-    }
 }
 
 // MARK: - API Response Models
@@ -375,59 +295,4 @@ struct APIPagination: Codable {
     let total_pages: Int
     let total_entries: Int
     let per_page: Int
-}
-
-// Keep the existing EntryRow component
-struct EntryRow: View {
-    let entry: LeaderboardEntry
-    
-    var body: some View {
-        HStack {
-            // Rank with medal for top 3
-            HStack(spacing: 4) {
-                if entry.rank <= 3 {
-                    Image(systemName: medalIcon(for: entry.rank))
-                        .foregroundColor(medalColor(for: entry.rank))
-                        .font(.title3)
-                }
-                Text("#\(entry.rank)")
-                    .fontWeight(.bold)
-            }
-            .frame(width: 60, alignment: .leading)
-            
-            Text(entry.username)
-                .fontWeight(.medium)
-                .lineLimit(1)
-                .frame(minWidth: 100, maxWidth: .infinity, alignment: .leading)
-            
-            Text("\(entry.score)")
-                .fontWeight(.medium)
-                .frame(width: 80, alignment: .trailing)
-            
-            Text("\(entry.gamesPlayed)")
-                .frame(width: 60, alignment: .trailing)
-            
-            Text(String(format: "%.1f", entry.avgScore))
-                .frame(width: 60, alignment: .trailing)
-        }
-        .padding(.horizontal)
-    }
-    
-    private func medalIcon(for rank: Int) -> String {
-        switch rank {
-        case 1: return "medal.fill"
-        case 2: return "medal.fill"
-        case 3: return "medal.fill"
-        default: return ""
-        }
-    }
-    
-    private func medalColor(for rank: Int) -> Color {
-        switch rank {
-        case 1: return .yellow
-        case 2: return Color(white: 0.75) // Silver
-        case 3: return .orange // Bronze
-        default: return .clear
-        }
-    }
 }

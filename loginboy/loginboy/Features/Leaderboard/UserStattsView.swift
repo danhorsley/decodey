@@ -10,105 +10,101 @@ struct UserStatsView: View {
     private let coreData = CoreDataStack.shared
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Custom header
-            HStack {
-                Text("Your Statistics")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                
-                Spacer()
-                
-                Button(action: refreshStats) {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.title3)
-                }
-                .disabled(isLoading)
-            }
-            .padding()
-            .background(primaryBackgroundColor)
-            .overlay(
-                Divider(),
-                alignment: .bottom
-            )
-            
+        ThemedDataDisplay(title: "Your Statistics") {
             if isLoading {
-                VStack {
-                    ProgressView()
-                        .scaleEffect(1.5)
-                        .padding()
-                    Text("Calculating statistics...")
-                        .font(.headline)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                ThemedLoadingView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if let errorMessage = errorMessage {
-                VStack {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.system(size: 50))
-                        .foregroundColor(.orange)
-                        .padding()
-                    
-                    Text("Error loading statistics")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                    
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                        .multilineTextAlignment(.center)
-                        .padding()
-                    
-                    Button("Try Again") {
-                        refreshStats()
-                    }
-                    .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-                }
-                .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                errorView(message: errorMessage)
             } else if let stats = detailedStats {
                 ScrollView {
-                    LazyVStack(spacing: 20) {
-                        // Overview Cards
-                        overviewSection(stats: stats)
+                    VStack(spacing: 24) {
+                        // Overview Cards Grid
+                        LazyVGrid(columns: [
+                            GridItem(.flexible()),
+                            GridItem(.flexible())
+                        ], spacing: 16) {
+                            ThemedStatCard(
+                                title: "Games Played",
+                                value: "\(stats.totalGamesPlayed)",
+                                icon: "gamecontroller.fill",
+                                trend: nil
+                            )
+                            
+                            ThemedStatCard(
+                                title: "Games Won",
+                                value: "\(stats.gamesWon)",
+                                icon: "trophy.fill",
+                                trend: nil
+                            )
+                            
+                            ThemedStatCard(
+                                title: "Win Rate",
+                                value: "\(Int(stats.winPercentage))%",
+                                icon: "percent",
+                                trend: nil
+                            )
+                            
+                            ThemedStatCard(
+                                title: "Total Score",
+                                value: "\(stats.totalScore)",
+                                icon: "star.fill",
+                                trend: nil
+                            )
+                            
+                            ThemedStatCard(
+                                title: "Average Score",
+                                value: String(format: "%.0f", stats.averageScore),
+                                icon: "chart.line.uptrend.xyaxis",
+                                trend: nil
+                            )
+                            
+                            ThemedStatCard(
+                                title: "Avg Time",
+                                value: formatTime(Int(stats.averageTime)),
+                                icon: "clock.fill",
+                                trend: nil
+                            )
+                        }
+                        .padding(.horizontal)
                         
                         // Streaks Section
-                        streaksSection(stats: stats)
+                        HStack(spacing: 16) {
+                            ThemedStatCard(
+                                title: "Current Streak",
+                                value: "\(stats.currentStreak)",
+                                icon: "flame.fill",
+                                trend: nil
+                            )
+                            
+                            ThemedStatCard(
+                                title: "Best Streak",
+                                value: "\(stats.bestStreak)",
+                                icon: "crown.fill",
+                                trend: nil
+                            )
+                        }
+                        .padding(.horizontal)
                         
-                        // Time-based Stats
-                        timeBasedSection(stats: stats)
+                        // Weekly Performance
+                        weeklyStatsSection(stats: stats)
                         
-                        // Top Scores
+                        // Top Scores Table
                         topScoresSection(stats: stats)
                         
-                        // Game Breakdown
+                        // Game Type Breakdown
                         gameBreakdownSection(stats: stats)
                     }
-                    .padding()
+                    .padding(.bottom, 24)
                 }
             } else {
-                // No stats available
-                VStack {
-                    Image(systemName: "chart.bar")
-                        .font(.system(size: 50))
-                        .foregroundColor(.blue)
-                        .padding()
-                    
-                    Text("No Statistics Yet")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                    
-                    Text("Play some games to see your statistics!")
-                        .foregroundColor(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding()
-                }
-                .padding()
+                ThemedEmptyState(
+                    message: "No statistics yet.\nPlay some games to see your stats!",
+                    icon: "chart.bar"
+                )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .background(groupedBackgroundColor)
         .onAppear {
             refreshStats()
         }
@@ -119,224 +115,117 @@ struct UserStatsView: View {
     
     // MARK: - Sections
     
-    private func overviewSection(stats: DetailedUserStats) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Overview")
-                .font(.headline)
-                .fontWeight(.semibold)
-            
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: 16) {
-                StatCard(
-                    title: "Games Played",
-                    value: "\(stats.totalGamesPlayed)",
-                    icon: "gamecontroller.fill",
-                    color: .blue,
-                    backgroundColor: tertiaryBackgroundColor
-                )
-                
-                StatCard(
-                    title: "Games Won",
-                    value: "\(stats.gamesWon)",
-                    icon: "trophy.fill",
-                    color: .green,
-                    backgroundColor: tertiaryBackgroundColor
-                )
-                
-                StatCard(
-                    title: "Win Rate",
-                    value: "\(Int(stats.winPercentage))%",
-                    icon: "percent",
-                    color: .orange,
-                    backgroundColor: tertiaryBackgroundColor
-                )
-                
-                StatCard(
-                    title: "Total Score",
-                    value: "\(stats.totalScore)",
-                    icon: "star.fill",
-                    color: .purple,
-                    backgroundColor: tertiaryBackgroundColor
-                )
-            }
-        }
-        .padding()
-        .background(secondaryBackgroundColor)
-        .cornerRadius(12)
-    }
-    
-    private func streaksSection(stats: DetailedUserStats) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Streaks")
-                .font(.headline)
-                .fontWeight(.semibold)
-            
-            HStack(spacing: 16) {
-                StatCard(
-                    title: "Current Streak",
-                    value: "\(stats.currentStreak)",
-                    icon: "flame.fill",
-                    color: .red,
-                    backgroundColor: tertiaryBackgroundColor
-                )
-                
-                StatCard(
-                    title: "Best Streak",
-                    value: "\(stats.bestStreak)",
-                    icon: "crown.fill",
-                    color: .yellow,
-                    backgroundColor: tertiaryBackgroundColor
-                )
-            }
-        }
-        .padding()
-        .background(secondaryBackgroundColor)
-        .cornerRadius(12)
-    }
-    
-    private func timeBasedSection(stats: DetailedUserStats) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
+    private func weeklyStatsSection(stats: DetailedUserStats) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
             Text("This Week")
                 .font(.headline)
-                .fontWeight(.semibold)
+                .padding(.horizontal)
             
             HStack(spacing: 16) {
-                StatCard(
+                ThemedStatCard(
                     title: "Weekly Score",
                     value: "\(stats.weeklyStats.totalScore)",
                     icon: "calendar",
-                    color: .cyan,
-                    backgroundColor: tertiaryBackgroundColor
+                    trend: calculateWeeklyTrend(current: stats.weeklyStats.totalScore)
                 )
                 
-                StatCard(
+                ThemedStatCard(
                     title: "Games This Week",
                     value: "\(stats.weeklyStats.gamesPlayed)",
                     icon: "calendar.badge.clock",
-                    color: .indigo,
-                    backgroundColor: tertiaryBackgroundColor
+                    trend: nil
                 )
-            }
-            
-            if let lastPlayed = stats.lastPlayedDate {
-                HStack {
-                    Image(systemName: "clock")
-                        .foregroundColor(.secondary)
-                    Text("Last played: \(formatRelativeDate(lastPlayed))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                .padding(.top, 8)
-            }
-        }
-        .padding()
-        .background(secondaryBackgroundColor)
-        .cornerRadius(12)
-    }
-    
-    private func topScoresSection(stats: DetailedUserStats) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Top Scores")
-                .font(.headline)
-                .fontWeight(.semibold)
-            
-            if !stats.topScores.isEmpty {
-                VStack(spacing: 12) {
-                    ForEach(Array(stats.topScores.enumerated()), id: \.offset) { index, score in
-                        HStack {
-                            Text("#\(index + 1)")
-                                .font(.headline)
-                                .fontWeight(.bold)
-                                .frame(width: 40)
-                            
-                            VStack(alignment: .leading, spacing: 4) {
-                                Text("\(score.score) points")
-                                    .font(.headline)
-                                
-                                Text("\(formatTime(score.timeTaken)) • \(score.mistakes) mistakes")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                            
-                            Spacer()
-                            
-                            VStack(alignment: .trailing, spacing: 4) {
-                                Text(formatDate(score.date))
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                                
-                                if score.isDaily {
-                                    Text("Daily")
-                                        .font(.caption)
-                                        .padding(.horizontal, 6)
-                                        .padding(.vertical, 2)
-                                        .background(Color.blue.opacity(0.2))
-                                        .foregroundColor(.blue)
-                                        .cornerRadius(4)
-                                }
-                            }
-                        }
-                        .padding(.horizontal)
-                        .padding(.vertical, 8)
-                        .background(tertiaryBackgroundColor)
-                        .cornerRadius(8)
-                    }
-                }
-            } else {
-                Text("No completed games yet - play some games to see your top scores!")
-                    .font(.body)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-                    .padding()
-            }
-        }
-        .padding()
-        .background(secondaryBackgroundColor)
-        .cornerRadius(12)
-    }
-    
-    private func gameBreakdownSection(stats: DetailedUserStats) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Game Breakdown")
-                .font(.headline)
-                .fontWeight(.semibold)
-            
-            VStack(spacing: 12) {
-                HStack {
-                    Text("Average Score")
-                    Spacer()
-                    Text(String(format: "%.1f", stats.averageScore))
-                        .fontWeight(.medium)
-                }
-                
-                HStack {
-                    Text("Average Time")
-                    Spacer()
-                    Text(formatTime(Int(stats.averageTime)))
-                        .fontWeight(.medium)
-                }
-                
-                HStack {
-                    Text("Daily Games")
-                    Spacer()
-                    Text("\(stats.dailyGamesCompleted)")
-                        .fontWeight(.medium)
-                }
-                
-                HStack {
-                    Text("Custom Games")
-                    Spacer()
-                    Text("\(stats.customGamesCompleted)")
-                        .fontWeight(.medium)
-                }
             }
             .padding(.horizontal)
         }
-        .padding()
-        .background(secondaryBackgroundColor)
-        .cornerRadius(12)
+    }
+    
+    private func topScoresSection(stats: DetailedUserStats) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Top Scores")
+                .font(.headline)
+                .padding(.horizontal)
+            
+            if !stats.topScores.isEmpty {
+                ThemedTableHeader(columns: ["Rank", "Score", "Time", "Mistakes", "Date"])
+                
+                ForEach(Array(stats.topScores.enumerated()), id: \.offset) { index, score in
+                    ThemedDataRow(
+                        data: [
+                            "#\(index + 1)",
+                            "\(score.score)",
+                            formatTime(score.timeTaken),
+                            "\(score.mistakes)",
+                            formatDate(score.date)
+                        ],
+                        isHighlighted: score.isDaily
+                    )
+                    .padding(.vertical, 2)
+                }
+                .padding(.horizontal)
+            } else {
+                Text("No completed games yet")
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity)
+                    .padding()
+            }
+        }
+    }
+    
+    private func gameBreakdownSection(stats: DetailedUserStats) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Game Breakdown")
+                .font(.headline)
+                .padding(.horizontal)
+            
+            ThemedTableHeader(columns: ["Type", "Count", "Percentage"])
+            
+            ThemedDataRow(
+                data: [
+                    "Daily Challenges",
+                    "\(stats.dailyGamesCompleted)",
+                    "\(calculatePercentage(stats.dailyGamesCompleted, of: stats.totalGamesPlayed))%"
+                ],
+                isHighlighted: false
+            )
+            .padding(.vertical, 2)
+            .padding(.horizontal)
+            
+            ThemedDataRow(
+                data: [
+                    "Custom Games",
+                    "\(stats.customGamesCompleted)",
+                    "\(calculatePercentage(stats.customGamesCompleted, of: stats.totalGamesPlayed))%"
+                ],
+                isHighlighted: false
+            )
+            .padding(.vertical, 2)
+            .padding(.horizontal)
+        }
+    }
+    
+    private func errorView(message: String) -> some View {
+        VStack(spacing: 20) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 50))
+                .foregroundColor(.orange)
+            
+            Text("Error loading statistics")
+                .font(.title2)
+                .fontWeight(.bold)
+            
+            Text(message)
+                .foregroundColor(.red)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+            
+            Button("Try Again") {
+                refreshStats()
+            }
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.roundedRectangle)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     // MARK: - Helper Methods
@@ -460,6 +349,17 @@ struct UserStatsView: View {
         )
     }
     
+    private func calculatePercentage(_ value: Int, of total: Int) -> Int {
+        guard total > 0 else { return 0 }
+        return Int((Double(value) / Double(total)) * 100)
+    }
+    
+    private func calculateWeeklyTrend(current: Int) -> Double? {
+        // This would compare to last week's score
+        // For now, return nil or implement comparison logic
+        return nil
+    }
+    
     private func formatTime(_ seconds: Int) -> String {
         let minutes = seconds / 60
         let secs = seconds % 60
@@ -470,45 +370,6 @@ struct UserStatsView: View {
         let formatter = DateFormatter()
         formatter.dateStyle = .short
         return formatter.string(from: date)
-    }
-    
-    private func formatRelativeDate(_ date: Date) -> String {
-        let formatter = RelativeDateTimeFormatter()
-        return formatter.localizedString(for: date, relativeTo: Date())
-    }
-    
-    // MARK: - Cross-platform colors
-    
-    private var primaryBackgroundColor: Color {
-        #if os(iOS)
-        return Color(.systemBackground)
-        #else
-        return Color(NSColor.windowBackgroundColor)
-        #endif
-    }
-    
-    private var secondaryBackgroundColor: Color {
-        #if os(iOS)
-        return Color(.secondarySystemBackground)
-        #else
-        return Color(NSColor.controlBackgroundColor)
-        #endif
-    }
-    
-    private var tertiaryBackgroundColor: Color {
-        #if os(iOS)
-        return Color(.tertiarySystemBackground)
-        #else
-        return Color(NSColor.textBackgroundColor)
-        #endif
-    }
-    
-    private var groupedBackgroundColor: Color {
-        #if os(iOS)
-        return Color(.systemGroupedBackground)
-        #else
-        return Color(NSColor.windowBackgroundColor)
-        #endif
     }
 }
 
@@ -543,41 +404,3 @@ struct TopScore: Identifiable {
     let date: Date
     let isDaily: Bool
 }
-
-    // MARK: - StatCard Component (nested inside UserStatsView)
-    
-    private struct StatCard: View {
-        let title: String
-        let value: String
-        let icon: String
-        let color: Color
-        let backgroundColor: Color
-        
-        var body: some View {
-            VStack(spacing: 8) {
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundColor(color)
-                
-                Text(value)
-                    .font(.title2)
-                    .fontWeight(.bold)
-                
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
-            }
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(backgroundColor)
-            .cornerRadius(8)
-        }
-    }
-//
-//  UserStattsView.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 30/05/2025.
-//
-
