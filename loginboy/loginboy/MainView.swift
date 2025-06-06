@@ -54,6 +54,21 @@ struct MainView: View {
         .onChange(of: gameState.showContinueGameModal) { _, showModal in
             showContinueGameSheet = showModal
         }
+        .onAppear {
+            if UserState.shared.isAuthenticated {
+                // First-time users: get legacy stats
+                if !UserDefaults.standard.bool(forKey: "hasPerformedInitialSync") {
+                    GameSyncManager.shared.performInitialStatsSync { success in
+                        if success {
+                            UserDefaults.standard.set(true, forKey: "hasPerformedInitialSync")
+                        }
+                    }
+                }
+                
+                // Always try to upload pending games
+                GameSyncManager.shared.processPendingUploads()
+            }
+        }
     }
     
     // Home screen view

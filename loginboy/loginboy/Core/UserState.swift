@@ -53,19 +53,24 @@ class UserState: ObservableObject {
         authCoordinator.$isSubadmin
             .assign(to: &$isSubadmin)
         
-        // When authentication state changes, fetch user data
-        $isAuthenticated
-            .sink { [weak self] isAuthenticated in
-                if isAuthenticated {
-                    self?.fetchUserData()
-                    // Trigger game sync after login
-                    self?.syncGamesAfterLogin()
-                } else {
-                    self?.profile = nil
-                    self?.stats = nil
+        authCoordinator.$isAuthenticated
+                .sink { [weak self] isAuthenticated in
+                    guard let self = self else { return }
+                    
+                    if isAuthenticated {
+                        self.fetchUserData()
+                        
+                        // Add quote sync after login
+                        self.syncQuotesAfterLogin()
+                        
+                        // Existing game sync
+                        self.syncGamesAfterLogin()
+                    } else {
+                        self.profile = nil
+                        self.stats = nil
+                    }
                 }
-            }
-            .store(in: &cancellables)
+                .store(in: &cancellables)
     }
     
     // MARK: - Public Methods
@@ -130,7 +135,51 @@ class UserState: ObservableObject {
             print("Error fetching user data: \(error.localizedDescription)")
         }
     }
-    
+    //sync games after login
+    private func syncGamesAfterLogin() {
+        // Don't sync immediately - wait a bit for UI to settle
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+            self.performGameSync()
+        }
+    }
+
+    private func performGameSync() {
+        guard isAuthenticated else { return }
+        
+        // Check if this is first login (needs legacy stats)
+        let hasInitializedKey = "hasInitialized_\(userId)"
+        let hasInitialized = UserDefaults.standard.bool(forKey: hasInitializedKey)
+        
+        if !hasInitialized {
+            print("🔄 First login detected - retrieving legacy stats...")
+            
+            GameSyncManager.shared.performInitialStatsSync { [weak self] success in
+                guard let self = self else { return }
+                
+                if success {
+                    print("✅ Legacy stats retrieved successfully")
+                    UserDefaults.standard.set(true, forKey: hasInitializedKey)
+                    
+                    // After getting stats, process any pending uploads
+                    GameSyncManager.shared.processPendingUploads()
+                } else {
+                    print("❌ Failed to retrieve legacy stats")
+                    // Still try to upload pending games
+                    GameSyncManager.shared.processPendingUploads()
+                }
+            }
+        } else {
+            // Not first login, just process pending uploads
+            print("🔄 Processing pending game uploads...")
+            GameSyncManager.shared.processPendingUploads()
+        }
+    }
+    // quote sync on login
+    private func syncQuotesAfterLogin() {
+        QuoteStore.shared.syncIfNeeded { success in
+            print(success ? "✅ Post-login quote sync complete" : "❌ Post-login quote sync failed")
+        }
+    }
     /// Update user statistics after game completion - LOCAL ONLY
     func updateStats(gameWon: Bool, score: Int, timeTaken: Int, mistakes: Int = 0) {
         guard isAuthenticated, !userId.isEmpty else { return }
@@ -443,51 +492,3 @@ class UserState: ObservableObject {
     }
 }
 
-// MARK: - Game Reconciliation Integration
-
-extension UserState {
-    
-    /// Sync games with server after login
-    func syncGamesAfterLogin() {
-        // Don't sync immediately - wait a bit for UI to settle
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.performGameSync()
-        }
-    }
-    
-    private func performGameSync() {
-        guard isAuthenticated else { return }
-        
-        // Check if we should sync (not too frequently)
-        let lastSyncKey = "lastGameSyncCheck"
-        let lastSync = UserDefaults.standard.object(forKey: lastSyncKey) as? Date
-        
-        let shouldSync: Bool
-        if let lastSync = lastSync {
-            // Only sync if it's been more than 30 minutes
-            shouldSync = Date().timeIntervalSince(lastSync) > 1800
-        } else {
-            shouldSync = true
-        }
-        
-        if shouldSync {
-            print("🔄 Starting game synchronization...")
-            
-            GameReconciliationManager.shared.reconcileGames { [weak self] success, error in
-                DispatchQueue.main.async {
-                    if success {
-                        print("✅ Game sync completed successfully")
-                        UserDefaults.standard.set(Date(), forKey: lastSyncKey)
-                        
-                        // IMPORTANT: Recalculate stats from synced games
-                        self?.recalculateStatsFromGames()
-                    } else {
-                        print("❌ Game sync failed: \(error ?? "Unknown error")")
-                    }
-                }
-            }
-        } else {
-            print("⏭️ Skipping game sync - too recent")
-        }
-    }
-}

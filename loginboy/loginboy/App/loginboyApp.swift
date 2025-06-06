@@ -7,7 +7,6 @@ struct DecodeyApp: App {
     private let coreData = CoreDataStack.shared
     private let soundManager = SoundManager.shared
     private let quoteStore = QuoteStore.shared
-    private let backgroundSync = BackgroundSyncManager.shared
     
     // Create state objects at the app level
     @StateObject private var userState = UserState.shared
@@ -27,9 +26,6 @@ struct DecodeyApp: App {
         
         // Clean up any duplicate games
         GameState.shared.cleanupDuplicateGames()
-        
-        // Setup background sync monitoring
-        backgroundSync.startBackgroundSync()
     }
     
     var body: some Scene {
@@ -54,35 +50,6 @@ struct DecodeyApp: App {
         
         // Print database info when UI appears
         CoreDataStack.shared.printDatabaseInfo()
-        
-        // Sync quotes from server on app launch (quotes are lighter, sync first)
-        syncQuotesIfNeeded()
-        
-        // Smart game reconciliation after a short delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.performSmartGameSync()
-        }
-    }
-    
-    private func performSmartGameSync() {
-        // Only sync if user is authenticated
-        guard UserState.shared.isAuthenticated else {
-            print("⏭️ Skipping game sync - user not authenticated")
-            return
-        }
-        
-        GameReconciliationManager.shared.smartReconcileGames(trigger: .appLaunch) { success, error in
-            DispatchQueue.main.async {
-                if success {
-                    print("✅ Smart game sync completed on launch")
-                    
-                    // IMPORTANT: Recalculate user stats after sync
-                    UserState.shared.recalculateStatsFromGames()
-                } else {
-                    print("❌ Game sync failed on launch: \(error ?? "Unknown error")")
-                }
-            }
-        }
     }
     
     private func printDatabasePath() {
@@ -118,44 +85,43 @@ struct DecodeyApp: App {
         }
     }
     
+    // In loginboyApp.swift
     private func syncQuotesIfNeeded() {
         guard !quoteSyncInProgress else { return }
         
-        let defaults = UserDefaults.standard
-        let lastSyncKey = "lastQuoteSyncDate"
-        
-        let shouldSync: Bool
-        
-        if let lastSyncDate = defaults.object(forKey: lastSyncKey) as? Date {
-            let daysSinceLastSync = Calendar.current.dateComponents([.day], from: lastSyncDate, to: Date()).day ?? 0
-            shouldSync = daysSinceLastSync >= 1
-        } else {
-            shouldSync = true
-        }
-        
-        if shouldSync {
-            quoteSyncInProgress = true
-            print("🔄 Syncing quotes from server...")
-            
-            if let token = UserState.shared.authCoordinator.getAccessToken() {
-                quoteStore.syncQuotesFromServer(auth: UserState.shared.authCoordinator) { success in
-                    DispatchQueue.main.async {
-                        self.quoteSyncInProgress = false
-                        
-                        if success {
-                            print("✅ Quote sync completed successfully")
-                            defaults.set(Date(), forKey: lastSyncKey)
-                        } else {
-                            print("❌ Quote sync failed")
-                        }
-                    }
+        quoteSyncInProgress = true
+        QuoteStore.shared.syncIfNeeded { success in
+            DispatchQueue.main.async {
+                self.quoteSyncInProgress = false
+                if !success && self.getLocalQuoteCount() == 0 {
+                    // Emergency fallback
+                    CoreDataStack.shared.createInitialData()
                 }
-            } else {
-                print("ℹ️ Skipping quote sync - user not authenticated")
-                quoteSyncInProgress = false
             }
+        }
+    }
+
+    // Helper to count quotes
+    private func getLocalQuoteCount() -> Int {
+        let context = CoreDataStack.shared.mainContext
+        let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
+        fetchRequest.predicate = NSPredicate(format: "isActive == YES")
+        
+        do {
+            return try context.count(for: fetchRequest)
+        } catch {
+            print("Error counting quotes: \(error)")
+            return 0
+        }
+    }
+
+    // Verify quotes actually loaded
+    private func verifyQuotesLoaded() {
+        let count = getLocalQuoteCount()
+        if count > 0 {
+            print("✅ Verified \(count) active quotes in database")
         } else {
-            print("ℹ️ Skipping quote sync - last sync was recent")
+            print("❌ WARNING: Still no quotes after sync!")
         }
     }
 }

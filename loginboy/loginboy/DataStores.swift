@@ -800,3 +800,41 @@ extension ISO8601DateFormatter {
         return nil
     }
 }
+
+extension QuoteStore {
+    
+    /// Smart sync that checks if quotes are needed
+    func syncIfNeeded(force: Bool = false, completion: @escaping (Bool) -> Void) {
+        let context = CoreDataStack.shared.mainContext
+        let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
+        fetchRequest.predicate = NSPredicate(format: "isActive == YES")
+        
+        do {
+            let count = try context.count(for: fetchRequest)
+            
+            if count == 0 {
+                print("📚 No active quotes found - must sync")
+                syncQuotesFromServer(auth: UserState.shared.authCoordinator, completion: completion)
+            } else if force {
+                print("🔄 Force sync requested")
+                syncQuotesFromServer(auth: UserState.shared.authCoordinator, completion: completion)
+            } else {
+                // Check last sync date
+                let lastSync = UserDefaults.standard.object(forKey: "lastQuoteSyncDate") as? Date
+                let shouldSync = lastSync == nil || Date().timeIntervalSince(lastSync!) > 86400 // 24 hours
+                
+                if shouldSync {
+                    print("🔄 Time for periodic quote sync")
+                    syncQuotesFromServer(auth: UserState.shared.authCoordinator, completion: completion)
+                } else {
+                    print("✅ Have \(count) quotes, recently synced - skipping")
+                    completion(true)
+                }
+            }
+        } catch {
+            print("❌ Error checking quote count: \(error)")
+            // On error, try to sync anyway
+            syncQuotesFromServer(auth: UserState.shared.authCoordinator, completion: completion)
+        }
+    }
+}
