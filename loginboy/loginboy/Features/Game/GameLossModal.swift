@@ -99,7 +99,7 @@ struct GameLossModal: View {
                         }) {
                             Text("Show Solution")
                                 .font(.system(size: 14, weight: .medium, design: .rounded))
-                                .foregroundColor(.black)
+                                .foregroundColor(.black) // Force explicit color
                                 .padding(.horizontal, 24)
                                 .padding(.vertical, 12)
                                 .background(
@@ -111,6 +111,7 @@ struct GameLossModal: View {
                                         )
                                 )
                         }
+                        .buttonStyle(PlainButtonStyle()) // Add explicit button style
                         
                         // Primary button - Keep Trying
                         Button(action: {
@@ -120,7 +121,7 @@ struct GameLossModal: View {
                         }) {
                             Text("Keep Trying")
                                 .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                .foregroundColor(.black)
+                                .foregroundColor(.black) // Force explicit color
                                 .padding(.horizontal, 32)
                                 .padding(.vertical, 12)
                                 .background(
@@ -128,6 +129,7 @@ struct GameLossModal: View {
                                         .fill(primaryButtonColor)
                                 )
                         }
+                        .buttonStyle(PlainButtonStyle()) // Add explicit button style
                     }
                     .transition(.scale.combined(with: .opacity))
                 }

@@ -320,7 +320,7 @@ struct TerminalButton: View {
         Button(action: action) {
             Text(label)
                 .font(.system(size: 16, weight: .bold, design: .monospaced))
-                .foregroundColor(color)
+                .foregroundColor(color) // This should already be explicit
                 .padding(.horizontal, 24)
                 .padding(.vertical, 12)
                 .background(
@@ -334,6 +334,7 @@ struct TerminalButton: View {
                 .scaleEffect(isHovered ? 1.05 : 1.0)
                 .shadow(color: color.opacity(0.5), radius: isHovered ? 10 : 5)
         }
+        .buttonStyle(PlainButtonStyle()) // Add explicit button style
         .onHover { hovering in
             withAnimation(.easeInOut(duration: 0.2)) {
                 isHovered = hovering
