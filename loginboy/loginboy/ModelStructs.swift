@@ -52,6 +52,7 @@ struct GameModel {
     var correctMappings: [Character:Character] = [:]
     var letterFrequency: [Character:Int] = [:]
     var guessedMappings: [Character:Character] = [:]
+    var incorrectGuesses: [Character: Set<Character>] = [:]  // [encrypted letter: Set of wrong guesses]
     
     // Timestamp tracking
     var startTime: Date = Date()
@@ -73,7 +74,8 @@ struct GameModel {
     // For loading from Core Data
     init(gameId: String, encrypted: String, solution: String, currentDisplay: String,
          mapping: [Character:Character], correctMappings: [Character:Character],
-         guessedMappings: [Character:Character], mistakes: Int, maxMistakes: Int,
+         guessedMappings: [Character:Character], incorrectGuesses: [Character: Set<Character>] = [:],
+         mistakes: Int, maxMistakes: Int,
          hasWon: Bool, hasLost: Bool, difficulty: String, startTime: Date, lastUpdateTime: Date) {
         
         self.gameId = gameId
@@ -87,6 +89,7 @@ struct GameModel {
         self.mapping = mapping
         self.correctMappings = correctMappings
         self.guessedMappings = guessedMappings
+        self.incorrectGuesses = incorrectGuesses 
         self.startTime = startTime
         self.lastUpdateTime = lastUpdateTime
         self.difficulty = difficulty
@@ -142,24 +145,30 @@ struct GameModel {
     }
     
     mutating func makeGuess(_ guessedLetter: Character) -> Bool {
-        guard let selected = selectedLetter else { return false }
-        
-        let isCorrect = correctMappings[selected] == guessedLetter
-        if isCorrect {
-            guessedMappings[selected] = guessedLetter
-            updateDisplay()
-            checkWinCondition()
-        } else {
-            mistakes += 1
-            if mistakes >= maxMistakes {
-                hasLost = true
+            guard let selected = selectedLetter else { return false }
+            
+            let isCorrect = correctMappings[selected] == guessedLetter
+            if isCorrect {
+                guessedMappings[selected] = guessedLetter
+                updateDisplay()
+                checkWinCondition()
+            } else {
+                // Track incorrect guess
+                if incorrectGuesses[selected] == nil {
+                    incorrectGuesses[selected] = Set<Character>()
+                }
+                incorrectGuesses[selected]?.insert(guessedLetter)
+                
+                mistakes += 1
+                if mistakes >= maxMistakes {
+                    hasLost = true
+                }
             }
+            
+            selectedLetter = nil
+            lastUpdateTime = Date()
+            return isCorrect
         }
-        
-        selectedLetter = nil
-        lastUpdateTime = Date()
-        return isCorrect
-    }
     
     // Helper methods
     mutating func updateDisplay() {

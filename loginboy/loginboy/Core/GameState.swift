@@ -633,6 +633,11 @@ class GameState: ObservableObject {
             entity.mapping = try JSONEncoder().encode(characterDictionaryToStringDictionary(model.mapping))
             entity.correctMappings = try JSONEncoder().encode(characterDictionaryToStringDictionary(model.correctMappings))
             entity.guessedMappings = try JSONEncoder().encode(characterDictionaryToStringDictionary(model.guessedMappings))
+            var incorrectDict: [String: [String]] = [:]
+                    for (key, values) in model.incorrectGuesses {
+                        incorrectDict[String(key)] = values.map { String($0) }
+                    }
+                    entity.incorrectGuesses = try JSONEncoder().encode(incorrectDict)
         } catch {
             print("Error encoding mappings: \(error.localizedDescription)")
         }

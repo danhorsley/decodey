@@ -28,6 +28,11 @@ extension GameCD {
         get { return guessedMappings }
         set { guessedMappings = newValue }
     }
+    /// Incorrect guess mappings
+    var incorrectGuessesData: Data? {
+            get { return incorrectGuesses }
+            set { incorrectGuesses = newValue }
+        }
     
     /// Gets the game ID (safe unwrapping)
 //    var gameId: String? {
@@ -89,6 +94,7 @@ extension GameCD {
         var correctMappings: [Character: Character] = [:]
         var guessedMappings: [Character: Character] = [:]
         
+        
         if let mappingData = self.mappingData,
            let mappingDict = try? JSONDecoder().decode([String: String].self, from: mappingData) {
             mapping = dictionaryToCharacterMapping(mappingDict)
@@ -103,7 +109,16 @@ extension GameCD {
            let guessedDict = try? JSONDecoder().decode([String: String].self, from: guessedMappingsData) {
             guessedMappings = dictionaryToCharacterMapping(guessedDict)
         }
-        
+        var incorrectGuessesMap: [Character: Set<Character>] = [:]
+                if let incorrectGuessesData = self.incorrectGuessesData,
+                   let incorrectDict = try? JSONDecoder().decode([String: [String]].self, from: incorrectGuessesData) {
+                    // Convert from [String: [String]] to [Character: Set<Character>]
+                    for (key, values) in incorrectDict {
+                        if let keyChar = key.first {
+                            incorrectGuessesMap[keyChar] = Set(values.compactMap { $0.first })
+                        }
+                    }
+                }
         return GameModel(
             gameId: self.gameId?.uuidString ?? "", // Convert UUID to string
             encrypted: self.encrypted ?? "",
@@ -112,6 +127,7 @@ extension GameCD {
             mapping: mapping,
             correctMappings: correctMappings,
             guessedMappings: guessedMappings,
+            incorrectGuesses: incorrectGuessesMap, 
             mistakes: Int(self.mistakes),
             maxMistakes: Int(self.maxMistakes),
             hasWon: self.hasWon,

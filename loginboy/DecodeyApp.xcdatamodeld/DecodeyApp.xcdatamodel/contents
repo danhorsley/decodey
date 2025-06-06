@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788" systemVersion="24E263" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23788" systemVersion="24F74" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
     <entity name="GameCD" representedClassName="GameCD" syncable="YES" codeGenerationType="class">
         <attribute name="correctMappings" optional="YES" attributeType="Binary"/>
         <attribute name="currentDisplay" optional="YES" attributeType="String"/>
@@ -9,6 +9,7 @@
         <attribute name="guessedMappings" optional="YES" attributeType="Binary"/>
         <attribute name="hasLost" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="hasWon" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="incorrectGuesses" optional="YES" attributeType="Binary"/>
         <attribute name="isDaily" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="lastUpdateTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="mapping" optional="YES" attributeType="Binary"/>

@@ -85,11 +85,15 @@ struct GameGridsView: View {
                 let uniqueLetters = game.uniqueSolutionLetters()
                 
                 ForEach(uniqueLetters, id: \.self) { letter in
+                    let isIncorrect = game.selectedLetter != nil &&
+                        (game.incorrectGuesses[game.selectedLetter!]?.contains(letter) ?? false)
+                    
                     GuessLetterCell(
                         letter: letter,
                         isUsed: game.guessedMappings.values.contains(letter),
+                        isIncorrectForSelected: isIncorrect,  // Pass the new parameter
                         action: {
-                            if game.selectedLetter != nil {
+                            if game.selectedLetter != nil && !isIncorrect {
                                 withAnimation(.easeInOut(duration: 0.15)) {
                                     let wasCorrect = gameState.currentGame?.guessedMappings[game.selectedLetter!] == nil
                                     gameState.makeGuess(letter)

@@ -94,8 +94,9 @@ struct EncryptedLetterCell: View {
 struct GuessLetterCell: View {
     let letter: Character
     let isUsed: Bool
+    let isIncorrectForSelected: Bool
     let action: () -> Void
-    
+
     // Use environment values
     @Environment(\.colorScheme) var colorScheme
     
@@ -105,30 +106,50 @@ struct GuessLetterCell: View {
     private let design = DesignSystem.shared
     
     var body: some View {
-        Button(action: action) {
-            ZStack {
-                // Container
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(backgroundColor)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(colors.cellBorder(for: colorScheme), lineWidth: 1)
-                    )
-                
-                // Letter - centered in the cell
-                Text(String(letter))
-                    .font(fonts.guessLetterCellForSize(design.currentScreenSize))
-                    .foregroundColor(textColor)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            Button(action: action) {
+                ZStack {
+                    // Container
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(backgroundColor)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(colors.cellBorder(for: colorScheme), lineWidth: 1)
+                        )
+                    
+                    // Letter - centered in the cell
+                    Text(String(letter))
+                        .font(fonts.guessLetterCellForSize(design.currentScreenSize))
+                        .foregroundColor(textColor)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    
+                    // Red slash for incorrect guesses
+                    if isIncorrectForSelected {
+                        GeometryReader { geometry in
+                            Path { path in
+                                path.move(to: CGPoint(x: 0, y: geometry.size.height))
+                                path.addLine(to: CGPoint(x: geometry.size.width, y: 0))
+                            }
+                            .stroke(Color.red.opacity(0.8), lineWidth: 2)
+                        }
+                    }
+                }
+                .frame(width: design.letterCellSize, height: design.letterCellSize)
+                .accessibilityLabel("Letter \(letter)")
+                .accessibilityHint(getAccessibilityHint())
             }
-            .frame(width: design.letterCellSize, height: design.letterCellSize)
-            .accessibilityLabel("Letter \(letter)")
-            .accessibilityHint(isUsed ? "Already used" : "Tap to guess")
+            .buttonStyle(PlainButtonStyle())
+            .disabled(isUsed || isIncorrectForSelected)
         }
-        .buttonStyle(PlainButtonStyle())
-        .disabled(isUsed)
-    }
-    
+    // text helper for previous incorrect guesses
+    private func getAccessibilityHint() -> String {
+            if isUsed {
+                return "Already used"
+            } else if isIncorrectForSelected {
+                return "Already tried for selected letter"
+            } else {
+                return "Tap to guess"
+            }
+        }
     // Background color
     private var backgroundColor: Color {
         if isUsed {
