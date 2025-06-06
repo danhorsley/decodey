@@ -14,6 +14,7 @@ class GameState: ObservableObject {
     @Published var showWinMessage = false
     @Published var showLoseMessage = false
     @Published var showContinueGameModal = false
+    @Published var isInfiniteMode = false
     
     // Game metadata
     @Published var quoteAuthor: String = ""
@@ -189,6 +190,16 @@ class GameState: ObservableObject {
         } catch {
             errorMessage = "Failed to load daily challenge: \(error.localizedDescription)"
             isLoading = false
+        }
+    }
+    // enable mode to solve until completed
+    func enableInfiniteMode() {
+        isInfiniteMode = true
+        // Remove the loss state but keep the game going
+        if var game = currentGame {
+            game.hasLost = false
+            game.maxMistakes = 999  // Effectively unlimited
+            self.currentGame = game
         }
     }
     
@@ -425,6 +436,7 @@ class GameState: ObservableObject {
     
     /// Reset the current game
     func resetGame() {
+        isInfiniteMode = false 
         // If there was a saved game, mark it as abandoned
         if let oldGameId = savedGame?.gameId {
             markGameAsAbandoned(gameId: oldGameId)
@@ -787,6 +799,9 @@ class GameState: ObservableObject {
     }
     
     private func saveGameState(_ game: GameModel) {
+        // Don't save if we're in infinite mode (post-loss practice)
+        guard !isInfiniteMode else { return }
+        // otherwise save game normally
         guard let gameId = game.gameId else {
             print("Error: Trying to save game state with no game ID")
             return

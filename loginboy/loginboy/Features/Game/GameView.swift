@@ -35,7 +35,17 @@ struct GameView: View {
             
             // Lose overlay
             if gameState.showLoseMessage {
-                loseMessageOverlay
+                Group {
+                    if colorScheme == .dark {
+                        TerminalCrashModal()
+                            .environmentObject(gameState)
+                            .zIndex(10)
+                    } else {
+                        GameLossModal()
+                            .environmentObject(gameState)
+                            .zIndex(10)
+                    }
+                }
             }
         }
         .sheet(isPresented: $gameState.showContinueGameModal) {
