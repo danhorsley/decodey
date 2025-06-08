@@ -14,8 +14,12 @@ struct GameGridsView: View {
     
     @Environment(\.colorScheme) var colorScheme
     
-    // Fixed grid columns for portrait mode
-    private let gridColumns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 5)
+    // Fixed grid columns with consistent spacing
+    private var gridColumns: [GridItem] {
+        // Match the spacing to be consistent (8 for enhanced, 6 for regular)
+        let spacing: CGFloat = settingsState.useEnhancedLetterCells ? 8 : 6
+        return Array(repeating: GridItem(.flexible(), spacing: spacing), count: 5)
+    }
     
     var body: some View {
         VStack(spacing: 24) {
@@ -23,7 +27,7 @@ struct GameGridsView: View {
             VStack(alignment: .center, spacing: 8) {
                 if showTextHelpers {
                     Text("ENCRYPTED LETTERS")
-                        .font(fonts.encryptedLetterCell())
+                        .font(.custom("Courier New", size: 10).weight(.medium))
                         .tracking(1.5)
                         .foregroundColor(.secondary.opacity(0.7))
                 }
@@ -45,7 +49,7 @@ struct GameGridsView: View {
             VStack(alignment: .center, spacing: 8) {
                 if showTextHelpers {
                     Text("YOUR LETTERS")
-                        .font(fonts.guessLetterCell())
+                        .font(.custom("Courier New", size: 10).weight(.medium))
                         .tracking(1.5)
                         .foregroundColor(.secondary.opacity(0.7))
                 }
@@ -57,7 +61,10 @@ struct GameGridsView: View {
     }
     
     private var encryptedGrid: some View {
-        LazyVGrid(columns: gridColumns, spacing: settingsState.useEnhancedLetterCells ? 8 : 6) {
+        // Use the same spacing for both horizontal and vertical
+        let spacing: CGFloat = settingsState.useEnhancedLetterCells ? 8 : 6
+        
+        return LazyVGrid(columns: gridColumns, spacing: spacing) {
             if let game = gameState.currentGame {
                 ForEach(game.uniqueEncryptedLetters(), id: \.self) { letter in
                     if settingsState.useEnhancedLetterCells {
@@ -73,7 +80,6 @@ struct GameGridsView: View {
                                 }
                             }
                         )
-                        .frame(width: 52, height: 52)
                     } else {
                         EncryptedLetterCell(
                             letter: letter,
@@ -87,17 +93,19 @@ struct GameGridsView: View {
                                 }
                             }
                         )
-                        .frame(width: 48, height: 48)
                     }
                 }
             }
         }
-        .frame(maxWidth: settingsState.useEnhancedLetterCells ? 300 : 280)
+        .frame(maxWidth: 320) // Slightly wider to accommodate keyboard-style cells
     }
 
     
     private var guessGrid: some View {
-        LazyVGrid(columns: gridColumns, spacing: settingsState.useEnhancedLetterCells ? 8 : 6) {
+        // Use the same spacing for both horizontal and vertical
+        let spacing: CGFloat = settingsState.useEnhancedLetterCells ? 8 : 6
+        
+        return LazyVGrid(columns: gridColumns, spacing: spacing) {
             if let game = gameState.currentGame {
                 let uniqueLetters = game.uniqueSolutionLetters()
                 
@@ -126,7 +134,6 @@ struct GameGridsView: View {
                                 }
                             }
                         )
-                        .frame(width: 52, height: 52)
                     } else {
                         GuessLetterCell(
                             letter: letter,
@@ -148,12 +155,11 @@ struct GameGridsView: View {
                                 }
                             }
                         )
-                        .frame(width: 48, height: 48)
                     }
                 }
             }
         }
-        .frame(maxWidth: settingsState.useEnhancedLetterCells ? 300 : 280)
+        .frame(maxWidth: 320) // Slightly wider to accommodate keyboard-style cells
     }
     
     private func handleHintRequest() {
