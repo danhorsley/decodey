@@ -34,7 +34,7 @@ struct EnhancedEncryptedLetterCell: View {
                    ZStack {
                        // Main letter
                        Text(String(letter))
-                           .font(.system(size: 20, weight: .medium, design: .monospaced))
+                           .font(fonts.encryptedLetterCell())
                            .foregroundColor(letterColor)
                        
                        // Frequency indicator (top-right superscript)
@@ -43,9 +43,9 @@ struct EnhancedEncryptedLetterCell: View {
                                HStack {
                                    Spacer()
                                    Text("\(frequency)")
-                                       .font(.system(size: 9, weight: .regular, design: .monospaced))
+                                       .font(.system(size: 10, weight: .regular, design: .monospaced))
                                        .foregroundColor(letterColor.opacity(0.6)) // change opacity of freq
-                                       .offset(x: -4, y: -2) // move frequency num around
+                                       .offset(x: -4, y: 2) // move frequency num around
                                }
                                Spacer()
                            }
@@ -134,7 +134,7 @@ struct EnhancedGuessLetterCell: View {
                
                // Letter
                Text(String(letter))
-                   .font(.system(size: 20, weight: .medium, design: .monospaced))
+                   .font(fonts.guessLetterCell())
                    .foregroundColor(letterColor)
                    .offset(y: isPressed ? 0 : -1)
                
@@ -185,7 +185,7 @@ struct EnhancedGuessLetterCell: View {
 // MARK: - Laser Projection Key Shape (Dark Mode)
 struct LaserKeyShape: View {
    let isPressed: Bool
-   private let terminalGreen = Color(hex: "4cc9f0")
+//   private let terminalGreen = Color(hex: "4cc9f0")
    
    var body: some View {
        ZStack {
@@ -274,11 +274,11 @@ struct AppleKeyShape: View {
 struct LaserRippleEffect: View {
    @State private var scale: CGFloat = 0.8
    @State private var opacity: Double = 0.8
-   private let terminalGreen = Color(hex: "4cc9f0")
+//   private let terminalGreen = Color(hex: "4cc9f0")
    
    var body: some View {
        RoundedRectangle(cornerRadius: 8)
-           .stroke(terminalGreen, lineWidth: 1)
+           .stroke(ColorSystem.shared.encryptedColor(for: .dark), lineWidth: 1)
            .scaleEffect(scale)
            .opacity(opacity)
            .onAppear {

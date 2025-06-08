@@ -31,7 +31,7 @@ struct EncryptedLetterCell: View {
                 
                 // Letter - centered in the cell
                 Text(String(letter))
-                    .font(fonts.encryptedLetterCellForSize(design.currentScreenSize))
+                    .font(fonts.encryptedLetterCell())
                     .foregroundColor(textColor)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
