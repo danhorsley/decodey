@@ -501,7 +501,7 @@ class GameState: ObservableObject {
         
         // Only proceed if a letter is selected
         if game.selectedLetter != nil {
-            let _ = game.makeGuess(guessedLetter)
+            let wasCorrect = game.makeGuess(guessedLetter)
             self.currentGame = game
             
             // Save game state
@@ -510,8 +510,12 @@ class GameState: ObservableObject {
             
             // Check game status
             if game.hasWon {
+                print("🎉 [GameState] Game won! Updating stats...")
+                updateUserStatsForCompletion(game: game)
                 showWinMessage = true
             } else if game.hasLost {
+                print("😢 [GameState] Game lost! Updating stats...")
+                updateUserStatsForCompletion(game: game)
                 showLoseMessage = true
             }
         }
@@ -542,8 +546,12 @@ class GameState: ObservableObject {
             
             // Check game status after hint
             if game.hasWon {
+                print("🎉 [GameState] Game won (after hint)! Updating stats...")
+                updateUserStatsForCompletion(game: game)
                 showWinMessage = true
             } else if game.hasLost {
+                print("😢 [GameState] Game lost (after hint)! Updating stats...")
+                updateUserStatsForCompletion(game: game)
                 showLoseMessage = true
             }
         }
@@ -563,6 +571,35 @@ class GameState: ObservableObject {
             print("No current game")
         }
     }
+    
+    //helper for updating user stats
+    private func updateUserStatsForCompletion(game: GameModel) {
+        print("📊 [GameState] Updating user stats for game completion")
+        
+        // Calculate final values
+        let score = game.calculateScore()
+        let timeTaken = Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
+        
+        print("   Final Score: \(score)")
+        print("   Time Taken: \(timeTaken)s")
+        print("   Mistakes: \(game.mistakes)")
+        print("   Won: \(game.hasWon)")
+        
+        // Update user stats
+        UserState.shared.updateStats(
+            gameWon: game.hasWon,
+            score: score,
+            timeTaken: timeTaken,
+            mistakes: game.mistakes
+        )
+        
+        // Also ensure the game is in the sync queue
+        if game.hasWon || game.hasLost {
+            print("📤 [GameState] Adding completed game to sync queue")
+            GameSyncManager.shared.addGameToQueue(game)
+        }
+    }
+
     // Save current game state to Core Data
     private func convertToGameModel(_ game: GameCD) -> GameModel {
         var mapping: [Character: Character] = [:]
@@ -806,9 +843,9 @@ class GameState: ObservableObject {
     private func saveGameState(_ game: GameModel) {
         // Don't save if we're in infinite mode (post-loss practice)
         guard !isInfiniteMode else { return }
-        // otherwise save game normally
+        
         guard let gameId = game.gameId else {
-            print("Error: Trying to save game state with no game ID")
+            print("❌ [GameState] Error: Trying to save game state with no game ID")
             return
         }
         
@@ -816,9 +853,14 @@ class GameState: ObservableObject {
         
         // Try to convert to UUID
         guard let gameUUID = UUID(uuidString: gameId) else {
-            print("Error: Invalid UUID format in game ID: \(gameId)")
+            print("❌ [GameState] Error: Invalid UUID format in game ID: \(gameId)")
             return
         }
+        
+        print("💾 [GameState] Saving game state")
+        print("   Game ID: \(gameId)")
+        print("   User ID: \(UserState.shared.userId)")
+        print("   Is Authenticated: \(UserState.shared.isAuthenticated)")
         
         // Try to find the existing game
         let fetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
@@ -827,52 +869,57 @@ class GameState: ObservableObject {
         do {
             let existingGames = try context.fetch(fetchRequest)
             
-            // Check if we have multiple matches - this shouldn't happen, but let's handle it
-            if existingGames.count > 1 {
-                print("Warning: Found \(existingGames.count) games with the same ID \(gameId). Using the most recent one.")
-                
-                // Sort by last update time, descending
-                let sortedGames = existingGames.sorted {
-                    ($0.lastUpdateTime ?? Date.distantPast) > ($1.lastUpdateTime ?? Date.distantPast)
-                }
-                
-                // Keep the most recent one, delete others
-                for i in 1..<sortedGames.count {
-                    context.delete(sortedGames[i])
-                    print("Deleted duplicate game with ID: \(sortedGames[i].gameId?.uuidString ?? "nil")")
-                }
-                
-                // Update the most recent one
-                updateGameEntity(sortedGames[0], from: game)
-            } else if let existingGame = existingGames.first {
-                // Normal case - just update the existing game
-                updateGameEntity(existingGame, from: game)
+            let gameEntity: GameCD
+            if let existingGame = existingGames.first {
+                print("   Updating existing game")
+                gameEntity = existingGame
+                updateGameEntity(gameEntity, from: game)
             } else {
-                // No existing game - create a new one
-                let gameEntity = GameCD(context: context)
+                print("   Creating new game")
+                gameEntity = GameCD(context: context)
                 gameEntity.gameId = gameUUID
                 gameEntity.startTime = game.startTime
-                
-                // Set user relationship if available
-                if !UserState.shared.userId.isEmpty {
-                    let userFetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
-                    userFetchRequest.predicate = NSPredicate(format: "userId == %@", UserState.shared.userId)
-                    let users = try context.fetch(userFetchRequest)
-                    
-                    if let user = users.first {
-                        gameEntity.user = user
-                    }
-                }
-                
-                // Update with game data
                 updateGameEntity(gameEntity, from: game)
             }
+            
+            // IMPORTANT: Set user relationship if available
+            if UserState.shared.isAuthenticated && !UserState.shared.userId.isEmpty {
+                let userFetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
+                userFetchRequest.predicate = NSPredicate(format: "userId == %@", UserState.shared.userId)
+                let users = try context.fetch(userFetchRequest)
+                
+                if let user = users.first {
+                    gameEntity.user = user
+                    print("   ✅ Set user relationship: \(user.username ?? "unknown")")
+                } else {
+                    print("   ⚠️ User not found in Core Data - creating new user")
+                    // Create user if needed
+                    let newUser = UserCD(context: context)
+                    newUser.id = UUID()
+                    newUser.userId = UserState.shared.userId
+                    newUser.username = UserState.shared.username
+                    newUser.email = "\(UserState.shared.username)@example.com"
+                    newUser.registrationDate = Date()
+                    newUser.lastLoginDate = Date()
+                    newUser.isActive = true
+                    gameEntity.user = newUser
+                }
+            } else {
+                print("   ⚠️ No authenticated user - game will not be linked to user")
+            }
+            
+            // Update score and time if completed
             if game.hasWon || game.hasLost {
-                        GameSyncManager.shared.addGameToQueue(game)
-                    }
+                gameEntity.score = Int32(game.calculateScore())
+                gameEntity.timeTaken = Int32(game.lastUpdateTime.timeIntervalSince(game.startTime))
+                print("   Game completed - Score: \(gameEntity.score), Time: \(gameEntity.timeTaken)s")
+            }
+            
             try context.save()
+            print("   ✅ Game saved successfully")
+            
         } catch {
-            print("Error saving game state: \(error.localizedDescription)")
+            print("❌ [GameState] Error saving game state: \(error.localizedDescription)")
         }
     }
     private func stringDictionaryToCharacterDictionary(_ dict: [String: String]) -> [Character: Character] {
