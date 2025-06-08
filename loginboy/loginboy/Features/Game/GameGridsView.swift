@@ -2,6 +2,7 @@ import SwiftUI
 
 struct GameGridsView: View {
     @EnvironmentObject var gameState: GameState
+    @EnvironmentObject var settingsState: SettingsState
     let showTextHelpers: Bool
     
     @State private var isHintInProgress = false
@@ -56,31 +57,47 @@ struct GameGridsView: View {
     }
     
     private var encryptedGrid: some View {
-        LazyVGrid(columns: gridColumns, spacing: 6) {
+        LazyVGrid(columns: gridColumns, spacing: settingsState.useEnhancedLetterCells ? 8 : 6) {
             if let game = gameState.currentGame {
                 ForEach(game.uniqueEncryptedLetters(), id: \.self) { letter in
-                    EncryptedLetterCell(
-                        letter: letter,
-                        isSelected: game.selectedLetter == letter,
-                        isGuessed: game.correctlyGuessed().contains(letter),
-                        frequency: game.letterFrequency[letter] ?? 0,
-                        action: {
-                            withAnimation(.easeInOut(duration: 0.15)) {
-                                gameState.selectLetter(letter)
-                                // Play sound
-                                SoundManager.shared.play(.letterClick)
+                    if settingsState.useEnhancedLetterCells {
+                        EnhancedEncryptedLetterCell(
+                            letter: letter,
+                            isSelected: game.selectedLetter == letter,
+                            isGuessed: game.correctlyGuessed().contains(letter),
+                            frequency: game.letterFrequency[letter] ?? 0,
+                            action: {
+                                withAnimation(.easeInOut(duration: 0.15)) {
+                                    gameState.selectLetter(letter)
+                                    SoundManager.shared.play(.letterClick)
+                                }
                             }
-                        }
-                    )
-                    .frame(width: 48, height: 48)
+                        )
+                        .frame(width: 52, height: 52)
+                    } else {
+                        EncryptedLetterCell(
+                            letter: letter,
+                            isSelected: game.selectedLetter == letter,
+                            isGuessed: game.correctlyGuessed().contains(letter),
+                            frequency: game.letterFrequency[letter] ?? 0,
+                            action: {
+                                withAnimation(.easeInOut(duration: 0.15)) {
+                                    gameState.selectLetter(letter)
+                                    SoundManager.shared.play(.letterClick)
+                                }
+                            }
+                        )
+                        .frame(width: 48, height: 48)
+                    }
                 }
             }
         }
-        .frame(maxWidth: 280) // Constrain grid width
+        .frame(maxWidth: settingsState.useEnhancedLetterCells ? 300 : 280)
     }
+
     
     private var guessGrid: some View {
-        LazyVGrid(columns: gridColumns, spacing: 6) {
+        LazyVGrid(columns: gridColumns, spacing: settingsState.useEnhancedLetterCells ? 8 : 6) {
             if let game = gameState.currentGame {
                 let uniqueLetters = game.uniqueSolutionLetters()
                 
@@ -88,31 +105,55 @@ struct GameGridsView: View {
                     let isIncorrect = game.selectedLetter != nil &&
                         (game.incorrectGuesses[game.selectedLetter!]?.contains(letter) ?? false)
                     
-                    GuessLetterCell(
-                        letter: letter,
-                        isUsed: game.guessedMappings.values.contains(letter),
-                        isIncorrectForSelected: isIncorrect,  // Pass the new parameter
-                        action: {
-                            if game.selectedLetter != nil && !isIncorrect {
-                                withAnimation(.easeInOut(duration: 0.15)) {
-                                    let wasCorrect = gameState.currentGame?.guessedMappings[game.selectedLetter!] == nil
-                                    gameState.makeGuess(letter)
-                                    
-                                    // Play appropriate sound after the guess
-                                    if wasCorrect && gameState.currentGame?.guessedMappings[game.selectedLetter ?? " "] != nil {
-                                        SoundManager.shared.play(.correctGuess)
-                                    } else if gameState.currentGame?.hasLost == false && gameState.currentGame?.hasWon == false {
-                                        SoundManager.shared.play(.incorrectGuess)
+                    if settingsState.useEnhancedLetterCells {
+                        EnhancedGuessLetterCell(
+                            letter: letter,
+                            isUsed: game.guessedMappings.values.contains(letter),
+                            isIncorrectForSelected: isIncorrect,
+                            action: {
+                                if game.selectedLetter != nil && !isIncorrect {
+                                    withAnimation(.easeInOut(duration: 0.15)) {
+                                        let wasCorrect = gameState.currentGame?.guessedMappings[game.selectedLetter!] == nil
+                                        gameState.makeGuess(letter)
+                                        
+                                        // Play appropriate sound after the guess
+                                        if wasCorrect && gameState.currentGame?.guessedMappings[game.selectedLetter ?? " "] != nil {
+                                            SoundManager.shared.play(.correctGuess)
+                                        } else if gameState.currentGame?.hasLost == false && gameState.currentGame?.hasWon == false {
+                                            SoundManager.shared.play(.incorrectGuess)
+                                        }
                                     }
                                 }
                             }
-                        }
-                    )
-                    .frame(width: 48, height: 48)
+                        )
+                        .frame(width: 52, height: 52)
+                    } else {
+                        GuessLetterCell(
+                            letter: letter,
+                            isUsed: game.guessedMappings.values.contains(letter),
+                            isIncorrectForSelected: isIncorrect,
+                            action: {
+                                if game.selectedLetter != nil && !isIncorrect {
+                                    withAnimation(.easeInOut(duration: 0.15)) {
+                                        let wasCorrect = gameState.currentGame?.guessedMappings[game.selectedLetter!] == nil
+                                        gameState.makeGuess(letter)
+                                        
+                                        // Play appropriate sound after the guess
+                                        if wasCorrect && gameState.currentGame?.guessedMappings[game.selectedLetter ?? " "] != nil {
+                                            SoundManager.shared.play(.correctGuess)
+                                        } else if gameState.currentGame?.hasLost == false && gameState.currentGame?.hasWon == false {
+                                            SoundManager.shared.play(.incorrectGuess)
+                                        }
+                                    }
+                                }
+                            }
+                        )
+                        .frame(width: 48, height: 48)
+                    }
                 }
             }
         }
-        .frame(maxWidth: 280) // Match encrypted grid width
+        .frame(maxWidth: settingsState.useEnhancedLetterCells ? 300 : 280)
     }
     
     private func handleHintRequest() {

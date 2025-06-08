@@ -30,7 +30,12 @@ class SettingsState: ObservableObject {
             UserDefaults.standard.set(gameDifficulty, forKey: Keys.gameDifficulty)
         }
     }
-    
+    //enhanced leter cells setting
+    @Published var useEnhancedLetterCells: Bool {
+        didSet {
+            UserDefaults.standard.set(useEnhancedLetterCells, forKey: Keys.useEnhancedLetterCells)
+        }
+    }
     // Sound settings
     @Published var soundEnabled: Bool {
         didSet {
@@ -69,6 +74,7 @@ class SettingsState: ObservableObject {
         static let soundEnabled = "soundEnabled"
         static let soundVolume = "soundVolume"
         static let useBiometricAuth = "useBiometricAuth"
+        static let useEnhancedLetterCells = "useEnhancedLetterCells"
     }
     
     // Singleton instance
@@ -100,7 +106,11 @@ class SettingsState: ObservableObject {
         if !UserDefaults.standard.exists(key: Keys.showTextHelpers) {
             self.showTextHelpers = true // Default to true
         }
-        
+        //enhanced letter keys
+        self.useEnhancedLetterCells = UserDefaults.standard.bool(forKey: Keys.useEnhancedLetterCells)
+        if !UserDefaults.standard.exists(key: Keys.useEnhancedLetterCells) {
+            self.useEnhancedLetterCells = true // Default to enhanced
+        }
         self.useAccessibilityTextSize = UserDefaults.standard.bool(forKey: Keys.useAccessibilityTextSize)
         
         self.gameDifficulty = UserDefaults.standard.string(forKey: Keys.gameDifficulty) ?? "medium"
