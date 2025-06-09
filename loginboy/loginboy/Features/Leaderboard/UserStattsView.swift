@@ -40,7 +40,7 @@ struct UserStatsView: View {
                             
                             ThemedStatCard(
                                 title: "Win Rate",
-                                value: "\(Int(stats.winPercentage))%",
+                                value: String(format: "%.1f%%", stats.winPercentage),
                                 icon: "percent",
                                 trend: nil
                             )
@@ -65,11 +65,7 @@ struct UserStatsView: View {
                                 icon: "clock.fill",
                                 trend: nil
                             )
-                        }
-                        .padding(.horizontal)
-                        
-                        // Streaks Section
-                        HStack(spacing: 16) {
+                            
                             ThemedStatCard(
                                 title: "Current Streak",
                                 value: "\(stats.currentStreak)",
@@ -86,20 +82,30 @@ struct UserStatsView: View {
                         }
                         .padding(.horizontal)
                         
-                        // Weekly Performance
+                        // Weekly Stats Section
                         weeklyStatsSection(stats: stats)
                         
-                        // Top Scores Table
+                        // Top Scores Section
                         topScoresSection(stats: stats)
                         
-                        // Game Type Breakdown
+                        // Game Breakdown Section
                         gameBreakdownSection(stats: stats)
+                        
+                        // Last Played
+                        if let lastPlayed = stats.lastPlayedDate {
+                            Text("Last played: \(formatDate(lastPlayed))")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .padding(.horizontal)
+                        }
                     }
-                    .padding(.bottom, 24)
+                    .padding(.vertical)
                 }
             } else {
+                // Empty state
                 ThemedEmptyState(
-                    message: "No statistics yet.\nPlay some games to see your stats!",
+//                    title: "No Statistics Yet",
+                    message: "Play some games to see your stats!",
                     icon: "chart.bar"
                 )
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -254,64 +260,45 @@ struct UserStatsView: View {
     }
     
     private func calculateDetailedStats(context: NSManagedObjectContext, userId: String) throws -> DetailedUserStats {
-        // Get user's completed games
+        // First, get the UserStatsCD for the totals (includes imported legacy stats)
+        let userFetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
+        userFetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
+        
+        let users = try context.fetch(userFetchRequest)
+        guard let user = users.first else {
+            throw NSError(domain: "UserStatsView", code: 1, userInfo: [NSLocalizedDescriptionKey: "User not found"])
+        }
+        
+        // Get the stored stats (this includes imported legacy games)
+        let userStats = user.stats
+        let totalGamesPlayed = Int(userStats?.gamesPlayed ?? 0)
+        let gamesWon = Int(userStats?.gamesWon ?? 0)
+        let totalScore = Int(userStats?.totalScore ?? 0)
+        let currentStreak = Int(userStats?.currentStreak ?? 0)
+        let bestStreak = Int(userStats?.bestStreak ?? 0)
+        let averageTime = userStats?.averageTime ?? 0
+        let lastPlayedDate = userStats?.lastPlayedDate
+        
+        // Calculate derived stats
+        let winPercentage = totalGamesPlayed > 0 ? (Double(gamesWon) / Double(totalGamesPlayed)) * 100 : 0
+        let averageScore = totalGamesPlayed > 0 ? Double(totalScore) / Double(totalGamesPlayed) : 0
+        
+        // Now get actual game records for detailed breakdowns (top scores, weekly stats, etc.)
         let gameFetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
         gameFetchRequest.predicate = NSPredicate(format: "user.userId == %@ AND (hasWon == YES OR hasLost == YES)", userId)
         gameFetchRequest.sortDescriptors = [NSSortDescriptor(key: "lastUpdateTime", ascending: false)]
         
         let completedGames = try context.fetch(gameFetchRequest)
         
-        // Calculate basic stats
-        let totalGamesPlayed = completedGames.count
-        let gamesWon = completedGames.filter { $0.hasWon }.count
-        let totalScore = completedGames.reduce(0) { $0 + Int($1.score) }
-        let winPercentage = totalGamesPlayed > 0 ? (Double(gamesWon) / Double(totalGamesPlayed)) * 100 : 0
-        let averageScore = totalGamesPlayed > 0 ? Double(totalScore) / Double(totalGamesPlayed) : 0
-        
-        // Calculate streaks by going through games chronologically
-        let gamesSortedByTime = completedGames.sorted {
-            ($0.lastUpdateTime ?? Date.distantPast) < ($1.lastUpdateTime ?? Date.distantPast)
-        }
-        
-        var currentStreak = 0
-        var bestStreak = 0
-        var tempStreak = 0
-        
-        for game in gamesSortedByTime {
-            if game.hasWon {
-                tempStreak += 1
-                bestStreak = max(bestStreak, tempStreak)
-            } else {
-                tempStreak = 0
-            }
-        }
-        
-        // Current streak is calculated from the end
-        for game in gamesSortedByTime.reversed() {
-            if game.hasWon {
-                currentStreak += 1
-            } else {
-                break
-            }
-        }
-        
-        // Calculate weekly stats
-        let now = Date()
-        let calendar = Calendar.current
-        let startOfWeek = calendar.dateInterval(of: .weekOfYear, for: now)?.start ?? now
-        
-        let weeklyGames = completedGames.filter {
-            ($0.lastUpdateTime ?? Date.distantPast) >= startOfWeek
+        // Calculate weekly stats from actual games
+        let oneWeekAgo = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date()) ?? Date()
+        let weeklyGames = completedGames.filter { game in
+            guard let updateTime = game.lastUpdateTime else { return false }
+            return updateTime > oneWeekAgo
         }
         let weeklyTotalScore = weeklyGames.reduce(0) { $0 + Int($1.score) }
         
-        // Calculate average time
-        let totalTime = completedGames.reduce(0.0) { total, game in
-            total + (game.lastUpdateTime?.timeIntervalSince(game.startTime ?? Date()) ?? 0)
-        }
-        let averageTime = totalGamesPlayed > 0 ? totalTime / Double(totalGamesPlayed) : 0
-        
-        // Get top scores
+        // Get top scores from actual games
         let topScores = completedGames
             .sorted { $0.score > $1.score }
             .prefix(5)
@@ -325,20 +312,20 @@ struct UserStatsView: View {
                 )
             }
         
-        // Game type breakdown
+        // Game type breakdown from actual games
         let dailyGames = completedGames.filter { $0.isDaily }.count
-        let customGames = totalGamesPlayed - dailyGames
+        let customGames = completedGames.count - dailyGames
         
         return DetailedUserStats(
-            totalGamesPlayed: totalGamesPlayed,
-            gamesWon: gamesWon,
-            totalScore: totalScore,
+            totalGamesPlayed: totalGamesPlayed, // From UserStatsCD (includes imports)
+            gamesWon: gamesWon, // From UserStatsCD (includes imports)
+            totalScore: totalScore, // From UserStatsCD (includes imports)
             winPercentage: winPercentage,
             averageScore: averageScore,
-            averageTime: averageTime,
-            currentStreak: currentStreak,
-            bestStreak: bestStreak,
-            lastPlayedDate: completedGames.first?.lastUpdateTime,
+            averageTime: averageTime, // From UserStatsCD
+            currentStreak: currentStreak, // From UserStatsCD
+            bestStreak: bestStreak, // From UserStatsCD
+            lastPlayedDate: lastPlayedDate, // From UserStatsCD
             weeklyStats: WeeklyStats(
                 gamesPlayed: weeklyGames.count,
                 totalScore: weeklyTotalScore

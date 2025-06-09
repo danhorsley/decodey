@@ -369,14 +369,32 @@ struct PromoCodeView: View {
                     .padding(.vertical, 4)
                 }
                 
-                Section("Promo Code") {
-                    TextField("Enter code", text: $promoCode)
-                        .textFieldStyle(.plain)
-                        .font(.system(size: 18, weight: .medium, design: .monospaced))
-                        .multilineTextAlignment(.center)
-                        .textCase(.uppercase)
-                        .autocorrectionDisabled()
-                        .disabled(manager.isRedeeming)
+                Section {
+                    VStack(spacing: 16) {
+                        Text("ENTER CODE")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        TextField("PROMO-CODE", text: $promoCode)
+                            .textFieldStyle(.plain)
+                            .font(.system(size: 24, weight: .bold, design: .monospaced))
+                            .multilineTextAlignment(.center)
+                            .textCase(.uppercase)
+                            .autocorrectionDisabled()
+                            .disabled(manager.isRedeeming)
+                            .padding(.vertical, 20)
+                            .padding(.horizontal, 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.secondary.opacity(0.1))
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.secondary.opacity(0.2), lineWidth: 1)
+                            )
+                    }
+                    .padding(.vertical, 8)
                 }
                 
                 if let boost = manager.activeXPBoost, boost.isActive {
@@ -398,25 +416,43 @@ struct PromoCodeView: View {
                 Section {
                     Button(action: redeemCode) {
                         HStack {
+                            Spacer()
                             if manager.isRedeeming {
                                 ProgressView()
                                     .scaleEffect(0.8)
+                                    .padding(.trailing, 4)
                                 Text("Redeeming...")
                             } else {
                                 Image(systemName: "gift.fill")
-                                Text("Redeem")
+                                    .padding(.trailing, 4)
+                                Text("Redeem Code")
                             }
+                            Spacer()
                         }
-                        .frame(maxWidth: .infinity)
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundColor(.white)
+                        .padding(.vertical, 16)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(promoCode.isEmpty || manager.isRedeeming ? Color.gray : Color.blue)
+                        )
                     }
-                    .buttonStyle(.borderedProminent)
+                    .buttonStyle(PlainButtonStyle())
                     .disabled(promoCode.isEmpty || manager.isRedeeming)
                 }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
             }
             .navigationTitle("Promo Code")
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.large)
+            #endif
             .toolbar {
                 ToolbarItem(placement: .automatic) {
-                    Button("Done") { dismiss() }
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .font(.body.weight(.medium))
                 }
             }
             .alert(
@@ -436,9 +472,15 @@ struct PromoCodeView: View {
                 }
             }
         }
+        .interactiveDismissDisabled(manager.isRedeeming)
     }
     
     private func redeemCode() {
+        // Hide keyboard
+        #if os(iOS)
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        #endif
+        
         Task {
             do {
                 let result = try await PromoManager.shared.redeemCode(promoCode)
@@ -463,6 +505,7 @@ struct PromoCodeView: View {
         }
     }
 }
+
 
 // MARK: - Display Active Boost in Game
 struct ActiveBoostIndicator: View {

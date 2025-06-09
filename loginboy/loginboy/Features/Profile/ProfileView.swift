@@ -5,6 +5,8 @@ struct ProfileView: View {
     @EnvironmentObject var settingsState: SettingsState
     @State private var showLogoutConfirmation = false
     @State private var showResetConfirmation = false
+    @State private var showPromoCodeView = false
+    @ObservedObject private var promoManager = PromoManager.shared
     
     var body: some View {
         NavigationView {
@@ -32,6 +34,49 @@ struct ProfileView: View {
                     }
                 } header: {
                     ThemedSectionHeader("ACCOUNT", icon: "person.crop.circle")
+                }
+                
+                // Rewards Section - NEW
+                Section {
+                    // Promo Code Row
+                    ThemedListRow(isButton: true) {
+                        Button(action: { showPromoCodeView = true }) {
+                            HStack {
+                                Label {
+                                    Text("Redeem Promo Code")
+                                        .foregroundColor(.primary)
+                                } icon: {
+                                    Image(systemName: "gift.fill")
+                                        .foregroundColor(.orange)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 14, weight: .semibold))
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    
+                    // Active Boost Display
+                    if let boost = promoManager.activeXPBoost, boost.isActive {
+                        ThemedListRow {
+                            HStack {
+                                Image(systemName: "flame.fill")
+                                    .foregroundColor(.orange)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("\(Int(boost.multiplier))x XP Boost Active")
+                                        .font(.system(size: 15, weight: .semibold))
+                                    Text("Expires in \(boost.remainingTimeString)")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                                Spacer()
+                            }
+                        }
+                    }
+                } header: {
+                    ThemedSectionHeader("REWARDS", icon: "star.circle")
                 }
                 
                 // Appearance Section
@@ -160,6 +205,9 @@ struct ProfileView: View {
             }
             .themedFormStyle()
             .navigationTitle("Settings")
+        }
+        .sheet(isPresented: $showPromoCodeView) {
+            PromoCodeView()
         }
         .alert("Sign Out?", isPresented: $showLogoutConfirmation) {
             Button("Cancel", role: .cancel) { }
