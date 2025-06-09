@@ -92,7 +92,11 @@ class PromoManager: ObservableObject {
             throw PromoError.notAuthenticated
         }
         
-        isRedeeming = true
+        // Update UI on main thread
+        await MainActor.run {
+            isRedeeming = true
+        }
+        
         defer {
             Task { @MainActor in
                 isRedeeming = false
@@ -166,14 +170,37 @@ class PromoManager: ObservableObject {
         // Update Core Data with imported stats
         let context = CoreDataStack.shared.mainContext
         let userId = UserState.shared.userId
+        let username = UserState.shared.username
+        
+        // Ensure we have valid user info
+        guard !userId.isEmpty, !username.isEmpty else {
+            throw PromoError.notAuthenticated
+        }
         
         let fetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
         
         do {
             let users = try context.fetch(fetchRequest)
-            guard let user = users.first else {
-                throw PromoError.userNotFound
+            
+            // Find or create user
+            let user: UserCD
+            if let existingUser = users.first {
+                user = existingUser
+            } else {
+                // Create new user - this is the missing logic!
+                user = UserCD(context: context)
+                user.id = UUID()
+                user.userId = userId
+                user.username = username
+                user.email = "\(username)@example.com" // Placeholder
+                user.registrationDate = Date()
+                user.lastLoginDate = Date()
+                user.isActive = true
+                user.isVerified = false
+                user.isSubadmin = false
+                
+                print("📱 Created new UserCD for legacy import: \(username)")
             }
             
             // Get or create stats
@@ -201,10 +228,18 @@ class PromoManager: ObservableObject {
                 stats.bestStreak = stats.currentStreak
             }
             
+            // Update last played date if provided
+            if let lastPlayedString = imported.lastPlayed,
+               let lastPlayedDate = ISO8601DateFormatter().date(from: lastPlayedString) {
+                stats.lastPlayedDate = lastPlayedDate
+            }
+            
             try context.save()
             
             // Refresh user stats
             UserState.shared.refreshStats()
+            
+            print("✅ Successfully imported legacy stats: \(imported.gamesPlayed) games, \(imported.gamesWon) wins")
             
             return .legacyImport(
                 username: imported.legacyUsername,

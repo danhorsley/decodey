@@ -63,8 +63,6 @@ class UserState: ObservableObject {
                         // Add quote sync after login
                         self.syncQuotesAfterLogin()
                         
-                        // Existing game sync
-                        self.syncGamesAfterLogin()
                     } else {
                         self.profile = nil
                         self.stats = nil
@@ -135,45 +133,7 @@ class UserState: ObservableObject {
             print("Error fetching user data: \(error.localizedDescription)")
         }
     }
-    //sync games after login
-    private func syncGamesAfterLogin() {
-        // Don't sync immediately - wait a bit for UI to settle
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.performGameSync()
-        }
-    }
 
-    private func performGameSync() {
-        guard isAuthenticated else { return }
-        
-        // Check if this is first login (needs legacy stats)
-        let hasInitializedKey = "hasInitialized_\(userId)"
-        let hasInitialized = UserDefaults.standard.bool(forKey: hasInitializedKey)
-        
-        if !hasInitialized {
-            print("🔄 First login detected - retrieving legacy stats...")
-            
-            GameSyncManager.shared.performInitialStatsSync { [weak self] success in
-                guard let self = self else { return }
-                
-                if success {
-                    print("✅ Legacy stats retrieved successfully")
-                    UserDefaults.standard.set(true, forKey: hasInitializedKey)
-                    
-                    // After getting stats, process any pending uploads
-                    GameSyncManager.shared.processPendingUploads()
-                } else {
-                    print("❌ Failed to retrieve legacy stats")
-                    // Still try to upload pending games
-                    GameSyncManager.shared.processPendingUploads()
-                }
-            }
-        } else {
-            // Not first login, just process pending uploads
-            print("🔄 Processing pending game uploads...")
-            GameSyncManager.shared.processPendingUploads()
-        }
-    }
     // quote sync on login
     private func syncQuotesAfterLogin() {
         QuoteStore.shared.syncIfNeeded { success in

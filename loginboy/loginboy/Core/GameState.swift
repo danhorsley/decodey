@@ -595,8 +595,8 @@ class GameState: ObservableObject {
         
         // Also ensure the game is in the sync queue
         if game.hasWon || game.hasLost {
-            print("📤 [GameState] Adding completed game to sync queue")
-            GameSyncManager.shared.addGameToQueue(game)
+            print("📤 [GameState] Uploading completed game")
+            GameSyncManager.shared.uploadCompletedGame(game)
         }
     }
 
