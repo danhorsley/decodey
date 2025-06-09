@@ -22,6 +22,13 @@
         <relationship name="quote" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="QuoteCD" inverseName="games" inverseEntity="QuoteCD"/>
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserCD" inverseName="games" inverseEntity="UserCD"/>
     </entity>
+    <entity name="PromoRedemptionCD" representedClassName="PromoRedemptionCD" syncable="YES" codeGenerationType="class">
+        <attribute name="code" optional="YES" attributeType="String"/>
+        <attribute name="expiresAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="redeemedAt" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="type" optional="YES" attributeType="String"/>
+        <attribute name="value" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+    </entity>
     <entity name="QuoteCD" representedClassName="QuoteCD" syncable="YES" codeGenerationType="class">
         <attribute name="attribution" optional="YES" attributeType="String"/>
         <attribute name="author" optional="YES" attributeType="String"/>
@@ -49,6 +56,8 @@
         <attribute name="registrationDate" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="userId" optional="YES" attributeType="String"/>
         <attribute name="username" optional="YES" attributeType="String"/>
+        <attribute name="xpBoostExpires" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="xpBoostMultiplier" optional="YES" attributeType="Double" defaultValueString="1" usesScalarValueType="YES"/>
         <relationship name="games" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="GameCD" inverseName="user" inverseEntity="GameCD"/>
         <relationship name="preferences" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserPreferencesCD" inverseName="user" inverseEntity="UserPreferencesCD"/>
         <relationship name="stats" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="UserStatsCD" inverseName="user" inverseEntity="UserStatsCD"/>
