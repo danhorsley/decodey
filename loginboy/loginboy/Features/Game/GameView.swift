@@ -30,8 +30,21 @@ struct GameView: View {
             
             // Win overlay
             if gameState.showWinMessage {
-                winMessageOverlay
+                Group {
+                    if colorScheme == .light {
+                        ArchiveWinModal()
+                            .environmentObject(gameState)
+                            .environmentObject(userState)
+                            .zIndex(10)
+                    } else {
+                        VaultWinModal()
+                            .environmentObject(gameState)
+                            .environmentObject(userState)
+                            .zIndex(10)
+                    }
+                }
             }
+
             
             // Lose overlay
             if gameState.showLoseMessage {
