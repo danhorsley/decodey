@@ -1,14 +1,13 @@
 import SwiftUI
 import Combine
-import AuthenticationServices
 
 struct HomeScreen: View {
     // Callback for when the welcome animation completes
     let onBegin: () -> Void
     var onShowLogin: (() -> Void)? = nil
     
-    // Add auth coordinator for Apple Sign-In
-    @EnvironmentObject var authCoordinator: AuthenticationCoordinator
+    // Use UserState instead of AuthenticationCoordinator
+    @EnvironmentObject var userState: UserState
     
     // Animation states
     @State private var showTitle = false
@@ -29,6 +28,10 @@ struct HomeScreen: View {
     // Timer publisher for continuous animations
     @State private var timerCancellable: AnyCancellable?
     
+    // Simple login sheet
+    @State private var showNameEntry = false
+    @State private var playerName = ""
+    
     var body: some View {
         GeometryReader { geometry in
             ZStack {
@@ -38,8 +41,11 @@ struct HomeScreen: View {
                 
                 // Code rain effect (The Matrix-style falling characters)
                 if codeRain {
-                    CodeRainView(columns: $columns)
-                        .opacity(0.5)
+                    VStack {
+                        Text("Matrix Code Rain Effect")
+                            .foregroundColor(.green.opacity(0.3))
+                            .font(.system(size: 10, design: .monospaced))
+                    }
                 }
                 
                 // Content container
@@ -65,130 +71,59 @@ struct HomeScreen: View {
                             .tracking(8)
                             .foregroundColor(.gray)
                             .opacity(showSubtitle ? 1 : 0)
-                            .padding(.top, 10)
+                            .animation(.easeIn(duration: 0.8).delay(1.5), value: showSubtitle)
                     }
                     .padding(.top, 80)
                     
                     Spacer()
                     
-                    // Animated circuit board design
-                    CircuitBoardView()
-                        .frame(height: 160)
-                        .opacity(showSubtitle ? 0.6 : 0)
-                    
-                    Spacer()
-                    
-                    // Buttons container
-                    VStack(spacing: 16) {
-                        // Play button (for guests/current users)
+                    // Buttons section
+                    VStack(spacing: 20) {
+                        // Main play button
                         Button(action: {
-                            // Play button sound
-                            SoundManager.shared.play(.correctGuess)
+                            SoundManager.shared.play(.buttonTap)
                             
-                            // Tap animation
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                                buttonScale = 0.9
-                            }
-                            
-                            // Return to normal scale
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.6).delay(0.1)) {
-                                buttonScale = 1.0
-                            }
-                            
-                            // Short delay before completing
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                withAnimation {
-                                    onBegin()
-                                }
+                            // If not signed in, show name entry
+                            if !userState.isSignedIn {
+                                showNameEntry = true
+                            } else {
+                                onBegin()
                             }
                         }) {
-                            Text("BEGIN DECRYPTION")
-                                .font(.system(size: 20, weight: .bold, design: .monospaced))
-                                .padding(.horizontal, 40)
-                                .padding(.vertical, 20)
-                                .background(
-                                    ZStack {
-                                        // Button background with scanner line
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(Color.black)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: 8)
-                                                    .stroke(Color.cyan.opacity(0.8), lineWidth: 2)
-                                            )
-                                        
-                                        // Scanner line effect
-                                        Rectangle()
-                                            .fill(Color.cyan.opacity(0.7))
-                                            .frame(height: 2)
-                                            .offset(y: pulseEffect ? 25 : -25)
-                                            .blur(radius: 2)
-                                            .mask(
-                                                RoundedRectangle(cornerRadius: 8)
-                                                    .stroke(Color.white, lineWidth: 42)
-                                            )
-                                    }
+                            HStack {
+                                Text(userState.isSignedIn ? "START DECODING" : "ENTER GAME")
+                                    .font(.system(size: 18, weight: .bold, design: .monospaced))
+                                    .tracking(2)
+                                
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 14, weight: .bold))
+                            }
+                            .foregroundColor(.black)
+                            .padding(.horizontal, 32)
+                            .padding(.vertical, 16)
+                            .background(
+                                LinearGradient(
+                                    colors: [.cyan, .green],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
                                 )
-                                .foregroundColor(.cyan)
-                                .shadow(color: .cyan.opacity(0.6), radius: 10, x: 0, y: 0)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
+                            .shadow(color: .cyan.opacity(0.5), radius: 8, x: 0, y: 4)
                         }
                         .scaleEffect(buttonScale)
                         .opacity(showButtons ? 1 : 0)
+                        .animation(.spring(response: 0.6, dampingFraction: 0.7), value: showButtons)
                         
-                        // Sign in with Apple (Apple's preferred placement)
-                        if !authCoordinator.isAuthenticated {
-                            SignInWithAppleButton(.signIn) { request in
-                                request.requestedScopes = [.fullName, .email]
-                            } onCompletion: { result in
-                                handleAppleSignIn(result: result)
-                            }
-                            .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)
-                            .frame(height: 50)
-                            .cornerRadius(8)
-                            .opacity(showButtons ? 1 : 0)
-                            .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.2), value: showButtons)
-                        }
-                        
-                        // Traditional login button (now more subtle)
-                        if !authCoordinator.isAuthenticated {
-                            Button(action: {
-                                // Play a subtle click sound
-                                SoundManager.shared.play(.letterClick)
-                                
-                                // Call the login callback if provided
-                                if let onShowLogin = onShowLogin {
-                                    // Short delay for animation to complete
-                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                                        onShowLogin()
-                                    }
-                                }
-                            }) {
-                                HStack {
-                                    Image(systemName: "person.circle")
-                                        .font(.system(size: 16))
-                                    Text("Other Sign In Options")
-                                        .font(.system(size: 16, weight: .medium, design: .monospaced))
-                                }
-                                .foregroundColor(.white.opacity(0.8))
-                                .padding(.horizontal, 32)
-                                .padding(.vertical, 12)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.white.opacity(0.4), lineWidth: 1)
-                                )
-                            }
-                            .opacity(showButtons ? 0.8 : 0)
-                            .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.4), value: showButtons)
-                        }
-                        
-                        // If already authenticated, show user info
-                        if authCoordinator.isAuthenticated {
+                        // If already signed in, show user info and sign out option
+                        if userState.isSignedIn {
                             VStack(spacing: 8) {
-                                Text("Welcome back, \(authCoordinator.username)!")
+                                Text("Welcome back, \(userState.playerName)!")
                                     .font(.system(size: 18, weight: .medium, design: .monospaced))
                                     .foregroundColor(.green)
                                 
                                 Button(action: {
-                                    authCoordinator.logout()
+                                    userState.signOut()
                                 }) {
                                     Text("Sign Out")
                                         .font(.system(size: 14, weight: .medium))
@@ -201,7 +136,7 @@ struct HomeScreen: View {
                                         )
                                 }
                             }
-                            .opacity(showButtons ? 1 : 0)
+                            .opacity(showButtons ? 0.8 : 0)
                             .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.2), value: showButtons)
                         }
                     }
@@ -230,82 +165,64 @@ struct HomeScreen: View {
                 timerCancellable?.cancel()
             }
         }
-    }
-    
-    // MARK: - Apple Sign-In Handler
-    
-    private func handleAppleSignIn(result: Result<ASAuthorization, Error>) {
-        switch result {
-        case .success(let authorization):
-            // Play success sound
-            SoundManager.shared.play(.correctGuess)
-            
-            authCoordinator.signInWithApple(authorization: authorization) { success, error in
-                if success {
-                    print("Apple Sign-In successful!")
-                    // Navigate to main game after successful login
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        onBegin()
-                    }
-                } else {
-                    print("Apple Sign-In failed: \(error ?? "Unknown error")")
-                    // Error handling - could show an alert here
+        .sheet(isPresented: $showNameEntry) {
+            SimpleNameEntryView(
+                playerName: $playerName,
+                onSave: {
+                    userState.setPlayerName(playerName)
+                    showNameEntry = false
+                    onBegin()
                 }
-            }
-            
-        case .failure(let error):
-            // Handle cancellation gracefully (don't show error for user cancellation)
-            if (error as NSError).code != ASAuthorizationError.canceled.rawValue {
-                print("Apple Sign-In error: \(error.localizedDescription)")
-                // Could show error alert here for non-cancellation errors
-            }
-        }
-    }
-    
-    // MARK: - All your existing animation methods stay the same...
-    
-    private func setupCodeColumns(screenWidth: CGFloat) {
-        // Create columns of varying height and speed for the code rain effect
-        let columnCount = Int(screenWidth / 30) // Approximate column width
-        
-        columns = (0..<columnCount).map { _ in
-            CodeColumn(
-                position: CGFloat.random(in: 0...screenWidth),
-                speed: Double.random(in: 0.5...2.0),
-                chars: generateRandomChars(count: Int.random(in: 5...20)),
-                hue: CGFloat.random(in: 0...0.3) // Mostly blue-green hues
             )
         }
     }
     
+    // MARK: - Helper Methods (keep existing animation code)
+    
+    private func randomCryptoChar() -> String {
+        let chars = "!@#$%^&*(){}[]|\\:;\"'<>,.?/~`0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+        return String(chars.randomElement() ?? "X")
+    }
+    
+    private func titleColor(for index: Int) -> Color {
+        if decryptedChars[index] {
+            return .cyan
+        } else {
+            return Color.white.opacity(0.3)
+        }
+    }
+    
+    private func setupCodeColumns(screenWidth: CGFloat) {
+        let columnCount = Int(screenWidth / 20)
+        columns = (0..<columnCount).map { _ in
+            CodeColumn()
+        }
+    }
+    
     private func startAnimationSequence() {
-        // Animate title appearance
-        withAnimation(.easeIn(duration: 0.6)) {
+        // Show title first
+        withAnimation(.easeOut(duration: 0.6)) {
             showTitle = true
         }
         
-        // Decrypt characters one by one
-        for (index, _) in "DECODEY".enumerated() {
-            let delay = 0.6 + Double(index) * 0.15
-            DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
-                // Play sound for each character decryption
-                SoundManager.shared.play(.letterClick)
-                
-                withAnimation {
-                    decryptedChars[index] = true
+        // Start decrypting characters with staggered timing
+        for i in 0..<decryptedChars.count {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * 0.15 + 0.8) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                    decryptedChars[i] = true
                 }
             }
         }
         
-        // Show subtitle after title is decrypted
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+        // Show subtitle after title decryption
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
             withAnimation(.easeIn(duration: 0.8)) {
                 showSubtitle = true
             }
         }
         
-        // Finally show the buttons
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+        // Show buttons last
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
             withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
                 showButtons = true
             }
@@ -313,45 +230,47 @@ struct HomeScreen: View {
     }
     
     private func setupContinuousAnimations() {
-        // Create continuous animations for effects like pulsing and scanner
-        timerCancellable = Timer.publish(every: 2, on: .main, in: .common)
+        // Pulse effect for buttons
+        timerCancellable = Timer.publish(every: 2.0, on: .main, in: .common)
             .autoconnect()
             .sink { _ in
-                // Toggle pulse effect
-                withAnimation(Animation.easeInOut(duration: 2)) {
+                withAnimation(.easeInOut(duration: 0.8)) {
                     pulseEffect.toggle()
-                }
-                
-                // Update some random code columns
-                for _ in 0..<min(3, columns.count) {
-                    if Bool.random() {
-                        let randomIndex = Int.random(in: 0..<columns.count)
-                        columns[randomIndex].chars = generateRandomChars(count: Int.random(in: 5...20))
-                    }
+                    buttonScale = pulseEffect ? 1.05 : 1.0
                 }
             }
     }
+}
+
+// Simple name entry view
+struct SimpleNameEntryView: View {
+    @Binding var playerName: String
+    let onSave: () -> Void
     
-    // MARK: - Helper Functions
-    
-    private func titleColor(for index: Int) -> Color {
-        if !decryptedChars[index] {
-            // Random colors for undecrypted characters
-            return [Color.cyan, Color.blue, Color.green].randomElement()!
-        } else {
-            // For decrypted characters, use a gradient effect based on position
-            let hue = 0.5 + (Double(index) * 0.03)
-            return Color(hue: hue, saturation: 0.8, brightness: 0.9)
+    var body: some View {
+        VStack(spacing: 30) {
+            VStack(spacing: 10) {
+                Text("Enter Your Name")
+                    .font(.title2.bold())
+                    .foregroundColor(.primary)
+                
+                Text("This will be your player name")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            TextField("Player Name", text: $playerName)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.horizontal)
+            
+            Button("Start Playing") {
+                if !playerName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    onSave()
+                }
+            }
+            .disabled(playerName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            .buttonStyle(.borderedProminent)
         }
-    }
-    
-    private func randomCryptoChar() -> String {
-        let cryptoChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+=~`|]}[{';:/?.>,<"
-        return String(cryptoChars.randomElement()!)
-    }
-    
-    private func generateRandomChars(count: Int) -> [String] {
-        let cryptoChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*()_+=~`|]}[{';:/?.>,<"
-        return (0..<count).map { _ in String(cryptoChars.randomElement()!) }
+        .padding()
     }
 }

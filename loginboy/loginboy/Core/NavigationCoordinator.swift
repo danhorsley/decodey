@@ -254,7 +254,7 @@ struct MainTabView: View {
                 }
                 .tag(NavigationCoordinator.AppRoute.TabRoute.daily)
             
-            GameView()
+            GameView(gameMode: .random)
                 .tabItem {
                     Image(systemName: "gamecontroller")
                     Text("Game")
@@ -282,29 +282,7 @@ struct MainTabView: View {
 }
 
 // Placeholder views - these will be your actual game views
-struct DailyView: View {
-    var body: some View {
-        Text("Daily Challenge View")
-    }
-}
 
-struct GameView: View {
-    var body: some View {
-        Text("Game View")
-    }
-}
-
-struct StatsView: View {
-    var body: some View {
-        Text("Stats View")
-    }
-}
-
-struct ProfileView: View {
-    var body: some View {
-        Text("Profile View")
-    }
-}
 
 struct SettingsView: View {
     var body: some View {

@@ -1,146 +1,131 @@
-// MainView.swift - Rewritten for Realm
 import SwiftUI
 
 struct MainView: View {
-    // Environment state objects
+    @StateObject private var gameState = GameState()
     @StateObject private var userState = UserState.shared
-    @StateObject private var gameState = GameState.shared
     @StateObject private var settingsState = SettingsState.shared
+    @StateObject private var soundManager = SoundManager.shared
     
-    // Use navigation coordinator
-    @StateObject private var coordinator = NavigationCoordinator(auth: UserState.shared.authCoordinator)
-    
-    // State for sheet presentations
-    @State private var showLoginSheet = false
-    @State private var showContinueGameSheet = false
+    @State private var showingHomeScreen = true
     
     var body: some View {
-        mainContent
-            .environmentObject(userState)
-            .environmentObject(gameState)
-            .environmentObject(settingsState)
-            .environmentObject(coordinator)
-    }
-    
-    // Extract main content to avoid generic parameter inference issues
-    private var mainContent: some View {
-        Group {
-            switch coordinator.currentRoute {
-            case .home:
-                homeView
-                
-            case .login:
-                loginView
-                
-            case .main:
-                mainTabView
-            }
-        }
-        .sheet(isPresented: $showLoginSheet) {
-            NavigationView {
-                LoginView()
-                    .environmentObject(userState.authCoordinator)
-                    .navigationTitle("Login")
-            }
-        }
-        .sheet(isPresented: $showContinueGameSheet) {
-            if let savedGame = gameState.savedGame {
-                ContinueGameSheet(
-                    isDailyChallenge: savedGame.gameId?.starts(with: "daily-") ?? false
-                )
-                .presentationDetents([.medium])
-            }
-        }
-        .onChange(of: gameState.showContinueGameModal) { _, showModal in
-            showContinueGameSheet = showModal
-        
-        }
-    }
-    
-    // Home screen view
-    private var homeView: some View {
         ZStack {
-            HomeScreen(
-                onBegin: {
-                    if userState.isAuthenticated {
-                        coordinator.navigate(to: .main(.daily))
-                    } else {
-                        coordinator.navigate(to: .login)
+            if showingHomeScreen {
+                HomeScreen {
+                    withAnimation(.easeInOut(duration: 0.5)) {
+                        showingHomeScreen = false
                     }
-                },
-                onShowLogin: {
-                    showLoginSheet = true
                 }
-            )
-            .environmentObject(userState.authCoordinator) 
-            
-            #if DEBUG
-            // Add performance monitor in debug builds
-            VStack {
-                HStack {
-                    Spacer()
-                    PerformanceMonitor()
+                .transition(.opacity)
+            } else {
+                // Main game interface
+                VStack(spacing: 0) {
+                    // Top bar with user info and settings
+                    HStack {
+                        // User info
+                        if userState.isSignedIn {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(userState.playerName)
+                                    .font(.headline)
+                                    .foregroundColor(.primary)
+                                
+                                Text("Score: \(userState.totalScore)")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        
+                        Spacer()
+                        
+                        // Settings button
+                        Button(action: {
+                            // Show settings
+                        }) {
+                            Image(systemName: "gear")
+                                .font(.title2)
+                                .foregroundColor(.primary)
+                        }
+                    }
+                    .padding()
+                    .background(Material.regularMaterial)
+                    
+                    // Game content
+                    TabView {
+                        // Daily Challenge Tab
+                        GameView(gameMode: .daily)
+                            .tabItem {
+                                Image(systemName: "calendar")
+                                Text("Daily")
+                            }
+                        
+                        // Random Game Tab
+                        GameView(gameMode: .random)
+                            .tabItem {
+                                Image(systemName: "shuffle")
+                                Text("Random")
+                            }
+                        
+                        // Stats Tab
+                        StatsView()
+                            .tabItem {
+                                Image(systemName: "chart.bar")
+                                Text("Stats")
+                            }
+                    }
                 }
+                .transition(.slide)
+            }
+        }
+        .environmentObject(gameState)
+        .environmentObject(userState)
+        .environmentObject(settingsState)
+        .environmentObject(soundManager)
+    }
+}
+
+// Simple Stats View
+struct StatsView: View {
+    @EnvironmentObject var userState: UserState
+    
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 20) {
+                Text("Your Stats")
+                    .font(.largeTitle.bold())
+                    .padding(.top)
+                
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 16) {
+                    StatCard(title: "Games Played", value: "\(userState.gamesPlayed)")
+                    StatCard(title: "Games Won", value: "\(userState.gamesWon)")
+                    StatCard(title: "Win Rate", value: String(format: "%.1f%%", userState.winPercentage))
+                    StatCard(title: "Total Score", value: "\(userState.totalScore)")
+                    StatCard(title: "Avg Score", value: String(format: "%.0f", userState.averageScore))
+                }
+                .padding()
+                
                 Spacer()
             }
-            .padding()
-            #endif
         }
     }
+}
+
+struct StatCard: View {
+    let title: String
+    let value: String
     
-    // Login view
-    private var loginView: some View {
-        LoginView()
-            .environmentObject(userState.authCoordinator)
-    }
-    
-    // Main tab view
-    private var mainTabView: some View {
-        TabView(selection: $coordinator.selectedTab) {
+    var body: some View {
+        VStack(spacing: 8) {
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
             
-            NavigationViewWrapper {
-                
-                DailyView()
-                    .environmentObject(userState.authCoordinator)
-            }
-            .tabItem {
-                Label("Daily", systemImage: "calendar")
-            }
-            .tag(NavigationCoordinator.AppRoute.TabRoute.daily)
-            
-            NavigationViewWrapper {
-                CustomGameView()
-            }
-            .tabItem {
-                Label("Play", systemImage: "gamecontroller")
-            }
-            .tag(NavigationCoordinator.AppRoute.TabRoute.game)
-            
-            NavigationViewWrapper {
-                LeaderboardView()
-                    .environmentObject(userState.authCoordinator)
-            }
-            .tabItem {
-                Label("Leaderboard", systemImage: "list.number")
-            }
-            .tag(NavigationCoordinator.AppRoute.TabRoute.leaderboard)
-            
-            NavigationViewWrapper {
-                            UserStatsView()
-                        }
-                        .tabItem {
-                            Label("Stats", systemImage: "chart.bar")
-                        }
-                        .tag(NavigationCoordinator.AppRoute.TabRoute.stats)
-            
-            NavigationViewWrapper {
-                ProfileView()
-            }
-            .tabItem {
-                Label("Profile", systemImage: "person")
-            }
-            .tag(NavigationCoordinator.AppRoute.TabRoute.profile)
+            Text(value)
+                .font(.title2.bold())
+                .foregroundColor(.primary)
         }
-        
+        .padding()
+        .background(Material.thin)
+        .cornerRadius(12)
     }
 }
