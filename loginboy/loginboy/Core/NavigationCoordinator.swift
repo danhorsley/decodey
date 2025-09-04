@@ -1,3 +1,8 @@
+//
+//  NavigationCoordinator.swift - Local Navigation Management
+//  loginboy
+//
+
 import SwiftUI
 import Combine
 
@@ -5,22 +10,20 @@ import Combine
 class NavigationCoordinator: ObservableObject {
     // Define all possible app routes
     enum AppRoute: Equatable {
-        case home
-        case login
+        case welcome    // First-time setup
         case main(TabRoute)
         
         // Main tab routes
         enum TabRoute: Int, Equatable {
             case daily = 0
             case game = 1
-            case leaderboard = 2
-            case stats = 3
-            case profile = 4
+            case stats = 2
+            case profile = 3
         }
     }
     
     // Current route
-    @Published var currentRoute: AppRoute = .home
+    @Published var currentRoute: AppRoute = .welcome
     
     // Selected tab
     @Published var selectedTab: AppRoute.TabRoute = .daily
@@ -31,63 +34,64 @@ class NavigationCoordinator: ObservableObject {
     // Sheet types
     enum SheetType: Identifiable {
         case settings
-        case login
-        case continueGame // Changed from gameOptions to continueGame to match your actual use case
+        case playerSetup
+        case continueGame
         
         var id: Int {
             switch self {
             case .settings: return 1
-            case .login: return 2
+            case .playerSetup: return 2
             case .continueGame: return 3
             }
         }
     }
     
-    // Auth dependency
-    private let auth: AuthenticationCoordinator
+    // User manager dependency
+    private let userManager: SimpleUserManager
     private var cancellables = Set<AnyCancellable>()
     
-    init(auth: AuthenticationCoordinator) {
-        self.auth = auth
+    init(userManager: SimpleUserManager = SimpleUserManager.shared) {
+        self.userManager = userManager
         
-        // Subscribe to auth changes
-        auth.$isAuthenticated
-            .sink { [weak self] isAuthenticated in
-                if isAuthenticated {
-                    // When authenticated, go to main view if currently in login
-                    if self?.currentRoute == .login {
+        // Set initial route based on user state
+        setupInitialRoute()
+        
+        // Subscribe to user state changes
+        userManager.$isSignedIn
+            .sink { [weak self] isSignedIn in
+                if isSignedIn {
+                    // When player is set up, go to main view
+                    if self?.currentRoute == .welcome {
                         self?.navigate(to: .main(.daily))
                     }
                 } else {
-                    // When logged out, go to home if in main view
+                    // When player is not set up, go to welcome
                     if case .main = self?.currentRoute {
-                        self?.navigate(to: .home)
+                        self?.navigate(to: .welcome)
                     }
                 }
             }
             .store(in: &cancellables)
     }
     
-    // Navigation methods
+    // MARK: - Navigation Methods
+    
     func navigate(to route: AppRoute) {
-        withAnimation {
+        withAnimation(.easeInOut(duration: 0.3)) {
             currentRoute = route
-            
-            // Update selected tab if navigating to main
-            if case .main(let tab) = route {
-                selectedTab = tab
-            }
         }
-    }
-    
-    func navigateToTab(_ tab: AppRoute.TabRoute) {
-        withAnimation {
+        
+        // Update selected tab if navigating to main
+        if case let .main(tab) = route {
             selectedTab = tab
-            currentRoute = .main(tab)
         }
     }
     
-    // Sheet presentation methods
+    func selectTab(_ tab: AppRoute.TabRoute) {
+        selectedTab = tab
+        navigate(to: .main(tab))
+    }
+    
     func presentSheet(_ sheet: SheetType) {
         activeSheet = sheet
     }
@@ -96,62 +100,220 @@ class NavigationCoordinator: ObservableObject {
         activeSheet = nil
     }
     
-    // Common navigation actions
-    func showLogin() {
-        navigate(to: .login)
+    // MARK: - Quick Actions
+    
+    func showPlayerSetup() {
+        presentSheet(.playerSetup)
     }
     
-    func showHome() {
-        navigate(to: .home)
+    func showSettings() {
+        presentSheet(.settings)
     }
     
-    func showMain() {
-        navigate(to: .main(selectedTab))
+    func showContinueGame() {
+        presentSheet(.continueGame)
     }
     
-    func logout() {
-        auth.logout()
-        navigate(to: .home)
+    func goToDaily() {
+        navigate(to: .main(.daily))
+    }
+    
+    func goToGame() {
+        navigate(to: .main(.game))
+    }
+    
+    func goToStats() {
+        navigate(to: .main(.stats))
+    }
+    
+    func goToProfile() {
+        navigate(to: .main(.profile))
+    }
+    
+    // MARK: - Private Methods
+    
+    private func setupInitialRoute() {
+        if userManager.isSignedIn {
+            currentRoute = .main(.daily)
+        } else {
+            currentRoute = .welcome
+        }
     }
 }
 
-// View modifier for coordinated navigation
-struct CoordinatedNavigationViewModifier: ViewModifier {
-    @ObservedObject var coordinator: NavigationCoordinator
-    @EnvironmentObject var gameState: GameState // Changed to EnvironmentObject for easier access
+// MARK: - Navigation View Extensions
+
+extension NavigationCoordinator {
     
-    func body(content: Content) -> some View {
-        content
-            .sheet(item: $coordinator.activeSheet) { sheetType in
-                switch sheetType {
-                case .settings:
-                    NavigationView {
-                        ProfileView()
-                            .environmentObject(coordinator)
-                    }
-                case .login:
-                    NavigationView {
-                        LoginView()
-                            .environmentObject(coordinator)
-                    }
-                case .continueGame:
-                    ContinueGameSheet(isDailyChallenge: gameState.isDailyChallenge)
-                        .presentationDetents([.medium])
+    /// Get the appropriate view for the current route
+    @ViewBuilder
+    func rootView() -> some View {
+        switch currentRoute {
+        case .welcome:
+            WelcomeView()
+                .environmentObject(self)
+        case .main:
+            MainTabView()
+                .environmentObject(self)
+        }
+    }
+    
+    /// Get the appropriate sheet content
+    @ViewBuilder
+    func sheetContent(for sheet: SheetType) -> some View {
+        switch sheet {
+        case .settings:
+            SettingsView()
+                .environmentObject(self)
+        case .playerSetup:
+            PlayerSetupView()
+                .environmentObject(self)
+        case .continueGame:
+            ContinueGameView()
+                .environmentObject(self)
+        }
+    }
+}
+
+// MARK: - Supporting Views (Placeholder implementations)
+
+struct WelcomeView: View {
+    @EnvironmentObject var navigation: NavigationCoordinator
+    @EnvironmentObject var userManager: SimpleUserManager
+    
+    var body: some View {
+        VStack(spacing: 32) {
+            Spacer()
+            
+            VStack(spacing: 16) {
+                Text("🔤")
+                    .font(.system(size: 80))
+                
+                Text("Welcome to Cryptogram")
+                    .font(.largeTitle.bold())
+                    .multilineTextAlignment(.center)
+                
+                Text("Decode famous quotes and track your progress")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            
+            Spacer()
+            
+            Button("Get Started") {
+                navigation.showPlayerSetup()
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .padding(.horizontal, 32)
+            
+            Spacer()
+        }
+        .padding()
+    }
+}
+
+struct PlayerSetupView: View {
+    @EnvironmentObject var navigation: NavigationCoordinator
+    @EnvironmentObject var userManager: SimpleUserManager
+    @State private var playerName = ""
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            Text("Choose Your Player Name")
+                .font(.title2.bold())
+            
+            TextField("Enter your name", text: $playerName)
+                .textFieldStyle(.roundedBorder)
+                .padding(.horizontal)
+            
+            Button("Start Playing") {
+                if !playerName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                    userManager.setupLocalPlayer(name: playerName)
+                    dismiss()
                 }
             }
+            .buttonStyle(.borderedProminent)
+            .disabled(playerName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        }
+        .padding()
     }
 }
 
-// Extension for View
-extension View {
-    func withCoordinatedNavigation(_ coordinator: NavigationCoordinator) -> some View {
-        self.modifier(CoordinatedNavigationViewModifier(coordinator: coordinator))
+struct MainTabView: View {
+    @EnvironmentObject var navigation: NavigationCoordinator
+    
+    var body: some View {
+        TabView(selection: $navigation.selectedTab) {
+            DailyView()
+                .tabItem {
+                    Image(systemName: "calendar")
+                    Text("Daily")
+                }
+                .tag(NavigationCoordinator.AppRoute.TabRoute.daily)
+            
+            GameView()
+                .tabItem {
+                    Image(systemName: "gamecontroller")
+                    Text("Game")
+                }
+                .tag(NavigationCoordinator.AppRoute.TabRoute.game)
+            
+            StatsView()
+                .tabItem {
+                    Image(systemName: "chart.bar")
+                    Text("Stats")
+                }
+                .tag(NavigationCoordinator.AppRoute.TabRoute.stats)
+            
+            ProfileView()
+                .tabItem {
+                    Image(systemName: "person")
+                    Text("Profile")
+                }
+                .tag(NavigationCoordinator.AppRoute.TabRoute.profile)
+        }
+        .onChange(of: navigation.selectedTab) { newTab in
+            navigation.selectTab(newTab)
+        }
     }
 }
 
-//
-//  NavigationCoordinator.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 13/05/2025.
-//
+// Placeholder views - these will be your actual game views
+struct DailyView: View {
+    var body: some View {
+        Text("Daily Challenge View")
+    }
+}
+
+struct GameView: View {
+    var body: some View {
+        Text("Game View")
+    }
+}
+
+struct StatsView: View {
+    var body: some View {
+        Text("Stats View")
+    }
+}
+
+struct ProfileView: View {
+    var body: some View {
+        Text("Profile View")
+    }
+}
+
+struct SettingsView: View {
+    var body: some View {
+        Text("Settings View")
+    }
+}
+
+struct ContinueGameView: View {
+    var body: some View {
+        Text("Continue Game View")
+    }
+}

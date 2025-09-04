@@ -1,3 +1,8 @@
+//
+//  UserSettings.swift - Local Settings Management
+//  loginboy
+//
+
 import SwiftUI
 import Combine
 
@@ -25,8 +30,6 @@ class UserSettings: ObservableObject {
     @Published var useBiometricAuth: Bool {
         didSet {
             savePreference("useBiometricAuth", value: useBiometricAuth)
-            
-            // Handle biometric auth enabling/disabling
             handleBiometricAuthChange()
         }
     }
@@ -37,239 +40,250 @@ class UserSettings: ObservableObject {
         }
     }
     
-    // App version
+    @Published var soundEnabled: Bool {
+        didSet {
+            savePreference("soundEnabled", value: soundEnabled)
+        }
+    }
+    
+    @Published var hapticFeedback: Bool {
+        didSet {
+            savePreference("hapticFeedback", value: hapticFeedback)
+        }
+    }
+    
+    // App version (read-only)
     let appVersion: String
     
     // Private properties
-    private let auth: AuthenticationCoordinator
     private var cancellables = Set<AnyCancellable>()
-    private let keychainService = "com.yourapp.settings"
+    private let userDefaults = UserDefaults.standard
     
-    // Flag to prevent repeated sync failures
-    private var syncFailureLogged = false
+    // Settings keys
+    private struct Keys {
+        static let isDarkMode = "isDarkMode"
+        static let showTextHelpers = "showTextHelpers"
+        static let useAccessibilityTextSize = "useAccessibilityTextSize"
+        static let useBiometricAuth = "useBiometricAuth"
+        static let gameDifficulty = "gameDifficulty"
+        static let soundEnabled = "soundEnabled"
+        static let hapticFeedback = "hapticFeedback"
+        static let hasLoadedInitialSettings = "hasLoadedInitialSettings"
+    }
     
-    // Initialize with AuthenticationCoordinator for user-specific settings
-    init(auth: AuthenticationCoordinator) {
-        self.auth = auth
-        
-        // Initialize stored properties first
-        self.isDarkMode = true
-        self.showTextHelpers = true
-        self.useAccessibilityTextSize = false
-        self.useBiometricAuth = false
-        self.gameDifficulty = "medium"
-        
+    // Singleton instance
+    static let shared = UserSettings()
+    
+    // Initialize with default settings
+    init() {
         // Get app version
         if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
            let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
             self.appVersion = "\(version) (\(build))"
         } else {
-            self.appVersion = "Unknown"
+            self.appVersion = "1.0"
         }
         
-        // Load settings with defaults
-        self.isDarkMode = loadPreference("isDarkMode", defaultValue: true)
-        self.showTextHelpers = loadPreference("showTextHelpers", defaultValue: true)
-        self.useAccessibilityTextSize = loadPreference("useAccessibilityTextSize", defaultValue: false)
-        self.useBiometricAuth = loadPreference("useBiometricAuth", defaultValue: isBiometricAuthAvailable())
-        self.gameDifficulty = loadPreference("gameDifficulty", defaultValue: "medium")
+        // Initialize stored properties with defaults
+        self.isDarkMode = true
+        self.showTextHelpers = true
+        self.useAccessibilityTextSize = false
+        self.useBiometricAuth = false
+        self.gameDifficulty = "medium"
+        self.soundEnabled = true
+        self.hapticFeedback = true
         
-        // Apply initial appearance
-        updateAppAppearance()
+        // Load saved preferences
+        loadPreferences()
         
-        // Subscribe to auth changes
-        subscribeToAuthChanges()
+        print("⚙️ UserSettings initialized - Version: \(appVersion)")
     }
     
     // MARK: - Preference Management
     
-    private func savePreference<T: Encodable>(_ key: String, value: T) {
-        // First, always save to UserDefaults as a fallback
-        if auth.isAuthenticated && !auth.userId.isEmpty {
-            // User-specific key
-            UserDefaults.standard.set(value, forKey: "\(auth.userId)_\(key)")
-        } else {
-            // Generic key for when not logged in
-            UserDefaults.standard.set(value, forKey: key)
-        }
+    private func loadPreferences() {
+        // Check if this is first run
+        let hasLoadedBefore = userDefaults.bool(forKey: Keys.hasLoadedInitialSettings)
         
-        // If user is authenticated, also try to save to keychain for sync
-        if auth.isAuthenticated && !auth.userId.isEmpty {
-            do {
-                let data = try JSONEncoder().encode(value)
-                try KeychainManager.save(
-                    service: keychainService,
-                    account: "\(auth.userId)_\(key)",
-                    password: data
-                )
-                print("DEBUG: Saved setting \(key) to keychain for user \(auth.userId)")
-            } catch {
-                print("DEBUG: Failed to save setting to keychain: \(error.localizedDescription)")
-            }
-        }
-    }
-    
-    private func loadPreference<T: Decodable>(_ key: String, defaultValue: T) -> T {
-        // Try to load from user-specific UserDefaults first (most reliable)
-        if auth.isAuthenticated && !auth.userId.isEmpty {
-            if let value = UserDefaults.standard.object(forKey: "\(auth.userId)_\(key)") as? T {
-                return value
-            }
+        if hasLoadedBefore {
+            // Load saved preferences
+            isDarkMode = userDefaults.object(forKey: Keys.isDarkMode) as? Bool ?? true
+            showTextHelpers = userDefaults.object(forKey: Keys.showTextHelpers) as? Bool ?? true
+            useAccessibilityTextSize = userDefaults.object(forKey: Keys.useAccessibilityTextSize) as? Bool ?? false
+            useBiometricAuth = userDefaults.object(forKey: Keys.useBiometricAuth) as? Bool ?? false
+            gameDifficulty = userDefaults.object(forKey: Keys.gameDifficulty) as? String ?? "medium"
+            soundEnabled = userDefaults.object(forKey: Keys.soundEnabled) as? Bool ?? true
+            hapticFeedback = userDefaults.object(forKey: Keys.hapticFeedback) as? Bool ?? true
             
-            // Try keychain as fallback for user-specific settings
-            do {
-                let data = try KeychainManager.get(
-                    service: keychainService,
-                    account: "\(auth.userId)_\(key)"
-                )
-                
-                if let value = try? JSONDecoder().decode(T.self, from: data) {
-                    return value
-                }
-            } catch {
-                // Keychain error - fall back to generic UserDefaults
-                if !(error is KeychainManager.KeychainError) {
-                    print("DEBUG: Keychain error for \(key): \(error)")
-                }
-            }
-        }
-        
-        // If not found in user-specific storage, try generic UserDefaults
-        if let value = UserDefaults.standard.object(forKey: key) as? T {
-            return value
-        }
-        
-        // Return default value if nothing found
-        return defaultValue
-    }
-    
-    // MARK: - Auth Integration
-    
-    private func subscribeToAuthChanges() {
-        // Observe login events
-        NotificationCenter.default.publisher(for: .userDidLogin)
-            .sink { [weak self] _ in
-                guard let self = self else { return }
-                
-                // Reload settings for the new user
-                DispatchQueue.main.async {
-                    self.reloadUserSettings()
-                }
-            }
-            .store(in: &cancellables)
-        
-        // Observe logout events
-        NotificationCenter.default.publisher(for: .userDidLogout)
-            .sink { [weak self] _ in
-                guard let self = self else { return }
-                
-                // Reset to default/generic settings
-                DispatchQueue.main.async {
-                    self.loadDefaultSettings()
-                }
-            }
-            .store(in: &cancellables)
-    }
-    
-    private func reloadUserSettings() {
-        // Reload user-specific settings
-        self.isDarkMode = loadPreference("isDarkMode", defaultValue: true)
-        self.showTextHelpers = loadPreference("showTextHelpers", defaultValue: true)
-        self.useAccessibilityTextSize = loadPreference("useAccessibilityTextSize", defaultValue: false)
-        self.useBiometricAuth = loadPreference("useBiometricAuth", defaultValue: isBiometricAuthAvailable())
-        self.gameDifficulty = loadPreference("gameDifficulty", defaultValue: "medium")
-        
-        // Update appearance based on reloaded settings
-        updateAppAppearance()
-        
-        print("DEBUG: Reloaded settings for user \(auth.userId)")
-    }
-    
-    private func loadDefaultSettings() {
-        // Load generic settings when user logs out
-        self.isDarkMode = UserDefaults.standard.bool(forKey: "isDarkMode")
-        self.showTextHelpers = UserDefaults.standard.bool(forKey: "showTextHelpers")
-        self.useAccessibilityTextSize = UserDefaults.standard.bool(forKey: "useAccessibilityTextSize")
-        self.useBiometricAuth = UserDefaults.standard.bool(forKey: "useBiometricAuth")
-        self.gameDifficulty = UserDefaults.standard.string(forKey: "gameDifficulty") ?? "medium"
-        
-        // Update appearance
-        updateAppAppearance()
-        
-        print("DEBUG: Loaded default settings after logout")
-    }
-    
-    // MARK: - Biometric Auth Helpers
-    
-    private func handleBiometricAuthChange() {
-        if !auth.isAuthenticated || auth.userId.isEmpty {
-            return
-        }
-        
-        if useBiometricAuth {
-            // Try to enable biometric auth
-            let biometricHelper = BiometricAuthHelper.shared
-            let (available, _) = biometricHelper.biometricAuthAvailable()
-            
-            if available {
-                // Enable biometric auth
-                // For simplicity, just save the setting - actual enrollment would happen at login
-                print("DEBUG: Enabled biometric auth for user \(auth.userId)")
-            } else {
-                // Biometrics not available, revert setting
-                DispatchQueue.main.async {
-                    self.useBiometricAuth = false
-                    print("DEBUG: Biometric auth not available, setting disabled")
-                }
-            }
+            print("✅ Loaded saved preferences")
         } else {
-            // Disable biometric auth - remove from keychain
-            do {
-                try KeychainManager.delete(
-                    service: "com.yourapp.auth.biometric",
-                    account: auth.userId
-                )
-                print("DEBUG: Disabled and removed biometric auth for user \(auth.userId)")
-            } catch {
-                print("DEBUG: Error removing biometric auth: \(error)")
-            }
+            // First run - save defaults
+            saveAllPreferences()
+            userDefaults.set(true, forKey: Keys.hasLoadedInitialSettings)
+            print("🆕 First run - saved default preferences")
         }
+        
+        // Apply appearance immediately
+        updateAppAppearance()
     }
     
-    private func isBiometricAuthAvailable() -> Bool {
-        let (available, _) = BiometricAuthHelper.shared.biometricAuthAvailable()
-        return available
+    private func saveAllPreferences() {
+        savePreference(Keys.isDarkMode, value: isDarkMode)
+        savePreference(Keys.showTextHelpers, value: showTextHelpers)
+        savePreference(Keys.useAccessibilityTextSize, value: useAccessibilityTextSize)
+        savePreference(Keys.useBiometricAuth, value: useBiometricAuth)
+        savePreference(Keys.gameDifficulty, value: gameDifficulty)
+        savePreference(Keys.soundEnabled, value: soundEnabled)
+        savePreference(Keys.hapticFeedback, value: hapticFeedback)
     }
     
-    // MARK: - Appearance Updates
-    
-    private func updateAppAppearance() {
-        #if os(iOS)
-        // Update UI appearance based on dark mode setting
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first {
-            window.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
-        }
-        #endif
+    private func savePreference<T>(_ key: String, value: T) {
+        userDefaults.set(value, forKey: key)
+        userDefaults.synchronize()
     }
     
     // MARK: - Public Methods
     
-    /// Reset all settings to defaults
     func resetToDefaults() {
+        // Reset to default values
         isDarkMode = true
         showTextHelpers = true
         useAccessibilityTextSize = false
-        useBiometricAuth = isBiometricAuthAvailable()
+        useBiometricAuth = false
         gameDifficulty = "medium"
+        soundEnabled = true
+        hapticFeedback = true
         
-        print("DEBUG: Reset all settings to defaults")
+        print("🔄 Settings reset to defaults")
+    }
+    
+    func exportSettings() -> [String: Any] {
+        return [
+            "isDarkMode": isDarkMode,
+            "showTextHelpers": showTextHelpers,
+            "useAccessibilityTextSize": useAccessibilityTextSize,
+            "useBiometricAuth": useBiometricAuth,
+            "gameDifficulty": gameDifficulty,
+            "soundEnabled": soundEnabled,
+            "hapticFeedback": hapticFeedback,
+            "appVersion": appVersion
+        ]
+    }
+    
+    func importSettings(from data: [String: Any]) {
+        isDarkMode = data["isDarkMode"] as? Bool ?? isDarkMode
+        showTextHelpers = data["showTextHelpers"] as? Bool ?? showTextHelpers
+        useAccessibilityTextSize = data["useAccessibilityTextSize"] as? Bool ?? useAccessibilityTextSize
+        useBiometricAuth = data["useBiometricAuth"] as? Bool ?? useBiometricAuth
+        gameDifficulty = data["gameDifficulty"] as? String ?? gameDifficulty
+        soundEnabled = data["soundEnabled"] as? Bool ?? soundEnabled
+        hapticFeedback = data["hapticFeedback"] as? Bool ?? hapticFeedback
+        
+        print("📥 Settings imported successfully")
+    }
+    
+    // MARK: - Private Implementation
+    
+    private func updateAppAppearance() {
+        DispatchQueue.main.async {
+            // Update app-wide appearance
+            if self.isDarkMode {
+                UIApplication.shared.windows.first?.overrideUserInterfaceStyle = .dark
+            } else {
+                UIApplication.shared.windows.first?.overrideUserInterfaceStyle = .light
+            }
+        }
+    }
+    
+    private func handleBiometricAuthChange() {
+        if useBiometricAuth {
+            // Enable biometric authentication
+            enableBiometricAuth()
+        } else {
+            // Disable biometric authentication
+            disableBiometricAuth()
+        }
+    }
+    
+    private func enableBiometricAuth() {
+        // Check if biometric authentication is available
+        guard isBiometricAvailable() else {
+            DispatchQueue.main.async {
+                self.useBiometricAuth = false
+            }
+            return
+        }
+        
+        print("🔐 Biometric authentication enabled")
+    }
+    
+    private func disableBiometricAuth() {
+        print("🔓 Biometric authentication disabled")
+    }
+    
+    private func isBiometricAvailable() -> Bool {
+        // Check device capability for biometric authentication
+        // For now, return true for iOS devices
+        #if os(iOS)
+        return true
+        #else
+        return false
+        #endif
+    }
+    
+    // MARK: - Computed Properties
+    
+    var difficultyDisplayName: String {
+        switch gameDifficulty.lowercased() {
+        case "easy": return "Easy"
+        case "hard": return "Hard"
+        default: return "Medium"
+        }
+    }
+    
+    var isDarkModeDisplayName: String {
+        return isDarkMode ? "Dark" : "Light"
+    }
+    
+    // MARK: - Game Difficulty Helpers
+    
+    func setDifficulty(_ difficulty: GameDifficulty) {
+        gameDifficulty = difficulty.rawValue
+    }
+    
+    func getCurrentDifficulty() -> GameDifficulty {
+        return GameDifficulty(rawValue: gameDifficulty) ?? .medium
     }
 }
 
+// MARK: - Supporting Enums
 
-
-// MARK: - Missing Imports for iOS
-#if os(iOS)
-import LocalAuthentication
-#endif
+enum GameDifficulty: String, CaseIterable {
+    case easy = "easy"
+    case medium = "medium"
+    case hard = "hard"
+    
+    var displayName: String {
+        switch self {
+        case .easy: return "Easy"
+        case .medium: return "Medium"
+        case .hard: return "Hard"
+        }
+    }
+    
+    var description: String {
+        switch self {
+        case .easy: return "More mistakes allowed, simpler quotes"
+        case .medium: return "Balanced challenge"
+        case .hard: return "Few mistakes allowed, complex quotes"
+        }
+    }
+    
+    var maxMistakes: Int {
+        switch self {
+        case .easy: return 8
+        case .medium: return 5
+        case .hard: return 3
+        }
+    }
+}

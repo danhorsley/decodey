@@ -111,6 +111,16 @@ class LocalQuoteManager: ObservableObject {
         let id: String
     }
     
+    // MARK: - Internal QuoteBundleItem Definition
+    // This fixes the "No exact matches in call to initializer" error
+    private struct QuoteBundleItem: Codable {
+        let text: String
+        let author: String
+        let attribution: String?
+        let difficulty: String
+        let category: String
+    }
+    
     private func saveQuotesToCoreData(_ quotes: [QuoteBundleItem]) {
         let context = coreData.newBackgroundContext()
         
@@ -169,90 +179,85 @@ class LocalQuoteManager: ObservableObject {
         let context = coreData.mainContext
         let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
         fetchRequest.predicate = NSPredicate(format: "isActive == YES")
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "text", ascending: true)] // Consistent sorting
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "text", ascending: true)]
         
         do {
-            let quotes = try context.fetch(fetchRequest)
-            guard !quotes.isEmpty else {
-                print("❌ No quotes available for daily challenge")
-                return nil
-            }
+            let allQuotes = try context.fetch(fetchRequest)
+            guard !allQuotes.isEmpty else { return nil }
             
-            // Use modulo to get consistent daily quote
-            let index = dayNumber % quotes.count
-            let quote = quotes[index]
+            // Use modulo to get deterministic quote for this day
+            let index = dayNumber % allQuotes.count
+            let selectedQuote = allQuotes[index]
             
-            return LocalQuoteModel(
-                text: quote.text ?? "",
-                author: quote.author ?? "Unknown",
-                attribution: quote.attribution,
-                difficulty: quote.difficulty,
-                category: "classic" // Default category since Core Data doesn't have it
-            )
+            // Update usage counter
+            updateQuoteUsage(selectedQuote)
+            
+            return selectedQuote.toLocalQuoteModel()
         } catch {
             print("❌ Error fetching daily quote: \(error)")
             return nil
         }
     }
     
-    /// Get a random quote
-    func getRandomQuote() -> LocalQuoteModel? {
+    /// Get a random quote with optional difficulty filtering
+    func getRandomQuote(difficulty: String? = nil) -> LocalQuoteModel? {
         let context = coreData.mainContext
         let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
-        fetchRequest.predicate = NSPredicate(format: "isActive == YES")
+        
+        var predicates = [NSPredicate(format: "isActive == YES")]
+        
+        if let difficultyFilter = difficulty {
+            let difficultyValue = parseDifficulty(difficultyFilter)
+            predicates.append(NSPredicate(format: "difficulty == %f", difficultyValue))
+        }
+        
+        fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
         
         do {
             let quotes = try context.fetch(fetchRequest)
-            guard !quotes.isEmpty else {
-                print("❌ No quotes available")
-                return nil
-            }
+            guard !quotes.isEmpty else { return nil }
             
-            // Get truly random quote
             let randomIndex = Int.random(in: 0..<quotes.count)
-            let quote = quotes[randomIndex]
+            let selectedQuote = quotes[randomIndex]
             
-            // Update usage tracking in background
-            updateQuoteUsage(quote)
+            // Update usage counter
+            updateQuoteUsage(selectedQuote)
             
-            return LocalQuoteModel(
-                text: quote.text ?? "",
-                author: quote.author ?? "Unknown",
-                attribution: quote.attribution,
-                difficulty: quote.difficulty,
-                category: "classic" // Default category since Core Data doesn't have it
-            )
+            return selectedQuote.toLocalQuoteModel()
         } catch {
             print("❌ Error fetching random quote: \(error)")
             return nil
         }
     }
     
-    /// Get quote by difficulty
-    func getQuoteByDifficulty(_ difficulty: Double) -> LocalQuoteModel? {
+    /// Get a quote by preferred difficulty (with fallback to random)
+    func getQuoteByDifficulty(_ targetDifficulty: String) -> LocalQuoteModel? {
         let context = coreData.mainContext
         let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
-        fetchRequest.predicate = NSPredicate(format: "isActive == YES AND difficulty == %@", NSNumber(value: difficulty))
+        
+        let difficultyValue = parseDifficulty(targetDifficulty)
+        fetchRequest.predicate = NSPredicate(format: "isActive == YES AND difficulty == %f", difficultyValue)
         
         do {
             let quotes = try context.fetch(fetchRequest)
-            guard !quotes.isEmpty else {
-                print("❌ No quotes available for difficulty \(difficulty)")
-                return getRandomQuote() // Fallback to any quote
+            
+            if !quotes.isEmpty {
+                let randomIndex = Int.random(in: 0..<quotes.count)
+                let selectedQuote = quotes[randomIndex]
+                
+                updateQuoteUsage(selectedQuote)
+                
+                return LocalQuoteModel(
+                    text: selectedQuote.text ?? "",
+                    author: selectedQuote.author ?? "Unknown",
+                    attribution: selectedQuote.attribution,
+                    difficulty: selectedQuote.difficulty,
+                    category: "classic" // Default category since Core Data doesn't have it
+                )
+            } else {
+                // Fallback to any quote if none found for difficulty
+                return getRandomQuote()
             }
-            
-            let randomIndex = Int.random(in: 0..<quotes.count)
-            let quote = quotes[randomIndex]
-            
-            updateQuoteUsage(quote)
-            
-            return LocalQuoteModel(
-                text: quote.text ?? "",
-                author: quote.author ?? "Unknown",
-                attribution: quote.attribution,
-                difficulty: quote.difficulty,
-                category: "classic" // Default category since Core Data doesn't have it
-            )
         } catch {
             print("❌ Error fetching quote by difficulty: \(error)")
             return getRandomQuote()
