@@ -1,17 +1,47 @@
+//
+//  ModelStructs.swift - CONSOLIDATED CLEAN VERSION
+//  loginboy
+//
+//  All model structs in one place for clean architecture
+//
+
 import Foundation
 
-// MARK: - Model Structs
-// Plain Swift structs used for business logic and UI
+// MARK: - Quote Models
 
-// Quote model
+/// Local quote model for offline gameplay
+struct LocalQuoteModel {
+    let text: String
+    let author: String
+    let attribution: String?
+    let difficulty: Double
+    let category: String
+    
+    init(text: String, author: String, attribution: String? = nil, difficulty: Double = 2.0, category: String = "classic") {
+        self.text = text
+        self.author = author
+        self.attribution = attribution
+        self.difficulty = difficulty
+        self.category = category
+    }
+}
+
+/// Legacy quote model (for backward compatibility)
 struct QuoteModel {
     let text: String
     let author: String
     let attribution: String?
-    let difficulty: Double? // Optional - just for future analytics
+    let difficulty: Double?
+    
+    init(text: String, author: String, attribution: String? = nil, difficulty: Double? = nil) {
+        self.text = text
+        self.author = author
+        self.attribution = attribution
+        self.difficulty = difficulty
+    }
 }
 
-// Daily quote model
+/// Daily quote model for JSON parsing
 struct DailyQuoteModel: Codable {
     let id: Int
     let text: String
@@ -32,9 +62,11 @@ struct DailyQuoteModel: Codable {
     }
 }
 
-// Game model
+// MARK: - Game Model
+
+/// Main game model containing all game state
 struct GameModel {
-    // Game state
+    // Basic game state
     var encrypted: String = ""
     var solution: String = ""
     var currentDisplay: String = ""
@@ -44,15 +76,15 @@ struct GameModel {
     var hasWon: Bool = false
     var hasLost: Bool = false
     
-    // Game ID for db ref
-    var gameId: String? = nil
+    // Game ID for database reference
+    var gameId: String?
     
     // Mapping dictionaries
     var mapping: [Character:Character] = [:]
     var correctMappings: [Character:Character] = [:]
     var letterFrequency: [Character:Int] = [:]
     var guessedMappings: [Character:Character] = [:]
-    var incorrectGuesses: [Character: Set<Character>] = [:]  // [encrypted letter: Set of wrong guesses]
+    var incorrectGuesses: [Character: Set<Character>] = [:]
     
     // Timestamp tracking
     var startTime: Date = Date()
@@ -61,18 +93,10 @@ struct GameModel {
     // Difficulty level
     var difficulty: String = "medium"
     
-    // Clean initializer that takes a quote
-    init(quote: QuoteModel) {
-        self.solution = quote.text.uppercased()
-        // Default difficulty to medium - will be overridden by settings
-        self.difficulty = "medium"
-        // Default max mistakes - will be overridden by settings
-        self.maxMistakes = 5
-        setupEncryption()
-    }
+    // MARK: - Initializers
     
-    // For loading from Core Data
-    init(gameId: String, encrypted: String, solution: String, currentDisplay: String,
+    /// Full initializer (used by Core Data conversion)
+    init(gameId: String?, encrypted: String, solution: String, currentDisplay: String,
          mapping: [Character:Character], correctMappings: [Character:Character],
          guessedMappings: [Character:Character], incorrectGuesses: [Character: Set<Character>] = [:],
          mistakes: Int, maxMistakes: Int,
@@ -89,19 +113,22 @@ struct GameModel {
         self.mapping = mapping
         self.correctMappings = correctMappings
         self.guessedMappings = guessedMappings
-        self.incorrectGuesses = incorrectGuesses 
+        self.incorrectGuesses = incorrectGuesses
         self.startTime = startTime
         self.lastUpdateTime = lastUpdateTime
         self.difficulty = difficulty
         
         // Calculate letter frequency from encrypted text
+        self.letterFrequency = [:]
         for char in encrypted where char.isLetter {
             letterFrequency[char, default: 0] += 1
         }
     }
     
-    // Setup encryption for current solution (unchanged)
-    private mutating func setupEncryption() {
+    // MARK: - Game Setup
+    
+    /// Setup encryption for the solution
+    mutating func setupEncryption() {
         // Create mapping
         let alphabet = Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
         let shuffled = alphabet.shuffled()
@@ -116,124 +143,163 @@ struct GameModel {
         encrypted = solution.map { char in
             if char.isLetter {
                 return String(mapping[char] ?? char)
+            } else {
+                return String(char)
             }
-            return String(char)
         }.joined()
         
-        // Initialize display with blocks
-        currentDisplay = solution.map { char in
-            if char.isLetter {
-                return "█"
-            }
-            return String(char)
-        }.joined()
-        
-        // Calculate letter frequency
+        // Calculate letter frequencies
         letterFrequency = [:]
         for char in encrypted where char.isLetter {
             letterFrequency[char, default: 0] += 1
         }
+        
+        // Initialize current display
+        updateCurrentDisplay()
     }
     
-    // Game logic methods - basic functionality unchanged
+    /// Update the current display based on guessed mappings
+    mutating func updateCurrentDisplay() {
+        currentDisplay = encrypted.map { char in
+            if char.isLetter {
+                if let decrypted = guessedMappings[char] {
+                    return String(decrypted)
+                } else {
+                    return String(char)
+                }
+            } else {
+                return String(char)
+            }
+        }.joined()
+    }
+    
+    // MARK: - Game Logic Methods
+    
+    /// Select a letter for guessing
     mutating func selectLetter(_ letter: Character) {
-        if correctlyGuessed().contains(letter) {
+        if isLetterGuessed(letter) {
             selectedLetter = nil
             return
         }
         selectedLetter = letter
     }
     
+    /// Make a guess for the selected letter
     mutating func makeGuess(_ guessedLetter: Character) -> Bool {
-            guard let selected = selectedLetter else { return false }
-            
-            let isCorrect = correctMappings[selected] == guessedLetter
-            if isCorrect {
-                guessedMappings[selected] = guessedLetter
-                updateDisplay()
-                checkWinCondition()
-            } else {
-                // Track incorrect guess
-                if incorrectGuesses[selected] == nil {
-                    incorrectGuesses[selected] = Set<Character>()
-                }
-                incorrectGuesses[selected]?.insert(guessedLetter)
-                
-                mistakes += 1
-                if mistakes >= maxMistakes {
-                    hasLost = true
-                }
-            }
-            
-            selectedLetter = nil
-            lastUpdateTime = Date()
-            return isCorrect
-        }
-    
-    // Helper methods
-    mutating func updateDisplay() {
-        var displayChars = Array(currentDisplay)
+        guard let selected = selectedLetter else { return false }
         
-        for i in 0..<encrypted.count {
-            let encryptedChar = Array(encrypted)[i]
-            if let guessedChar = guessedMappings[encryptedChar] {
-                displayChars[i] = guessedChar
+        let isCorrect = correctMappings[selected] == guessedLetter
+        if isCorrect {
+            guessedMappings[selected] = guessedLetter
+            updateCurrentDisplay()
+            checkWinCondition()
+        } else {
+            // Track incorrect guess
+            if incorrectGuesses[selected] == nil {
+                incorrectGuesses[selected] = Set<Character>()
+            }
+            incorrectGuesses[selected]?.insert(guessedLetter)
+            
+            mistakes += 1
+            if mistakes >= maxMistakes {
+                hasLost = true
             }
         }
-        currentDisplay = String(displayChars)
+        
+        selectedLetter = nil
+        lastUpdateTime = Date()
+        return isCorrect
     }
     
-    mutating func checkWinCondition() {
-        let uniqueEncryptedLetters = Set(encrypted.filter { $0.isLetter })
-        let guessedLetters = Set(guessedMappings.keys)
-        hasWon = uniqueEncryptedLetters == guessedLetters
-    }
-    
-    func correctlyGuessed() -> [Character] {
-        return Array(guessedMappings.keys)
-    }
-    
-    func uniqueEncryptedLetters() -> [Character] {
-        return Array(Set(encrypted.filter { $0.isLetter })).sorted()
-    }
-    
-    func uniqueSolutionLetters() -> [Character] {
-        return Array(Set(solution.filter { $0.isLetter })).sorted()
-    }
-    
+    /// Get a hint by revealing a random unguessed letter
     mutating func getHint() -> Bool {
-        let unguessedLetters = Set(encrypted.filter { $0.isLetter && !correctlyGuessed().contains($0) })
-        if unguessedLetters.isEmpty { return false }
+        let unguessedLetters = Set(encrypted.filter { $0.isLetter && !isLetterGuessed($0) })
+        guard !unguessedLetters.isEmpty else { return false }
         
         if let hintLetter = unguessedLetters.randomElement(),
            let originalLetter = correctMappings[hintLetter] {
             // Add hint to guessed mappings
             guessedMappings[hintLetter] = originalLetter
             
-            // Update the display to show the letter
-            updateDisplay()
-            
-            // Increment the mistakes counter to track hint usage
-            mistakes += 1
-            
-            // Check if the game is won after this hint
+            // Update display and check win condition
+            updateCurrentDisplay()
             checkWinCondition()
             
-            // Check if we've reached the maximum mistakes
+            // This counts as a mistake (hints have a cost)
+            mistakes += 1
             if mistakes >= maxMistakes {
                 hasLost = true
             }
             
-            // Track last update time
             lastUpdateTime = Date()
-            
             return true
         }
+        
         return false
     }
     
+    /// Check if the game is won (all letters guessed)
+    private mutating func checkWinCondition() {
+        let uniqueEncryptedLetters = Set(encrypted.filter { $0.isLetter })
+        let guessedLetters = Set(guessedMappings.keys)
+        hasWon = uniqueEncryptedLetters == guessedLetters
+    }
+    
+    // MARK: - Helper Methods for UI
+    
+    /// Check if a letter has been revealed
+    func isLetterGuessed(_ encryptedLetter: Character) -> Bool {
+        return guessedMappings[encryptedLetter] != nil
+    }
+    
+    /// Get the frequency of an encrypted letter
+    func getLetterFrequency(_ letter: Character) -> Int {
+        return letterFrequency[letter] ?? 0
+    }
+    
+    /// Get array of unique encrypted letters in order of appearance
+    func getUniqueEncryptedLetters() -> [Character] {
+        var seen = Set<Character>()
+        var result: [Character] = []
+        
+        for char in encrypted {
+            if char.isLetter && !seen.contains(char) {
+                seen.insert(char)
+                result.append(char)
+            }
+        }
+        
+        return result
+    }
+    
+    /// Get array of unique solution letters sorted alphabetically
+    func getUniqueSolutionLetters() -> [Character] {
+        return Array(Set(solution.filter { $0.isLetter })).sorted()
+    }
+    
+    /// Get array of correctly guessed encrypted letters
+    func getCorrectlyGuessed() -> [Character] {
+        return Array(guessedMappings.keys)
+    }
+    
+    /// Get completion percentage
+    func getCompletionPercentage() -> Double {
+        let totalLetters = Set(encrypted.filter { $0.isLetter }).count
+        let solvedLetters = guessedMappings.count
+        
+        return totalLetters > 0 ? Double(solvedLetters) / Double(totalLetters) : 0.0
+    }
+    
+    /// Calculate time spent in seconds
+    func getTimeSpentSeconds() -> Int {
+        return max(1, Int(lastUpdateTime.timeIntervalSince(startTime)))
+    }
+    
+    /// Calculate score
     func calculateScore() -> Int {
-        let timeInSeconds = Int(lastUpdateTime.timeIntervalSince(startTime))
+        guard hasWon else { return 0 }
+        
+        let timeInSeconds = getTimeSpentSeconds()
         
         // Base score by difficulty
         let baseScore: Int
@@ -259,68 +325,20 @@ struct GameModel {
     }
 }
 
-// User profile model
-struct UserModel {
-    let userId: String
-    let username: String
-    let email: String
-    let displayName: String?
-    let avatarUrl: String?
-    let bio: String?
-    let registrationDate: Date
-    let lastLoginDate: Date
-    let isActive: Bool
-    let isVerified: Bool
-    let isSubadmin: Bool
+// MARK: - Quote Bundle Models (for JSON loading)
+
+/// Quote pack data structure for JSON
+struct QuotePackData: Codable {
+    let quotes: [QuoteBundleItem]
+    let version: String
+    let description: String
 }
 
-// User preferences model
-struct UserPreferencesModel {
-    var darkMode: Bool = true
-    var showTextHelpers: Bool = true
-    var accessibilityTextSize: Bool = false
-    var gameDifficulty: String = "medium"
-    var soundEnabled: Bool = true
-    var soundVolume: Float = 0.5
-    var useBiometricAuth: Bool = false
-    var notificationsEnabled: Bool = true
-    var lastSyncDate: Date? = nil
+/// Individual quote item from JSON bundle
+struct QuoteBundleItem: Codable {
+    let text: String
+    let author: String
+    let attribution: String?
+    let difficulty: String
+    let category: String
 }
-
-// User stats model
-struct UserStatsModel {
-    let userId: String
-    let gamesPlayed: Int
-    let gamesWon: Int
-    let currentStreak: Int
-    let bestStreak: Int
-    let totalScore: Int
-    let averageScore: Double
-    let averageTime: Double // in seconds
-    let lastPlayedDate: Date?
-    
-    var winPercentage: Double {
-        return gamesPlayed > 0 ? Double(gamesWon) / Double(gamesPlayed) * 100 : 0
-    }
-}
-
-// Leaderboard entry model
-struct LeaderboardEntryModel: Identifiable {
-    let rank: Int
-    let username: String
-    let userId: String
-    let score: Int
-    let gamesPlayed: Int
-    let avgScore: Double
-    let isCurrentUser: Bool
-    
-    var id: String { userId }
-}
-
-//
-//  ModelStructs.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 19/05/2025.
-//
-

@@ -1,8 +1,6 @@
 //
-//  LocalQuoteManager.swift
+//  LocalQuoteManager.swift - WORKS WITH ACTUAL CORE DATA MODEL
 //  loginboy
-//
-//  Created by Daniel Horsley on 04/09/2025.
 //
 
 import Foundation
@@ -46,12 +44,30 @@ class LocalQuoteManager: ObservableObject {
         do {
             let data = Data(contentsOfFile: path)
             let decoder = JSONDecoder()
-            let quotePackData = try decoder.decode(QuotePackData.self, from: data)
             
-            print("📖 Loaded \(quotePackData.quotes.count) quotes from bundle")
-            
-            // Save to Core Data
-            saveQuotesToCoreData(quotePackData.quotes)
+            // Try the simple structure first (from our artifact)
+            if let simpleQuoteData = try? decoder.decode(SimpleQuotePackData.self, from: data) {
+                print("📖 Loaded \(simpleQuoteData.quotes.count) quotes from bundle (simple format)")
+                saveQuotesToCoreData(simpleQuoteData.quotes)
+            }
+            // Fallback to complex structure if that fails
+            else if let complexQuoteData = try? decoder.decode(ComplexQuotePackData.self, from: data) {
+                print("📖 Loaded \(complexQuoteData.quotes.count) quotes from bundle (complex format)")
+                // Convert QuoteData to QuoteBundleItem
+                let bundleItems = complexQuoteData.quotes.map { quoteData in
+                    QuoteBundleItem(
+                        text: quoteData.text,
+                        author: quoteData.author,
+                        attribution: nil, // QuoteData doesn't have attribution
+                        difficulty: quoteData.difficulty,
+                        category: quoteData.category
+                    )
+                }
+                saveQuotesToCoreData(bundleItems)
+            }
+            else {
+                throw NSError(domain: "QuoteParsingError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unknown JSON format"])
+            }
             
             // Mark as loaded
             UserDefaults.standard.set(true, forKey: quotesLoadedKey)
@@ -60,39 +76,72 @@ class LocalQuoteManager: ObservableObject {
                 self.isLoaded = true
                 print("✅ Quotes ready for gameplay!")
             }
-            
         } catch {
             loadingError = "Failed to load quotes: \(error.localizedDescription)"
-            print("❌ Quote loading error: \(error)")
+            print("❌ Error loading quotes: \(error)")
         }
     }
     
-    private func saveQuotesToCoreData(_ quotes: [QuoteData]) {
+    // MARK: - Supporting Structures for JSON Parsing
+    
+    private struct SimpleQuotePackData: Codable {
+        let quotes: [QuoteBundleItem]
+        let version: String
+        let description: String
+    }
+    
+    private struct ComplexQuotePackData: Codable {
+        let metadata: PackMetadata
+        let quotes: [QuoteData]
+    }
+    
+    private struct PackMetadata: Codable {
+        let name: String
+        let description: String
+        let version: String
+        let quoteCount: Int
+        let isBase: Bool?
+    }
+    
+    private struct QuoteData: Codable {
+        let text: String
+        let author: String
+        let difficulty: String
+        let category: String
+        let id: String
+    }
+    
+    private func saveQuotesToCoreData(_ quotes: [QuoteBundleItem]) {
         let context = coreData.newBackgroundContext()
         
-        context.performAndWait {
+        context.perform {
+            for quoteItem in quotes {
+                let quoteEntity = QuoteCD(context: context)
+                
+                // Set properties that actually exist in QuoteCD
+                quoteEntity.id = UUID()
+                quoteEntity.text = quoteItem.text
+                quoteEntity.author = quoteItem.author
+                quoteEntity.attribution = quoteItem.attribution
+                
+                // Convert string difficulty to double
+                let difficultyDouble = self.parseDifficulty(quoteItem.difficulty)
+                quoteEntity.difficulty = difficultyDouble
+                
+                // Set properties from actual Core Data model
+                quoteEntity.timesUsed = 0
+                quoteEntity.uniqueLetters = Int16(Set(quoteItem.text.filter { $0.isLetter }).count)
+                quoteEntity.isActive = true
+                quoteEntity.isDaily = false
+                quoteEntity.serverId = 0
+                quoteEntity.dailyDate = nil
+            }
+            
             do {
-                // Clear existing quotes (in case of version update)
-                let deleteRequest = NSBatchDeleteRequest(fetchRequest: QuoteCD.fetchRequest())
-                try context.execute(deleteRequest)
-                
-                // Add new quotes
-                for quote in quotes {
-                    let quoteEntity = QuoteCD(context: context)
-                    quoteEntity.id = UUID() // Generate new UUID
-                    quoteEntity.text = quote.text
-                    quoteEntity.author = quote.author
-                    quoteEntity.difficulty = quote.difficulty
-                    quoteEntity.category = quote.category
-                    quoteEntity.usageCount = 0
-                    quoteEntity.lastUsed = nil
-                }
-                
                 try context.save()
-                print("💾 Saved \(quotes.count) quotes to Core Data")
-                
+                print("✅ Saved \(quotes.count) quotes to Core Data")
             } catch {
-                print("❌ Core Data save error: \(error)")
+                print("❌ Error saving quotes to Core Data: \(error)")
                 DispatchQueue.main.async {
                     self.loadingError = "Failed to save quotes to database"
                 }
@@ -100,130 +149,182 @@ class LocalQuoteManager: ObservableObject {
         }
     }
     
+    private func parseDifficulty(_ difficultyString: String) -> Double {
+        switch difficultyString.lowercased() {
+        case "easy", "1":
+            return 1.0
+        case "medium", "2":
+            return 2.0
+        case "hard", "3":
+            return 3.0
+        default:
+            return 2.0 // Default to medium
+        }
+    }
+    
     // MARK: - Quote Access Methods
     
-    func getRandomQuote() -> QuoteModel? {
+    /// Get a deterministic daily quote based on day number
+    func getDailyQuote(for dayNumber: Int) -> LocalQuoteModel? {
         let context = coreData.mainContext
-        let fetchRequest: NSFetchRequest<QuoteCD> = QuoteCD.fetchRequest()
+        let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
+        fetchRequest.predicate = NSPredicate(format: "isActive == YES")
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "text", ascending: true)] // Consistent sorting
         
         do {
             let quotes = try context.fetch(fetchRequest)
             guard !quotes.isEmpty else {
-                print("⚠️ No quotes available")
+                print("❌ No quotes available for daily challenge")
                 return nil
             }
             
-            let randomQuote = quotes.randomElement()
-            return randomQuote?.toQuoteModel()
+            // Use modulo to get consistent daily quote
+            let index = dayNumber % quotes.count
+            let quote = quotes[index]
             
+            return LocalQuoteModel(
+                text: quote.text ?? "",
+                author: quote.author ?? "Unknown",
+                attribution: quote.attribution,
+                difficulty: quote.difficulty,
+                category: "classic" // Default category since Core Data doesn't have it
+            )
+        } catch {
+            print("❌ Error fetching daily quote: \(error)")
+            return nil
+        }
+    }
+    
+    /// Get a random quote
+    func getRandomQuote() -> LocalQuoteModel? {
+        let context = coreData.mainContext
+        let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
+        fetchRequest.predicate = NSPredicate(format: "isActive == YES")
+        
+        do {
+            let quotes = try context.fetch(fetchRequest)
+            guard !quotes.isEmpty else {
+                print("❌ No quotes available")
+                return nil
+            }
+            
+            // Get truly random quote
+            let randomIndex = Int.random(in: 0..<quotes.count)
+            let quote = quotes[randomIndex]
+            
+            // Update usage tracking in background
+            updateQuoteUsage(quote)
+            
+            return LocalQuoteModel(
+                text: quote.text ?? "",
+                author: quote.author ?? "Unknown",
+                attribution: quote.attribution,
+                difficulty: quote.difficulty,
+                category: "classic" // Default category since Core Data doesn't have it
+            )
         } catch {
             print("❌ Error fetching random quote: \(error)")
             return nil
         }
     }
     
-    func getDailyQuote() -> QuoteModel? {
-        // Deterministic daily quote based on date
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        let daysSinceEpoch = Int(today.timeIntervalSince1970 / 86400)
-        
+    /// Get quote by difficulty
+    func getQuoteByDifficulty(_ difficulty: Double) -> LocalQuoteModel? {
         let context = coreData.mainContext
-        let fetchRequest: NSFetchRequest<QuoteCD> = QuoteCD.fetchRequest()
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "text", ascending: true)]
+        let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
+        fetchRequest.predicate = NSPredicate(format: "isActive == YES AND difficulty == %@", NSNumber(value: difficulty))
         
         do {
             let quotes = try context.fetch(fetchRequest)
-            guard !quotes.isEmpty else { return nil }
+            guard !quotes.isEmpty else {
+                print("❌ No quotes available for difficulty \(difficulty)")
+                return getRandomQuote() // Fallback to any quote
+            }
             
-            // Same quote for same day for all users
-            let quoteIndex = daysSinceEpoch % quotes.count
-            let dailyQuote = quotes[quoteIndex]
+            let randomIndex = Int.random(in: 0..<quotes.count)
+            let quote = quotes[randomIndex]
             
-            print("📅 Daily quote for day \(daysSinceEpoch): \(dailyQuote.author ?? "Unknown")")
-            return dailyQuote.toQuoteModel()
+            updateQuoteUsage(quote)
             
+            return LocalQuoteModel(
+                text: quote.text ?? "",
+                author: quote.author ?? "Unknown",
+                attribution: quote.attribution,
+                difficulty: quote.difficulty,
+                category: "classic" // Default category since Core Data doesn't have it
+            )
         } catch {
-            print("❌ Error fetching daily quote: \(error)")
-            return getRandomQuote() // Fallback to random
+            print("❌ Error fetching quote by difficulty: \(error)")
+            return getRandomQuote()
         }
     }
     
-    func getQuotesByDifficulty(_ difficulty: String) -> [QuoteModel] {
-        let context = coreData.mainContext
-        let fetchRequest: NSFetchRequest<QuoteCD> = QuoteCD.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "difficulty == %@", difficulty)
-        
-        do {
-            let quotes = try context.fetch(fetchRequest)
-            return quotes.compactMap { $0.toQuoteModel() }
-        } catch {
-            print("❌ Error fetching quotes by difficulty: \(error)")
-            return []
+    private func updateQuoteUsage(_ quote: QuoteCD) {
+        coreData.performBackgroundTask { context in
+            let objectID = quote.objectID
+            let backgroundQuote = context.object(with: objectID) as! QuoteCD
+            
+            // Use the actual Core Data property name
+            backgroundQuote.timesUsed += 1
+            
+            do {
+                try context.save()
+            } catch {
+                print("❌ Error updating quote usage: \(error)")
+            }
         }
     }
     
-    func getAvailableQuoteCount() -> Int {
+    // MARK: - Stats
+    
+    func getQuoteCount() -> Int {
         let context = coreData.mainContext
-        let fetchRequest: NSFetchRequest<QuoteCD> = QuoteCD.fetchRequest()
+        let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
+        fetchRequest.predicate = NSPredicate(format: "isActive == YES")
         
         do {
             return try context.count(for: fetchRequest)
         } catch {
-            print("❌ Error counting quotes: \(error)")
+            print("❌ Error getting quote count: \(error)")
             return 0
+        }
+    }
+    
+    func resetQuoteData() {
+        // Clear the loaded flag to force reload
+        UserDefaults.standard.removeObject(forKey: quotesLoadedKey)
+        
+        // Delete all quotes from Core Data
+        let context = coreData.newBackgroundContext()
+        context.perform {
+            let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: "QuoteCD")
+            let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+            
+            do {
+                try context.execute(deleteRequest)
+                try context.save()
+                
+                DispatchQueue.main.async {
+                    self.isLoaded = false
+                    self.loadQuotesIfNeeded()
+                }
+            } catch {
+                print("❌ Error resetting quote data: \(error)")
+            }
         }
     }
 }
 
-// MARK: - Data Models
+// MARK: - Extensions for Core Data
 
-struct QuotePackData: Codable {
-    let metadata: PackMetadata
-    let quotes: [QuoteData]
-}
-
-struct PackMetadata: Codable {
-    let name: String
-    let description: String
-    let version: String
-    let quoteCount: Int
-    let isBase: Bool?
-}
-
-struct QuoteData: Codable {
-    let text: String
-    let author: String
-    let difficulty: String
-    let category: String
-    let id: String
-}
-
-struct QuoteModel {
-    let id: UUID
-    let text: String
-    let author: String
-    let difficulty: String
-    let category: String
-    
-    init(id: UUID = UUID(), text: String, author: String, difficulty: String = "medium", category: String = "classic") {
-        self.id = id
-        self.text = text
-        self.author = author
-        self.difficulty = difficulty
-        self.category = category
-    }
-}
-
-// Update your existing QuoteCD extension
 extension QuoteCD {
-    func toQuoteModel() -> QuoteModel {
-        return QuoteModel(
-            id: self.id ?? UUID(),
+    func toLocalQuoteModel() -> LocalQuoteModel {
+        return LocalQuoteModel(
             text: self.text ?? "",
-            author: self.author ?? "",
-            difficulty: self.difficulty ?? "medium",
-            category: self.category ?? "classic"
+            author: self.author ?? "Unknown",
+            attribution: self.attribution,
+            difficulty: self.difficulty,
+            category: "classic" // Default category since Core Data doesn't store this
         )
     }
 }

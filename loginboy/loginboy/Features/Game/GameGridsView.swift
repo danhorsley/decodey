@@ -1,3 +1,8 @@
+//
+//  GameGridsView.swift - NUCLEAR COMPATIBLE VERSION
+//  loginboy
+//
+
 import SwiftUI
 
 struct GameGridsView: View {
@@ -60,19 +65,21 @@ struct GameGridsView: View {
         .padding(.horizontal, 20)
     }
     
+    // MARK: - Encrypted Letters Grid
+    
     private var encryptedGrid: some View {
         // Use the same spacing for both horizontal and vertical
         let spacing: CGFloat = settingsState.useEnhancedLetterCells ? 8 : 6
         
         return LazyVGrid(columns: gridColumns, spacing: spacing) {
             if let game = gameState.currentGame {
-                ForEach(game.uniqueEncryptedLetters(), id: \.self) { letter in
+                ForEach(game.getUniqueEncryptedLetters(), id: \.self) { letter in
                     if settingsState.useEnhancedLetterCells {
                         EnhancedEncryptedLetterCell(
                             letter: letter,
                             isSelected: game.selectedLetter == letter,
-                            isGuessed: game.correctlyGuessed().contains(letter),
-                            frequency: game.letterFrequency[letter] ?? 0,
+                            isGuessed: game.isLetterGuessed(letter),
+                            frequency: game.getLetterFrequency(letter),
                             action: {
                                 withAnimation(.easeInOut(duration: 0.15)) {
                                     gameState.selectLetter(letter)
@@ -84,8 +91,8 @@ struct GameGridsView: View {
                         EncryptedLetterCell(
                             letter: letter,
                             isSelected: game.selectedLetter == letter,
-                            isGuessed: game.correctlyGuessed().contains(letter),
-                            frequency: game.letterFrequency[letter] ?? 0,
+                            isGuessed: game.isLetterGuessed(letter),
+                            frequency: game.getLetterFrequency(letter),
                             action: {
                                 withAnimation(.easeInOut(duration: 0.15)) {
                                     gameState.selectLetter(letter)
@@ -99,7 +106,8 @@ struct GameGridsView: View {
         }
         .frame(maxWidth: 320) // Slightly wider to accommodate keyboard-style cells
     }
-
+    
+    // MARK: - Guess Letters Grid
     
     private var guessGrid: some View {
         // Use the same spacing for both horizontal and vertical
@@ -107,7 +115,7 @@ struct GameGridsView: View {
         
         return LazyVGrid(columns: gridColumns, spacing: spacing) {
             if let game = gameState.currentGame {
-                let uniqueLetters = game.uniqueSolutionLetters()
+                let uniqueLetters = game.getUniqueSolutionLetters()
                 
                 ForEach(uniqueLetters, id: \.self) { letter in
                     let isIncorrect = game.selectedLetter != nil &&
@@ -121,11 +129,13 @@ struct GameGridsView: View {
                             action: {
                                 if game.selectedLetter != nil && !isIncorrect {
                                     withAnimation(.easeInOut(duration: 0.15)) {
-                                        let wasCorrect = gameState.currentGame?.guessedMappings[game.selectedLetter!] == nil
+                                        // Check if this will be a correct guess
+                                        let willBeCorrect = game.correctMappings[game.selectedLetter!] == letter
+                                        
                                         gameState.makeGuess(letter)
                                         
                                         // Play appropriate sound after the guess
-                                        if wasCorrect && gameState.currentGame?.guessedMappings[game.selectedLetter ?? " "] != nil {
+                                        if willBeCorrect {
                                             SoundManager.shared.play(.correctGuess)
                                         } else if gameState.currentGame?.hasLost == false && gameState.currentGame?.hasWon == false {
                                             SoundManager.shared.play(.incorrectGuess)
@@ -142,11 +152,13 @@ struct GameGridsView: View {
                             action: {
                                 if game.selectedLetter != nil && !isIncorrect {
                                     withAnimation(.easeInOut(duration: 0.15)) {
-                                        let wasCorrect = gameState.currentGame?.guessedMappings[game.selectedLetter!] == nil
+                                        // Check if this will be a correct guess
+                                        let willBeCorrect = game.correctMappings[game.selectedLetter!] == letter
+                                        
                                         gameState.makeGuess(letter)
                                         
                                         // Play appropriate sound after the guess
-                                        if wasCorrect && gameState.currentGame?.guessedMappings[game.selectedLetter ?? " "] != nil {
+                                        if willBeCorrect {
                                             SoundManager.shared.play(.correctGuess)
                                         } else if gameState.currentGame?.hasLost == false && gameState.currentGame?.hasWon == false {
                                             SoundManager.shared.play(.incorrectGuess)
@@ -162,8 +174,11 @@ struct GameGridsView: View {
         .frame(maxWidth: 320) // Slightly wider to accommodate keyboard-style cells
     }
     
+    // MARK: - Hint Handling
+    
     private func handleHintRequest() {
         guard !isHintInProgress else { return }
+        guard let game = gameState.currentGame, game.mistakes < game.maxMistakes else { return }
         
         isHintInProgress = true
         SoundManager.shared.play(.hint)
@@ -172,5 +187,16 @@ struct GameGridsView: View {
             gameState.getHint()
             isHintInProgress = false
         }
+    }
+}
+
+// MARK: - Preview
+
+struct GameGridsView_Previews: PreviewProvider {
+    static var previews: some View {
+        GameGridsView(showTextHelpers: true)
+            .environmentObject(GameState.shared)
+            .environmentObject(SettingsState.shared)
+            .preferredColorScheme(.dark)
     }
 }

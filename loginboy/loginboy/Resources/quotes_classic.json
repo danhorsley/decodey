@@ -1,47 +1,181 @@
 {
-  "metadata": {
-    "name": "Classic Quotes",
-    "description": "Timeless wisdom from history's greatest minds",
-    "version": "1.0",
-    "quoteCount": 200,
-    "isBase": true
-  },
+  "version": "1.0",
+  "description": "Classic quotes for cryptogram puzzles - local offline bundle",
   "quotes": [
+    {
+      "text": "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG",
+      "author": "Pangram",
+      "attribution": "Traditional typing practice phrase",
+      "difficulty": "1",
+      "category": "practice"
+    },
     {
       "text": "TO BE OR NOT TO BE THAT IS THE QUESTION",
       "author": "William Shakespeare",
-      "difficulty": "medium",
-      "category": "classic",
-      "id": "classic_001"
+      "attribution": "Hamlet",
+      "difficulty": "2",
+      "category": "literature"
     },
     {
-      "text": "I THINK THEREFORE I AM",
-      "author": "René Descartes",
-      "difficulty": "easy",
-      "category": "classic",
-      "id": "classic_002"
+      "text": "I HAVE A DREAM THAT ONE DAY THIS NATION WILL RISE UP",
+      "author": "Martin Luther King Jr",
+      "attribution": "I Have a Dream Speech",
+      "difficulty": "2",
+      "category": "history"
+    },
+    {
+      "text": "LIFE IS WHAT HAPPENS WHEN YOU ARE BUSY MAKING OTHER PLANS",
+      "author": "John Lennon",
+      "attribution": "Beautiful Boy",
+      "difficulty": "2",
+      "category": "philosophy"
     },
     {
       "text": "THE ONLY THING WE HAVE TO FEAR IS FEAR ITSELF",
       "author": "Franklin D. Roosevelt",
-      "difficulty": "hard",
-      "category": "classic",
-      "id": "classic_003"
+      "attribution": "First Inaugural Address",
+      "difficulty": "2",
+      "category": "history"
     },
     {
-      "text": "ASK NOT WHAT YOUR COUNTRY CAN DO FOR YOU ASK WHAT YOU CAN DO FOR YOUR COUNTRY",
+      "text": "ASK NOT WHAT YOUR COUNTRY CAN DO FOR YOU",
       "author": "John F. Kennedy",
-      "difficulty": "hard",
-      "category": "classic",
-      "id": "classic_004"
+      "attribution": "Inaugural Address",
+      "difficulty": "2",
+      "category": "history"
     },
     {
-      "text": "EARLY TO BED AND EARLY TO RISE MAKES A MAN HEALTHY WEALTHY AND WISE",
+      "text": "ALL MEN ARE CREATED EQUAL",
+      "author": "Thomas Jefferson",
+      "attribution": "Declaration of Independence",
+      "difficulty": "1",
+      "category": "history"
+    },
+    {
+      "text": "THE BEST TIME TO PLANT A TREE WAS TWENTY YEARS AGO",
+      "author": "Chinese Proverb",
+      "attribution": "Traditional wisdom",
+      "difficulty": "2",
+      "category": "wisdom"
+    },
+    {
+      "text": "KNOWLEDGE IS POWER",
+      "author": "Francis Bacon",
+      "attribution": "Meditationes Sacrae",
+      "difficulty": "1",
+      "category": "philosophy"
+    },
+    {
+      "text": "PRACTICE MAKES PERFECT",
+      "author": "Traditional",
+      "attribution": "Common proverb",
+      "difficulty": "1",
+      "category": "wisdom"
+    },
+    {
+      "text": "TIME IS MONEY",
       "author": "Benjamin Franklin",
-      "difficulty": "medium",
-      "category": "classic",
-      "id": "classic_005"
+      "attribution": "Advice to a Young Tradesman",
+      "difficulty": "1",
+      "category": "wisdom"
+    },
+    {
+      "text": "HONESTY IS THE BEST POLICY",
+      "author": "Benjamin Franklin",
+      "attribution": "Poor Richard's Almanack",
+      "difficulty": "1",
+      "category": "wisdom"
+    },
+    {
+      "text": "WHERE THERE IS A WILL THERE IS A WAY",
+      "author": "Traditional",
+      "attribution": "English proverb",
+      "difficulty": "2",
+      "category": "wisdom"
+    },
+    {
+      "text": "ACTIONS SPEAK LOUDER THAN WORDS",
+      "author": "Traditional",
+      "attribution": "English proverb",
+      "difficulty": "2",
+      "category": "wisdom"
+    },
+    {
+      "text": "BETTER LATE THAN NEVER",
+      "author": "Traditional",
+      "attribution": "English proverb",
+      "difficulty": "1",
+      "category": "wisdom"
+    },
+    {
+      "text": "DO UNTO OTHERS AS YOU WOULD HAVE THEM DO UNTO YOU",
+      "author": "Jesus Christ",
+      "attribution": "Matthew 7:12",
+      "difficulty": "3",
+      "category": "wisdom"
+    },
+    {
+      "text": "THE PEN IS MIGHTIER THAN THE SWORD",
+      "author": "Edward Bulwer-Lytton",
+      "attribution": "Richelieu",
+      "difficulty": "2",
+      "category": "literature"
+    },
+    {
+      "text": "ALL THAT GLITTERS IS NOT GOLD",
+      "author": "William Shakespeare",
+      "attribution": "The Merchant of Venice",
+      "difficulty": "2",
+      "category": "literature"
+    },
+    {
+      "text": "A PENNY SAVED IS A PENNY EARNED",
+      "author": "Benjamin Franklin",
+      "attribution": "Poor Richard's Almanack",
+      "difficulty": "2",
+      "category": "wisdom"
+    },
+    {
+      "text": "ROME WAS NOT BUILT IN A DAY",
+      "author": "Traditional",
+      "attribution": "Medieval French proverb",
+      "difficulty": "2",
+      "category": "wisdom"
+    },
+    {
+      "text": "WHEN IN ROME DO AS THE ROMANS DO",
+      "author": "Traditional",
+      "attribution": "Latin proverb",
+      "difficulty": "2",
+      "category": "wisdom"
+    },
+    {
+      "text": "THE EARLY BIRD CATCHES THE WORM",
+      "author": "Traditional",
+      "attribution": "English proverb",
+      "difficulty": "2",
+      "category": "wisdom"
+    },
+    {
+      "text": "FORTUNE FAVORS THE BOLD",
+      "author": "Virgil",
+      "attribution": "The Aeneid",
+      "difficulty": "1",
+      "category": "literature"
+    },
+    {
+      "text": "NECESSITY IS THE MOTHER OF INVENTION",
+      "author": "Traditional",
+      "attribution": "English proverb",
+      "difficulty": "2",
+      "category": "wisdom"
+    },
+    {
+      "text": "HOPE FOR THE BEST BUT PREPARE FOR THE WORST",
+      "author": "Traditional",
+      "attribution": "English saying",
+      "difficulty": "3",
+      "category": "wisdom"
     }
-    // ... continue to 200 quotes
   ]
 }
