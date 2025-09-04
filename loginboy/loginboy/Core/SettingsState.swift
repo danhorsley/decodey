@@ -1,3 +1,8 @@
+//
+//  SettingsState.swift - Fixed for Nuclear Refactor
+//  loginboy
+//
+
 import Foundation
 import CoreData
 import Combine
@@ -30,12 +35,14 @@ class SettingsState: ObservableObject {
             UserDefaults.standard.set(gameDifficulty, forKey: Keys.gameDifficulty)
         }
     }
-    //enhanced leter cells setting
+    
+    // Enhanced letter cells setting
     @Published var useEnhancedLetterCells: Bool {
         didSet {
             UserDefaults.standard.set(useEnhancedLetterCells, forKey: Keys.useEnhancedLetterCells)
         }
     }
+    
     // Sound settings
     @Published var soundEnabled: Bool {
         didSet {
@@ -85,71 +92,34 @@ class SettingsState: ObservableObject {
         // Get app version
         if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
            let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
-            self.appVersion = "\(version) (\(build))"
+            appVersion = "\(version) (\(build))"
         } else {
-            self.appVersion = "Unknown"
+            appVersion = "Unknown"
         }
         
-        // Load settings with defaults
-        self.isDarkMode = UserDefaults.standard.bool(forKey: Keys.isDarkMode)
+        // Load saved settings or set defaults
+        isDarkMode = UserDefaults.standard.object(forKey: Keys.isDarkMode) as? Bool ?? true
+        showTextHelpers = UserDefaults.standard.object(forKey: Keys.showTextHelpers) as? Bool ?? true
+        useAccessibilityTextSize = UserDefaults.standard.object(forKey: Keys.useAccessibilityTextSize) as? Bool ?? false
+        gameDifficulty = UserDefaults.standard.object(forKey: Keys.gameDifficulty) as? String ?? "medium"
+        soundEnabled = UserDefaults.standard.object(forKey: Keys.soundEnabled) as? Bool ?? true
+        soundVolume = UserDefaults.standard.object(forKey: Keys.soundVolume) as? Float ?? 0.5
+        useEnhancedLetterCells = UserDefaults.standard.object(forKey: Keys.useEnhancedLetterCells) as? Bool ?? false
         
-        // If isDarkMode has never been set, use system setting
-        if !UserDefaults.standard.exists(key: Keys.isDarkMode) {
-            #if os(iOS)
-            self.isDarkMode = UITraitCollection.current.userInterfaceStyle == .dark
-            #else
-            self.isDarkMode = true
-            #endif
-        }
+        // Check biometric availability for default
+        useBiometricAuth = UserDefaults.standard.object(forKey: Keys.useBiometricAuth) as? Bool ?? BiometricAuthHelper.shared.biometricAuthAvailable().0
         
-        self.showTextHelpers = UserDefaults.standard.bool(forKey: Keys.showTextHelpers)
-        if !UserDefaults.standard.exists(key: Keys.showTextHelpers) {
-            self.showTextHelpers = true // Default to true
-        }
-        //enhanced letter keys
-        self.useEnhancedLetterCells = UserDefaults.standard.bool(forKey: Keys.useEnhancedLetterCells)
-        if !UserDefaults.standard.exists(key: Keys.useEnhancedLetterCells) {
-            self.useEnhancedLetterCells = true // Default to enhanced
-        }
-        self.useAccessibilityTextSize = UserDefaults.standard.bool(forKey: Keys.useAccessibilityTextSize)
-        
-        self.gameDifficulty = UserDefaults.standard.string(forKey: Keys.gameDifficulty) ?? "medium"
-        
-        self.soundEnabled = UserDefaults.standard.bool(forKey: Keys.soundEnabled)
-        if !UserDefaults.standard.exists(key: Keys.soundEnabled) {
-            self.soundEnabled = true // Default to true
-        }
-        
-        self.soundVolume = UserDefaults.standard.float(forKey: Keys.soundVolume)
-        if !UserDefaults.standard.exists(key: Keys.soundVolume) {
-            self.soundVolume = 0.5 // Default to 50%
-        }
-        
-        self.useBiometricAuth = UserDefaults.standard.bool(forKey: Keys.useBiometricAuth)
-        if !UserDefaults.standard.exists(key: Keys.useBiometricAuth) {
-            self.useBiometricAuth = BiometricAuthHelper.shared.biometricAuthAvailable().0
-        }
-        
-        // Apply initial appearance
+        // Apply appearance immediately
         updateAppAppearance()
         
-        // Subscribe to user state changes
-        subscribeToUserStateChanges()
+        // Setup sound manager
+        SoundManager.shared.isSoundEnabled = soundEnabled
+        SoundManager.shared.volume = soundVolume
     }
     
-    private func subscribeToUserStateChanges() {
-        UserState.shared.$isAuthenticated
-            .sink { [weak self] isAuthenticated in
-                if isAuthenticated {
-                    self?.loadFromUserPreferences(userId: UserState.shared.userId)
-                }
-            }
-            .store(in: &cancellables)
-    }
+    // MARK: - Settings Management
     
-    // MARK: - Public Methods
-    
-    /// Update all settings at once
+    /// Update multiple settings at once
     func updateSettings(
         darkMode: Bool? = nil,
         showHelpers: Bool? = nil,
@@ -196,10 +166,11 @@ class SettingsState: ObservableObject {
         gameDifficulty = "medium"
         soundEnabled = true
         soundVolume = 0.5
+        useEnhancedLetterCells = false
         useBiometricAuth = BiometricAuthHelper.shared.biometricAuthAvailable().0
     }
     
-    /// Save current settings to a logged-in user's preferences in Core Data
+    /// Save current settings to a local user's preferences in Core Data
     func saveToUserPreferences(userId: String) {
         let context = coreData.mainContext
         
@@ -235,29 +206,18 @@ class SettingsState: ObservableObject {
             // Save changes
             try context.save()
             
-            if let settings = UserState.shared.authCoordinator as? SettingsSync {
-                settings.syncSettingsToServer(preferences: UserPreferencesModel(
-                    darkMode: isDarkMode,
-                    showTextHelpers: showTextHelpers,
-                    accessibilityTextSize: useAccessibilityTextSize,
-                    gameDifficulty: gameDifficulty,
-                    soundEnabled: soundEnabled,
-                    soundVolume: soundVolume,
-                    useBiometricAuth: useBiometricAuth,
-                    notificationsEnabled: preferences.notificationsEnabled,
-                    lastSyncDate: Date()
-                ))
-            }
+            // No more network sync - all local now!
+            print("✅ Settings saved locally for user: \(userId)")
+            
         } catch {
             print("Error saving user preferences: \(error.localizedDescription)")
         }
     }
     
-    /// Load settings from a user's preferences in Core Data
+    /// Load settings from a user's Core Data preferences
     func loadFromUserPreferences(userId: String) {
         let context = coreData.mainContext
         
-        // Find user and preferences
         let fetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
         
@@ -268,27 +228,16 @@ class SettingsState: ObservableObject {
             }
             
             // Update settings from preferences
-            DispatchQueue.main.async {
-                self.isDarkMode = prefs.darkMode
-                
-                // Handle NSObject conversion for showTextHelpers
-                if let showHelpersValue = prefs.showTextHelpers as? Bool {
-                    self.showTextHelpers = showHelpersValue
-                } else {
-                    // Default if conversion fails
-                    self.showTextHelpers = true
-                }
-                
-                self.useAccessibilityTextSize = prefs.accessibilityTextSize
-                
-                if let gameDifficulty = prefs.gameDifficulty {
-                    self.gameDifficulty = gameDifficulty
-                }
-                
-                self.soundEnabled = prefs.soundEnabled
-                self.soundVolume = prefs.soundVolume
-                self.useBiometricAuth = prefs.useBiometricAuth
-            }
+            updateSettings(
+                darkMode: prefs.darkMode,
+                showHelpers: prefs.showTextHelpers,
+                accessibilityText: prefs.accessibilityTextSize,
+                gameDifficulty: prefs.gameDifficulty,
+                soundEnabled: prefs.soundEnabled,
+                soundVolume: prefs.soundVolume,
+                useBiometricAuth: prefs.useBiometricAuth
+            )
+            
         } catch {
             print("Error loading user preferences: \(error.localizedDescription)")
         }
@@ -296,14 +245,14 @@ class SettingsState: ObservableObject {
     
     // MARK: - Private Methods
     
+    /// Update app appearance based on dark mode setting
     private func updateAppAppearance() {
         #if os(iOS)
-        // This needs to happen on the main thread
         DispatchQueue.main.async {
-            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
-                windowScene.windows.forEach { window in
-                    window.overrideUserInterfaceStyle = self.isDarkMode ? .dark : .light
-                }
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
+            
+            for window in windowScene.windows {
+                window.overrideUserInterfaceStyle = self.isDarkMode ? .dark : .light
             }
         }
         #endif
@@ -317,7 +266,5 @@ extension UserDefaults {
     }
 }
 
-// Protocol for syncing settings to server
-protocol SettingsSync {
-    func syncSettingsToServer(preferences: UserPreferencesModel)
-}
+// REMOVED: SettingsSync protocol and UserPreferencesModel
+// These were part of the network complexity we deleted! 🔥
