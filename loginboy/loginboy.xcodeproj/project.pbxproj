@@ -9,9 +9,6 @@
 /* Begin PBXBuildFile section */
 		285B4E742DDB3A0C00CAC666 /* DecodeyApp.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 285B4E722DDB3A0C00CAC666 /* DecodeyApp.xcdatamodeld */; };
 		28D1B2F92DD235CB001C2A15 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28D1B2F82DD235CB001C2A15 /* SwiftUI.framework */; };
-		28D1B3062DD23CE0001C2A15 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = 28D1B3052DD23CE0001C2A15 /* GRDB */; };
-		28D1B3842DD4DE21001C2A15 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 28D1B3832DD4DE21001C2A15 /* RealmSwift */; };
-		28D1B3852DD4DE21001C2A15 /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 28D1B3832DD4DE21001C2A15 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,7 +35,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				28D1B3852DD4DE21001C2A15 /* RealmSwift in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -89,9 +85,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				28D1B3842DD4DE21001C2A15 /* RealmSwift in Frameworks */,
 				28D1B2F92DD235CB001C2A15 /* SwiftUI.framework in Frameworks */,
-				28D1B3062DD23CE0001C2A15 /* GRDB in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -163,8 +157,6 @@
 			);
 			name = loginboy;
 			packageProductDependencies = (
-				28D1B3052DD23CE0001C2A15 /* GRDB */,
-				28D1B3832DD4DE21001C2A15 /* RealmSwift */,
 			);
 			productName = loginboy;
 			productReference = 284A19F62DD21B7E00606222 /* loginboy.app */;
@@ -249,8 +241,6 @@
 			mainGroup = 284A19ED2DD21B7E00606222;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				28D1B3042DD23CD5001C2A15 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
-				28D1B3822DD4DE0F001C2A15 /* XCRemoteSwiftPackageReference "realm-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 284A19F72DD21B7E00606222 /* Products */;
@@ -647,38 +637,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		28D1B3042DD23CD5001C2A15 /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/groue/GRDB.swift.git";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
-		28D1B3822DD4DE0F001C2A15 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/realm/realm-swift";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		28D1B3052DD23CE0001C2A15 /* GRDB */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 28D1B3042DD23CD5001C2A15 /* XCRemoteSwiftPackageReference "GRDB.swift" */;
-			productName = GRDB;
-		};
-		28D1B3832DD4DE21001C2A15 /* RealmSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 28D1B3822DD4DE0F001C2A15 /* XCRemoteSwiftPackageReference "realm-swift" */;
-			productName = RealmSwift;
-		};
-/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		285B4E722DDB3A0C00CAC666 /* DecodeyApp.xcdatamodeld */ = {

@@ -1,10 +1,10 @@
 //
-//  GameView.swift - Complete Fixed Version
+//  GameView.swift - WITH COMPATIBILITY WRAPPERS
 //  loginboy
 //
 
 import SwiftUI
-import Foundation  // CRITICAL: Required for CharacterSet
+import Foundation
 
 enum GameMode {
     case daily
@@ -18,29 +18,23 @@ struct GameView: View {
     @EnvironmentObject var userManager: SimpleUserManager
     @Environment(\.colorScheme) var colorScheme
     
-    // Game mode for different contexts
     var gameMode: GameMode = .random
     
-    // UI state
     @State private var showSettings = false
     @State private var selectedEncryptedLetter: Character?
     @State private var isHintAnimating = false
     
-    // Design system
     private let colors = ColorSystem.shared
     private let fonts = FontSystem.shared
     
     var body: some View {
         ZStack {
-            // Background
             colors.primaryBackground(for: colorScheme)
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {
-                // Game header with info
                 gameHeader
                 
-                // Main game content
                 if gameState.isLoading {
                     loadingView
                 } else if let game = gameState.currentGame {
@@ -54,7 +48,6 @@ struct GameView: View {
             .padding(.horizontal, 16)
             .padding(.top, 10)
             
-            // Overlays for win/loss
             if gameState.showWinMessage {
                 GameWinOverlay()
                     .zIndex(100)
@@ -66,18 +59,15 @@ struct GameView: View {
             }
         }
         .onAppear {
-            setupGameMode()
+            performSetupGameMode()
         }
         .sheet(isPresented: $showSettings) {
             SettingsView()
         }
     }
     
-    // MARK: - Game Header
-    
     private var gameHeader: some View {
         VStack(spacing: 12) {
-            // Title and settings
             HStack {
                 Text(gameTitle)
                     .font(.title2.bold())
@@ -92,7 +82,6 @@ struct GameView: View {
                 }
             }
             
-            // Quote metadata
             if !gameState.quoteAuthor.isEmpty {
                 VStack(spacing: 4) {
                     Text("Quote by")
@@ -101,67 +90,8 @@ struct GameView: View {
                     
                     Text(gameState.quoteAuthor)
                         .font(.subheadline.bold())
-                        .foregroundStyle(.primary)
-                    
-                    if let attribution = gameState.quoteAttribution {
-                        Text(attribution)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
+                        .foregroundStyle(.blue)
                 }
-            }
-        }
-    }
-    
-    // MARK: - Game Content
-    
-    private func gameContent(for game: GameModel) -> some View {
-        VStack(spacing: 24) {
-            // Game stats row
-            gameStatsRow(for: game)
-            
-            // Quote display
-            quoteDisplay(for: game)
-            
-            // Letter substitution grid
-            letterSubstitutionGrid(for: game)
-            
-            // Action buttons
-            actionButtons(for: game)
-        }
-    }
-    
-    private func gameStatsRow(for game: GameModel) -> some View {
-        HStack {
-            // Mistakes counter
-            HStack(spacing: 4) {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundStyle(game.mistakes > 0 ? .red : .secondary)
-                Text("\(game.mistakes)/\(game.maxMistakes)")
-                    .font(.subheadline.bold())
-                    .foregroundStyle(game.mistakes > 0 ? .red : .secondary)
-            }
-            
-            Spacer()
-            
-            // Score display - PROPERLY UNWRAPPED!
-            HStack(spacing: 4) {
-                Image(systemName: "star.fill")
-                    .foregroundStyle(.yellow)
-                Text("Score: \(game.calculateScore())")  // ✅ FIXED: No more optional unwrapping error!
-                    .font(.subheadline.bold())
-                    .foregroundStyle(.primary)
-            }
-            
-            Spacer()
-            
-            // Progress indicator - FIXED METHOD NAME!
-            HStack(spacing: 4) {
-                Image(systemName: "percent")
-                    .foregroundStyle(.blue)
-                Text("\(Int(game.getCompletionPercentage() * 100))%")  // ✅ FIXED: Correct method name!
-                    .font(.subheadline.bold())
-                    .foregroundStyle(.blue)
             }
         }
         .padding(.horizontal, 20)
@@ -172,10 +102,76 @@ struct GameView: View {
         )
     }
     
+    private func gameContent(for game: GameModel) -> some View {
+        VStack(spacing: 20) {
+            quoteDisplay(for: game)
+            gameStatus(for: game)
+            letterSubstitutionGrid(for: game)
+            
+            if !game.hasWon && !game.hasLost {
+                actionButtons(for: game)
+            }
+        }
+    }
+    
+    private func gameStatus(for game: GameModel) -> some View {
+        HStack {
+            HStack(spacing: 4) {
+                Image(systemName: "xmark.circle")
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                
+                Text("\(game.mistakes)/\(game.maxMistakes)")
+                    .font(.caption.bold())
+                    .foregroundStyle(.red)
+            }
+            
+            Spacer()
+            
+            if game.hasWon {
+                HStack(spacing: 4) {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                    
+                    Text("Solved!")
+                        .font(.caption.bold())
+                        .foregroundStyle(.green)
+                }
+            } else if game.hasLost {
+                HStack(spacing: 4) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                    
+                    Text("Game Over")
+                        .font(.caption.bold())
+                        .foregroundStyle(.red)
+                }
+            } else {
+                HStack(spacing: 4) {
+                    Image(systemName: "clock")
+                        .font(.caption)
+                        .foregroundStyle(.blue)
+                    
+                    Text("In Progress")
+                        .font(.caption.bold())
+                        .foregroundStyle(.blue)
+                }
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(.thinMaterial)
+        )
+    }
+    
     private func quoteDisplay(for game: GameModel) -> some View {
         ScrollView {
             Text(game.currentDisplay)
-                .font(fonts.encryptedDisplayText())  // ✅ FIXED: Correct method name!
+                .font(fonts.encryptedDisplayText())
                 .foregroundStyle(.primary)
                 .lineSpacing(8)
                 .multilineTextAlignment(.center)
@@ -200,8 +196,7 @@ struct GameView: View {
     
     private func actionButtons(for game: GameModel) -> some View {
         HStack(spacing: 16) {
-            // Hint button
-            Button(action: requestHint) {
+            Button(action: performRequestHint) {
                 HStack(spacing: 8) {
                     Image(systemName: "lightbulb")
                         .font(.title3)
@@ -226,8 +221,7 @@ struct GameView: View {
             
             Spacer()
             
-            // Reset button
-            Button(action: resetGame) {
+            Button(action: performResetGame) {
                 HStack(spacing: 8) {
                     Image(systemName: "arrow.clockwise")
                         .font(.title3)
@@ -248,8 +242,6 @@ struct GameView: View {
             }
         }
     }
-    
-    // MARK: - Supporting Views
     
     private var loadingView: some View {
         VStack(spacing: 16) {
@@ -278,14 +270,12 @@ struct GameView: View {
                 .foregroundStyle(.secondary)
             
             Button("New Game") {
-                setupGameMode()
+                performSetupGameMode()
             }
             .buttonStyle(.borderedProminent)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-    
-    // MARK: - Computed Properties
     
     private var gameTitle: String {
         switch gameMode {
@@ -298,19 +288,22 @@ struct GameView: View {
         }
     }
     
-    // MARK: - Actions - ALL FIXED!
+    // MARK: - COMPATIBILITY WRAPPERS - Bypass Swift 5.0 @EnvironmentObject binding conflicts
     
-    private func setupGameMode() {
+    private func performSetupGameMode() {
+        let state = gameState  // Create explicit reference
         switch gameMode {
         case .daily:
-            gameState.setupDailyChallenge()
+            state.setupDailyChallenge()
         case .random, .custom:
-            gameState.setupCustomGame()
+            state.setupCustomGame()
         }
     }
     
-    private func requestHint() {
-        guard let game = gameState.currentGame,
+    private func performRequestHint() {
+        let state = gameState  // Create explicit reference
+        
+        guard let game = state.currentGame,
               !game.hasWon,
               !game.hasLost,
               !isHintAnimating else { return }
@@ -318,15 +311,16 @@ struct GameView: View {
         isHintAnimating = true
         SoundManager.shared.play(.hint)
         
-        // ✅ FIXED: Proper method call syntax
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            gameState.getHint()  // This method exists in GameState
+            // Use explicit reference to bypass dynamic member lookup
+            state.getHint()  // ✅ This bypasses the binding syntax conflict
             isHintAnimating = false
         }
     }
     
-    private func resetGame() {
-        gameState.resetGame()  // ✅ FIXED: This method exists in GameState
+    private func performResetGame() {
+        let state = gameState  // Create explicit reference
+        state.resetGame()      // ✅ This bypasses the binding syntax conflict
     }
 }
 
@@ -339,7 +333,7 @@ struct GameWinOverlay: View {
         ZStack {
             Color.black.opacity(0.5)
                 .ignoresSafeArea()
-                .onTapGesture { } // Prevent dismissal
+                .onTapGesture { }
             
             VaultWinModal()
                 .environmentObject(gameState)
@@ -354,7 +348,7 @@ struct GameLossOverlay: View {
         ZStack {
             Color.black.opacity(0.5)
                 .ignoresSafeArea()
-                .onTapGesture { } // Prevent dismissal
+                .onTapGesture { }
             
             GameLossModal()
                 .environmentObject(gameState)

@@ -1,6 +1,5 @@
 // Updated DailyView.swift for Realm
 import SwiftUI
-import RealmSwift
 
 struct DailyView: View {
     @EnvironmentObject var userState: UserState
