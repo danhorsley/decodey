@@ -1,0 +1,47 @@
+{
+  "metadata": {
+    "name": "Classic Quotes",
+    "description": "Timeless wisdom from history's greatest minds",
+    "version": "1.0",
+    "quoteCount": 200,
+    "isBase": true
+  },
+  "quotes": [
+    {
+      "text": "TO BE OR NOT TO BE THAT IS THE QUESTION",
+      "author": "William Shakespeare",
+      "difficulty": "medium",
+      "category": "classic",
+      "id": "classic_001"
+    },
+    {
+      "text": "I THINK THEREFORE I AM",
+      "author": "René Descartes",
+      "difficulty": "easy",
+      "category": "classic",
+      "id": "classic_002"
+    },
+    {
+      "text": "THE ONLY THING WE HAVE TO FEAR IS FEAR ITSELF",
+      "author": "Franklin D. Roosevelt",
+      "difficulty": "hard",
+      "category": "classic",
+      "id": "classic_003"
+    },
+    {
+      "text": "ASK NOT WHAT YOUR COUNTRY CAN DO FOR YOU ASK WHAT YOU CAN DO FOR YOUR COUNTRY",
+      "author": "John F. Kennedy",
+      "difficulty": "hard",
+      "category": "classic",
+      "id": "classic_004"
+    },
+    {
+      "text": "EARLY TO BED AND EARLY TO RISE MAKES A MAN HEALTHY WEALTHY AND WISE",
+      "author": "Benjamin Franklin",
+      "difficulty": "medium",
+      "category": "classic",
+      "id": "classic_005"
+    }
+    // ... continue to 200 quotes
+  ]
+}
