@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct MainView: View {
-    @StateObject private var gameState = GameState()
+    @StateObject private var gameState = GameState.shared
     @StateObject private var userState = UserState.shared
     @StateObject private var settingsState = SettingsState.shared
     @StateObject private var soundManager = SoundManager.shared
