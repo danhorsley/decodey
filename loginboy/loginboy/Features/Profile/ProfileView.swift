@@ -1,4 +1,5 @@
 import SwiftUI
+import CoreData
 
 struct ProfileView: View {
     @EnvironmentObject var userState: UserState
@@ -11,174 +12,117 @@ struct ProfileView: View {
             Form {
                 // Player Info Section
                 Section {
-                    ThemedListRow {
-                        ThemedInfoRow(
-                            title: "Player Name",
-                            value: userState.playerName,
-                            icon: "person.circle.fill"
-                        )
-                    }
+                    playerInfoRow(
+                        title: "Player Name",
+                        value: userState.playerName,
+                        icon: "person.circle.fill"
+                    )
                     
-                    ThemedListRow {
-                        ThemedInfoRow(
-                            title: "Total Score",
-                            value: "\(userState.totalScore)",
-                            icon: "star.fill"
-                        )
-                    }
+                    playerInfoRow(
+                        title: "Total Score",
+                        value: "\(userState.totalScore)",
+                        icon: "star.fill"
+                    )
                     
-                    ThemedListRow {
-                        ThemedInfoRow(
-                            title: "Games Played",
-                            value: "\(userState.stats?.gamesPlayed ?? 0)",
-                            icon: "gamecontroller.fill"
-                        )
-                    }
+                    playerInfoRow(
+                        title: "Games Played",
+                        value: "\(userState.gamesPlayed)",
+                        icon: "gamecontroller.fill"
+                    )
                     
-                    ThemedListRow {
-                        ThemedInfoRow(
-                            title: "Games Won",
-                            value: "\(userState.stats?.gamesWon ?? 0)",
-                            icon: "trophy.fill"
-                        )
-                    }
+                    playerInfoRow(
+                        title: "Games Won",
+                        value: "\(userState.gamesWon)",
+                        icon: "trophy.fill"
+                    )
                     
-                    ThemedListRow {
-                        ThemedInfoRow(
-                            title: "Current Streak",
-                            value: "\(userState.stats?.currentStreak ?? 0)",
-                            icon: "flame.fill"
-                        )
-                    }
+                    playerInfoRow(
+                        title: "Win Rate",
+                        value: String(format: "%.1f%%", userState.winPercentage),
+                        icon: "percent"
+                    )
                     
-                    ThemedListRow {
-                        ThemedInfoRow(
-                            title: "Best Streak",
-                            value: "\(userState.stats?.bestStreak ?? 0)",
-                            icon: "crown.fill"
-                        )
-                    }
+                    playerInfoRow(
+                        title: "Average Score",
+                        value: String(format: "%.0f", userState.averageScore),
+                        icon: "chart.bar"
+                    )
                 } header: {
                     ThemedSectionHeader("PLAYER STATS", icon: "person.crop.circle")
                 }
                 
                 // Game Settings Section
                 Section {
-                    ThemedListRow {
-                        HStack {
-                            Label("Difficulty", systemImage: "dial.high.fill")
-                                .foregroundColor(.primary)
-                            Spacer()
-                            Text(settingsState.gameDifficulty.capitalized)
-                                .foregroundColor(.secondary)
-                        }
-                    }
+                    gameSettingRow(
+                        label: "Difficulty",
+                        icon: "dial.high.fill",
+                        value: settingsState.gameDifficulty.capitalized
+                    )
                     
-                    ThemedListRow {
-                        HStack {
-                            Label("Sound", systemImage: "speaker.wave.2.fill")
-                                .foregroundColor(.primary)
-                            Spacer()
-                            Text(settingsState.soundEnabled ? "On" : "Off")
-                                .foregroundColor(.secondary)
-                        }
-                    }
+                    gameSettingRow(
+                        label: "Sound",
+                        icon: "speaker.wave.2.fill",
+                        value: settingsState.soundEnabled ? "On" : "Off"
+                    )
                     
-                    ThemedListRow {
-                        HStack {
-                            Label("Enhanced Letters", systemImage: "textformat")
-                                .foregroundColor(.primary)
-                            Spacer()
-                            Text(settingsState.useEnhancedLetterCells ? "On" : "Off")
-                                .foregroundColor(.secondary)
-                        }
-                    }
+                    gameSettingRow(
+                        label: "Enhanced Letters",
+                        icon: "textformat",
+                        value: settingsState.useEnhancedLetterCells ? "On" : "Off"
+                    )
                 } header: {
                     ThemedSectionHeader("GAME SETTINGS", icon: "gearshape.fill")
                 }
                 
                 // App Info Section
                 Section {
-                    ThemedListRow {
-                        ThemedInfoRow(
-                            title: "Version",
-                            value: settingsState.appVersion,
-                            icon: "info.circle"
-                        )
-                    }
+                    playerInfoRow(
+                        title: "Version",
+                        value: settingsState.appVersion,
+                        icon: "info.circle"
+                    )
                     
-                    ThemedListRow {
-                        ThemedInfoRow(
-                            title: "Build",
-                            value: "Local Edition",
-                            icon: "hammer"
-                        )
-                    }
+                    playerInfoRow(
+                        title: "Build",
+                        value: "Local Edition",
+                        icon: "hammer"
+                    )
                     
-                    ThemedListRow {
-                        ThemedInfoRow(
-                            title: "Mode",
-                            value: "Offline Only",
-                            icon: "airplane"
-                        )
-                    }
+                    playerInfoRow(
+                        title: "Mode",
+                        value: "Offline Only",
+                        icon: "airplane"
+                    )
                 } header: {
                     ThemedSectionHeader("ABOUT", icon: "questionmark.circle")
                 }
                 
                 // Account Actions Section
                 Section {
-                    ThemedListRow(isButton: true) {
-                        Button(action: { showResetConfirmation = true }) {
-                            HStack {
-                                Spacer()
-                                HStack(spacing: 8) {
-                                    Image(systemName: "arrow.clockwise.circle")
-                                    Text("Reset All Stats")
-                                }
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundColor(.white)
-                                Spacer()
-                            }
-                            .padding(.vertical, 12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.orange)
-                            )
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                    }
-                    .listRowBackground(Color.clear)
+                    actionButton(
+                        title: "Reset All Stats",
+                        icon: "arrow.clockwise.circle",
+                        color: .orange,
+                        action: { showResetConfirmation = true }
+                    )
                     
                     if userState.isSignedIn {
-                        ThemedListRow(isButton: true) {
-                            Button(action: { showLogoutConfirmation = true }) {
-                                HStack {
-                                    Spacer()
-                                    HStack(spacing: 8) {
-                                        Image(systemName: "rectangle.portrait.and.arrow.right")
-                                        Text("Sign Out")
-                                    }
-                                    .font(.system(size: 16, weight: .semibold))
-                                    .foregroundColor(.white)
-                                    Spacer()
-                                }
-                                .padding(.vertical, 12)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(Color.red)
-                                )
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                        }
-                        .listRowBackground(Color.clear)
+                        actionButton(
+                            title: "Sign Out",
+                            icon: "rectangle.portrait.and.arrow.right",
+                            color: .red,
+                            action: { showLogoutConfirmation = true }
+                        )
                     }
+                } header: {
+                    ThemedSectionHeader("ACTIONS", icon: "gear")
                 }
             }
             .themedFormStyle()
             .navigationTitle("Profile")
+            .navigationBarTitleDisplayMode(.inline)
         }
-        .alert("Reset All Stats?", isPresented: $showResetConfirmation) {
+        .alert("Reset Statistics?", isPresented: $showResetConfirmation) {
             Button("Cancel", role: .cancel) { }
             Button("Reset", role: .destructive) {
                 resetAllStats()
@@ -196,10 +140,61 @@ struct ProfileView: View {
         }
     }
     
+    // MARK: - Helper Views
+    
+    @ViewBuilder
+    private func playerInfoRow(title: String, value: String, icon: String) -> some View {
+        ThemedListRow {
+            ThemedInfoRow(
+                title: title,
+                value: value,
+                icon: icon
+            )
+        }
+    }
+    
+    @ViewBuilder
+    private func gameSettingRow(label: String, icon: String, value: String) -> some View {
+        ThemedListRow {
+            HStack {
+                Label(label, systemImage: icon)
+                    .foregroundColor(.primary)
+                Spacer()
+                Text(value)
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func actionButton(title: String, icon: String, color: Color, action: @escaping () -> Void) -> some View {
+        ThemedListRow(isButton: true) {
+            Button(action: action) {
+                HStack {
+                    Spacer()
+                    HStack(spacing: 8) {
+                        Image(systemName: icon)
+                        Text(title)
+                    }
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+                    Spacer()
+                }
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(color)
+                )
+            }
+            .buttonStyle(PlainButtonStyle())
+        }
+        .listRowBackground(Color.clear)
+    }
+    
     // MARK: - Actions
     
     private func resetAllStats() {
-        // Reset UserState stats
+        // Reset UserState stats using the public method
         userState.resetStats()
         
         // Reset SettingsState to defaults
@@ -234,7 +229,6 @@ struct ProfileView: View {
         userState.signOut()
     }
 }
-
 
 #Preview {
     ProfileView()

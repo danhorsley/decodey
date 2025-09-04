@@ -76,7 +76,8 @@ class UserState: ObservableObject {
         UserDefaults.standard.set(totalScore, forKey: "totalScore")
     }
     
-    private func resetStats() {
+    // Make this public so ProfileView can call it
+    func resetStats() {
         gamesPlayed = 0
         gamesWon = 0
         totalScore = 0
