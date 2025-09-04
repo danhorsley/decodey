@@ -4,10 +4,11 @@ import SwiftUI
 import CoreData
 
 /// AppState serves as a lightweight coordinator for the app's global state
+/// SIMPLIFIED VERSION - No network/auth dependencies
 class AppState: ObservableObject {
     // Access to singleton state objects
     @Published var gameState: GameState
-    @Published var userState: UserState
+    @Published var userManager: SimpleUserManager
     @Published var settingsState: SettingsState
     
     // For cancelling subscriptions
@@ -22,7 +23,7 @@ class AppState: ObservableObject {
     private init() {
         // Access the singletons for each state
         self.gameState = GameState.shared
-        self.userState = UserState.shared
+        self.userManager = SimpleUserManager.shared
         self.settingsState = SettingsState.shared
         
         // Setup cross-state coordination
@@ -31,13 +32,13 @@ class AppState: ObservableObject {
     
     // Setup publisher/subscriber relationships between states
     private func setupStateCoordination() {
-        // Listen for auth state changes
-        userState.$isAuthenticated
-            .sink { [weak self] isAuthenticated in
+        // Listen for user sign-in state changes
+        userManager.$isSignedIn
+            .sink { [weak self] isSignedIn in
                 guard let self = self else { return }
                 
-                if isAuthenticated {
-                    // Load user preferences into settings
+                if isSignedIn {
+                    // Load user preferences into settings when signed in
                     self.syncUserPreferences()
                 }
             }
@@ -51,15 +52,15 @@ class AppState: ObservableObject {
             .store(in: &cancellables)
     }
     
-    // Sync user preferences to settings state
+    // Sync user preferences to settings state (LOCAL ONLY)
     private func syncUserPreferences() {
-        guard let userId = userState.userId.isEmpty ? nil : userState.userId else {
+        guard !userManager.playerName.isEmpty else {
             return
         }
         
         let context = coreData.mainContext
         let fetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
-        fetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
+        fetchRequest.predicate = NSPredicate(format: "username == %@", userManager.playerName)
         
         do {
             let users = try context.fetch(fetchRequest)
@@ -70,9 +71,9 @@ class AppState: ObservableObject {
             // Update settings state from user preferences
             settingsState.updateSettings(
                 darkMode: prefs.darkMode,
-                showHelpers: prefs.showTextHelpers as? Bool,
+                showHelpers: prefs.showTextHelpers,
                 accessibilityText: prefs.accessibilityTextSize,
-                gameDifficulty: prefs.gameDifficulty,
+                gameDifficulty: prefs.gameDifficulty ?? "medium",
                 soundEnabled: prefs.soundEnabled,
                 soundVolume: prefs.soundVolume,
                 useBiometricAuth: prefs.useBiometricAuth
@@ -82,7 +83,7 @@ class AppState: ObservableObject {
         }
     }
     
-    // MARK: - Public Convenience Methods
+    // MARK: - Public Convenience Methods (SIMPLIFIED)
     
     /// Start a new game with current settings
     func startNewGame() {
@@ -94,25 +95,25 @@ class AppState: ObservableObject {
         gameState.setupDailyChallenge()
     }
     
-    /// Login the user
-    func login(username: String, password: String, rememberMe: Bool) async throws {
-        try await userState.login(username: username, password: password, rememberMe: rememberMe)
+    /// Setup local player (replaces login)
+    func setupPlayer(name: String) {
+        userManager.setupLocalPlayer(name: name)
     }
     
-    /// Logout the user
-    func logout() {
-        userState.logout()
+    /// Sign out local player (replaces logout)
+    func signOut() {
+        userManager.signOut()
     }
     
-    /// Save user preferences
+    /// Save user preferences (LOCAL ONLY)
     func saveUserPreferences() {
-        guard userState.isAuthenticated, !userState.userId.isEmpty else {
+        guard userManager.isSignedIn, !userManager.playerName.isEmpty else {
             return
         }
         
         let context = coreData.mainContext
         let fetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
-        fetchRequest.predicate = NSPredicate(format: "userId == %@", userState.userId)
+        fetchRequest.predicate = NSPredicate(format: "username == %@", userManager.playerName)
         
         do {
             let users = try context.fetch(fetchRequest)
@@ -138,21 +139,8 @@ class AppState: ObservableObject {
             prefs.lastSyncDate = Date()
             
             try context.save()
+            print("✅ User preferences saved locally")
             
-            // Sync to server if available
-            if let settings = userState.authCoordinator as? SettingsSync {
-                settings.syncSettingsToServer(preferences: UserPreferencesModel(
-                    darkMode: settingsState.isDarkMode,
-                    showTextHelpers: settingsState.showTextHelpers,
-                    accessibilityTextSize: settingsState.useAccessibilityTextSize,
-                    gameDifficulty: settingsState.gameDifficulty,
-                    soundEnabled: settingsState.soundEnabled,
-                    soundVolume: settingsState.soundVolume,
-                    useBiometricAuth: settingsState.useBiometricAuth,
-                    notificationsEnabled: prefs.notificationsEnabled,
-                    lastSyncDate: Date()
-                ))
-            }
         } catch {
             print("Error saving user preferences: \(error.localizedDescription)")
         }

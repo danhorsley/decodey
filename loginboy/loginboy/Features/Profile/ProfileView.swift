@@ -6,9 +6,15 @@ struct ProfileView: View {
     @EnvironmentObject var settingsState: SettingsState
     @State private var showLogoutConfirmation = false
     @State private var showResetConfirmation = false
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
-        NavigationView {
+        // Cross-platform approach - no NavigationView wrapper
+        VStack(spacing: 0) {
+            // Custom header for cross-platform compatibility
+            customHeader
+            
+            // Main content in a Form
             Form {
                 // Player Info Section
                 Section {
@@ -119,8 +125,6 @@ struct ProfileView: View {
                 }
             }
             .themedFormStyle()
-            .navigationTitle("Profile")
-            .navigationBarTitleDisplayMode(.inline)
         }
         .alert("Reset Statistics?", isPresented: $showResetConfirmation) {
             Button("Cancel", role: .cancel) { }
@@ -138,6 +142,37 @@ struct ProfileView: View {
         } message: {
             Text("Are you sure you want to sign out?")
         }
+    }
+    
+    // MARK: - Custom Header (Cross-Platform)
+    
+    private var customHeader: some View {
+        HStack {
+            Text("Profile")
+                .font(.title2.bold())
+                .foregroundStyle(.primary)
+            
+            Spacer()
+            
+            // Optional: Add settings button or other actions
+            // Button("Settings") { /* action */ }
+        }
+        .padding()
+        .background(adaptiveHeaderBackground)
+        .overlay(
+            Divider()
+                .opacity(0.3),
+            alignment: .bottom
+        )
+    }
+    
+    // Platform-adaptive header background
+    private var adaptiveHeaderBackground: Color {
+        #if os(iOS)
+        return Color(.systemBackground)
+        #else
+        return Color(NSColor.controlBackgroundColor)
+        #endif
     }
     
     // MARK: - Helper Views
