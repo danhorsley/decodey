@@ -235,46 +235,6 @@ struct ProfileView: View {
     }
 }
 
-// MARK: - Helper Views
-
-struct ThemedInfoRow: View {
-    let title: String
-    let value: String
-    let icon: String
-    
-    var body: some View {
-        HStack {
-            Label(title, systemImage: icon)
-                .foregroundColor(.primary)
-            Spacer()
-            Text(value)
-                .foregroundColor(.secondary)
-                .font(.system(.body, design: .monospaced))
-        }
-    }
-}
-
-struct ThemedSectionHeader: View {
-    let title: String
-    let icon: String
-    
-    init(_ title: String, icon: String) {
-        self.title = title
-        self.icon = icon
-    }
-    
-    var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .foregroundColor(.secondary)
-                .font(.caption)
-            Text(title)
-                .font(.caption)
-                .fontWeight(.semibold)
-                .foregroundColor(.secondary)
-        }
-    }
-}
 
 #Preview {
     ProfileView()
