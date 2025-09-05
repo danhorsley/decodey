@@ -284,11 +284,11 @@ struct MainTabView: View {
 // Placeholder views - these will be your actual game views
 
 
-struct SettingsView: View {
-    var body: some View {
-        Text("Settings View")
-    }
-}
+//struct SettingsView: View {
+//    var body: some View {
+//        Text("Settings View")
+//    }
+//}
 
 struct ContinueGameView: View {
     var body: some View {
