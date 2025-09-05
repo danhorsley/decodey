@@ -71,9 +71,9 @@ struct GameView: View {
             gameStatus(for: game)
             letterSubstitutionGrid(for: game)
             
-            if !game.hasWon && !game.hasLost {
-                actionButtons(for: game)
-            }
+//            if !game.hasWon && !game.hasLost {
+//                actionButtons(for: game)
+//            }
         }
     }
     
@@ -203,54 +203,54 @@ struct GameView: View {
             .environmentObject(settingsState)
     }
     
-    private func actionButtons(for game: GameModel) -> some View {
-        HStack(spacing: 16) {
-            Button(action: performRequestHint) {
-                HStack(spacing: 8) {
-                    Image(systemName: "lightbulb")
-                        .font(.title3)
-                    Text("Hint")
-                        .font(.subheadline.bold())
-                }
-                .foregroundStyle(.blue)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(.blue.opacity(0.1))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(.blue.opacity(0.3), lineWidth: 1)
-                        )
-                )
-            }
-            .disabled(game.hasWon || game.hasLost || isHintAnimating)
-            .scaleEffect(isHintAnimating ? 1.1 : 1.0)
-            .animation(.easeInOut(duration: 0.1), value: isHintAnimating)
-            
-            Spacer()
-            
-            Button(action: performResetGame) {
-                HStack(spacing: 8) {
-                    Image(systemName: "arrow.clockwise")
-                        .font(.title3)
-                    Text("Reset")
-                        .font(.subheadline.bold())
-                }
-                .foregroundStyle(.orange)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(.orange.opacity(0.1))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(.orange.opacity(0.3), lineWidth: 1)
-                        )
-                )
-            }
-        }
-    }
+//    private func actionButtons(for game: GameModel) -> some View {
+//        HStack(spacing: 16) {
+//            Button(action: performRequestHint) {
+//                HStack(spacing: 8) {
+//                    Image(systemName: "lightbulb")
+//                        .font(.title3)
+//                    Text("Hint")
+//                        .font(.subheadline.bold())
+//                }
+//                .foregroundStyle(.blue)
+//                .padding(.horizontal, 20)
+//                .padding(.vertical, 12)
+//                .background(
+//                    RoundedRectangle(cornerRadius: 10)
+//                        .fill(.blue.opacity(0.1))
+//                        .overlay(
+//                            RoundedRectangle(cornerRadius: 10)
+//                                .stroke(.blue.opacity(0.3), lineWidth: 1)
+//                        )
+//                )
+//            }
+//            .disabled(game.hasWon || game.hasLost || isHintAnimating)
+//            .scaleEffect(isHintAnimating ? 1.1 : 1.0)
+//            .animation(.easeInOut(duration: 0.1), value: isHintAnimating)
+//            
+//            Spacer()
+//            
+//            Button(action: performResetGame) {
+//                HStack(spacing: 8) {
+//                    Image(systemName: "arrow.clockwise")
+//                        .font(.title3)
+//                    Text("Reset")
+//                        .font(.subheadline.bold())
+//                }
+//                .foregroundStyle(.orange)
+//                .padding(.horizontal, 20)
+//                .padding(.vertical, 12)
+//                .background(
+//                    RoundedRectangle(cornerRadius: 10)
+//                        .fill(.orange.opacity(0.1))
+//                        .overlay(
+//                            RoundedRectangle(cornerRadius: 10)
+//                                .stroke(.orange.opacity(0.3), lineWidth: 1)
+//                        )
+//                )
+//            }
+//        }
+//    }
     
     private var loadingView: some View {
         VStack(spacing: 16) {
