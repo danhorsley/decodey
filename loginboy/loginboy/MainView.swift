@@ -21,33 +21,33 @@ struct MainView: View {
                 // Main game interface
                 VStack(spacing: 0) {
                     // Top bar with user info and settings
-                    HStack {
-                        // User info
-                        if userState.isSignedIn {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(userState.playerName)
-                                    .font(.headline)
-                                    .foregroundColor(.primary)
-                                
-                                Text("Score: \(userState.totalScore)")
-                                    .font(.caption)
-                                    .foregroundColor(.secondary)
-                            }
-                        }
-                        
-                        Spacer()
-                        
-                        // Settings button
-                        Button(action: {
-                            // Show settings
-                        }) {
-                            Image(systemName: "gear")
-                                .font(.title2)
-                                .foregroundColor(.primary)
-                        }
-                    }
-                    .padding()
-                    .background(Material.regularMaterial)
+//                    HStack {
+//                        // User info
+//                        if userState.isSignedIn {
+//                            VStack(alignment: .leading, spacing: 2) {
+//                                Text(userState.playerName)
+//                                    .font(.headline)
+//                                    .foregroundColor(.primary)
+//                                
+//                                Text("Score: \(userState.totalScore)")
+//                                    .font(.caption)
+//                                    .foregroundColor(.secondary)
+//                            }
+//                        }
+//                        
+//                        Spacer()
+//                        
+//                        // Settings button
+//                        Button(action: {
+//                            // Show settings
+//                        }) {
+//                            Image(systemName: "gear")
+//                                .font(.title2)
+//                                .foregroundColor(.primary)
+//                        }
+//                    }
+//                    .padding()
+//                    .background(Material.regularMaterial)
                     
                     // Game content
                     TabView {
@@ -70,6 +70,13 @@ struct MainView: View {
                             .tabItem {
                                 Image(systemName: "chart.bar")
                                 Text("Stats")
+                            }
+                        
+                        // ADD THIS SETTINGS TAB:
+                        SettingsView()
+                            .tabItem {
+                                Image(systemName: "gear")
+                                Text("Settings")
                             }
                     }
                 }

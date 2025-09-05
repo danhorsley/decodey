@@ -33,7 +33,7 @@ struct GameView: View {
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {
-                gameHeader
+                // REMOVED: gameHeader - much cleaner!
                 
                 if gameState.isLoading {
                     loadingView
@@ -48,6 +48,7 @@ struct GameView: View {
             .padding(.horizontal, 16)
             .padding(.top, 10)
             
+            // Win/Loss overlays
             if gameState.showWinMessage {
                 GameWinOverlay()
                     .zIndex(100)
@@ -61,46 +62,8 @@ struct GameView: View {
         .onAppear {
             performSetupGameMode()
         }
-        .sheet(isPresented: $showSettings) {
-            SettingsView()
-        }
     }
     
-    private var gameHeader: some View {
-        VStack(spacing: 12) {
-            HStack {
-                Text(gameTitle)
-                    .font(.title2.bold())
-                    .foregroundStyle(.primary)
-                
-                Spacer()
-                
-                Button(action: { showSettings = true }) {
-                    Image(systemName: "gear")
-                        .font(.title3)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            
-            if !gameState.quoteAuthor.isEmpty {
-                VStack(spacing: 4) {
-                    Text("Quote by")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    
-                    Text(gameState.quoteAuthor)
-                        .font(.subheadline.bold())
-                        .foregroundStyle(.blue)
-                }
-            }
-        }
-        .padding(.horizontal, 20)
-        .padding(.vertical, 12)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(.regularMaterial)
-        )
-    }
     
     private func gameContent(for game: GameModel) -> some View {
         VStack(spacing: 20) {
@@ -323,16 +286,6 @@ struct GameView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
-    private var gameTitle: String {
-        switch gameMode {
-        case .daily:
-            return "Daily Challenge"
-        case .random:
-            return "Random Game"
-        case .custom:
-            return "Custom Game"
-        }
-    }
     
     // MARK: - COMPATIBILITY WRAPPERS - Bypass Swift 5.0 @EnvironmentObject binding conflicts
     
