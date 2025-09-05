@@ -169,23 +169,69 @@ struct GameView: View {
     }
     
     private func quoteDisplay(for game: GameModel) -> some View {
-        ScrollView {
-            Text(game.currentDisplay)
-                .font(fonts.encryptedDisplayText())
-                .foregroundStyle(.primary)
-                .lineSpacing(8)
-                .multilineTextAlignment(.center)
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(.thinMaterial)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 12)
-                                .stroke(.secondary.opacity(0.3), lineWidth: 1)
+        VStack(spacing: 16) {
+            // Encrypted text block (top block - what the cipher shows)
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text("ENCRYPTED")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .tracking(1)
+                    Spacer()
+                    Text("\(game.encrypted.filter { $0.isLetter }.count) letters")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    Text(game.encrypted)
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(.orange)
+                        .padding(12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.orange.opacity(0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.orange.opacity(0.3), lineWidth: 1)
+                                )
                         )
-                )
+                }
+            }
+            
+            // Current solving progress (bottom block - what's been decoded)
+            VStack(alignment: .leading, spacing: 6) {
+                HStack {
+                    Text("SOLVING")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .tracking(1)
+                    Spacer()
+                    let progress = Double(game.guessedMappings.count) / Double(Set(game.encrypted.filter { $0.isLetter }).count)
+                    Text("\(Int(progress * 100))% complete")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    Text(generateDisplayText(for: game))
+                        .font(.system(.body, design: .monospaced))
+                        .foregroundColor(.primary)
+                        .padding(12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(Color.blue.opacity(0.1))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.blue.opacity(0.3), lineWidth: 1)
+                                )
+                        )
+                }
+            }
+            
+            // NO AUTHOR DISPLAY HERE - it's shown in the win modal instead!
         }
-        .frame(maxHeight: 200)
+        .padding(.horizontal, 16)
     }
     
     private func letterSubstitutionGrid(for game: GameModel) -> some View {
@@ -321,6 +367,23 @@ struct GameView: View {
     private func performResetGame() {
         let state = gameState  // Create explicit reference
         state.resetGame()      // ✅ This bypasses the binding syntax conflict
+    }
+    
+    private func generateDisplayText(for game: GameModel) -> String {
+        return game.solution.map { char in
+            if char.isLetter {
+                // For letters, show the guessed letter or a block
+                if let encryptedChar = game.correctMappings.first(where: { $0.value == char })?.key,
+                   let guessedChar = game.guessedMappings[encryptedChar] {
+                    return String(guessedChar)
+                } else {
+                    return "█"  // Block for unguessed letters
+                }
+            } else {
+                // For spaces, punctuation, etc. - show as-is
+                return String(char)
+            }
+        }.joined()
     }
 }
 
