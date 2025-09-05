@@ -1,105 +1,86 @@
 import SwiftUI
-import Combine
 
-// MARK: - Vault Win Modal (Dark Mode)
 struct VaultWinModal: View {
     @EnvironmentObject var gameState: GameState
     @EnvironmentObject var userState: UserState
     @Environment(\.colorScheme) var colorScheme
     
     // Animation states
-    @State private var showContent = false
-    @State private var decryptionProgress: CGFloat = 0
+    @State private var showCodeRain = true
+    @State private var showVaultInterface = false
     @State private var showScore = false
     @State private var showStats = false
     @State private var showButtons = false
-    @State private var glitchOffset: CGFloat = 0
-    @State private var scanlineOffset: CGFloat = 0
+    @State private var typewriterIndex = 0
     
-    // Design system
-    private let colors = ColorSystem.shared
-    private let fonts = FontSystem.shared
+    // Vault code columns
+    @State private var columns: [VaultCodeColumn] = []
     
     var body: some View {
         ZStack {
-            // Background with scrolling code
-            CodeRainBackground()
+            // Background
+            Color.black
                 .ignoresSafeArea()
             
-            // Scanline effect
-            scanlineOverlay
+            // Matrix code rain background
+            if showCodeRain {
+                codeRainBackground
+                    .transition(.opacity)
+            }
             
-            // Main content
-            if showContent {
-                vaultContent
-                    .transition(.asymmetric(
-                        insertion: .scale(scale: 0.9).combined(with: .opacity),
-                        removal: .opacity
-                    ))
+            // Central vault interface
+            if showVaultInterface {
+                vaultInterface
+                    .transition(.scale.combined(with: .opacity))
             }
         }
         .onAppear {
-            startHackSequence()
+            setupVaultAnimation()
+        }
+        .onTapGesture {
+            gameState.showWinMessage = false
         }
     }
     
-    // MARK: - Scanline Effect
-    private var scanlineOverlay: some View {
+    // MARK: - Code Rain Background
+    private var codeRainBackground: some View {
         GeometryReader { geometry in
-            Rectangle()
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.green.opacity(0.1),
-                            Color.green.opacity(0.05),
-                            Color.clear,
-                            Color.clear
-                        ]),
-                        startPoint: .top,
-                        endPoint: .bottom
+            ZStack {
+                ForEach(columns) { column in
+                    VaultCodeColumnView(
+                        column: column,
+                        height: geometry.size.height,
+                        characters: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
                     )
-                )
-                .frame(height: 4)
-                .offset(y: scanlineOffset)
-                .onAppear {
-                    withAnimation(.linear(duration: 3).repeatForever(autoreverses: false)) {
-                        scanlineOffset = geometry.size.height
-                    }
                 }
+            }
         }
+        .opacity(showVaultInterface ? 0.1 : 1.0)
+        .animation(.easeOut(duration: 1.0), value: showVaultInterface)
     }
     
-    // MARK: - Vault Content
-    private var vaultContent: some View {
-        VStack(spacing: 32) {
-            // Terminal header
-            terminalHeader
+    // MARK: - Vault Interface
+    private var vaultInterface: some View {
+        VStack(spacing: 24) {
+            // Vault header
+            vaultHeader
             
-            // Decryption progress bar
-            if decryptionProgress < 1.0 {
-                decryptionProgressView
-            }
-            
-            // Decoded content with glitch effect
-            if decryptionProgress >= 1.0 {
-                decodedSection
-                    .offset(x: glitchOffset)
-                    .animation(.interpolatingSpring(stiffness: 1000, damping: 10), value: glitchOffset)
+            // Decrypted quote display
+            if typewriterIndex > 0 {
+                quoteDisplay
+                    .transition(.opacity)
             }
             
             // Score section
             if showScore {
                 scoreSection
-                    .transition(.asymmetric(
-                        insertion: .move(edge: .leading).combined(with: .opacity),
-                        removal: .opacity
-                    ))
+                    .transition(.scale.combined(with: .opacity))
             }
             
             // Stats grid
             if showStats {
                 statsGrid
-                    .transition(.opacity)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
             }
             
             // Action buttons
@@ -109,81 +90,51 @@ struct VaultWinModal: View {
             }
         }
         .padding(32)
-        .frame(maxWidth: 700)
+        .frame(maxWidth: 500)
         .background(
-            ZStack {
-                // Dark background with subtle transparency
-                RoundedRectangle(cornerRadius: 0)
-                    .fill(Color.black.opacity(0.85))
-                
-                // Green border glow
-                RoundedRectangle(cornerRadius: 0)
-                    .stroke(Color.green.opacity(0.8), lineWidth: 2)
-                    .shadow(color: .green.opacity(0.6), radius: 10)
-            }
+            RoundedRectangle(cornerRadius: 0)
+                .fill(Color.black.opacity(0.8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 0)
+                        .stroke(Color.green.opacity(0.5), lineWidth: 2)
+                )
         )
+        .shadow(color: .green.opacity(0.3), radius: 20)
     }
     
-    // MARK: - Terminal Header
-    private var terminalHeader: some View {
-        VStack(alignment: .leading, spacing: 8) {
+    // MARK: - Vault Header
+    private var vaultHeader: some View {
+        VStack(spacing: 8) {
             HStack {
-                Text("VAULT://SECURE/DECRYPTED")
-                    .font(.system(size: 14, weight: .medium, design: .monospaced))
+                Text("VAULT")
+                    .font(.system(size: 24, weight: .bold, design: .monospaced))
                     .foregroundColor(.green)
-                
-                Spacer()
-                
-                Text("[\(Date().formatted(date: .abbreviated, time: .standard))]")
-                    .font(.system(size: 12, weight: .regular, design: .monospaced))
-                    .foregroundColor(.green.opacity(0.7))
+                Text("BREACHED")
+                    .font(.system(size: 24, weight: .bold, design: .monospaced))
+                    .foregroundColor(.red)
             }
             
-            Text("ACCESS GRANTED - LEVEL 9 CLEARANCE")
-                .font(.system(size: 11, weight: .regular, design: .monospaced))
+            Text("SECURITY PROTOCOL BYPASSED")
+                .font(.system(size: 10, weight: .medium, design: .monospaced))
                 .foregroundColor(.green.opacity(0.6))
+                .tracking(2)
         }
     }
     
-    // MARK: - Decryption Progress
-    private var decryptionProgressView: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("DECRYPTING...")
-                .font(.system(size: 12, weight: .medium, design: .monospaced))
-                .foregroundColor(.green)
-            
-            GeometryReader { geometry in
-                ZStack(alignment: .leading) {
-                    // Background
-                    Rectangle()
-                        .fill(Color.green.opacity(0.1))
-                        .frame(height: 4)
-                    
-                    // Progress
-                    Rectangle()
-                        .fill(Color.green)
-                        .frame(width: geometry.size.width * decryptionProgress, height: 4)
-                }
+    // MARK: - Quote Display
+    private var quoteDisplay: some View {
+        VStack(spacing: 12) {
+            HStack {
+                Text("EXTRACTED_DATA:")
+                    .font(.system(size: 12, weight: .medium, design: .monospaced))
+                    .foregroundColor(.green.opacity(0.7))
+                Spacer()
             }
-            .frame(height: 4)
             
-            Text("\(Int(decryptionProgress * 100))%")
-                .font(.system(size: 10, weight: .regular, design: .monospaced))
-                .foregroundColor(.green.opacity(0.7))
-        }
-        .padding(.vertical, 8)
-    }
-    
-    // MARK: - Decoded Section
-    private var decodedSection: some View {
-        VStack(spacing: 20) {
-            Text("// DECODED TRANSMISSION")
-                .font(.system(size: 12, weight: .medium, design: .monospaced))
-                .foregroundColor(.green.opacity(0.7))
-            
-            // Solution with typing cursor effect
-            HStack(alignment: .top, spacing: 4) {
-                Text(gameState.currentGame?.solution ?? "")
+            VStack(alignment: .leading, spacing: 8) {
+                let displayText = String((gameState.currentGame?.solution ?? "").prefix(typewriterIndex))
+                
+                Text(displayText)
                     .font(.system(size: 20, weight: .medium, design: .monospaced))
                     .foregroundColor(.green)
                     .multilineTextAlignment(.center)
@@ -261,7 +212,7 @@ struct VaultWinModal: View {
         )
     }
     
-    // MARK: - Stats Grid
+    // MARK: - Stats Grid (FIXED FOR SIMPLIFIED UserState)
     private var statsGrid: some View {
         HStack(spacing: 32) {
             StatBlock(
@@ -278,82 +229,81 @@ struct VaultWinModal: View {
                 isOptimal: Int(gameState.currentGame?.lastUpdateTime.timeIntervalSince(gameState.currentGame?.startTime ?? Date()) ?? 0) < 60
             )
             
+            // Use simplified UserState properties instead of stats object
             if gameState.isDailyChallenge {
                 StatBlock(
-                    label: "STREAK",
-                    value: "\(userState.stats?.currentStreak ?? 0)",
-                    icon: "flame",
-                    isOptimal: (userState.stats?.currentStreak ?? 0) > 5
+                    label: "TOTAL",
+                    value: "\(userState.gamesPlayed)",
+                    icon: "gamecontroller",
+                    isOptimal: userState.gamesPlayed >= 10
+                )
+            } else {
+                StatBlock(
+                    label: "WIN_RATE",
+                    value: String(format: "%.0f%%", userState.winPercentage),
+                    icon: "target",
+                    isOptimal: userState.winPercentage > 75
                 )
             }
         }
+        .padding(.vertical, 20)
     }
     
     // MARK: - Button Section
     private var buttonSection: some View {
-        HStack(spacing: 20) {
-            // Share button
+        HStack(spacing: 16) {
             Button(action: {
-                SoundManager.shared.play(.win)
-                // Share action
-            }) {
-                HStack(spacing: 8) {
-                    Image(systemName: "square.and.arrow.up")
-                    Text("EXPORT")
-                }
-                .font(.system(size: 14, weight: .medium, design: .monospaced))
-                .foregroundColor(.green)
-                .padding(.horizontal, 24)
-                .padding(.vertical, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 0)
-                        .stroke(Color.green, lineWidth: 1)
-                )
-            }
-            
-            // New cipher button
-            Button(action: {
-                SoundManager.shared.play(.letterClick)
                 gameState.showWinMessage = false
-                gameState.resetGame()
+                gameState.setupCustomGame()
             }) {
                 HStack(spacing: 8) {
                     Image(systemName: "arrow.clockwise")
-                    Text("NEW CIPHER")
+                    Text("HACK_AGAIN")
                 }
-                .font(.system(size: 14, weight: .semibold, design: .monospaced))
+                .font(.system(size: 12, weight: .bold, design: .monospaced))
                 .foregroundColor(.black)
-                .padding(.horizontal, 24)
+                .padding(.horizontal, 20)
                 .padding(.vertical, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 0)
-                        .fill(Color.green)
-                        .shadow(color: .green.opacity(0.5), radius: 10)
+                        .fill(.green)
+                )
+            }
+            
+            Button(action: {
+                gameState.showWinMessage = false
+            }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "xmark")
+                    Text("EXIT_VAULT")
+                }
+                .font(.system(size: 12, weight: .bold, design: .monospaced))
+                .foregroundColor(.green)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 0)
+                        .stroke(.green, lineWidth: 1)
                 )
             }
         }
     }
     
-    // MARK: - Animation Sequence
-    private func startHackSequence() {
-        // Show content
-        withAnimation(.easeOut(duration: 0.3)) {
-            showContent = true
-        }
+    // MARK: - Animation Setup
+    private func setupVaultAnimation() {
         
-        // Decryption animation
-        withAnimation(.easeInOut(duration: 1.5)) {
-            decryptionProgress = 1.0
-        }
+        // Start code animation
+        startCodeAnimation()
         
-        // Glitch effect
+        // Show vault interface after brief delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            glitchOffset = -5
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                glitchOffset = 5
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    glitchOffset = 0
-                }
+            withAnimation(.easeOut(duration: 0.8)) {
+                showVaultInterface = true
+            }
+            
+            // Start typewriter effect
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                startTypewriterEffect()
             }
         }
         
@@ -376,6 +326,61 @@ struct VaultWinModal: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
             withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                 showButtons = true
+            }
+        }
+    }
+    
+    private func setupCodeColumns(screenWidth: CGFloat) {
+        let columnWidth: CGFloat = 20
+        let columnCount = Int(screenWidth / columnWidth)
+        
+        columns = (0..<columnCount).map { index in
+            VaultCodeColumn(
+                id: index,
+                x: CGFloat(index) * columnWidth,
+                characters: generateRandomCharacters(),
+                offset: CGFloat.random(in: -200...0),
+                speed: CGFloat.random(in: 0.5...2.0)
+            )
+        }
+    }
+    
+    private func generateRandomCharacters() -> [String] {
+        let chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        return (0...20).map { _ in String(chars.randomElement()!) }
+    }
+    
+    private func startCodeAnimation() {
+        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
+            guard showCodeRain else {
+                timer.invalidate()
+                return
+            }
+            
+            for index in columns.indices {
+                columns[index].offset += columns[index].speed * 10
+                
+                // Use a reasonable screen height fallback
+                let screenHeight: CGFloat = 1000
+                if columns[index].offset > screenHeight + 200 {
+                    columns[index].offset = -200
+                    columns[index].characters = generateRandomCharacters()
+                }
+            }
+        }
+    }
+    
+    private func startTypewriterEffect() {
+        let solution = gameState.currentGame?.solution ?? ""
+        let totalLength = solution.count
+        
+        guard totalLength > 0 else { return }
+        
+        Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
+            if typewriterIndex < totalLength {
+                typewriterIndex += 1
+            } else {
+                timer.invalidate()
             }
         }
     }
@@ -409,79 +414,7 @@ private struct StatBlock: View {
                 .font(.system(size: 16, weight: .bold, design: .monospaced))
                 .foregroundColor(isOptimal ? .green : .green.opacity(0.8))
         }
-        .frame(minWidth: 80)
-    }
-}
-
-// MARK: - Code Rain Background
-struct CodeRainBackground: View {
-    @State private var columns: [VaultCodeColumn] = []
-    let timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
-    
-    // Character sets
-    private let codeCharacters = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン"
-    private let matrixKatakana = "ｱｲｳｴｵｶｷｸｹｺｻｼｽｾｿﾀﾁﾂﾃﾄﾅﾆﾇﾈﾉﾊﾋﾌﾍﾎﾏﾐﾑﾒﾓﾔﾕﾖﾗﾘﾙﾚﾛﾜｦﾝ"
-    
-    var body: some View {
-        GeometryReader { geometry in
-            ZStack {
-                // Dark background
-                Color.black
-                    .ignoresSafeArea()
-                
-                // Code columns
-                HStack(spacing: 0) {
-                    ForEach(columns) { column in
-                        VaultCodeColumnView(
-                            column: column,
-                            height: geometry.size.height,
-                            characters: codeCharacters + matrixKatakana
-                        )
-                    }
-                }
-            }
-            .onAppear {
-                setupColumns(width: geometry.size.width)
-            }
-            .onReceive(timer) { _ in
-                updateColumns()
-            }
-        }
-    }
-    
-    private func setupColumns(width: CGFloat) {
-        let columnWidth: CGFloat = 20
-        let columnCount = Int(width / columnWidth)
-        
-        columns = (0..<columnCount).map { index in
-            VaultCodeColumn(
-                id: index,
-                x: CGFloat(index) * columnWidth,
-                characters: generateRandomCharacters(),
-                offset: CGFloat.random(in: -500...0),
-                speed: CGFloat.random(in: 5...15)
-            )
-        }
-    }
-    
-    private func updateColumns() {
-        for i in 0..<columns.count {
-            columns[i].offset += columns[i].speed
-            
-            // Reset column when it goes off screen
-            if columns[i].offset > 800 {
-                columns[i].offset = CGFloat.random(in: -500...0)
-                columns[i].characters = generateRandomCharacters()
-                columns[i].speed = CGFloat.random(in: 5...15)
-            }
-        }
-    }
-    
-    private func generateRandomCharacters() -> [String] {
-        let allChars = Array(codeCharacters + matrixKatakana)
-        return (0..<30).map { _ in
-            String(allChars.randomElement() ?? "0")
-        }
+        .frame(maxWidth: .infinity)
     }
 }
 
@@ -519,21 +452,32 @@ struct VaultCodeColumnView: View {
     }
 }
 
-// MARK: - Preview
+// MARK: - Preview (FIXED)
 #if DEBUG
 struct VaultWinModal_Previews: PreviewProvider {
     static var previews: some View {
-        // Create a mock game state
+        // Create a mock game state with CORRECT GameModel initializer
         let gameState = GameState.shared
-        let mockQuote = QuoteModel(
-            text: "THE ONLY WAY TO DO GREAT WORK IS TO LOVE WHAT YOU DO",
-            author: "Steve Jobs",
-            attribution: nil,
-            difficulty: 2.0
+        
+        // Use the correct GameModel initializer with all required parameters
+        let mockGame = GameModel(
+            gameId: UUID().uuidString,
+            encrypted: "XQZ DGRT VRPH XGTFH",
+            solution: "THE ONLY WAY TO DO GREAT WORK IS TO LOVE WHAT YOU DO",
+            currentDisplay: "THE ONLY WAY TO DO GREAT WORK IS TO LOVE WHAT YOU DO",
+            mapping: [:],
+            correctMappings: [:],
+            guessedMappings: [:],
+            incorrectGuesses: [:],
+            mistakes: 2,
+            maxMistakes: 5,
+            hasWon: true,
+            hasLost: false,
+            difficulty: "medium",
+            startTime: Date().addingTimeInterval(-120), // 2 minutes ago
+            lastUpdateTime: Date()
         )
-        var mockGame = GameModel(quote: mockQuote)
-        mockGame.hasWon = true
-        mockGame.mistakes = 2
+        
         gameState.currentGame = mockGame
         gameState.quoteAuthor = "Steve Jobs"
         gameState.showWinMessage = true

@@ -1,10 +1,16 @@
 //
-//  UserSettings.swift - Local Settings Management
+//  UserSettings.swift - Cross-Platform Settings Management
 //  loginboy
 //
 
 import SwiftUI
 import Combine
+
+#if os(iOS)
+import UIKit
+#elseif os(macOS)
+import AppKit
+#endif
 
 class UserSettings: ObservableObject {
     // Published properties for UI binding
@@ -79,34 +85,14 @@ class UserSettings: ObservableObject {
         // Get app version
         if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
            let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {
-            self.appVersion = "\(version) (\(build))"
+            appVersion = "\(version) (\(build))"
         } else {
-            self.appVersion = "1.0"
+            appVersion = "1.0"
         }
         
-        // Initialize stored properties with defaults
-        self.isDarkMode = true
-        self.showTextHelpers = true
-        self.useAccessibilityTextSize = false
-        self.useBiometricAuth = false
-        self.gameDifficulty = "medium"
-        self.soundEnabled = true
-        self.hapticFeedback = true
-        
-        // Load saved preferences
-        loadPreferences()
-        
-        print("⚙️ UserSettings initialized - Version: \(appVersion)")
-    }
-    
-    // MARK: - Preference Management
-    
-    private func loadPreferences() {
-        // Check if this is first run
-        let hasLoadedBefore = userDefaults.bool(forKey: Keys.hasLoadedInitialSettings)
-        
-        if hasLoadedBefore {
-            // Load saved preferences
+        // Load saved preferences or set defaults
+        if userDefaults.bool(forKey: Keys.hasLoadedInitialSettings) {
+            // Load existing settings
             isDarkMode = userDefaults.object(forKey: Keys.isDarkMode) as? Bool ?? true
             showTextHelpers = userDefaults.object(forKey: Keys.showTextHelpers) as? Bool ?? true
             useAccessibilityTextSize = userDefaults.object(forKey: Keys.useAccessibilityTextSize) as? Bool ?? false
@@ -117,7 +103,16 @@ class UserSettings: ObservableObject {
             
             print("✅ Loaded saved preferences")
         } else {
-            // First run - save defaults
+            // First run - use defaults
+            isDarkMode = true
+            showTextHelpers = true
+            useAccessibilityTextSize = false
+            useBiometricAuth = false
+            gameDifficulty = "medium"
+            soundEnabled = true
+            hapticFeedback = true
+            
+            // Save defaults
             saveAllPreferences()
             userDefaults.set(true, forKey: Keys.hasLoadedInitialSettings)
             print("🆕 First run - saved default preferences")
@@ -182,16 +177,21 @@ class UserSettings: ObservableObject {
         print("📥 Settings imported successfully")
     }
     
-    // MARK: - Private Implementation
+    // MARK: - Private Implementation (Cross-Platform)
     
     private func updateAppAppearance() {
         DispatchQueue.main.async {
-            // Update app-wide appearance
-            if self.isDarkMode {
-                UIApplication.shared.windows.first?.overrideUserInterfaceStyle = .dark
-            } else {
-                UIApplication.shared.windows.first?.overrideUserInterfaceStyle = .light
+            #if os(iOS)
+            // iOS implementation
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+                for window in windowScene.windows {
+                    window.overrideUserInterfaceStyle = self.isDarkMode ? .dark : .light
+                }
             }
+            #elseif os(macOS)
+            // macOS implementation
+            NSApp.appearance = self.isDarkMode ? NSAppearance(named: .darkAqua) : NSAppearance(named: .aqua)
+            #endif
         }
     }
     
@@ -223,11 +223,10 @@ class UserSettings: ObservableObject {
     
     private func isBiometricAvailable() -> Bool {
         // Check device capability for biometric authentication
-        // For now, return true for iOS devices
         #if os(iOS)
-        return true
+        return true // Simplified - in real app you'd use LocalAuthentication framework
         #else
-        return false
+        return false // macOS doesn't typically use biometric auth for apps
         #endif
     }
     
@@ -256,7 +255,7 @@ class UserSettings: ObservableObject {
     }
 }
 
-// MARK: - Supporting Enums
+// MARK: - Game Difficulty Enum
 
 enum GameDifficulty: String, CaseIterable {
     case easy = "easy"
@@ -268,14 +267,6 @@ enum GameDifficulty: String, CaseIterable {
         case .easy: return "Easy"
         case .medium: return "Medium"
         case .hard: return "Hard"
-        }
-    }
-    
-    var description: String {
-        switch self {
-        case .easy: return "More mistakes allowed, simpler quotes"
-        case .medium: return "Balanced challenge"
-        case .hard: return "Few mistakes allowed, complex quotes"
         }
     }
     

@@ -81,7 +81,7 @@ struct HomeScreen: View {
                     VStack(spacing: 20) {
                         // Main play button
                         Button(action: {
-                            SoundManager.shared.play(.buttonTap)
+                            SoundManager.shared.play(.letterClick)
                             
                             // If not signed in, show name entry
                             if !userState.isSignedIn {
@@ -194,8 +194,13 @@ struct HomeScreen: View {
     
     private func setupCodeColumns(screenWidth: CGFloat) {
         let columnCount = Int(screenWidth / 20)
-        columns = (0..<columnCount).map { _ in
-            CodeColumn()
+        columns = (0..<columnCount).map { index in
+            CodeColumn(
+                position: CGFloat(index) * 20.0,           // x position
+                speed: Double.random(in: 0.5...2.0),       // animation speed
+                chars: generateRandomChars(),               // array of characters
+                hue: CGFloat.random(in: 0.0...1.0)         // color hue
+            )
         }
     }
     
@@ -228,7 +233,12 @@ struct HomeScreen: View {
             }
         }
     }
-    
+    private func generateRandomChars() -> [String] {
+        let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+        return (0..<10).map { _ in
+            String(characters.randomElement() ?? "X")
+        }
+    }
     private func setupContinuousAnimations() {
         // Pulse effect for buttons
         timerCancellable = Timer.publish(every: 2.0, on: .main, in: .common)

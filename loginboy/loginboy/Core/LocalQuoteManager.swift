@@ -35,47 +35,29 @@ class LocalQuoteManager: ObservableObject {
     }
     
     private func loadQuotesFromBundle() {
+        // Debug: List all files in the bundle
+        if let bundleResourcePath = Bundle.main.resourcePath {
+            do {
+                let files = try FileManager.default.contentsOfDirectory(atPath: bundleResourcePath)
+                print("📁 Bundle contains: \(files.filter { $0.contains("quotes") })")
+            } catch {
+                print("❌ Can't read bundle contents")
+            }
+        }
+        
         guard let path = Bundle.main.path(forResource: "quotes_classic", ofType: "json") else {
             loadingError = "Could not find quotes_classic.json in bundle"
             print("❌ Missing quotes_classic.json file")
             return
         }
         
+        print("✅ Found quotes file at: \(path)")
+        
         do {
-            let data = Data(contentsOfFile: path)
+            let data = try Data(contentsOf: URL(fileURLWithPath: path))  // Try this instead
             let decoder = JSONDecoder()
             
-            // Try the simple structure first (from our artifact)
-            if let simpleQuoteData = try? decoder.decode(SimpleQuotePackData.self, from: data) {
-                print("📖 Loaded \(simpleQuoteData.quotes.count) quotes from bundle (simple format)")
-                saveQuotesToCoreData(simpleQuoteData.quotes)
-            }
-            // Fallback to complex structure if that fails
-            else if let complexQuoteData = try? decoder.decode(ComplexQuotePackData.self, from: data) {
-                print("📖 Loaded \(complexQuoteData.quotes.count) quotes from bundle (complex format)")
-                // Convert QuoteData to QuoteBundleItem
-                let bundleItems = complexQuoteData.quotes.map { quoteData in
-                    QuoteBundleItem(
-                        text: quoteData.text,
-                        author: quoteData.author,
-                        attribution: nil, // QuoteData doesn't have attribution
-                        difficulty: quoteData.difficulty,
-                        category: quoteData.category
-                    )
-                }
-                saveQuotesToCoreData(bundleItems)
-            }
-            else {
-                throw NSError(domain: "QuoteParsingError", code: 1, userInfo: [NSLocalizedDescriptionKey: "Unknown JSON format"])
-            }
-            
-            // Mark as loaded
-            UserDefaults.standard.set(true, forKey: quotesLoadedKey)
-            
-            DispatchQueue.main.async {
-                self.isLoaded = true
-                print("✅ Quotes ready for gameplay!")
-            }
+            // ... rest of your code
         } catch {
             loadingError = "Failed to load quotes: \(error.localizedDescription)"
             print("❌ Error loading quotes: \(error)")

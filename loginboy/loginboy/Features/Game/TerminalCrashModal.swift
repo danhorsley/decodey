@@ -195,7 +195,8 @@ struct TerminalCrashModal: View {
                             isPrimary: true,
                             action: {
                                 SoundManager.shared.play(.correctGuess)
-                                gameState.enableInfiniteMode()
+                                let state = gameState
+                                state.enableInfiniteMode()
                                 gameState.showLoseMessage = false
                             }
                         )

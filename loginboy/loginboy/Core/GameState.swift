@@ -538,6 +538,20 @@ class GameState: ObservableObject {
         }
     }
     
+    // MARK: - Enable inifnite mode
+    func enableInfiniteMode() {
+        isInfiniteMode = true
+        
+        // Remove the loss state but keep the game going
+        if var game = currentGame {
+            game.hasLost = false
+            game.maxMistakes = 999  // Effectively unlimited
+            self.currentGame = game
+        }
+        
+        print("🎮 Infinite mode enabled - unlimited mistakes!")
+    }
+    
     // MARK: - Score Submission & Stats
     
     /// Submit score for completed game

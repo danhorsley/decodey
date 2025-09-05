@@ -50,117 +50,71 @@ struct ArchiveWinModal: View {
             
             // Central decoded content
             if showDecrypted {
-                decodedContentCard
+                centralContentLayer
             }
         }
         .onAppear {
-            startRevealAnimation()
+            startAnimationSequence()
+        }
+        .onTapGesture {
+            gameState.showWinMessage = false
         }
     }
     
     // MARK: - Background Layer
     private var backgroundLayer: some View {
         ZStack {
-            // Base color - warm sepia
-            Color(red: 0.96, green: 0.93, blue: 0.88)
+            // Base sepia background
+            Color(red: 0.92, green: 0.88, blue: 0.80)
                 .ignoresSafeArea()
             
-            // Subtle paper texture overlay
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color(red: 0.94, green: 0.90, blue: 0.84).opacity(0.3),
-                    Color(red: 0.92, green: 0.88, blue: 0.82).opacity(0.5),
-                    Color(red: 0.94, green: 0.90, blue: 0.84).opacity(0.3)
-                ]),
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-            .ignoresSafeArea()
-            
-            // Vignette effect
-            RadialGradient(
-                gradient: Gradient(colors: [
-                    Color.clear,
-                    Color(red: 0.85, green: 0.80, blue: 0.73).opacity(0.2),
-                    Color(red: 0.80, green: 0.74, blue: 0.66).opacity(0.4)
-                ]),
-                center: .center,
-                startRadius: 200,
-                endRadius: 600
-            )
-            .ignoresSafeArea()
-        }
-    }
-    
-    // MARK: - Undeciphered Text Layer
-    private var undecipheredTextLayer: some View {
-        GeometryReader { geometry in
-            ForEach(0..<15, id: \.self) { index in
+            // Scattered archive text fragments
+            ForEach(0..<8, id: \.self) { index in
                 Text(archiveTexts[index % archiveTexts.count])
-                    .font(.system(size: 14, weight: .light, design: .serif))
-                    .foregroundColor(Color(red: 0.55, green: 0.50, blue: 0.45))
-                    .opacity(glitchOpacity * Double.random(in: 0.3...0.7))
-                    .blur(radius: Double.random(in: 0.5...2.0))
-                    .rotationEffect(.degrees(Double.random(in: -2...2)))
+                    .font(.system(size: 12, weight: .light, design: .monospaced))
+                    .foregroundColor(Color(red: 0.75, green: 0.70, blue: 0.65).opacity(0.3))
+                    .rotationEffect(.degrees(Double.random(in: -15...15)))
                     .position(
-                        x: edgePosition(for: index, in: geometry.size).x,
-                        y: edgePosition(for: index, in: geometry.size).y
-                    )
-                    .animation(
-                        .easeInOut(duration: Double.random(in: 2...4))
-                            .repeatForever(autoreverses: true),
-                        value: glitchOpacity
+                        x: CGFloat.random(in: 50...350),
+                        y: CGFloat.random(in: 100...700)
                     )
             }
         }
     }
     
-    // Calculate positions around the edges
-    private func edgePosition(for index: Int, in size: CGSize) -> CGPoint {
-        let margin: CGFloat = 100
-        let side = index % 4
-        
-        switch side {
-        case 0: // Top edge
-            return CGPoint(
-                x: CGFloat.random(in: margin...(size.width - margin)),
-                y: CGFloat.random(in: 20...100)
-            )
-        case 1: // Right edge
-            return CGPoint(
-                x: CGFloat.random(in: (size.width - 100)...size.width),
-                y: CGFloat.random(in: margin...(size.height - margin))
-            )
-        case 2: // Bottom edge
-            return CGPoint(
-                x: CGFloat.random(in: margin...(size.width - margin)),
-                y: CGFloat.random(in: (size.height - 100)...size.height)
-            )
-        default: // Left edge
-            return CGPoint(
-                x: CGFloat.random(in: 0...100),
-                y: CGFloat.random(in: margin...(size.height - margin))
-            )
+    // MARK: - Undeciphered Text Layer
+    private var undecipheredTextLayer: some View {
+        VStack(spacing: 20) {
+            ForEach(0..<5, id: \.self) { _ in
+                HStack {
+                    ForEach(0..<Int.random(in: 8...15), id: \.self) { _ in
+                        Text(String("ABCDEFGHIJKLMNOPQRSTUVWXYZ".randomElement()!))
+                            .font(.system(size: 18, weight: .medium, design: .monospaced))
+                            .foregroundColor(Color(red: 0.45, green: 0.40, blue: 0.35))
+                            .opacity(glitchOpacity)
+                    }
+                }
+            }
+        }
+        .animation(.easeInOut(duration: 0.15).repeatForever(autoreverses: true), value: glitchOpacity)
+        .onAppear {
+            withAnimation {
+                glitchOpacity = 0.6
+            }
         }
     }
     
-    // MARK: - Decoded Content Card
-    private var decodedContentCard: some View {
+    // MARK: - Central Content Layer
+    private var centralContentLayer: some View {
         VStack(spacing: 32) {
             // Classification stamp
             classificationStamp
-                .opacity(showScore ? 1 : 0)
-                .scaleEffect(showScore ? 1 : 0.8)
             
-            // Decoded quote
+            // Decoded quote with typewriter effect
             VStack(spacing: 16) {
-                Text("DECRYPTED TRANSCRIPT")
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
-                    .tracking(2)
-                    .foregroundColor(Color(red: 0.55, green: 0.50, blue: 0.45))
+                let displayText = String((gameState.currentGame?.solution ?? "").prefix(typewriterIndex))
                 
-                // Solution text with typewriter effect
-                Text(gameState.currentGame?.solution.prefix(typewriterIndex) ?? "")
+                Text(displayText)
                     .font(.system(size: 22, weight: .regular, design: .serif))
                     .foregroundColor(Color(red: 0.25, green: 0.22, blue: 0.20))
                     .multilineTextAlignment(.center)
@@ -248,7 +202,7 @@ struct ArchiveWinModal: View {
         .padding(.vertical, 16)
     }
     
-    // MARK: - Stats Section
+    // MARK: - Stats Section (FIXED FOR SIMPLIFIED UserState)
     private var statsSection: some View {
         HStack(spacing: 40) {
             StatItem(
@@ -263,119 +217,112 @@ struct ArchiveWinModal: View {
                 isHighlighted: Int(gameState.currentGame?.lastUpdateTime.timeIntervalSince(gameState.currentGame?.startTime ?? Date()) ?? 0) < 60
             )
             
+            // Use simplified UserState properties instead of stats object
             if gameState.isDailyChallenge {
                 StatItem(
-                    label: "Streak",
-                    value: "\(userState.stats?.currentStreak ?? 0)",
-                    isHighlighted: (userState.stats?.currentStreak ?? 0) > 0
+                    label: "Total Games",
+                    value: "\(userState.gamesPlayed)",
+                    isHighlighted: userState.gamesPlayed > 0
+                )
+            } else {
+                StatItem(
+                    label: "Win Rate",
+                    value: String(format: "%.0f%%", userState.winPercentage),
+                    isHighlighted: userState.winPercentage > 75
                 )
             }
         }
+        .padding(.vertical, 20)
     }
     
     // MARK: - Button Section
     private var buttonSection: some View {
         HStack(spacing: 20) {
-            // Share button
             Button(action: {
-                SoundManager.shared.play(.win)
-                // Share action
-            }) {
-                Label("Share", systemImage: "square.and.arrow.up")
-                    .font(.system(size: 14, weight: .medium, design: .rounded))
-                    .foregroundColor(Color(red: 0.45, green: 0.40, blue: 0.35))
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 10)
-                    .background(
-                        RoundedRectangle(cornerRadius: 6)
-                            .stroke(Color(red: 0.65, green: 0.60, blue: 0.55), lineWidth: 1)
-                    )
-            }
-            
-            // Play again button
-            Button(action: {
-                SoundManager.shared.play(.letterClick)
                 gameState.showWinMessage = false
-                gameState.resetGame()
+                gameState.setupCustomGame()
             }) {
-                Text("NEW CIPHER")
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    .tracking(1)
-                    .foregroundColor(Color(red: 0.98, green: 0.96, blue: 0.92))
+                Text("NEW GAME")
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .tracking(1.0)
                     .padding(.horizontal, 24)
-                    .padding(.vertical, 10)
+                    .padding(.vertical, 12)
                     .background(
-                        RoundedRectangle(cornerRadius: 6)
+                        RoundedRectangle(cornerRadius: 4)
                             .fill(Color(red: 0.35, green: 0.30, blue: 0.25))
                     )
+                    .foregroundColor(Color(red: 0.98, green: 0.96, blue: 0.92))
+            }
+            
+            Button(action: {
+                gameState.showWinMessage = false
+            }) {
+                Text("CLOSE")
+                    .font(.system(size: 12, weight: .semibold, design: .rounded))
+                    .tracking(1.0)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(Color(red: 0.35, green: 0.30, blue: 0.25), lineWidth: 1)
+                    )
+                    .foregroundColor(Color(red: 0.35, green: 0.30, blue: 0.25))
             }
         }
     }
     
     // MARK: - Animation Sequence
-    private func startRevealAnimation() {
-        // Fade in undeciphered text
-        withAnimation(.easeIn(duration: 0.8)) {
-            glitchOpacity = 1.0
-        }
-        
-        // Show decoded content
+    private func startAnimationSequence() {
+        // Step 1: Show undeciphered text with glitch effect
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            withAnimation(.spring(response: 0.8, dampingFraction: 0.75)) {
+            withAnimation(.easeOut(duration: 0.8)) {
+                showUndeciphered = false
                 showDecrypted = true
             }
-            
-            // Start typewriter effect
+        }
+        
+        // Step 2: Start typewriter effect
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.8) {
             startTypewriterEffect()
         }
         
-        // Show score
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+        // Step 3: Show score
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
+            withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
                 showScore = true
             }
         }
         
-        // Show stats
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-            withAnimation(.easeOut(duration: 0.5)) {
+        // Step 4: Show stats
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4.2) {
+            withAnimation(.easeInOut(duration: 0.5)) {
                 showStats = true
             }
         }
         
-        // Show buttons
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+        // Step 5: Show buttons
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4.8) {
             withAnimation(.spring(response: 0.5, dampingFraction: 0.8)) {
                 showButtons = true
             }
         }
-        
-        // Fade out undeciphered text
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
-            withAnimation(.easeOut(duration: 1.5)) {
-                glitchOpacity = 0.3
-            }
-        }
     }
     
-    // Typewriter effect for solution text
     private func startTypewriterEffect() {
-        let solutionLength = gameState.currentGame?.solution.count ?? 0
-        let delay = 0.03 // Delay between characters
+        let solution = gameState.currentGame?.solution ?? ""
+        let totalLength = solution.count
         
-        for i in 0...solutionLength {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(i) * delay) {
-                typewriterIndex = i
-                
-                // Play subtle sound every few characters
-                if i % 3 == 0 && i > 0 {
-                    SoundManager.shared.play(.letterClick)
-                }
+        guard totalLength > 0 else { return }
+        
+        Timer.scheduledTimer(withTimeInterval: 0.03, repeats: true) { timer in
+            if typewriterIndex < totalLength {
+                typewriterIndex += 1
+            } else {
+                timer.invalidate()
             }
         }
     }
     
-    // Helper function to format time
     private func formatTime(_ seconds: Int) -> String {
         let minutes = seconds / 60
         let remainingSeconds = seconds % 60
@@ -384,7 +331,7 @@ struct ArchiveWinModal: View {
 }
 
 // MARK: - Stat Item Component
-private struct StatItem: View {
+struct StatItem: View {
     let label: String
     let value: String
     let isHighlighted: Bool
@@ -392,12 +339,12 @@ private struct StatItem: View {
     var body: some View {
         VStack(spacing: 4) {
             Text(label.uppercased())
-                .font(.system(size: 10, weight: .medium, design: .rounded))
-                .tracking(1)
+                .font(.system(size: 9, weight: .medium, design: .rounded))
+                .tracking(1.0)
                 .foregroundColor(Color(red: 0.55, green: 0.50, blue: 0.45))
             
             Text(value)
-                .font(.system(size: 18, weight: isHighlighted ? .semibold : .regular, design: .serif))
+                .font(.system(size: 20, weight: isHighlighted ? .semibold : .regular, design: .serif))
                 .foregroundColor(
                     isHighlighted ?
                     Color(red: 0.65, green: 0.50, blue: 0.30) :
@@ -407,21 +354,32 @@ private struct StatItem: View {
     }
 }
 
-// MARK: - Preview
+// MARK: - Preview (FIXED)
 #if DEBUG
 struct ArchiveWinModal_Previews: PreviewProvider {
     static var previews: some View {
-        // Create a mock game state
+        // Create a mock game state with CORRECT GameModel initializer
         let gameState = GameState.shared
-        let mockQuote = QuoteModel(
-            text: "THE ONLY WAY TO DO GREAT WORK IS TO LOVE WHAT YOU DO",
-            author: "Steve Jobs",
-            attribution: nil,
-            difficulty: 2.0
+        
+        // Use the correct GameModel initializer with all required parameters
+        let mockGame = GameModel(
+            gameId: UUID().uuidString,
+            encrypted: "XQZ DGRT VRPH XGTFH",
+            solution: "THE ONLY WAY TO DO GREAT WORK IS TO LOVE WHAT YOU DO",
+            currentDisplay: "THE ONLY WAY TO DO GREAT WORK IS TO LOVE WHAT YOU DO",
+            mapping: [:],
+            correctMappings: [:],
+            guessedMappings: [:],
+            incorrectGuesses: [:],
+            mistakes: 2,
+            maxMistakes: 5,
+            hasWon: true,
+            hasLost: false,
+            difficulty: "medium",
+            startTime: Date().addingTimeInterval(-120), // 2 minutes ago
+            lastUpdateTime: Date()
         )
-        var mockGame = GameModel(quote: mockQuote)
-        mockGame.hasWon = true
-        mockGame.mistakes = 2
+        
         gameState.currentGame = mockGame
         gameState.quoteAuthor = "Steve Jobs"
         gameState.showWinMessage = true
