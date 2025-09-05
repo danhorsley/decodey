@@ -467,7 +467,7 @@ class GameState: ObservableObject {
     // MARK: - Game Continuation
     
     /// Check for in-progress games
-    private func checkForInProgressGame(isDailyChallenge: Bool) {
+    public func checkForInProgressGame(isDailyChallenge: Bool) {
         let context = coreData.mainContext
         let fetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
         

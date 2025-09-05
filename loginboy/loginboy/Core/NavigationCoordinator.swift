@@ -254,7 +254,7 @@ struct MainTabView: View {
                 }
                 .tag(NavigationCoordinator.AppRoute.TabRoute.daily)
             
-            GameView(gameMode: .random)
+            GameView()
                 .tabItem {
                     Image(systemName: "gamecontroller")
                     Text("Game")

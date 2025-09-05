@@ -52,14 +52,14 @@ struct MainView: View {
                     // Game content
                     TabView {
                         // Daily Challenge Tab
-                        GameView(gameMode: .daily)
+                        GameView()
                             .tabItem {
                                 Image(systemName: "calendar")
                                 Text("Daily")
                             }
                         
                         // Random Game Tab
-                        GameView(gameMode: .random)
+                        GameView()
                             .tabItem {
                                 Image(systemName: "shuffle")
                                 Text("Random")
