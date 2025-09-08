@@ -1,13 +1,13 @@
 //
-//  loginboyUITestsLaunchTests.swift
-//  loginboyUITests
+//  decodeyUITestsLaunchTests.swift
+//  decodeyUITests
 //
 //  Created by Daniel Horsley on 12/05/2025.
 //
 
 import XCTest
 
-final class loginboyUITestsLaunchTests: XCTestCase {
+final class decodeyUITestsLaunchTests: XCTestCase {
 
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true

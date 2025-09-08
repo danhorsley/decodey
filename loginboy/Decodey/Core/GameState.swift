@@ -135,7 +135,7 @@ class GameState: ObservableObject {
         errorMessage = nil
         
         // Get random quote from LocalQuoteManager or Core Data
-        if let randomQuote = LocalQuoteManager.shared.getRandomQuote(difficulty: SettingsState.shared.gameDifficulty) {
+        if let randomQuote = LocalQuoteManager.shared.getRandomQuote() {
             createGameFromLocalQuote(randomQuote, gameId: UUID().uuidString)
         } else {
             // Fallback to Core Data

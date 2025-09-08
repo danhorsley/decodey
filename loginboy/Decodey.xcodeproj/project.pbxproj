@@ -42,40 +42,40 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		284A19F62DD21B7E00606222 /* loginboy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = loginboy.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		284A1A042DD21B7F00606222 /* loginboyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = loginboyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		284A1A0E2DD21B7F00606222 /* loginboyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = loginboyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		284A19F62DD21B7E00606222 /* Decodey.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Decodey.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		284A1A042DD21B7F00606222 /* DecodeyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DecodeyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		284A1A0E2DD21B7F00606222 /* DecodeyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DecodeyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		285B4E732DDB3A0C00CAC666 /* DecodeyApp.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DecodeyApp.xcdatamodel; sourceTree = "<group>"; };
 		28D1B2F82DD235CB001C2A15 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.4.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		284A1A282DD21FB200606222 /* Exceptions for "loginboy" folder in "loginboy" target */ = {
+		284A1A282DD21FB200606222 /* Exceptions for "Decodey" folder in "Decodey" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 284A19F52DD21B7E00606222 /* loginboy */;
+			target = 284A19F52DD21B7E00606222 /* Decodey */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		284A19F82DD21B7E00606222 /* loginboy */ = {
+		284A19F82DD21B7E00606222 /* Decodey */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				284A1A282DD21FB200606222 /* Exceptions for "loginboy" folder in "loginboy" target */,
+				284A1A282DD21FB200606222 /* Exceptions for "Decodey" folder in "Decodey" target */,
 			);
-			path = loginboy;
+			path = Decodey;
 			sourceTree = "<group>";
 		};
-		284A1A072DD21B7F00606222 /* loginboyTests */ = {
+		284A1A072DD21B7F00606222 /* DecodeyTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = loginboyTests;
+			path = DecodeyTests;
 			sourceTree = "<group>";
 		};
-		284A1A112DD21B7F00606222 /* loginboyUITests */ = {
+		284A1A112DD21B7F00606222 /* DecodeyUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = loginboyUITests;
+			path = DecodeyUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -110,9 +110,9 @@
 			isa = PBXGroup;
 			children = (
 				285B4E722DDB3A0C00CAC666 /* DecodeyApp.xcdatamodeld */,
-				284A19F82DD21B7E00606222 /* loginboy */,
-				284A1A072DD21B7F00606222 /* loginboyTests */,
-				284A1A112DD21B7F00606222 /* loginboyUITests */,
+				284A19F82DD21B7E00606222 /* Decodey */,
+				284A1A072DD21B7F00606222 /* DecodeyTests */,
+				284A1A112DD21B7F00606222 /* DecodeyUITests */,
 				28D1B2F72DD235CB001C2A15 /* Frameworks */,
 				284A19F72DD21B7E00606222 /* Products */,
 			);
@@ -121,9 +121,9 @@
 		284A19F72DD21B7E00606222 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				284A19F62DD21B7E00606222 /* loginboy.app */,
-				284A1A042DD21B7F00606222 /* loginboyTests.xctest */,
-				284A1A0E2DD21B7F00606222 /* loginboyUITests.xctest */,
+				284A19F62DD21B7E00606222 /* Decodey.app */,
+				284A1A042DD21B7F00606222 /* DecodeyTests.xctest */,
+				284A1A0E2DD21B7F00606222 /* DecodeyUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -139,9 +139,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		284A19F52DD21B7E00606222 /* loginboy */ = {
+		284A19F52DD21B7E00606222 /* Decodey */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 284A1A182DD21B7F00606222 /* Build configuration list for PBXNativeTarget "loginboy" */;
+			buildConfigurationList = 284A1A182DD21B7F00606222 /* Build configuration list for PBXNativeTarget "Decodey" */;
 			buildPhases = (
 				284A19F22DD21B7E00606222 /* Sources */,
 				284A19F32DD21B7E00606222 /* Frameworks */,
@@ -153,18 +153,18 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				284A19F82DD21B7E00606222 /* loginboy */,
+				284A19F82DD21B7E00606222 /* Decodey */,
 			);
-			name = loginboy;
+			name = Decodey;
 			packageProductDependencies = (
 			);
 			productName = loginboy;
-			productReference = 284A19F62DD21B7E00606222 /* loginboy.app */;
+			productReference = 284A19F62DD21B7E00606222 /* Decodey.app */;
 			productType = "com.apple.product-type.application";
 		};
-		284A1A032DD21B7F00606222 /* loginboyTests */ = {
+		284A1A032DD21B7F00606222 /* DecodeyTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 284A1A1B2DD21B7F00606222 /* Build configuration list for PBXNativeTarget "loginboyTests" */;
+			buildConfigurationList = 284A1A1B2DD21B7F00606222 /* Build configuration list for PBXNativeTarget "DecodeyTests" */;
 			buildPhases = (
 				284A1A002DD21B7F00606222 /* Sources */,
 				284A1A012DD21B7F00606222 /* Frameworks */,
@@ -176,18 +176,18 @@
 				284A1A062DD21B7F00606222 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				284A1A072DD21B7F00606222 /* loginboyTests */,
+				284A1A072DD21B7F00606222 /* DecodeyTests */,
 			);
-			name = loginboyTests;
+			name = DecodeyTests;
 			packageProductDependencies = (
 			);
 			productName = loginboyTests;
-			productReference = 284A1A042DD21B7F00606222 /* loginboyTests.xctest */;
+			productReference = 284A1A042DD21B7F00606222 /* DecodeyTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		284A1A0D2DD21B7F00606222 /* loginboyUITests */ = {
+		284A1A0D2DD21B7F00606222 /* DecodeyUITests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 284A1A1E2DD21B7F00606222 /* Build configuration list for PBXNativeTarget "loginboyUITests" */;
+			buildConfigurationList = 284A1A1E2DD21B7F00606222 /* Build configuration list for PBXNativeTarget "DecodeyUITests" */;
 			buildPhases = (
 				284A1A0A2DD21B7F00606222 /* Sources */,
 				284A1A0B2DD21B7F00606222 /* Frameworks */,
@@ -199,13 +199,13 @@
 				284A1A102DD21B7F00606222 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				284A1A112DD21B7F00606222 /* loginboyUITests */,
+				284A1A112DD21B7F00606222 /* DecodeyUITests */,
 			);
-			name = loginboyUITests;
+			name = DecodeyUITests;
 			packageProductDependencies = (
 			);
 			productName = loginboyUITests;
-			productReference = 284A1A0E2DD21B7F00606222 /* loginboyUITests.xctest */;
+			productReference = 284A1A0E2DD21B7F00606222 /* DecodeyUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
@@ -231,7 +231,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 284A19F12DD21B7E00606222 /* Build configuration list for PBXProject "loginboy" */;
+			buildConfigurationList = 284A19F12DD21B7E00606222 /* Build configuration list for PBXProject "Decodey" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -247,9 +247,9 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				284A19F52DD21B7E00606222 /* loginboy */,
-				284A1A032DD21B7F00606222 /* loginboyTests */,
-				284A1A0D2DD21B7F00606222 /* loginboyUITests */,
+				284A19F52DD21B7E00606222 /* Decodey */,
+				284A1A032DD21B7F00606222 /* DecodeyTests */,
+				284A1A0D2DD21B7F00606222 /* DecodeyUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -306,12 +306,12 @@
 /* Begin PBXTargetDependency section */
 		284A1A062DD21B7F00606222 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 284A19F52DD21B7E00606222 /* loginboy */;
+			target = 284A19F52DD21B7E00606222 /* Decodey */;
 			targetProxy = 284A1A052DD21B7F00606222 /* PBXContainerItemProxy */;
 		};
 		284A1A102DD21B7F00606222 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 284A19F52DD21B7E00606222 /* loginboy */;
+			target = 284A19F52DD21B7E00606222 /* Decodey */;
 			targetProxy = 284A1A0F2DD21B7F00606222 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
@@ -436,13 +436,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = loginboy/loginboy.entitlements;
+				CODE_SIGN_ENTITLEMENTS = decodey/decodey.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = PA33492LYL;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = loginboy/Info.plist;
+				INFOPLIST_FILE = decodey/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -458,7 +458,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.freeform.loginboy;
+				PRODUCT_BUNDLE_IDENTIFIER = com.freeform.decodey;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -475,13 +475,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = loginboy/loginboy.entitlements;
+				CODE_SIGN_ENTITLEMENTS = decodey/decodey.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = PA33492LYL;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = loginboy/Info.plist;
+				INFOPLIST_FILE = decodey/Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -497,7 +497,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.freeform.loginboy;
+				PRODUCT_BUNDLE_IDENTIFIER = com.freeform.decodey;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -520,14 +520,14 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				MACOSX_DEPLOYMENT_TARGET = 15.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.freeform.loginboyTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.freeform.decodeyTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/loginboy.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/loginboy";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Decodey.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Decodey";
 				XROS_DEPLOYMENT_TARGET = 2.4;
 			};
 			name = Debug;
@@ -543,14 +543,14 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				MACOSX_DEPLOYMENT_TARGET = 15.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.freeform.loginboyTests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.freeform.decodeyTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/loginboy.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/loginboy";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Decodey.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Decodey";
 				XROS_DEPLOYMENT_TARGET = 2.4;
 			};
 			name = Release;
@@ -564,7 +564,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				MACOSX_DEPLOYMENT_TARGET = 15.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.freeform.loginboyUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.freeform.decodeyUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -585,7 +585,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 18.4;
 				MACOSX_DEPLOYMENT_TARGET = 15.4;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.freeform.loginboyUITests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.freeform.decodeyUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
@@ -600,7 +600,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		284A19F12DD21B7E00606222 /* Build configuration list for PBXProject "loginboy" */ = {
+		284A19F12DD21B7E00606222 /* Build configuration list for PBXProject "Decodey" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				284A1A162DD21B7F00606222 /* Debug */,
@@ -609,7 +609,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		284A1A182DD21B7F00606222 /* Build configuration list for PBXNativeTarget "loginboy" */ = {
+		284A1A182DD21B7F00606222 /* Build configuration list for PBXNativeTarget "Decodey" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				284A1A192DD21B7F00606222 /* Debug */,
@@ -618,7 +618,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		284A1A1B2DD21B7F00606222 /* Build configuration list for PBXNativeTarget "loginboyTests" */ = {
+		284A1A1B2DD21B7F00606222 /* Build configuration list for PBXNativeTarget "DecodeyTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				284A1A1C2DD21B7F00606222 /* Debug */,
@@ -627,7 +627,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		284A1A1E2DD21B7F00606222 /* Build configuration list for PBXNativeTarget "loginboyUITests" */ = {
+		284A1A1E2DD21B7F00606222 /* Build configuration list for PBXNativeTarget "DecodeyUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				284A1A1F2DD21B7F00606222 /* Debug */,
