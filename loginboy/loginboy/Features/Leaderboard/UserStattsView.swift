@@ -243,11 +243,11 @@ struct UserStatsView: View {
         // Calculate stats from local Core Data
         let context = coreData.mainContext
         
-        guard userState.isAuthenticated, !userState.userId.isEmpty else {
-            isLoading = false
-            detailedStats = nil
-            return
-        }
+//        guard userState.isAuthenticated, !userState.userId.isEmpty else {
+//            isLoading = false
+//            detailedStats = nil
+//            return
+//        }
         
         do {
             let stats = try calculateDetailedStats(context: context, userId: userState.userId)

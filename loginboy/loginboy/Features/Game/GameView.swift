@@ -15,8 +15,11 @@ struct GameView: View {
     private let sectionSpacing: CGFloat = 32
     
     var body: some View {
-        ZStack {
+                ZStack {
             // Background
+//            let currentColorScheme: ColorScheme = settingsState.isDarkMode ? .dark : .light
+            let _ = print("GameView colorScheme: \(colorScheme)") // Debug line
+
             colors.primaryBackground(for: colorScheme)
                 .ignoresSafeArea()
             
@@ -68,6 +71,25 @@ struct GameView: View {
         .onAppear {
             gameState.checkForInProgressGame(isDailyChallenge:false)
         }
+    }
+    
+    private var enhancedSolutionDisplay: String {
+        guard let game = gameState.currentGame else { return "" }
+        
+        return game.encrypted.map { char in
+            if char.isLetter {
+                if let decrypted = game.guessedMappings[char] {
+                    // Show the correctly guessed letter
+                    return String(decrypted)
+                } else {
+                    // Show a monospace block instead of the encrypted letter
+                    return "█"
+                }
+            } else {
+                // Preserve spaces and punctuation
+                return String(char)
+            }
+        }.joined()
     }
     
     private var gameContentView: some View {
@@ -130,7 +152,7 @@ struct GameView: View {
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 
-                Text(gameState.currentGame?.currentDisplay ?? "")
+                Text(enhancedSolutionDisplay)
                     .font(fonts.solutionDisplayText())
                     .foregroundColor(colors.guessColor(for: colorScheme))
                     .multilineTextAlignment(.center)
@@ -193,3 +215,5 @@ struct GameView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
+
+

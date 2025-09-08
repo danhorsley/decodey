@@ -41,11 +41,8 @@ struct HomeScreen: View {
                 
                 // Code rain effect (The Matrix-style falling characters)
                 if codeRain {
-                    VStack {
-                        Text("Matrix Code Rain Effect")
-                            .foregroundColor(.green.opacity(0.3))
-                            .font(.system(size: 10, design: .monospaced))
-                    }
+                    CodeRainView(columns: $columns)
+                        .opacity(0.4)
                 }
                 
                 // Content container

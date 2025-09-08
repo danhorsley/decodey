@@ -66,7 +66,7 @@ struct MainView: View {
                             }
                         
                         // Stats Tab
-                        StatsView()
+                        UserStatsView()
                             .tabItem {
                                 Image(systemName: "chart.bar")
                                 Text("Stats")
