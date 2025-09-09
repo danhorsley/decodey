@@ -700,11 +700,11 @@ class GameState: ObservableObject {
             Task {
                 if game.hasWon {
                     await GameCenterManager.shared.submitTotalScore(Int(stats.totalScore))
-                    await GameCenterManager.shared.submitWinStreak(Int(stats.currentStreak))
+//                    await GameCenterManager.shared.submitWinStreak(Int(stats.currentStreak))
                 }
-                if isDailyChallenge {
-                    await GameCenterManager.shared.submitDailyScore(finalScore)
-                }
+//                if isDailyChallenge {
+//                    await GameCenterManager.shared.submitDailyScore(finalScore)
+//                }
             }
             
         } catch {

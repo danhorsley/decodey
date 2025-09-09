@@ -72,6 +72,13 @@ struct MainView: View {
                                 Text("Stats")
                             }
                         
+                        // Game Center Leaderboard tab
+                        LeaderboardView()
+                            .tabItem {
+                                Label("Leaderboard", systemImage: "trophy.fill")
+                            }
+                            .tag(2)
+                        
                         // ADD THIS SETTINGS TAB:
                         SettingsView()
                             .tabItem {

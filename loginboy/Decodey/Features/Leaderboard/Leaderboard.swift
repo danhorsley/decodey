@@ -1,167 +1,317 @@
+// LeaderboardView.swift - Fixed with pure SwiftUI and matching your style
 import SwiftUI
+import GameKit
 
 struct LeaderboardView: View {
+    @StateObject private var gameCenterManager = GameCenterManager.shared
+    private let colors = ColorSystem.shared
     @Environment(\.colorScheme) private var colorScheme
     
+    @State private var selectedScope: GKLeaderboard.PlayerScope = .global
+    @State private var selectedTime: GKLeaderboard.TimeScope = .allTime
+    @State private var leaderboardEntries: [LeaderboardEntry] = []
+    @State private var isLoading = false
+    @State private var showingGameCenterSheet = false
+    
+    // Your leaderboard ID from App Store Connect
+    private let leaderboardID = "alltime" // Update this with your actual ID
+    
     var body: some View {
-        VStack(spacing: 0) {
-            // Custom header for cross-platform compatibility
-            customHeader
+        ZStack {
+            colors.primaryBackground(for: colorScheme)
+                .ignoresSafeArea()
             
-            // Coming Soon content
-            comingSoonContent
+            VStack(spacing: 0) {
+                // Custom header
+                customHeader
+                
+                if gameCenterManager.isAuthenticated {
+                    authenticatedContent
+                } else {
+                    notAuthenticatedView
+                }
+            }
+        }
+        .task {
+            await authenticateAndLoadLeaderboard()
+        }
+        .sheet(isPresented: $showingGameCenterSheet) {
+            GameCenterView(viewState: .leaderboards)
         }
     }
     
-    // MARK: - Custom Header
-    
+    // MARK: - Custom Header (matching your style)
     private var customHeader: some View {
         HStack {
             Text("Leaderboard")
-                .font(.title2.bold())
-                .foregroundStyle(.primary)
+                .font(.largeTitle)
+                .fontWeight(.bold)
+                .foregroundColor(.primary)
             
             Spacer()
+            
+            if gameCenterManager.isAuthenticated {
+                Button(action: {
+                    showingGameCenterSheet = true
+                }) {
+                    Image(systemName: "gamecontroller.fill")
+                        .font(.title2)
+                        .foregroundColor(.accentColor)
+                }
+            }
         }
         .padding()
-        .background(adaptiveHeaderBackground)
+        .background(colors.secondaryBackground(for: colorScheme))
         .overlay(
-            Divider()
-                .opacity(0.3),
+            Rectangle()
+                .fill(Color.primary.opacity(0.1))
+                .frame(height: 1),
             alignment: .bottom
         )
     }
     
-    // MARK: - Coming Soon Content
-    
-    private var comingSoonContent: some View {
-        VStack(spacing: 32) {
-            Spacer()
+    // MARK: - Authenticated Content
+    private var authenticatedContent: some View {
+        VStack(spacing: 0) {
+            // Scope selector
+            scopeSelector
+                .padding()
             
-            // Icon section
-            VStack(spacing: 16) {
-                Image(systemName: "trophy.circle")
-                    .font(.system(size: 80))
-                    .foregroundStyle(.secondary)
-                
-                Text("Global Leaderboards")
-                    .font(.title2.bold())
-                    .foregroundStyle(.primary)
-                
-                Text("Coming Soon")
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
+            // Leaderboard list
+            if isLoading {
+                Spacer()
+                ProgressView("Loading leaderboard...")
+                Spacer()
+            } else if leaderboardEntries.isEmpty {
+                emptyStateView
+            } else {
+                leaderboardList
             }
-            
-            // Description
-            VStack(spacing: 12) {
-                Text("Compete with players worldwide!")
-                    .font(.body)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.primary)
-                
-                Text("Global leaderboards will be available when we connect to GameStore services.")
-                    .font(.callout)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 40)
-            }
-            
-            Spacer()
-            
-            // Local stats teaser
-            localStatsTeaser
-            
-            Spacer()
         }
-        .padding()
     }
     
-    // MARK: - Local Stats Teaser
-    
-    private var localStatsTeaser: some View {
-        VStack(spacing: 16) {
-            Text("For now, check your personal progress in the Profile tab")
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+    // MARK: - Not Authenticated View
+    private var notAuthenticatedView: some View {
+        VStack(spacing: 24) {
+            Spacer()
+            
+            Image(systemName: "gamecontroller.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.secondary)
+            
+            Text("Game Center Required")
+                .font(.title2)
+                .fontWeight(.bold)
+            
+            Text("Sign in to Game Center to view leaderboards and compete with other players")
                 .multilineTextAlignment(.center)
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 40)
             
-            HStack(spacing: 20) {
-                localStatCard(
-                    title: "Your Best",
-                    subtitle: "Personal Stats",
-                    icon: "person.crop.circle"
-                )
-                
-                localStatCard(
-                    title: "Offline Mode",
-                    subtitle: "No Data Collection",
-                    icon: "shield.checkered"
-                )
-                
-                localStatCard(
-                    title: "Private Play",
-                    subtitle: "Your Device Only",
-                    icon: "lock.circle"
-                )
+            Button(action: {
+                Task {
+                    await gameCenterManager.authenticateLocalPlayer()
+                }
+            }) {
+                HStack {
+                    Image(systemName: "person.circle")
+                    Text("Sign In to Game Center")
+                }
+                .font(.headline)
+                .foregroundColor(colorScheme == .dark ? .black : .white)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 12)
+                .background(Color.accentColor)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
+            
+            Spacer()
         }
-        .padding(.top, 20)
     }
     
-    private func localStatCard(title: String, subtitle: String, icon: String) -> some View {
-        VStack(spacing: 8) {
-            Image(systemName: icon)
-                .font(.title3)
-                .foregroundStyle(.secondary)
-            
-            VStack(spacing: 2) {
-                Text(title)
-                    .font(.caption.bold())
-                    .foregroundStyle(.primary)
-                
-                Text(subtitle)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
+    // MARK: - Scope Selector
+    private var scopeSelector: some View {
+        VStack(spacing: 12) {
+            // Player Scope
+            Picker("Scope", selection: $selectedScope) {
+                Text("Global").tag(GKLeaderboard.PlayerScope.global)
+                Text("Friends").tag(GKLeaderboard.PlayerScope.friendsOnly)
             }
-            .multilineTextAlignment(.center)
+            .pickerStyle(SegmentedPickerStyle())
+            .onChange(of: selectedScope) { _ in
+                Task {
+                    await loadLeaderboard()
+                }
+            }
+            
+            // Time Scope
+            Picker("Time", selection: $selectedTime) {
+                Text("Today").tag(GKLeaderboard.TimeScope.today)
+                Text("Week").tag(GKLeaderboard.TimeScope.week)
+                Text("All Time").tag(GKLeaderboard.TimeScope.allTime)
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .onChange(of: selectedTime) { _ in
+                Task {
+                    await loadLeaderboard()
+                }
+            }
         }
-        .frame(maxWidth: .infinity)
+    }
+    
+    // MARK: - Leaderboard List
+    private var leaderboardList: some View {
+        ScrollView {
+            LazyVStack(spacing: 8) {
+                ForEach(Array(leaderboardEntries.enumerated()), id: \.element.id) { index, entry in
+                    LeaderboardRow(
+                        entry: entry,
+                        rank: entry.rank,
+                        isCurrentPlayer: entry.isLocalPlayer
+                    )
+                    .padding(.horizontal)
+                }
+            }
+            .padding(.vertical)
+        }
+    }
+    
+    // MARK: - Empty State
+    private var emptyStateView: some View {
+        VStack(spacing: 16) {
+            Spacer()
+            
+            Image(systemName: "trophy.fill")
+                .font(.system(size: 50))
+                .foregroundColor(.secondary)
+            
+            Text("No Scores Yet")
+                .font(.headline)
+            
+            Text("Be the first to set a score!")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+            
+            Spacer()
+        }
+    }
+    
+    // MARK: - Helper Methods
+    private func authenticateAndLoadLeaderboard() async {
+        if !gameCenterManager.isAuthenticated {
+            await gameCenterManager.authenticateLocalPlayer()
+        }
+        
+        if gameCenterManager.isAuthenticated {
+            await loadLeaderboard()
+        }
+    }
+    
+    private func loadLeaderboard() async {
+        isLoading = true
+        
+        // Fetch leaderboard scores
+        let entries = await gameCenterManager.fetchLeaderboardScores(
+            leaderboardID: leaderboardID,
+            scope: selectedScope,
+            timeScope: selectedTime,
+            range: NSRange(location: 1, length: 50)
+        )
+        
+        await MainActor.run {
+            self.leaderboardEntries = entries
+            self.isLoading = false
+        }
+    }
+}
+
+// MARK: - Leaderboard Row Component
+struct LeaderboardRow: View {
+    let entry: LeaderboardEntry
+    let rank: Int
+    let isCurrentPlayer: Bool
+    
+    private let colors = ColorSystem.shared
+    @Environment(\.colorScheme) private var colorScheme
+    
+    var body: some View {
+        HStack(spacing: 16) {
+            // Rank
+            ZStack {
+                Circle()
+                    .fill(rankColor)
+                    .frame(width: 40, height: 40)
+                
+                if rank <= 3 {
+                    Image(systemName: rankIcon)
+                        .font(.system(size: 20))
+                        .foregroundColor(.white)
+                } else {
+                    Text("\(rank)")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.white)
+                }
+            }
+            
+            // Player name
+            VStack(alignment: .leading, spacing: 2) {
+                Text(entry.displayName)
+                    .font(.system(size: 16, weight: isCurrentPlayer ? .bold : .medium))
+                    .foregroundColor(.primary)
+                
+                if isCurrentPlayer {
+                    Text("You")
+                        .font(.caption)
+                        .foregroundColor(.accentColor)
+                }
+            }
+            
+            Spacer()
+            
+            // Score
+            Text("\(entry.score)")
+                .font(.system(size: 18, weight: .semibold, design: .rounded))
+                .foregroundColor(isCurrentPlayer ? .accentColor : .primary)
+        }
         .padding(.vertical, 12)
+        .padding(.horizontal, 16)
         .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(adaptiveCardBackground)
-                .stroke(adaptiveCardBorder, lineWidth: 0.5)
+            RoundedRectangle(cornerRadius: 12)
+                .fill(isCurrentPlayer ?
+                    Color.accentColor.opacity(0.1) :
+                    colors.secondaryBackground(for: colorScheme))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 12)
+                .stroke(isCurrentPlayer ? Color.accentColor.opacity(0.3) : Color.clear, lineWidth: 2)
         )
     }
     
-    // MARK: - Platform-Adaptive Colors
-    
-    private var adaptiveHeaderBackground: Color {
-        #if os(iOS)
-        return Color(.systemBackground)
-        #else
-        return Color(NSColor.controlBackgroundColor)
-        #endif
+    private var rankColor: Color {
+        switch rank {
+        case 1: return .yellow
+        case 2: return Color(white: 0.6)
+        case 3: return .orange
+        default: return .accentColor
+        }
     }
     
-    private var adaptiveCardBackground: Color {
-        colorScheme == .dark ? Color(white: 0.15) : Color(white: 0.97)
-    }
-    
-    private var adaptiveCardBorder: Color {
-        colorScheme == .dark ? Color(white: 0.25) : Color(white: 0.9)
+    private var rankIcon: String {
+        switch rank {
+        case 1: return "trophy.fill"
+        case 2: return "medal.fill"
+        case 3: return "rosette"
+        default: return ""
+        }
     }
 }
 
-// MARK: - Preview
-
-#Preview {
-    LeaderboardView()
-        .preferredColorScheme(.dark)
-}
-
-#Preview("Light Mode") {
-    LeaderboardView()
-        .preferredColorScheme(.light)
+// MARK: - Update GameCenterManager LeaderboardIDs
+extension GameCenterManager {
+    struct UpdatedLeaderboardIDs {
+        // Update these with your actual App Store Connect IDs
+        static let totalScore = "grp.decodey.alltime" // Your actual ID
+        static let dailyScore = "grp.decodey.daily"   // If you have daily
+        static let winStreak = "grp.decodey.streak"   // If you have streak
+    }
 }

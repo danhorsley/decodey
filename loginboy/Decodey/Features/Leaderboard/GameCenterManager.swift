@@ -15,10 +15,11 @@ class GameCenterManager: ObservableObject {
     
     // Leaderboard IDs
     struct LeaderboardIDs {
-        static let dailyScore = "com.yourcompany.decodey.daily_scores"
-        static let totalScore = "com.yourcompany.decodey.total_score"
-        static let winStreak = "com.yourcompany.decodey.win_streak"
-    }
+            // Update these with your actual App Store Connect IDs
+            static let totalScore = "alltime" // Your actual ID here
+           /* static let dailyScore = "grp.decodey.daily"*/   // If you have daily
+          /*  static let winStreak = "grp.decodey.streak"*/   // If you have streak
+        }
     
     private init() {
         localPlayer = GKLocalPlayer.local
@@ -82,17 +83,31 @@ class GameCenterManager: ObservableObject {
     
     // MARK: - Convenience Methods
     
-    func submitDailyScore(_ score: Int) async {
-        await submitScore(score, to: LeaderboardIDs.dailyScore)
-    }
+//    func submitDailyScore(_ score: Int) async {
+//        await submitScore(score, to: LeaderboardIDs.dailyScore)
+//    }
     
     func submitTotalScore(_ score: Int) async {
-        await submitScore(score, to: LeaderboardIDs.totalScore)
+        guard isAuthenticated else {
+            print("❌ Cannot submit score - not authenticated")
+            return
+        }
+        
+        do {
+            try await GKLeaderboard.submitScore(
+                score,
+                context: 0,
+                player: GKLocalPlayer.local,
+                leaderboardIDs: [LeaderboardIDs.totalScore]
+            )
+            print("✅ Score submitted: \(score) to all-time leaderboard")
+        } catch {
+            print("❌ Failed to submit score: \(error.localizedDescription)")
+        }
     }
-    
-    func submitWinStreak(_ streak: Int) async {
-        await submitScore(streak, to: LeaderboardIDs.winStreak)
-    }
+//    func submitWinStreak(_ streak: Int) async {
+//        await submitScore(streak, to: LeaderboardIDs.winStreak)
+//    }
     
     // MARK: - Leaderboard Data (Pure GameKit)
     
