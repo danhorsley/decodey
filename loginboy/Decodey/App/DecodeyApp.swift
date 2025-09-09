@@ -1,4 +1,5 @@
 import SwiftUI
+import GameKit
 
 @main
 struct decodeyApp: App {
@@ -6,6 +7,8 @@ struct decodeyApp: App {
     
     @State private var isInitializing = true
     @StateObject private var settingsState = SettingsState.shared
+    @StateObject private var authManager = AuthenticationManager.shared
+    @StateObject private var gameCenterManager = GameCenterManager.shared
     
     var body: some Scene {
         WindowGroup {
@@ -16,9 +19,11 @@ struct decodeyApp: App {
                     }
             } else {
                 MainView()
-                               .environment(\.managedObjectContext, coreData.mainContext)
-                               .environmentObject(settingsState)  // ADD THIS
-                               .preferredColorScheme(settingsState.isDarkMode ? .dark : .light)
+                    .environment(\.managedObjectContext, coreData.mainContext)
+                    .environmentObject(settingsState)
+                    .environmentObject(authManager)  // Add this
+                    .environmentObject(gameCenterManager)  // Add this
+                    .preferredColorScheme(settingsState.isDarkMode ? .dark : .light)
             }
         }
     }
@@ -26,7 +31,16 @@ struct decodeyApp: App {
     private func initializeApp() async {
         print("🚀 Starting app...")
         
+        // Load quotes
         await LocalQuoteManager.shared.loadQuotesIfNeeded()
+        
+        // Check Apple Sign In status
+        authManager.checkAuthenticationStatus()
+        
+        // Initialize Game Center (this sets up the handler)
+        await MainActor.run {
+            gameCenterManager.setupAuthentication()
+        }
         
         // Debug what happened
         LocalQuoteManager.shared.debugPrint()
@@ -39,6 +53,8 @@ struct decodeyApp: App {
         }
         
         print("✅ App ready")
+        print("📱 Apple Sign In: \(authManager.isAuthenticated ? "Yes" : "No")")
+        print("🎮 Game Center Available: \(gameCenterManager.isGameCenterAvailable ? "Yes" : "No")")
     }
 }
 

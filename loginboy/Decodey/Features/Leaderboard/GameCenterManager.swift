@@ -13,80 +13,112 @@ class GameCenterManager: ObservableObject {
     @Published var isGameCenterAvailable = false
     @Published var showingGameCenter = false
     
-    // Leaderboard IDs
+    // Store the view controller for iOS
+    #if os(iOS)
+    private var authenticationViewController: UIViewController?
+    #endif
+    
+    // Leaderboard IDs - just one for simplicity
     struct LeaderboardIDs {
-            // Update these with your actual App Store Connect IDs
-            static let totalScore = "alltime" // Your actual ID here
-           /* static let dailyScore = "grp.decodey.daily"*/   // If you have daily
-          /*  static let winStreak = "grp.decodey.streak"*/   // If you have streak
-        }
+        static let totalScore = "grp.decodey.alltime"  // Your actual ID
+    }
     
     private init() {
         localPlayer = GKLocalPlayer.local
+        // Don't call setupAuthentication here - let the app do it
     }
     
-    // MARK: - Cross-Platform Authentication
-    
-    func authenticateLocalPlayer() async {
+    // MARK: - Setup authentication handler (call from app init)
+    func setupAuthentication() {
         let localPlayer = GKLocalPlayer.local
         
-        // Use the unified approach that works on both platforms
-        localPlayer.authenticateHandler = { viewController, error in
+        localPlayer.authenticateHandler = { [weak self] viewController, error in
+            guard let self = self else { return }
+            
             Task { @MainActor in
-                if let error = error {
-                    self.isAuthenticated = false
-                    self.isGameCenterAvailable = false
-                    print("❌ Game Center error: \(error.localizedDescription)")
+                if let viewController = viewController {
+                    // Game Center wants to show sign-in UI
+                    #if os(iOS)
+                    self.authenticationViewController = viewController
+                    self.presentAuthenticationViewController()
+                    #endif
                 } else if localPlayer.isAuthenticated {
+                    // Successfully authenticated
                     self.isAuthenticated = true
                     self.localPlayer = localPlayer
                     self.playerDisplayName = localPlayer.displayName
                     self.isGameCenterAvailable = true
                     print("✅ Game Center authenticated: \(self.playerDisplayName)")
                     self.configureAccessPoint()
-                } else {
+                } else if let error = error {
+                    // Authentication failed
                     self.isAuthenticated = false
                     self.isGameCenterAvailable = false
-                    print("❌ Game Center authentication failed")
+                    print("❌ Game Center error: \(error.localizedDescription)")
+                } else {
+                    // Not authenticated and no UI to show
+                    self.isAuthenticated = false
+                    self.isGameCenterAvailable = true // But available to try again
+                    print("⚠️ Game Center not authenticated, but available")
                 }
             }
         }
     }
     
-    private func configureAccessPoint() {
-        // Configure the Game Center access point (works on both platforms)
-        GKAccessPoint.shared.location = .topTrailing
-        GKAccessPoint.shared.showHighlights = true
-        GKAccessPoint.shared.isActive = isAuthenticated
+    // MARK: - Present authentication view controller (iOS)
+    #if os(iOS)
+    private func presentAuthenticationViewController() {
+        guard let viewController = authenticationViewController else { return }
+        
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootViewController = windowScene.windows.first?.rootViewController {
+            
+            // Find the topmost view controller
+            var topController = rootViewController
+            while let presented = topController.presentedViewController {
+                topController = presented
+            }
+            
+            // Present Game Center sign-in
+            topController.present(viewController, animated: true) {
+                self.authenticationViewController = nil
+            }
+        }
     }
+    #endif
     
-    // MARK: - Score Submission (Pure GameKit)
-    
-    func submitScore(_ score: Int, to leaderboardID: String, context: Int = 0) async {
-        guard isAuthenticated else {
-            print("❌ Cannot submit score - not authenticated")
+    // MARK: - Manual authentication trigger (for button press)
+    func authenticateLocalPlayer() async {
+        #if os(iOS)
+        // If we have a stored view controller, present it
+        if let _ = authenticationViewController {
+            presentAuthenticationViewController()
             return
         }
+        #endif
         
-        do {
-            try await GKLeaderboard.submitScore(
-                score,
-                context: context,
-                player: GKLocalPlayer.local,
-                leaderboardIDs: [leaderboardID]
-            )
-            print("✅ Score submitted: \(score) to \(leaderboardID)")
-        } catch {
-            print("❌ Failed to submit score: \(error.localizedDescription)")
+        // If not authenticated, try opening Game Center settings
+        if !isAuthenticated {
+            #if os(iOS)
+            // Open Game Center app/settings
+            if let url = URL(string: "gamecenter:") {
+                await UIApplication.shared.open(url)
+            }
+            #elseif os(macOS)
+            // On macOS, the authentication handler should have shown the dialog
+            print("Please sign in to Game Center via System Settings")
+            #endif
         }
     }
     
-    // MARK: - Convenience Methods
+    private func configureAccessPoint() {
+        // Configure the Game Center access point
+        GKAccessPoint.shared.location = .topTrailing
+        GKAccessPoint.shared.showHighlights = true
+        GKAccessPoint.shared.isActive = false // Don't show the access point overlay for now
+    }
     
-//    func submitDailyScore(_ score: Int) async {
-//        await submitScore(score, to: LeaderboardIDs.dailyScore)
-//    }
-    
+    // MARK: - Submit score
     func submitTotalScore(_ score: Int) async {
         guard isAuthenticated else {
             print("❌ Cannot submit score - not authenticated")
@@ -105,9 +137,7 @@ class GameCenterManager: ObservableObject {
             print("❌ Failed to submit score: \(error.localizedDescription)")
         }
     }
-//    func submitWinStreak(_ streak: Int) async {
-//        await submitScore(streak, to: LeaderboardIDs.winStreak)
-//    }
+
     
     // MARK: - Leaderboard Data (Pure GameKit)
     

@@ -5,6 +5,8 @@ struct MainView: View {
     @StateObject private var userState = UserState.shared
     @StateObject private var settingsState = SettingsState.shared
     @StateObject private var soundManager = SoundManager.shared
+    @EnvironmentObject var authManager: AuthenticationManager  // Add
+    @EnvironmentObject var gameCenterManager: GameCenterManager  // Add
     
     @State private var showingHomeScreen = true
     
@@ -16,38 +18,13 @@ struct MainView: View {
                         showingHomeScreen = false
                     }
                 }
+                .environmentObject(authManager)  // Pass through
+                .environmentObject(gameCenterManager)  // Pass through
                 .transition(.opacity)
             } else {
                 // Main game interface
                 VStack(spacing: 0) {
-                    // Top bar with user info and settings
-//                    HStack {
-//                        // User info
-//                        if userState.isSignedIn {
-//                            VStack(alignment: .leading, spacing: 2) {
-//                                Text(userState.playerName)
-//                                    .font(.headline)
-//                                    .foregroundColor(.primary)
-//                                
-//                                Text("Score: \(userState.totalScore)")
-//                                    .font(.caption)
-//                                    .foregroundColor(.secondary)
-//                            }
-//                        }
-//                        
-//                        Spacer()
-//                        
-//                        // Settings button
-//                        Button(action: {
-//                            // Show settings
-//                        }) {
-//                            Image(systemName: "gear")
-//                                .font(.title2)
-//                                .foregroundColor(.primary)
-//                        }
-//                    }
-//                    .padding()
-//                    .background(Material.regularMaterial)
+
                     
                     // Game content
                     TabView {
