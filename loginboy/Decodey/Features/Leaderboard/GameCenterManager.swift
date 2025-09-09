@@ -20,7 +20,7 @@ class GameCenterManager: ObservableObject {
     
     // Leaderboard IDs - just one for simplicity
     struct LeaderboardIDs {
-        static let totalScore = "grp.decodey.alltime"  // Your actual ID
+        static let totalScore = "alltime"  // Your actual ID
     }
     
     private init() {
@@ -118,6 +118,26 @@ class GameCenterManager: ObservableObject {
         GKAccessPoint.shared.isActive = false // Don't show the access point overlay for now
     }
     
+    func debugListAllLeaderboards() async {
+        print("🔍 Searching for all leaderboards...")
+        
+        do {
+            // This will fetch ALL leaderboards configured for your app
+            let leaderboards = try await GKLeaderboard.loadLeaderboards()
+            
+            print("📋 Found \(leaderboards.count) leaderboard(s):")
+            for leaderboard in leaderboards {
+                print("   - ID: \(leaderboard.baseLeaderboardID)")
+                print("   - Title: \(leaderboard.title ?? "No title")")
+            }
+            
+            if leaderboards.isEmpty {
+                print("❌ No leaderboards found - check App Store Connect configuration")
+            }
+        } catch {
+            print("❌ Error loading leaderboards: \(error)")
+        }
+    }
     // MARK: - Submit score
     func submitTotalScore(_ score: Int) async {
         guard isAuthenticated else {
@@ -364,3 +384,5 @@ struct GameCenterAuthenticationView: View {
         }
     }
 }
+
+

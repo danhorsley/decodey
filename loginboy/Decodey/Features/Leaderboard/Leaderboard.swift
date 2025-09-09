@@ -33,6 +33,10 @@ struct LeaderboardView: View {
             }
         }
         .task {
+            // Debug: List all available leaderboards
+            await gameCenterManager.debugListAllLeaderboards()
+            
+            // Then try to authenticate
             await authenticateAndLoadLeaderboard()
         }
         .sheet(isPresented: $showingGameCenterSheet) {
@@ -310,8 +314,8 @@ struct LeaderboardRow: View {
 extension GameCenterManager {
     struct UpdatedLeaderboardIDs {
         // Update these with your actual App Store Connect IDs
-        static let totalScore = "grp.decodey.alltime" // Your actual ID
-        static let dailyScore = "grp.decodey.daily"   // If you have daily
-        static let winStreak = "grp.decodey.streak"   // If you have streak
+        static let totalScore = "alltime" // Your actual ID
+//        static let dailyScore = "grp.decodey.daily"   // If you have daily
+//        static let winStreak = "grp.decodey.streak"   // If you have streak
     }
 }
