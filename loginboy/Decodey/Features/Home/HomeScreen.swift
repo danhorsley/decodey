@@ -127,6 +127,7 @@ struct HomeScreen: View {
                                     .clipShape(RoundedRectangle(cornerRadius: 12))
                                     .shadow(color: .cyan.opacity(0.5), radius: 8, x: 0, y: 4)
                                 }
+                                .buttonStyle(PlainButtonStyle())  // ADD THIS - removes default button styling
                                 .scaleEffect(buttonScale)
                                 .opacity(showButtons ? 1 : 0)
                                 .animation(.spring(response: 0.6, dampingFraction: 0.7), value: showButtons)
