@@ -11,6 +11,8 @@ struct HomeScreen: View {
     // Use UserState and AuthenticationManager
     @EnvironmentObject var userState: UserState
     @StateObject private var authManager = AuthenticationManager.shared
+    @StateObject private var gameCenterManager = GameCenterManager.shared
+    
     
     // Animation states
     @State private var showTitle = false
@@ -34,7 +36,22 @@ struct HomeScreen: View {
     
     // Simple login sheet - REMOVED, using Apple Sign In instead
     // @State private var showNameEntry = false
+    
     // @State private var playerName = ""
+    private var displayName: String {
+            // Priority order:
+            // 1. Game Center name (if authenticated)
+            // 2. Apple Sign In name
+            // 3. Default "Player"
+            
+            if gameCenterManager.isAuthenticated && !gameCenterManager.playerDisplayName.isEmpty {
+                return gameCenterManager.playerDisplayName
+            } else if authManager.isAuthenticated && !authManager.userName.isEmpty {
+                return authManager.userName
+            } else {
+                return "Player"
+            }
+        }
     
     var body: some View {
         GeometryReader { geometry in
@@ -115,8 +132,9 @@ struct HomeScreen: View {
                                 .animation(.spring(response: 0.6, dampingFraction: 0.7), value: showButtons)
                                 
                                 // Show user info
+                                
                                 VStack(spacing: 8) {
-                                    Text("Welcome back, \(authManager.userName.isEmpty ? "Player" : authManager.userName)!")
+                                    Text("Welcome back, \(displayName)!")
                                         .font(.system(size: 18, weight: .medium, design: .monospaced))
                                         .foregroundColor(.green)
                                     

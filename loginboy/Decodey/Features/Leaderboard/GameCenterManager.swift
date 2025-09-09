@@ -43,13 +43,21 @@ class GameCenterManager: ObservableObject {
                     self.presentAuthenticationViewController()
                     #endif
                 } else if localPlayer.isAuthenticated {
-                    // Successfully authenticated
-                    self.isAuthenticated = true
-                    self.localPlayer = localPlayer
-                    self.playerDisplayName = localPlayer.displayName
-                    self.isGameCenterAvailable = true
-                    print("✅ Game Center authenticated: \(self.playerDisplayName)")
-                    self.configureAccessPoint()
+                    print("   ✅ AUTHENTICATED!")
+                    print("   - Player ID: \(localPlayer.gamePlayerID)")
+                    print("   - Display Name: \(localPlayer.displayName)")
+                    print("   - Alias: \(localPlayer.alias)")
+                    
+                    Task { @MainActor in
+                        self.isAuthenticated = true
+                        self.localPlayer = localPlayer
+                        // Use alias if display name is empty
+                        self.playerDisplayName = localPlayer.displayName.isEmpty ? localPlayer.alias : localPlayer.displayName
+                        self.isGameCenterAvailable = true
+                        
+                        // Test: Try to load leaderboards immediately
+//                        await self.testLeaderboardAccess()
+                    }
                 } else if let error = error {
                     // Authentication failed
                     self.isAuthenticated = false
@@ -140,8 +148,14 @@ class GameCenterManager: ObservableObject {
     }
     // MARK: - Submit score
     func submitTotalScore(_ score: Int) async {
+        print("\n🎮 === SUBMITTING SCORE TO GAME CENTER ===")
+        print("   Score to submit: \(score)")
+        print("   Is authenticated: \(isAuthenticated)")
+        print("   Player: \(playerDisplayName)")
+        print("   Leaderboard ID: \(LeaderboardIDs.totalScore)")
+        
         guard isAuthenticated else {
-            print("❌ Cannot submit score - not authenticated")
+            print("   ❌ Cannot submit - not authenticated")
             return
         }
         
@@ -152,10 +166,14 @@ class GameCenterManager: ObservableObject {
                 player: GKLocalPlayer.local,
                 leaderboardIDs: [LeaderboardIDs.totalScore]
             )
-            print("✅ Score submitted: \(score) to all-time leaderboard")
+            print("   ✅ SCORE SUBMITTED SUCCESSFULLY!")
+            print("   Submitted \(score) points to leaderboard 'alltime'")
         } catch {
-            print("❌ Failed to submit score: \(error.localizedDescription)")
+            print("   ❌ FAILED TO SUBMIT SCORE")
+            print("   Error: \(error)")
+            print("   Error details: \(error.localizedDescription)")
         }
+        print("=== END SCORE SUBMISSION ===\n")
     }
 
     
