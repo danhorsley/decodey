@@ -243,14 +243,17 @@ struct UserStatsView: View {
         // Calculate stats from local Core Data
         let context = coreData.mainContext
         
-//        guard userState.isAuthenticated, !userState.userId.isEmpty else {
-//            isLoading = false
-//            detailedStats = nil
-//            return
-//        }
+        // Use playerName instead of userId since we're using username as the identifier
+        let playerName = userState.playerName.isEmpty ? userState.username : userState.playerName
+        
+        guard !playerName.isEmpty else {
+            isLoading = false
+            detailedStats = nil
+            return
+        }
         
         do {
-            let stats = try calculateDetailedStats(context: context, userId: userState.userId)
+            let stats = try calculateDetailedStats(context: context, playerName: playerName)
             detailedStats = stats
             isLoading = false
         } catch {
@@ -259,18 +262,47 @@ struct UserStatsView: View {
         }
     }
     
-    private func calculateDetailedStats(context: NSManagedObjectContext, userId: String) throws -> DetailedUserStats {
-        // First, get the UserStatsCD for the totals (includes imported legacy stats)
+    private func calculateDetailedStats(context: NSManagedObjectContext, playerName: String) throws -> DetailedUserStats {
+        // First, get the UserStatsCD for the totals using username
         let userFetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
-        userFetchRequest.predicate = NSPredicate(format: "userId == %@", userId)
+        // Changed from userId to username
+        userFetchRequest.predicate = NSPredicate(format: "username == %@", playerName)
         
         let users = try context.fetch(userFetchRequest)
-        guard let user = users.first else {
-            throw NSError(domain: "UserStatsView", code: 1, userInfo: [NSLocalizedDescriptionKey: "User not found"])
+        
+        // If no user found, try with displayName as fallback
+        let user: UserCD?
+        if let foundUser = users.first {
+            user = foundUser
+        } else {
+            // Try displayName as fallback
+            userFetchRequest.predicate = NSPredicate(format: "displayName == %@", playerName)
+            let usersWithDisplayName = try context.fetch(userFetchRequest)
+            user = usersWithDisplayName.first
+        }
+        
+        // If still no user, create empty stats
+        guard let validUser = user else {
+            print("⚠️ No user found for: \(playerName), returning empty stats")
+            return DetailedUserStats(
+                totalGamesPlayed: 0,
+                gamesWon: 0,
+                totalScore: 0,
+                winPercentage: 0,
+                averageScore: 0,
+                averageTime: 0,
+                currentStreak: 0,
+                bestStreak: 0,
+                lastPlayedDate: nil,
+                weeklyStats: WeeklyStats(gamesPlayed: 0, totalScore: 0),
+                topScores: [],
+                dailyGamesCompleted: 0,
+                customGamesCompleted: 0
+            )
         }
         
         // Get the stored stats (this includes imported legacy games)
-        let userStats = user.stats
+        let userStats = validUser.stats
         let totalGamesPlayed = Int(userStats?.gamesPlayed ?? 0)
         let gamesWon = Int(userStats?.gamesWon ?? 0)
         let totalScore = Int(userStats?.totalScore ?? 0)
@@ -285,10 +317,39 @@ struct UserStatsView: View {
         
         // Now get actual game records for detailed breakdowns (top scores, weekly stats, etc.)
         let gameFetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
-        gameFetchRequest.predicate = NSPredicate(format: "user.userId == %@ AND (hasWon == YES OR hasLost == YES)", userId)
+        
+        // FIXED: Use username instead of userId for the predicate
+        // Also check for games without a user association (orphaned games from the same player)
+        let userPredicate = NSPredicate(format: "user.username == %@", playerName)
+        let displayNamePredicate = NSPredicate(format: "user.displayName == %@", playerName)
+        let userIdPredicate = NSPredicate(format: "user.userId == %@", playerName)
+        
+        // Combine predicates to catch all possible games
+        let combinedUserPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: [
+            userPredicate,
+            displayNamePredicate,
+            userIdPredicate
+        ])
+        
+        // Only completed games
+        let completedPredicate = NSPredicate(format: "(hasWon == YES OR hasLost == YES)")
+        
+        // Final predicate
+        gameFetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            combinedUserPredicate,
+            completedPredicate
+        ])
+        
         gameFetchRequest.sortDescriptors = [NSSortDescriptor(key: "lastUpdateTime", ascending: false)]
         
         let completedGames = try context.fetch(gameFetchRequest)
+        
+        print("📊 Found \(completedGames.count) completed games for \(playerName)")
+        
+        // Debug: Print first few games to verify scores
+        for (index, game) in completedGames.prefix(3).enumerated() {
+            print("  Game \(index + 1): Score = \(game.score), Won = \(game.hasWon), Date = \(game.lastUpdateTime ?? Date())")
+        }
         
         // Calculate weekly stats from actual games
         let oneWeekAgo = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date()) ?? Date()
@@ -296,10 +357,17 @@ struct UserStatsView: View {
             guard let updateTime = game.lastUpdateTime else { return false }
             return updateTime > oneWeekAgo
         }
-        let weeklyTotalScore = weeklyGames.reduce(0) { $0 + Int($1.score) }
         
-        // Get top scores from actual games
+        // Calculate weekly total score properly
+        let weeklyTotalScore = weeklyGames.reduce(0) { total, game in
+            total + Int(game.score)
+        }
+        
+        print("📊 Weekly stats: \(weeklyGames.count) games, total score: \(weeklyTotalScore)")
+        
+        // Get top scores from actual games (filter out zero scores)
         let topScores = completedGames
+            .filter { $0.score > 0 }  // Only include games with actual scores
             .sorted { $0.score > $1.score }
             .prefix(5)
             .map { game in
@@ -312,9 +380,52 @@ struct UserStatsView: View {
                 )
             }
         
+        print("📊 Top scores count: \(topScores.count)")
+        if let highScore = topScores.first {
+            print("  Highest score: \(highScore.score)")
+        }
+        
         // Game type breakdown from actual games
         let dailyGames = completedGames.filter { $0.isDaily }.count
         let customGames = completedGames.count - dailyGames
+        
+        // If UserStatsCD totals are less than actual games, update them
+        if completedGames.count > totalGamesPlayed {
+            print("⚠️ Warning: Found more games (\(completedGames.count)) than UserStatsCD shows (\(totalGamesPlayed))")
+            
+            // Recalculate totals from actual games
+            let actualGamesWon = completedGames.filter { $0.hasWon }.count
+            let actualTotalScore = completedGames.reduce(0) { $0 + Int($1.score) }
+            
+            // You might want to update UserStatsCD here
+            if let stats = userStats {
+                stats.gamesPlayed = Int32(completedGames.count)
+                stats.gamesWon = Int32(actualGamesWon)
+                stats.totalScore = Int32(actualTotalScore)
+                try? context.save()
+                print("✅ Updated UserStatsCD with correct totals")
+            }
+            
+            // Use the recalculated values
+            return DetailedUserStats(
+                totalGamesPlayed: completedGames.count,
+                gamesWon: actualGamesWon,
+                totalScore: actualTotalScore,
+                winPercentage: completedGames.count > 0 ? (Double(actualGamesWon) / Double(completedGames.count)) * 100 : 0,
+                averageScore: completedGames.count > 0 ? Double(actualTotalScore) / Double(completedGames.count) : 0,
+                averageTime: averageTime,
+                currentStreak: currentStreak,
+                bestStreak: bestStreak,
+                lastPlayedDate: lastPlayedDate ?? completedGames.first?.lastUpdateTime,
+                weeklyStats: WeeklyStats(
+                    gamesPlayed: weeklyGames.count,
+                    totalScore: weeklyTotalScore
+                ),
+                topScores: Array(topScores),
+                dailyGamesCompleted: dailyGames,
+                customGamesCompleted: customGames
+            )
+        }
         
         return DetailedUserStats(
             totalGamesPlayed: totalGamesPlayed, // From UserStatsCD (includes imports)

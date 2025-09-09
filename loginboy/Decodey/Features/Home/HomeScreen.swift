@@ -1,13 +1,16 @@
+// HomeScreen.swift - Modified to add Apple Sign In while keeping all your effects
 import SwiftUI
 import Combine
+import AuthenticationServices
 
 struct HomeScreen: View {
     // Callback for when the welcome animation completes
     let onBegin: () -> Void
     var onShowLogin: (() -> Void)? = nil
     
-    // Use UserState instead of AuthenticationCoordinator
+    // Use UserState and AuthenticationManager
     @EnvironmentObject var userState: UserState
+    @StateObject private var authManager = AuthenticationManager.shared
     
     // Animation states
     @State private var showTitle = false
@@ -17,6 +20,7 @@ struct HomeScreen: View {
     @State private var codeRain = true
     @State private var pulseEffect = false
     @State private var buttonScale: CGFloat = 1.0
+    @State private var showingPlayWithoutSignInAlert = false
     
     // For the code rain effect
     @State private var columns: [CodeColumn] = []
@@ -28,9 +32,9 @@ struct HomeScreen: View {
     // Timer publisher for continuous animations
     @State private var timerCancellable: AnyCancellable?
     
-    // Simple login sheet
-    @State private var showNameEntry = false
-    @State private var playerName = ""
+    // Simple login sheet - REMOVED, using Apple Sign In instead
+    // @State private var showNameEntry = false
+    // @State private var playerName = ""
     
     var body: some View {
         GeometryReader { geometry in
@@ -76,65 +80,107 @@ struct HomeScreen: View {
                     
                     // Buttons section
                     VStack(spacing: 20) {
-                        // Main play button
-                        Button(action: {
-                            SoundManager.shared.play(.letterClick)
-                            
-                            // If not signed in, show name entry
-                            if !userState.isSignedIn {
-                                showNameEntry = true
-                            } else {
-                                onBegin()
-                            }
-                        }) {
-                            HStack {
-                                Text(userState.isSignedIn ? "START DECODING" : "ENTER GAME")
-                                    .font(.system(size: 18, weight: .bold, design: .monospaced))
-                                    .tracking(2)
-                                
-                                Image(systemName: "chevron.right")
-                                    .font(.system(size: 14, weight: .bold))
-                            }
-                            .foregroundColor(.black)
-                            .padding(.horizontal, 32)
-                            .padding(.vertical, 16)
-                            .background(
-                                LinearGradient(
-                                    colors: [.cyan, .green],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                            .shadow(color: .cyan.opacity(0.5), radius: 8, x: 0, y: 4)
-                        }
-                        .scaleEffect(buttonScale)
-                        .opacity(showButtons ? 1 : 0)
-                        .animation(.spring(response: 0.6, dampingFraction: 0.7), value: showButtons)
-                        
-                        // If already signed in, show user info and sign out option
-                        if userState.isSignedIn {
-                            VStack(spacing: 8) {
-                                Text("Welcome back, \(userState.playerName)!")
-                                    .font(.system(size: 18, weight: .medium, design: .monospaced))
-                                    .foregroundColor(.green)
-                                
+                        // Check if authenticated
+                        if authManager.isAuthenticated {
+                            // User is signed in - show START button
+                            VStack(spacing: 20) {
+                                // Main play button
                                 Button(action: {
-                                    userState.signOut()
+                                    SoundManager.shared.play(.letterClick)
+                                    onBegin()
                                 }) {
-                                    Text("Sign Out")
-                                        .font(.system(size: 14, weight: .medium))
-                                        .foregroundColor(.white.opacity(0.7))
-                                        .padding(.horizontal, 20)
-                                        .padding(.vertical, 8)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 6)
-                                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                    HStack {
+                                        Text("START DECODING")
+                                            .font(.system(size: 18, weight: .bold, design: .monospaced))
+                                            .tracking(2)
+                                        
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 14, weight: .bold))
+                                    }
+                                    .foregroundColor(.black)
+                                    .padding(.horizontal, 32)
+                                    .padding(.vertical, 16)
+                                    .background(
+                                        LinearGradient(
+                                            colors: [.cyan, .green],
+                                            startPoint: .leading,
+                                            endPoint: .trailing
                                         )
+                                    )
+                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                                    .shadow(color: .cyan.opacity(0.5), radius: 8, x: 0, y: 4)
                                 }
+                                .scaleEffect(buttonScale)
+                                .opacity(showButtons ? 1 : 0)
+                                .animation(.spring(response: 0.6, dampingFraction: 0.7), value: showButtons)
+                                
+                                // Show user info
+                                VStack(spacing: 8) {
+                                    Text("Welcome back, \(authManager.userName.isEmpty ? "Player" : authManager.userName)!")
+                                        .font(.system(size: 18, weight: .medium, design: .monospaced))
+                                        .foregroundColor(.green)
+                                    
+                                    Button(action: {
+                                        authManager.signOut()
+                                    }) {
+                                        Text("Sign Out")
+                                            .font(.system(size: 14, weight: .medium))
+                                            .foregroundColor(.white.opacity(0.7))
+                                            .padding(.horizontal, 20)
+                                            .padding(.vertical, 8)
+                                            .background(
+                                                RoundedRectangle(cornerRadius: 6)
+                                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                            )
+                                    }
+                                }
+                                .opacity(showButtons ? 1 : 0)
+                                .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.2), value: showButtons)
                             }
-                            .opacity(showButtons ? 0.8 : 0)
-                            .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.2), value: showButtons)
+                            
+                        } else {
+                            // User is NOT signed in - show Apple Sign In
+                            VStack(spacing: 16) {
+                                // Info text
+                                Text("Sign in to save your progress")
+                                    .font(.system(size: 14, weight: .medium, design: .monospaced))
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .opacity(showButtons ? 1 : 0)
+                                    .animation(.spring(response: 0.6, dampingFraction: 0.7), value: showButtons)
+                                
+                                // Apple Sign In Button with your styling
+                                SignInWithAppleButtonStyled()
+                                    .frame(height: 50)
+                                    .frame(maxWidth: 280)
+                                    .scaleEffect(buttonScale)
+                                    .opacity(showButtons ? 1 : 0)
+                                    .animation(.spring(response: 0.6, dampingFraction: 0.7), value: showButtons)
+                                
+                                // Optional: Play without signing in
+                                Button(action: {
+                                    showingPlayWithoutSignInAlert = true
+                                }) {
+                                    Text("Continue without account")
+                                        .font(.system(size: 12, weight: .medium, design: .monospaced))
+                                        .foregroundColor(.white.opacity(0.3))
+                                        .underline()
+                                }
+                                .opacity(showButtons ? 1 : 0)
+                                .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.3), value: showButtons)
+                                .confirmationDialog("Authentication Required", isPresented: $showingPlayWithoutSignInAlert, titleVisibility: .visible) {
+                                    Button("Sign in with Apple") {
+                                        authManager.signInWithApple()
+                                    }
+                                    Button("Continue without saving", role: .destructive) {
+                                        onBegin()
+                                    }
+                                    Button("Cancel", role: .cancel) { }
+                                } message: {
+                                    Text("Sign in to save your progress and track achievements")
+                                }
+                                .opacity(showButtons ? 1 : 0)
+                                .animation(.spring(response: 0.6, dampingFraction: 0.7).delay(0.3), value: showButtons)
+                            }
                         }
                     }
                     .padding(.bottom, 60)
@@ -162,19 +208,9 @@ struct HomeScreen: View {
                 timerCancellable?.cancel()
             }
         }
-        .sheet(isPresented: $showNameEntry) {
-            SimpleNameEntryView(
-                playerName: $playerName,
-                onSave: {
-                    userState.setPlayerName(playerName)
-                    showNameEntry = false
-                    onBegin()
-                }
-            )
-        }
     }
     
-    // MARK: - Helper Methods (keep existing animation code)
+    // MARK: - Keep all your existing helper methods unchanged
     
     private func randomCryptoChar() -> String {
         let chars = "!@#$%^&*(){}[]|\\:;\"'<>,.?/~`0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
@@ -230,12 +266,14 @@ struct HomeScreen: View {
             }
         }
     }
+    
     private func generateRandomChars() -> [String] {
         let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         return (0..<10).map { _ in
             String(characters.randomElement() ?? "X")
         }
     }
+    
     private func setupContinuousAnimations() {
         // Pulse effect for buttons
         timerCancellable = Timer.publish(every: 2.0, on: .main, in: .common)
@@ -249,35 +287,37 @@ struct HomeScreen: View {
     }
 }
 
-// Simple name entry view
-struct SimpleNameEntryView: View {
-    @Binding var playerName: String
-    let onSave: () -> Void
+// MARK: - Styled Sign In with Apple Button that matches your theme
+struct SignInWithAppleButtonStyled: View {
+    @StateObject private var authManager = AuthenticationManager.shared
     
     var body: some View {
-        VStack(spacing: 30) {
-            VStack(spacing: 10) {
-                Text("Enter Your Name")
-                    .font(.title2.bold())
-                    .foregroundColor(.primary)
+        Button(action: {
+            authManager.signInWithApple()
+        }) {
+            HStack(spacing: 8) {
+                Image(systemName: "applelogo")
+                    .font(.system(size: 18, weight: .medium))
                 
-                Text("This will be your player name")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                Text("Sign in with Apple")
+                    .font(.system(size: 18, weight: .semibold, design: .rounded))
             }
-            
-            TextField("Player Name", text: $playerName)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(.horizontal)
-            
-            Button("Start Playing") {
-                if !playerName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-                    onSave()
-                }
-            }
-            .disabled(playerName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-            .buttonStyle(.borderedProminent)
+            .foregroundColor(.black)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 14)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .shadow(color: .white.opacity(0.3), radius: 8, x: 0, y: 4)
         }
-        .padding()
+    }
+}
+
+// Alternative: Use the native Apple button if you prefer
+struct NativeAppleSignInButton: View {
+    var body: some View {
+        SignInWithAppleButton()
+            .signInWithAppleButtonStyle(.white)  // or .black based on your theme
+            .frame(height: 50)
+            .frame(maxWidth: 280)
     }
 }

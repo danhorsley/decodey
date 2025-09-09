@@ -389,46 +389,52 @@ class GameState: ObservableObject {
             gameUUID = UUID(uuidString: gameId) ?? UUID()
         }
         
-        // Try to find the existing game
+        // Try to find existing game
         let fetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
         fetchRequest.predicate = NSPredicate(format: "gameId == %@", gameUUID as CVarArg)
         
         do {
-            let existingGames = try context.fetch(fetchRequest)
+            let games = try context.fetch(fetchRequest)
+            let entity: GameCD
             
-            if let existingGame = existingGames.first {
-                // Update existing game
-                updateGameEntity(existingGame, from: game)
+            if let existingGame = games.first {
+                entity = existingGame
             } else {
-                // Create new game
-                let gameEntity = GameCD(context: context)
-                gameEntity.gameId = gameUUID
-                gameEntity.startTime = game.startTime
-                
-                // Set user relationship if available
-                if userManager.isSignedIn {
-                    let userFetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
-                    userFetchRequest.predicate = NSPredicate(format: "userId == %@", userManager.playerName)
-                    let users = try context.fetch(userFetchRequest)
-                    
-                    if let user = users.first {
-                        gameEntity.user = user
-                    }
-                }
-                
-                // Update with game data
-                updateGameEntity(gameEntity, from: game)
+                entity = GameCD(context: context)
+                entity.gameId = gameUUID
             }
             
+            // Update game data
+            updateGameEntity(entity, from: game)
+            
+            // IMPORTANT: Calculate and save the score
+            entity.score = Int32(game.calculateScore())
+            
+            // Associate with current user if signed in
+            if userManager.isSignedIn {
+                let userFetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
+                userFetchRequest.predicate = NSPredicate(format: "username == %@", userManager.playerName)
+                
+                if let users = try? context.fetch(userFetchRequest),
+                   let user = users.first {
+                    entity.user = user
+                }
+            }
+            
+            // Save the saved game reference
+            self.savedGame = game
+            
             try context.save()
+            print("✅ Game state saved with score: \(entity.score)")
+            
         } catch {
             print("Error saving game state: \(error.localizedDescription)")
         }
     }
     
     private func updateGameEntity(_ entity: GameCD, from game: GameModel) {
-        entity.solution = game.solution
         entity.encrypted = game.encrypted
+        entity.solution = game.solution
         entity.currentDisplay = game.currentDisplay
         entity.mistakes = Int16(game.mistakes)
         entity.maxMistakes = Int16(game.maxMistakes)
@@ -437,6 +443,10 @@ class GameState: ObservableObject {
         entity.lastUpdateTime = game.lastUpdateTime
         entity.isDaily = isDailyChallenge
         entity.difficulty = game.difficulty
+        entity.startTime = game.startTime
+        
+        // IMPORTANT: Always calculate and save the current score
+        entity.score = Int32(game.calculateScore())
         
         // Convert character mappings to JSON data for Core Data
         do {
@@ -454,6 +464,7 @@ class GameState: ObservableObject {
             print("Error encoding game mappings: \(error)")
         }
     }
+    
     
     // Helper functions for character dictionary conversions
     private func characterDictionaryToStringDictionary(_ dict: [Character: Character]) -> [String: String] {
@@ -556,51 +567,148 @@ class GameState: ObservableObject {
     
     /// Submit score for completed game
     func submitScore() {
-        guard let game = currentGame, game.hasWon || game.hasLost else { return }
-        guard userManager.isSignedIn else { return }
+        guard let game = currentGame, game.hasWon || game.hasLost else {
+            print("⚠️ Cannot submit score - no valid completed game")
+            return
+        }
+        
+        guard userManager.isSignedIn else {
+            print("⚠️ Cannot submit score - user not signed in")
+            return
+        }
         
         let context = coreData.mainContext
+        
+        // Calculate the score once
+        let finalScore = game.calculateScore()
+        let timeTaken = Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
+        
+        print("📊 Submitting score - Score: \(finalScore), Time: \(timeTaken)s, Won: \(game.hasWon)")
+        
+        // Use username for the predicate
         let userFetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
-        userFetchRequest.predicate = NSPredicate(format: "userId == %@", userManager.playerName)
+        userFetchRequest.predicate = NSPredicate(format: "username == %@", userManager.playerName)
         
         do {
             let users = try context.fetch(userFetchRequest)
             
-            if let user = users.first {
-                // Get or create stats
-                let stats: UserStatsCD
-                if let existingStats = user.stats {
-                    stats = existingStats
-                } else {
-                    stats = UserStatsCD(context: context)
-                    user.stats = stats
-                    stats.user = user
-                }
-                
-                // Calculate final values
-                let finalScore = game.calculateScore()
-                let timeTaken = Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
-                
-                // Update stats
-                stats.gamesPlayed += 1
-                if game.hasWon {
-                    stats.gamesWon += 1
-                    stats.currentStreak += 1
-                    if stats.currentStreak > stats.bestStreak {
-                        stats.bestStreak = stats.currentStreak
-                    }
-                    stats.totalScore += Int32(finalScore)
-                } else {
-                    stats.currentStreak = 0
-                }
-                
-                try context.save()
-                
-                // Refresh user manager stats
-                userManager.refreshStats()
+            let user: UserCD
+            if let existingUser = users.first {
+                user = existingUser
+            } else {
+                // Create user if doesn't exist
+                user = UserCD(context: context)
+                user.userId = UUID().uuidString
+                user.username = userManager.playerName
+                user.displayName = userManager.playerName
+                user.isActive = true
+                user.registrationDate = Date()
             }
+            
+            // Get or create stats
+            let stats: UserStatsCD
+            if let existingStats = user.stats {
+                stats = existingStats
+            } else {
+                stats = UserStatsCD(context: context)
+                user.stats = stats
+                stats.user = user
+            }
+            
+            // Update stats
+            stats.gamesPlayed += 1
+            if game.hasWon {
+                stats.gamesWon += 1
+                stats.currentStreak += 1
+                if stats.currentStreak > stats.bestStreak {
+                    stats.bestStreak = stats.currentStreak
+                }
+                stats.totalScore += Int32(finalScore)
+            } else {
+                stats.currentStreak = 0
+            }
+            
+            // Update averages
+            let oldMistakesTotal = stats.averageMistakes * Double(max(0, stats.gamesPlayed - 1))
+            stats.averageMistakes = (oldMistakesTotal + Double(game.mistakes)) / Double(stats.gamesPlayed)
+            
+            let oldTimeTotal = stats.averageTime * Double(max(0, stats.gamesPlayed - 1))
+            stats.averageTime = (oldTimeTotal + Double(timeTaken)) / Double(stats.gamesPlayed)
+            
+            stats.lastPlayedDate = Date()
+            
+            // Update the existing GameCD record with final score and user association
+            if let gameId = game.gameId {
+                let gameUUID: UUID
+                if gameId.hasPrefix("daily-") {
+                    let hash = abs(gameId.hashValue)
+                    let uuidString = String(format: "00000000-0000-0000-0000-%012d", hash % 1000000000000)
+                    gameUUID = UUID(uuidString: uuidString) ?? UUID()
+                } else {
+                    gameUUID = UUID(uuidString: gameId) ?? UUID()
+                }
+                
+                let gameFetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
+                gameFetchRequest.predicate = NSPredicate(format: "gameId == %@", gameUUID as CVarArg)
+                
+                if let games = try? context.fetch(gameFetchRequest),
+                   let gameEntity = games.first {
+                    // Update the existing game record
+                    gameEntity.score = Int32(finalScore)
+                    gameEntity.user = user
+                    gameEntity.hasWon = game.hasWon
+                    gameEntity.hasLost = game.hasLost
+                    print("✅ Updated existing game record with score: \(finalScore)")
+                } else {
+                    // Create new game record if it doesn't exist
+                    let gameEntity = GameCD(context: context)
+                    gameEntity.gameId = gameUUID
+                    gameEntity.encrypted = game.encrypted
+                    gameEntity.solution = game.solution
+                    gameEntity.currentDisplay = game.currentDisplay
+                    gameEntity.mistakes = Int16(game.mistakes)
+                    gameEntity.maxMistakes = Int16(game.maxMistakes)
+                    gameEntity.hasWon = game.hasWon
+                    gameEntity.hasLost = game.hasLost
+                    gameEntity.difficulty = game.difficulty
+                    gameEntity.startTime = game.startTime
+                    gameEntity.lastUpdateTime = game.lastUpdateTime
+                    gameEntity.score = Int32(finalScore)
+                    gameEntity.isDaily = isDailyChallenge
+                    gameEntity.user = user
+                    
+                    // Save mappings
+                    gameEntity.mapping = try? JSONEncoder().encode(game.mapping.mapToStringDict())
+                    gameEntity.correctMappings = try? JSONEncoder().encode(game.correctMappings.mapToStringDict())
+                    gameEntity.guessedMappings = try? JSONEncoder().encode(game.guessedMappings.mapToStringDict())
+                    
+                    print("✅ Created new game record with score: \(finalScore)")
+                }
+            }
+            
+            try context.save()
+            
+            print("✅ Score submission complete - Score: \(finalScore), Total Score: \(stats.totalScore)")
+            
+            // Refresh user manager stats
+            userManager.refreshStats()
+            
+            // Also update UserState if needed
+            UserState.shared.updateStats(won: game.hasWon, score: finalScore)
+            
+            // Submit to Game Center if available
+            Task {
+                if game.hasWon {
+                    await GameCenterManager.shared.submitTotalScore(Int(stats.totalScore))
+                    await GameCenterManager.shared.submitWinStreak(Int(stats.currentStreak))
+                }
+                if isDailyChallenge {
+                    await GameCenterManager.shared.submitDailyScore(finalScore)
+                }
+            }
+            
         } catch {
-            print("Error updating user stats: \(error.localizedDescription)")
+            print("❌ Error updating user stats: \(error.localizedDescription)")
         }
     }
     
@@ -631,3 +739,4 @@ class GameState: ObservableObject {
         return String(format: "%d:%02d", minutes, seconds)
     }
 }
+

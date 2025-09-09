@@ -111,7 +111,7 @@ class GameCenterManager: ObservableObject {
                 return []
             }
             
-            let (localPlayerEntry, regularEntries) = try await leaderboard.loadEntries(
+            let (localPlayerEntry, regularEntries, _) = try await leaderboard.loadEntries(
                 for: scope,
                 timeScope: timeScope,
                 range: range
