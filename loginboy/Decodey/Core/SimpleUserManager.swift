@@ -6,6 +6,7 @@
 import Foundation
 import SwiftUI
 import Combine
+import CoreData
 
 class SimpleUserManager: ObservableObject {
     // Published state for UI

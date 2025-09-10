@@ -103,20 +103,41 @@ class GameCenterManager: ObservableObject {
             presentAuthenticationViewController()
             return
         }
-        #endif
         
-        // If not authenticated, try opening Game Center settings
+        // If not authenticated and no view controller stored,
+        // force the authentication handler to trigger again
         if !isAuthenticated {
-            #if os(iOS)
-            // Open Game Center app/settings
-            if let url = URL(string: "gamecenter:") {
-                await UIApplication.shared.open(url)
+            // This will cause the authentication handler to be called again
+            // which should provide a new view controller for sandbox login
+            GKLocalPlayer.local.authenticateHandler = { [weak self] viewController, error in
+                guard let self = self else { return }
+                
+                Task { @MainActor in
+                    if let viewController = viewController {
+                        self.authenticationViewController = viewController
+                        self.presentAuthenticationViewController()
+                    } else if GKLocalPlayer.local.isAuthenticated {
+                        self.isAuthenticated = true
+                        self.localPlayer = GKLocalPlayer.local
+                        self.playerDisplayName = GKLocalPlayer.local.displayName.isEmpty ?
+                            GKLocalPlayer.local.alias : GKLocalPlayer.local.displayName
+                        self.isGameCenterAvailable = true
+                    } else if let error = error {
+                        self.isAuthenticated = false
+                        self.isGameCenterAvailable = false
+                        print("❌ Game Center error: \(error.localizedDescription)")
+                    } else {
+                        self.isAuthenticated = false
+                        self.isGameCenterAvailable = true
+                        print("⚠️ Game Center not authenticated, but available")
+                    }
+                }
             }
-            #elseif os(macOS)
-            // On macOS, the authentication handler should have shown the dialog
-            print("Please sign in to Game Center via System Settings")
-            #endif
         }
+        #elseif os(macOS)
+        // On macOS, the authentication handler should have shown the dialog
+        print("Please sign in to Game Center via System Settings")
+        #endif
     }
     
     private func configureAccessPoint() {

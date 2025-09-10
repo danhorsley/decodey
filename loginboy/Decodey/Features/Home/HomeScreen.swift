@@ -309,10 +309,18 @@ struct HomeScreen: View {
 // MARK: - Styled Sign In with Apple Button that matches your theme
 struct SignInWithAppleButtonStyled: View {
     @StateObject private var authManager = AuthenticationManager.shared
+    @StateObject private var gameCenterManager = GameCenterManager.shared
     
     var body: some View {
         Button(action: {
             authManager.signInWithApple()
+            // After Apple sign in, also try Game Center if not authenticated
+            Task {
+                if !gameCenterManager.isAuthenticated {
+                    // This will now use the fixed version that doesn't redirect to Settings
+                    await gameCenterManager.authenticateLocalPlayer()
+                }
+            }
         }) {
             HStack(spacing: 8) {
                 Image(systemName: "applelogo")

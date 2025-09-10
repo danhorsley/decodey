@@ -1,4 +1,5 @@
 import SwiftUI
+import LocalAuthentication
 
 class BiometricAuthHelper {
     static let shared = BiometricAuthHelper()
