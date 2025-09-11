@@ -117,7 +117,7 @@ struct GameGridsView: View {
             if let game = gameState.currentGame {
                 let uniqueLetters = game.getUniqueSolutionLetters()
                 
-                ForEach(uniqueLetters, id: \.self) { letter in
+                ForEach(uniqueLetters, id: \.self) { (letter: Character) in
                     let isIncorrect = game.selectedLetter != nil &&
                         (game.incorrectGuesses[game.selectedLetter!]?.contains(letter) ?? false)
                     
