@@ -16,6 +16,40 @@ struct VaultWinModal: View {
     // Vault code columns
     @State private var columns: [VaultCodeColumn] = []
     
+    // NEW: Computed properties for display stats
+    private var displayStats: GameState.CompletedGameStats? {
+        gameState.isDailyChallenge ? gameState.lastDailyGameStats : gameState.lastCustomGameStats
+    }
+    
+    private var solution: String {
+        displayStats?.solution ?? gameState.currentGame?.solution ?? ""
+    }
+    
+    private var author: String {
+        displayStats?.author ?? gameState.quoteAuthor
+    }
+    
+    private var score: Int {
+        displayStats?.score ?? gameState.currentGame?.calculateScore() ?? 0
+    }
+    
+    private var mistakes: Int {
+        displayStats?.mistakes ?? gameState.currentGame?.mistakes ?? 0
+    }
+    
+    private var maxMistakes: Int {
+        displayStats?.maxMistakes ?? gameState.currentGame?.maxMistakes ?? 5
+    }
+    
+    private var timeElapsed: Int {
+        if let stats = displayStats {
+            return stats.timeElapsed
+        } else if let game = gameState.currentGame {
+            return Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
+        }
+        return 0
+    }
+    
     var body: some View {
         ZStack {
             // Background
@@ -37,9 +71,6 @@ struct VaultWinModal: View {
         .onAppear {
             setupVaultAnimation()
         }
-        .onTapGesture {
-            gameState.showWinMessage = false
-        }
     }
     
     // MARK: - Code Rain Background
@@ -53,6 +84,9 @@ struct VaultWinModal: View {
                         characters: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
                     )
                 }
+            }
+            .onAppear {
+                setupCodeColumns(screenWidth: geometry.size.width)
             }
         }
         .opacity(showVaultInterface ? 0.1 : 1.0)
@@ -132,7 +166,7 @@ struct VaultWinModal: View {
             }
             
             VStack(alignment: .leading, spacing: 8) {
-                let displayText = String((gameState.currentGame?.solution ?? "").prefix(typewriterIndex))
+                let displayText = String(solution.prefix(typewriterIndex))
                 
                 Text(displayText)
                     .font(.system(size: 20, weight: .medium, design: .monospaced))
@@ -149,8 +183,8 @@ struct VaultWinModal: View {
             }
             .padding(.horizontal, 24)
             
-            if !gameState.quoteAuthor.isEmpty {
-                Text("ORIGIN: \(gameState.quoteAuthor.uppercased())")
+            if !author.isEmpty {
+                Text("ORIGIN: \(author.uppercased())")
                     .font(.system(size: 14, weight: .regular, design: .monospaced))
                     .foregroundColor(.green.opacity(0.7))
             }
@@ -172,7 +206,7 @@ struct VaultWinModal: View {
                     .font(.system(size: 10, weight: .medium, design: .monospaced))
                     .foregroundColor(.green.opacity(0.6))
                 
-                Text("\(gameState.currentGame?.calculateScore() ?? 0)")
+                Text("\(score)")
                     .font(.system(size: 36, weight: .bold, design: .monospaced))
                     .foregroundColor(.green)
                     .shadow(color: .green.opacity(0.5), radius: 5)
@@ -212,21 +246,21 @@ struct VaultWinModal: View {
         )
     }
     
-    // MARK: - Stats Grid (FIXED FOR SIMPLIFIED UserState)
+    // MARK: - Stats Grid
     private var statsGrid: some View {
         HStack(spacing: 32) {
             StatBlock(
                 label: "ERRORS",
-                value: "\(gameState.currentGame?.mistakes ?? 0)/\(gameState.currentGame?.maxMistakes ?? 0)",
+                value: "\(mistakes)/\(maxMistakes)",
                 icon: "exclamationmark.triangle",
-                isOptimal: gameState.currentGame?.mistakes == 0
+                isOptimal: mistakes == 0
             )
             
             StatBlock(
                 label: "TIME",
-                value: formatTime(Int(gameState.currentGame?.lastUpdateTime.timeIntervalSince(gameState.currentGame?.startTime ?? Date()) ?? 0)),
+                value: formatTime(timeElapsed),
                 icon: "clock",
-                isOptimal: Int(gameState.currentGame?.lastUpdateTime.timeIntervalSince(gameState.currentGame?.startTime ?? Date()) ?? 0) < 60
+                isOptimal: timeElapsed < 60
             )
             
             // Use simplified UserState properties instead of stats object
@@ -251,47 +285,26 @@ struct VaultWinModal: View {
     
     // MARK: - Button Section
     private var buttonSection: some View {
-        HStack(spacing: 16) {
-            Button(action: {
-                gameState.showWinMessage = false
-                gameState.setupCustomGame()
-            }) {
-                HStack(spacing: 8) {
-                    Image(systemName: "arrow.clockwise")
-                    Text("HACK_AGAIN")
-                }
-                .font(.system(size: 12, weight: .bold, design: .monospaced))
-                .foregroundColor(.black)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 0)
-                        .fill(.green)
-                )
+        Button(action: {
+            gameState.resetGame()
+        }) {
+            HStack(spacing: 8) {
+                Image(systemName: "arrow.clockwise")
+                Text("HACK_AGAIN")
             }
-            
-            Button(action: {
-                gameState.showWinMessage = false
-            }) {
-                HStack(spacing: 8) {
-                    Image(systemName: "xmark")
-                    Text("EXIT_VAULT")
-                }
-                .font(.system(size: 12, weight: .bold, design: .monospaced))
-                .foregroundColor(.green)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 0)
-                        .stroke(.green, lineWidth: 1)
-                )
-            }
+            .font(.system(size: 12, weight: .bold, design: .monospaced))
+            .foregroundColor(.black)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 0)
+                    .fill(.green)
+            )
         }
     }
     
     // MARK: - Animation Setup
     private func setupVaultAnimation() {
-        
         // Start code animation
         startCodeAnimation()
         
@@ -371,7 +384,6 @@ struct VaultWinModal: View {
     }
     
     private func startTypewriterEffect() {
-        let solution = gameState.currentGame?.solution ?? ""
         let totalLength = solution.count
         
         guard totalLength > 0 else { return }
@@ -449,43 +461,6 @@ struct VaultCodeColumnView: View {
             }
         }
         .offset(y: column.offset)
+        .position(x: column.x, y: height / 2)
     }
 }
-
-// MARK: - Preview (FIXED)
-#if DEBUG
-struct VaultWinModal_Previews: PreviewProvider {
-    static var previews: some View {
-        // Create a mock game state with CORRECT GameModel initializer
-        let gameState = GameState.shared
-        
-        // Use the correct GameModel initializer with all required parameters
-        let mockGame = GameModel(
-            gameId: UUID().uuidString,
-            encrypted: "XQZ DGRT VRPH XGTFH",
-            solution: "THE ONLY WAY TO DO GREAT WORK IS TO LOVE WHAT YOU DO",
-            currentDisplay: "THE ONLY WAY TO DO GREAT WORK IS TO LOVE WHAT YOU DO",
-            mapping: [:],
-            correctMappings: [:],
-            guessedMappings: [:],
-            incorrectGuesses: [:],
-            mistakes: 2,
-            maxMistakes: 5,
-            hasWon: true,
-            hasLost: false,
-            difficulty: "medium",
-            startTime: Date().addingTimeInterval(-120), // 2 minutes ago
-            lastUpdateTime: Date()
-        )
-        
-        gameState.currentGame = mockGame
-        gameState.quoteAuthor = "Steve Jobs"
-        gameState.showWinMessage = true
-        
-        return VaultWinModal()
-            .environmentObject(gameState)
-            .environmentObject(UserState.shared)
-            .preferredColorScheme(.dark)
-    }
-}
-#endif

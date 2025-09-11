@@ -63,13 +63,16 @@ struct GameView: View {
                     }
                 }
             }
+                    
+                    
         }
         .sheet(isPresented: $gameState.showContinueGameModal) {
             ContinueGameSheet(isDailyChallenge: gameState.isDailyChallenge)
                 .presentationDetents([.medium])
         }
         .onAppear {
-            gameState.checkForInProgressGame(isDailyChallenge:false)
+            gameState.validateModalState()  // Make sure we're not showing wrong modal
+            gameState.checkForInProgressGame(isDailyChallenge: false)
         }
     }
     

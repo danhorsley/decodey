@@ -38,6 +38,40 @@ struct ArchiveWinModal: View {
         "...correlates with manuscript MS-408..."
     ]
     
+    // NEW: Computed properties for display stats
+    private var displayStats: GameState.CompletedGameStats? {
+        gameState.isDailyChallenge ? gameState.lastDailyGameStats : gameState.lastCustomGameStats
+    }
+    
+    private var solution: String {
+        displayStats?.solution ?? gameState.currentGame?.solution ?? ""
+    }
+    
+    private var author: String {
+        displayStats?.author ?? gameState.quoteAuthor
+    }
+    
+    private var score: Int {
+        displayStats?.score ?? gameState.currentGame?.calculateScore() ?? 0
+    }
+    
+    private var mistakes: Int {
+        displayStats?.mistakes ?? gameState.currentGame?.mistakes ?? 0
+    }
+    
+    private var maxMistakes: Int {
+        displayStats?.maxMistakes ?? gameState.currentGame?.maxMistakes ?? 5
+    }
+    
+    private var timeElapsed: Int {
+        if let stats = displayStats {
+            return stats.timeElapsed
+        } else if let game = gameState.currentGame {
+            return Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
+        }
+        return 0
+    }
+    
     var body: some View {
         ZStack {
             // Background - faded sepia overlay
@@ -55,9 +89,6 @@ struct ArchiveWinModal: View {
         }
         .onAppear {
             startAnimationSequence()
-        }
-        .onTapGesture {
-            gameState.showWinMessage = false
         }
     }
     
@@ -112,7 +143,7 @@ struct ArchiveWinModal: View {
             
             // Decoded quote with typewriter effect
             VStack(spacing: 16) {
-                let displayText = String((gameState.currentGame?.solution ?? "").prefix(typewriterIndex))
+                let displayText = String(solution.prefix(typewriterIndex))
                 
                 Text(displayText)
                     .font(.system(size: 22, weight: .regular, design: .serif))
@@ -121,8 +152,8 @@ struct ArchiveWinModal: View {
                     .lineSpacing(6)
                     .padding(.horizontal, 24)
                 
-                if !gameState.quoteAuthor.isEmpty && typewriterIndex >= (gameState.currentGame?.solution.count ?? 0) {
-                    Text("— \(gameState.quoteAuthor)")
+                if !author.isEmpty && typewriterIndex >= solution.count {
+                    Text("— \(author)")
                         .font(.system(size: 16, weight: .light, design: .serif))
                         .italic()
                         .foregroundColor(Color(red: 0.45, green: 0.40, blue: 0.35))
@@ -165,56 +196,64 @@ struct ArchiveWinModal: View {
             }
         )
         .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
-        .scaleEffect(showDecrypted ? 1 : 0.95)
-        .animation(.spring(response: 0.6, dampingFraction: 0.8), value: showDecrypted)
+        .scaleEffect(showDecrypted ? 1.0 : 0.9)
     }
     
     // MARK: - Classification Stamp
     private var classificationStamp: some View {
-        HStack(spacing: 12) {
-            Rectangle()
-                .fill(Color(red: 0.75, green: 0.70, blue: 0.65))
-                .frame(width: 40, height: 1)
+        VStack(spacing: 4) {
+            Text("DECRYPTED")
+                .font(.system(size: 24, weight: .black, design: .serif))
+                .tracking(3)
+                .foregroundColor(Color(red: 0.85, green: 0.20, blue: 0.20))
             
-            Text("CLASSIFIED DOCUMENT")
-                .font(.system(size: 11, weight: .bold, design: .rounded))
+            Text("ARCHIVE FILE #\(Int.random(in: 1000...9999))")
+                .font(.system(size: 10, weight: .medium, design: .rounded))
                 .tracking(1.5)
-                .foregroundColor(Color(red: 0.65, green: 0.60, blue: 0.55))
-            
-            Rectangle()
-                .fill(Color(red: 0.75, green: 0.70, blue: 0.65))
-                .frame(width: 40, height: 1)
+                .foregroundColor(Color(red: 0.45, green: 0.40, blue: 0.35))
         }
+        .padding(.horizontal, 20)
+        .padding(.vertical, 8)
+        .overlay(
+            RoundedRectangle(cornerRadius: 2)
+                .stroke(Color(red: 0.85, green: 0.20, blue: 0.20).opacity(0.5), lineWidth: 2)
+        )
+        .rotationEffect(.degrees(-2))
     }
     
     // MARK: - Score Section
     private var scoreSection: some View {
         VStack(spacing: 8) {
-            Text("DECRYPTION SCORE")
-                .font(.system(size: 11, weight: .medium, design: .rounded))
-                .tracking(1.5)
+            Text("EVALUATION")
+                .font(.system(size: 10, weight: .medium, design: .rounded))
+                .tracking(2)
                 .foregroundColor(Color(red: 0.55, green: 0.50, blue: 0.45))
             
-            Text("\(gameState.currentGame?.calculateScore() ?? 0)")
-                .font(.system(size: 48, weight: .light, design: .serif))
+            Text("\(score)")
+                .font(.system(size: 48, weight: .bold, design: .serif))
                 .foregroundColor(Color(red: 0.35, green: 0.30, blue: 0.25))
+            
+            Text("POINTS AWARDED")
+                .font(.system(size: 9, weight: .medium, design: .rounded))
+                .tracking(1.5)
+                .foregroundColor(Color(red: 0.55, green: 0.50, blue: 0.45))
         }
         .padding(.vertical, 16)
     }
     
-    // MARK: - Stats Section (FIXED FOR SIMPLIFIED UserState)
+    // MARK: - Stats Section
     private var statsSection: some View {
         HStack(spacing: 40) {
             StatItem(
                 label: "Mistakes",
-                value: "\(gameState.currentGame?.mistakes ?? 0)/\(gameState.currentGame?.maxMistakes ?? 0)",
-                isHighlighted: gameState.currentGame?.mistakes == 0
+                value: "\(mistakes)/\(maxMistakes)",
+                isHighlighted: mistakes == 0
             )
             
             StatItem(
                 label: "Time",
-                value: formatTime(Int(gameState.currentGame?.lastUpdateTime.timeIntervalSince(gameState.currentGame?.startTime ?? Date()) ?? 0)),
-                isHighlighted: Int(gameState.currentGame?.lastUpdateTime.timeIntervalSince(gameState.currentGame?.startTime ?? Date()) ?? 0) < 60
+                value: formatTime(timeElapsed),
+                isHighlighted: timeElapsed < 60
             )
             
             // Use simplified UserState properties instead of stats object
@@ -237,37 +276,19 @@ struct ArchiveWinModal: View {
     
     // MARK: - Button Section
     private var buttonSection: some View {
-        HStack(spacing: 20) {
-            Button(action: {
-                gameState.showWinMessage = false
-                gameState.setupCustomGame()
-            }) {
-                Text("NEW GAME")
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
-                    .tracking(1.0)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color(red: 0.35, green: 0.30, blue: 0.25))
-                    )
-                    .foregroundColor(Color(red: 0.98, green: 0.96, blue: 0.92))
-            }
-            
-            Button(action: {
-                gameState.showWinMessage = false
-            }) {
-                Text("CLOSE")
-                    .font(.system(size: 12, weight: .semibold, design: .rounded))
-                    .tracking(1.0)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 4)
-                            .stroke(Color(red: 0.35, green: 0.30, blue: 0.25), lineWidth: 1)
-                    )
-                    .foregroundColor(Color(red: 0.35, green: 0.30, blue: 0.25))
-            }
+        Button(action: {
+            gameState.resetGame()
+        }) {
+            Text("NEW GAME")
+                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .tracking(1.0)
+                .padding(.horizontal, 32)
+                .padding(.vertical, 14)
+                .background(
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color(red: 0.35, green: 0.30, blue: 0.25))
+                )
+                .foregroundColor(Color(red: 0.98, green: 0.96, blue: 0.92))
         }
     }
     
@@ -309,7 +330,6 @@ struct ArchiveWinModal: View {
     }
     
     private func startTypewriterEffect() {
-        let solution = gameState.currentGame?.solution ?? ""
         let totalLength = solution.count
         
         guard totalLength > 0 else { return }
@@ -353,41 +373,3 @@ struct StatItem: View {
         }
     }
 }
-
-// MARK: - Preview (FIXED)
-#if DEBUG
-struct ArchiveWinModal_Previews: PreviewProvider {
-    static var previews: some View {
-        // Create a mock game state with CORRECT GameModel initializer
-        let gameState = GameState.shared
-        
-        // Use the correct GameModel initializer with all required parameters
-        let mockGame = GameModel(
-            gameId: UUID().uuidString,
-            encrypted: "XQZ DGRT VRPH XGTFH",
-            solution: "THE ONLY WAY TO DO GREAT WORK IS TO LOVE WHAT YOU DO",
-            currentDisplay: "THE ONLY WAY TO DO GREAT WORK IS TO LOVE WHAT YOU DO",
-            mapping: [:],
-            correctMappings: [:],
-            guessedMappings: [:],
-            incorrectGuesses: [:],
-            mistakes: 2,
-            maxMistakes: 5,
-            hasWon: true,
-            hasLost: false,
-            difficulty: "medium",
-            startTime: Date().addingTimeInterval(-120), // 2 minutes ago
-            lastUpdateTime: Date()
-        )
-        
-        gameState.currentGame = mockGame
-        gameState.quoteAuthor = "Steve Jobs"
-        gameState.showWinMessage = true
-        
-        return ArchiveWinModal()
-            .environmentObject(gameState)
-            .environmentObject(UserState.shared)
-            .preferredColorScheme(.light)
-    }
-}
-#endif

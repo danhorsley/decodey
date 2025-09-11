@@ -9,10 +9,31 @@ class GameState: ObservableObject {
     @Published var savedGame: GameModel?
     @Published var isLoading = false
     @Published var errorMessage: String?
-    @Published var showWinMessage = false
-    @Published var showLoseMessage = false
     @Published var showContinueGameModal = false
     @Published var isInfiniteMode = false
+    
+    // NEW: Track which mode the win/loss modal is for
+    @Published var winModalIsDaily = false
+    @Published var loseModalIsDaily = false
+    @Published var showWinMessage = false
+    @Published var showLoseMessage = false
+    
+    // NEW: Store last completed game stats for re-display
+    @Published var lastDailyGameStats: CompletedGameStats? = nil
+    @Published var lastCustomGameStats: CompletedGameStats? = nil
+    
+    // NEW: Structure to hold completed game info
+     struct CompletedGameStats {
+         let solution: String
+         let author: String
+         let attribution: String?
+         let score: Int
+         let mistakes: Int
+         let maxMistakes: Int
+         let timeElapsed: Int
+         let hasWon: Bool
+         let currentDisplay: String  // For showing their attempt in loss modal
+     }
     
     // Game metadata
     @Published var quoteAuthor: String = ""
@@ -103,7 +124,41 @@ class GameState: ObservableObject {
     
     /// Set up daily challenge
     func setupDailyChallenge() {
+        // Clear any custom game modals when switching to daily
+        if !winModalIsDaily && showWinMessage {
+            showWinMessage = false
+        }
+        if !loseModalIsDaily && showLoseMessage {
+            showLoseMessage = false
+        }
+        
         self.isDailyChallenge = true
+        
+        // Check if we should show the stored daily modal
+        if let dailyStats = lastDailyGameStats {
+            // Check if it's still today's daily
+            let today = Date()
+            let formatter = DateFormatter()
+            formatter.dateFormat = "yyyy-MM-dd"
+            let todayString = formatter.string(from: today)
+            
+            // If we have a completed daily for today, show the appropriate modal
+            if let savedGameId = savedGame?.gameId, savedGameId.contains(todayString) {
+                quoteAuthor = dailyStats.author
+                quoteAttribution = dailyStats.attribution
+                
+                if dailyStats.hasWon {
+                    winModalIsDaily = true
+                    showWinMessage = true
+                } else {
+                    loseModalIsDaily = true
+                    showLoseMessage = true
+                }
+                return  // Don't setup a new game
+            }
+        }
+        
+        // Continue with normal daily setup...
         isLoading = true
         errorMessage = nil
         
@@ -128,9 +183,36 @@ class GameState: ObservableObject {
     
     /// Set up a custom/random game
     func setupCustomGame() {
+        // Clear any daily game modals when switching to custom
+        if winModalIsDaily && showWinMessage {
+            showWinMessage = false
+        }
+        if loseModalIsDaily && showLoseMessage {
+            showLoseMessage = false
+        }
+        
         self.isDailyChallenge = false
         self.dailyQuote = nil
         
+        // Check if we should show a stored custom game modal
+        if let customStats = lastCustomGameStats,
+           let currentGame = currentGame,
+           currentGame.hasWon || currentGame.hasLost {
+            // Restore the modal for the last custom game
+            quoteAuthor = customStats.author
+            quoteAttribution = customStats.attribution
+            
+            if customStats.hasWon {
+                winModalIsDaily = false
+                showWinMessage = true
+            } else {
+                loseModalIsDaily = false
+                showLoseMessage = true
+            }
+            return  // Don't setup a new game
+        }
+        
+        // Continue with normal custom setup...
         isLoading = true
         errorMessage = nil
         
@@ -255,15 +337,41 @@ class GameState: ObservableObject {
             printGameDetails() // Debug
             saveGameState(game)
             
-            // Check game status
             if game.hasWon {
-                showWinMessage = true
-            } else if game.hasLost {
-                showLoseMessage = true
-            }
-        }
+                        // NEW: Store the completed game stats BEFORE showing modal
+                        saveCompletedGameStats(game, won: true)
+                        winModalIsDaily = isDailyChallenge  // Track which mode
+                        showWinMessage = true
+                    } else if game.hasLost {
+                        // NEW: Store the completed game stats BEFORE showing modal
+                        saveCompletedGameStats(game, won: false)
+                        loseModalIsDaily = isDailyChallenge  // Track which mode
+                        showLoseMessage = true
+                    }
+                }
     }
     
+    //helper to temp stoore data between states
+    private func saveCompletedGameStats(_ game: GameModel, won: Bool) {
+        let elapsed = Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
+        let stats = CompletedGameStats(
+            solution: game.solution,
+            author: quoteAuthor,
+            attribution: quoteAttribution,
+            score: won ? game.calculateScore() : 0,
+            mistakes: game.mistakes,
+            maxMistakes: game.maxMistakes,
+            timeElapsed: elapsed,
+            hasWon: won,
+            currentDisplay: game.currentDisplay
+        )
+        
+        if isDailyChallenge {
+            lastDailyGameStats = stats
+        } else {
+            lastCustomGameStats = stats
+        }
+    }
     /// Select a letter to decode
     func selectLetter(_ letter: Character) {
         guard var game = currentGame else { return }
@@ -289,16 +397,29 @@ class GameState: ObservableObject {
             
             // Check game status after hint
             if game.hasWon {
+                // NEW: Store the completed game stats BEFORE showing modal
+                saveCompletedGameStats(game, won: true)
+                winModalIsDaily = isDailyChallenge  // Track which mode
                 showWinMessage = true
             } else if game.hasLost {
+                // NEW: Store the completed game stats BEFORE showing modal
+                saveCompletedGameStats(game, won: false)
+                loseModalIsDaily = isDailyChallenge  // Track which mode
                 showLoseMessage = true
             }
         }
     }
     
-    /// Reset the current game - RESTORED METHOD
+    // UPDATED: Reset game method
     func resetGame() {
         isInfiniteMode = false
+        
+        // Clear the appropriate saved stats
+        if isDailyChallenge {
+            lastDailyGameStats = nil
+        } else {
+            lastCustomGameStats = nil
+        }
         
         // If there was a saved game, mark it as abandoned
         if let oldGameId = savedGame?.gameId {
@@ -320,6 +441,18 @@ class GameState: ObservableObject {
         showWinMessage = false
         showLoseMessage = false
     }
+    
+    func validateModalState() {
+            // If showing a win modal for the wrong mode, hide it
+            if showWinMessage && (winModalIsDaily != isDailyChallenge) {
+                showWinMessage = false
+            }
+            
+            // If showing a loss modal for the wrong mode, hide it
+            if showLoseMessage && (loseModalIsDaily != isDailyChallenge) {
+                showLoseMessage = false
+            }
+        }
     
     // Mark a game as abandoned
     private func markGameAsAbandoned(gameId: String) {
