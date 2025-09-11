@@ -29,6 +29,12 @@ playground.xcworkspace
 # hence it is not needed unless you have added a package configuration file to your project
 # .swiftpm
 
+# Audio files (don't commit to git - too large)
+*.m4a
+*.wav
+*.aiff
+*.caf
+
 .build/
 
 # CocoaPods
