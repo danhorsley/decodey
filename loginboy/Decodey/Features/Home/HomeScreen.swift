@@ -339,12 +339,12 @@ struct SignInWithAppleButtonStyled: View {
     }
 }
 
-// Alternative: Use the native Apple button if you prefer
-struct NativeAppleSignInButton: View {
-    var body: some View {
-        SignInWithAppleButton()
-            .signInWithAppleButtonStyle(.white)  // or .black based on your theme
-            .frame(height: 50)
-            .frame(maxWidth: 280)
-    }
-}
+//// Alternative: Use the native Apple button if you prefer
+//struct NativeAppleSignInButton: View {
+//    var body: some View {
+//        SignInWithAppleButton()
+//            .signInWithAppleButtonStyle(.white)  // or .black based on your theme
+//            .frame(height: 50)
+//            .frame(maxWidth: 280)
+//    }
+//}

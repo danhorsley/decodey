@@ -237,6 +237,12 @@ struct UserStatsView: View {
     // MARK: - Helper Methods
     
     private func refreshStats() {
+        print("🔄 === REFRESH STATS CALLED ===")
+        print("   userState.userId: '\(userState.userId)'")
+        print("   userState.username: '\(userState.username)'")
+        print("   userState.playerName: '\(userState.playerName)'")
+        print("   userState.isAuthenticated: \(userState.isAuthenticated)")
+        
         isLoading = true
         errorMessage = nil
         
@@ -246,8 +252,11 @@ struct UserStatsView: View {
         // For Apple Sign In users, we don't need playerName - we'll use userId
         let playerName = userState.playerName.isEmpty ? userState.username : userState.playerName
         
+        print("   Using playerName: '\(playerName)'")
+        
         // Don't check if playerName is empty if we have userId
         if userState.userId.isEmpty && playerName.isEmpty {
+            print("   ❌ No userId and no playerName - showing empty stats")
             isLoading = false
             detailedStats = nil
             return
@@ -257,46 +266,61 @@ struct UserStatsView: View {
             let stats = try calculateDetailedStats(context: context, playerName: playerName)
             detailedStats = stats
             isLoading = false
+            print("   ✅ Stats loaded successfully")
         } catch {
             errorMessage = "Failed to calculate statistics: \(error.localizedDescription)"
             isLoading = false
+            print("   ❌ Error loading stats: \(error)")
         }
     }
     
     private func calculateDetailedStats(context: NSManagedObjectContext, playerName: String) throws -> DetailedUserStats {
+        print("🔍 === CALCULATING USER STATS ===")
+        print("   userId: '\(userState.userId)'")
+        print("   playerName: '\(playerName)'")
+        
         // Determine which user to fetch stats for
         let userFetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
         
         // IMPORTANT: Use userId (primaryIdentifier) if available, otherwise fall back to username
         if !userState.userId.isEmpty {
             // User is signed in with Apple - use primaryIdentifier
+            print("   Searching by primaryIdentifier: \(userState.userId)")
             userFetchRequest.predicate = NSPredicate(format: "primaryIdentifier == %@", userState.userId)
         } else if !playerName.isEmpty {
             // Local user - use username
+            print("   Searching by username: \(playerName)")
             userFetchRequest.predicate = NSPredicate(format: "username == %@", playerName)
         } else {
             // Show anonymous user stats
+            print("   Searching for anonymous user")
             userFetchRequest.predicate = NSPredicate(format: "primaryIdentifier == %@", "anonymous-user")
         }
         
         let users = try context.fetch(userFetchRequest)
+        print("   Found \(users.count) user(s)")
         
         // If no user found by primary method, try fallbacks
         let user: UserCD?
         if let foundUser = users.first {
             user = foundUser
+            print("   ✅ Found user: \(foundUser.username ?? "unknown") [\(foundUser.primaryIdentifier ?? "no-id")]")
         } else if !playerName.isEmpty {
             // Try username/displayName as fallback
+            print("   Trying fallback search by username/displayName: \(playerName)")
             userFetchRequest.predicate = NSPredicate(format: "username == %@ OR displayName == %@", playerName, playerName)
             let fallbackUsers = try context.fetch(userFetchRequest)
             user = fallbackUsers.first
+            if let u = user {
+                print("   ✅ Found user via fallback: \(u.username ?? "unknown")")
+            }
         } else {
             user = nil
         }
         
         // If still no user, create empty stats
         guard let validUser = user else {
-            print("⚠️ No user found for: userId='\(userState.userId)' playerName='\(playerName)', returning empty stats")
+            print("   ❌ No user found - returning empty stats")
             return DetailedUserStats(
                 totalGamesPlayed: 0,
                 gamesWon: 0,
@@ -316,6 +340,18 @@ struct UserStatsView: View {
         
         // Get the stored stats (this includes imported legacy games)
         let userStats = validUser.stats
+        
+        if let stats = userStats {
+            print("   📊 User Stats Found:")
+            print("      Games Played: \(stats.gamesPlayed)")
+            print("      Games Won: \(stats.gamesWon)")
+            print("      Total Score: \(stats.totalScore)")
+            print("      Current Streak: \(stats.currentStreak)")
+            print("      Best Streak: \(stats.bestStreak)")
+        } else {
+            print("   ❌ User has no stats object!")
+        }
+        
         let totalGamesPlayed = Int(userStats?.gamesPlayed ?? 0)
         let gamesWon = Int(userStats?.gamesWon ?? 0)
         let totalScore = Int(userStats?.totalScore ?? 0)
@@ -338,57 +374,54 @@ struct UserStatsView: View {
         
         let completedGames = try context.fetch(gameFetchRequest)
         
-        print("📊 Found \(completedGames.count) completed games for \(validUser.displayName ?? validUser.username ?? "user")")
+        print("   📋 Found \(completedGames.count) completed game records")
         
         // Calculate weekly stats from actual games
         let oneWeekAgo = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date()) ?? Date()
-        let weeklyGames = completedGames.filter { game in
-            if let updateTime = game.lastUpdateTime {
-                return updateTime >= oneWeekAgo
-            }
-            return false
-        }
-        
-        let weeklyStats = WeeklyStats(
-            gamesPlayed: weeklyGames.count,
-            totalScore: weeklyGames.reduce(0) { $0 + Int($1.score) }
-        )
-        
-        // Get top scores
-        let topScores = completedGames
-            .filter { $0.hasWon }
-            .sorted { $0.score > $1.score }
-            .prefix(5)
-            .map { game in
-                TopScore(
-                    score: Int(game.score),
-                    timeTaken: Int(game.lastUpdateTime?.timeIntervalSince(game.startTime ?? Date()) ?? 0),
-                    mistakes: Int(game.mistakes),
-                    date: game.lastUpdateTime ?? Date(),
-                    isDaily: game.isDaily
-                )
-            }
-        
-        // Count daily vs custom games
-        let dailyGamesCompleted = completedGames.filter { $0.isDaily }.count
-        let customGamesCompleted = completedGames.filter { !$0.isDaily }.count
-        
-        return DetailedUserStats(
-            totalGamesPlayed: totalGamesPlayed,
-            gamesWon: gamesWon,
-            totalScore: totalScore,
-            winPercentage: winPercentage,
-            averageScore: averageScore,
-            averageTime: averageTime,
-            currentStreak: currentStreak,
-            bestStreak: bestStreak,
-            lastPlayedDate: lastPlayedDate,
-            weeklyStats: weeklyStats,
-            topScores: Array(topScores),
-            dailyGamesCompleted: dailyGamesCompleted,
-            customGamesCompleted: customGamesCompleted
-        )
+            let weeklyGames = completedGames.filter { ($0.lastUpdateTime ?? Date()) >= oneWeekAgo }
+            let weeklyScore = weeklyGames.reduce(0) { $0 + Int($1.score) }
+            
+            // Calculate daily vs custom
+            let dailyGames = completedGames.filter { $0.isDaily }
+            let customGames = completedGames.filter { !$0.isDaily }
+            
+            // Get top scores - CREATE TopScore OBJECTS, not just Int values
+            let topScoresList = completedGames
+                .filter { $0.hasWon }
+                .sorted { $0.score > $1.score }
+                .prefix(5)
+                .map { game in
+                    TopScore(
+                        score: Int(game.score),
+                        timeTaken: Int(game.timeTaken),
+                        mistakes: Int(game.mistakes),
+                        date: game.lastUpdateTime ?? Date(),
+                        isDaily: game.isDaily
+                    )
+                }
+            
+            print("   === END STATS CALCULATION ===")
+            
+            return DetailedUserStats(
+                totalGamesPlayed: totalGamesPlayed,
+                gamesWon: gamesWon,
+                totalScore: totalScore,
+                winPercentage: winPercentage,
+                averageScore: averageScore,
+                averageTime: averageTime,
+                currentStreak: currentStreak,
+                bestStreak: bestStreak,
+                lastPlayedDate: lastPlayedDate,
+                weeklyStats: WeeklyStats(
+                    gamesPlayed: weeklyGames.count,
+                    totalScore: weeklyScore
+                ),
+                topScores: Array(topScoresList),  // Convert to Array of TopScore objects
+                dailyGamesCompleted: dailyGames.count,
+                customGamesCompleted: customGames.count
+            )
     }
+    
     
     private func calculatePercentage(_ value: Int, of total: Int) -> Int {
         guard total > 0 else { return 0 }

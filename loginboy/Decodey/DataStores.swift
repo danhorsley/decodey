@@ -110,7 +110,8 @@ class GameStore {
         } else {
             // Create new local user
             user = UserCD(context: context)
-            // Note: user.id is auto-managed by Core Data, don't set it
+            user.id = UUID()  // ADD THIS LINE - Core Data needs the id field set
+            user.primaryIdentifier = playerName.lowercased()  // ADD THIS LINE - Critical!
             user.userId = UUID().uuidString // Generate local ID
             user.username = playerName
             user.displayName = playerName

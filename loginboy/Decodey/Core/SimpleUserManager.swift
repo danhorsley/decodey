@@ -231,12 +231,23 @@ class SimpleUserManager: ObservableObject {
         }
         
         let context = coreData.mainContext
-        let fetchRequest: NSFetchRequest<UserStatsCD> = UserStatsCD.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "user.username == %@", playerName)
+        
+        // First, find the user correctly
+        let userFetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
+        
+        // Check if we have an Apple ID (from UserState)
+        if !UserState.shared.userId.isEmpty {
+            // User signed in with Apple - use Apple ID as primary identifier
+            userFetchRequest.predicate = NSPredicate(format: "primaryIdentifier == %@", UserState.shared.userId)
+        } else {
+            // Local user - use playerName lowercased as primary identifier
+            userFetchRequest.predicate = NSPredicate(format: "primaryIdentifier == %@", playerName.lowercased())
+        }
         
         do {
-            let statsArray = try context.fetch(fetchRequest)
-            if let statsCD = statsArray.first {
+            let users = try context.fetch(userFetchRequest)
+            
+            if let user = users.first, let statsCD = user.stats {
                 localStats = LocalUserStats(
                     totalScore: Int(statsCD.totalScore),
                     gamesPlayed: Int(statsCD.gamesPlayed),
@@ -248,19 +259,41 @@ class SimpleUserManager: ObservableObject {
                     averageTime: statsCD.averageTime,
                     lastPlayedDate: statsCD.lastPlayedDate
                 )
+                print("✅ Loaded stats for user with primaryId: \(user.primaryIdentifier ?? "unknown")")
             } else {
-                // Create default stats if none exist
-                localStats = LocalUserStats(
-                    totalScore: 0,
-                    gamesPlayed: 0,
-                    gamesWon: 0,
-                    winRate: 0.0,
-                    currentStreak: 0,
-                    bestStreak: 0,
-                    averageMistakes: 0.0,
-                    averageTime: 0.0,
-                    lastPlayedDate: nil
-                )
+                // Try fallback - search by username
+                let fallbackRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
+                fallbackRequest.predicate = NSPredicate(format: "username == %@", playerName)
+                
+                let fallbackUsers = try context.fetch(fallbackRequest)
+                if let user = fallbackUsers.first, let statsCD = user.stats {
+                    localStats = LocalUserStats(
+                        totalScore: Int(statsCD.totalScore),
+                        gamesPlayed: Int(statsCD.gamesPlayed),
+                        gamesWon: Int(statsCD.gamesWon),
+                        winRate: statsCD.gamesPlayed > 0 ? Double(statsCD.gamesWon) / Double(statsCD.gamesPlayed) : 0.0,
+                        currentStreak: Int(statsCD.currentStreak),
+                        bestStreak: Int(statsCD.bestStreak),
+                        averageMistakes: statsCD.averageMistakes,
+                        averageTime: statsCD.averageTime,
+                        lastPlayedDate: statsCD.lastPlayedDate
+                    )
+                    print("✅ Loaded stats via fallback for username: \(playerName)")
+                } else {
+                    // Create default stats if none exist
+                    localStats = LocalUserStats(
+                        totalScore: 0,
+                        gamesPlayed: 0,
+                        gamesWon: 0,
+                        winRate: 0.0,
+                        currentStreak: 0,
+                        bestStreak: 0,
+                        averageMistakes: 0.0,
+                        averageTime: 0.0,
+                        lastPlayedDate: nil
+                    )
+                    print("⚠️ No stats found for user, using defaults")
+                }
             }
         } catch {
             print("❌ Error loading local stats: \(error)")

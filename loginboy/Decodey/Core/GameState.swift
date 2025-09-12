@@ -330,26 +330,47 @@ class GameState: ObservableObject {
         
         // Only proceed if a letter is selected
         if game.selectedLetter != nil {
-            let _ = game.makeGuess(guessedLetter)
+            let wasCorrect = game.makeGuess(guessedLetter)
             self.currentGame = game
             
-            // Save game state
+            // Play appropriate sound
+            if wasCorrect {
+                SoundManager.shared.play(.correctGuess)
+            } else {
+                SoundManager.shared.play(.incorrectGuess)
+            }
+            
+            // Save game state after each guess
             printGameDetails() // Debug
             saveGameState(game)
             
+            // Check if the game is complete
             if game.hasWon {
-                        // NEW: Store the completed game stats BEFORE showing modal
-                        saveCompletedGameStats(game, won: true)
-                        winModalIsDaily = isDailyChallenge  // Track which mode
-                        showWinMessage = true
-                    } else if game.hasLost {
-                        // NEW: Store the completed game stats BEFORE showing modal
-                        saveCompletedGameStats(game, won: false)
-                        loseModalIsDaily = isDailyChallenge  // Track which mode
-                        showLoseMessage = true
-                    }
-                }
+                // Submit score BEFORE showing modal
+                submitScore()
+                
+                // Store the completed game stats for display
+                saveCompletedGameStats(game, won: true)
+                winModalIsDaily = isDailyChallenge
+                showWinMessage = true
+                
+                // Play win sound
+                SoundManager.shared.play(.win)
+            } else if game.hasLost {
+                // Submit score BEFORE showing modal
+                submitScore()
+                
+                // Store the completed game stats for display
+                saveCompletedGameStats(game, won: false)
+                loseModalIsDaily = isDailyChallenge
+                showLoseMessage = true
+                
+                // Play lose sound
+                SoundManager.shared.play(.lose)
+            }
+        }
     }
+
     
     //helper to temp stoore data between states
     private func saveCompletedGameStats(_ game: GameModel, won: Bool) {
@@ -397,14 +418,20 @@ class GameState: ObservableObject {
             
             // Check game status after hint
             if game.hasWon {
-                // NEW: Store the completed game stats BEFORE showing modal
+                // Submit score BEFORE showing modal
+                submitScore()
+                
+                // Store the completed game stats for display
                 saveCompletedGameStats(game, won: true)
-                winModalIsDaily = isDailyChallenge  // Track which mode
+                winModalIsDaily = isDailyChallenge
                 showWinMessage = true
             } else if game.hasLost {
-                // NEW: Store the completed game stats BEFORE showing modal
+                // Submit score BEFORE showing modal
+                submitScore()
+                
+                // Store the completed game stats for display
                 saveCompletedGameStats(game, won: false)
-                loseModalIsDaily = isDailyChallenge  // Track which mode
+                loseModalIsDaily = isDailyChallenge
                 showLoseMessage = true
             }
         }
@@ -441,7 +468,6 @@ class GameState: ObservableObject {
         showWinMessage = false
         showLoseMessage = false
     }
-    
     func validateModalState() {
             // If showing a win modal for the wrong mode, hide it
             if showWinMessage && (winModalIsDaily != isDailyChallenge) {
@@ -709,6 +735,8 @@ class GameState: ObservableObject {
             return
         }
         
+        // Use UserIdentityManager if it exists, otherwise use the old approach
+        let identityManager = UserIdentityManager.shared
         let context = coreData.mainContext
         
         // Calculate the score once
@@ -716,74 +744,20 @@ class GameState: ObservableObject {
         let timeTaken = Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
         
         print("📊 Submitting score - Score: \(finalScore), Time: \(timeTaken)s, Won: \(game.hasWon)")
+        print("   User: \(identityManager.displayName) [\(identityManager.primaryIdentifier)]")
         
+        // Update stats using UserIdentityManager
+        identityManager.updateStatsAfterGame(
+            won: game.hasWon,
+            score: finalScore,
+            mistakes: game.mistakes,
+            timeTaken: timeTaken
+        )
+        
+        // Also save the game record
         do {
-            // Get the appropriate user
-            let user: UserCD
-            if userManager.isSignedIn && !userManager.playerName.isEmpty {
-                // Find or create user by primary identifier
-                let primaryId = UserState.shared.userId.isEmpty ? userManager.playerName.lowercased() : UserState.shared.userId
-                
-                let fetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
-                fetchRequest.predicate = NSPredicate(format: "primaryIdentifier == %@", primaryId)
-                
-                let users = try context.fetch(fetchRequest)
-                if let existingUser = users.first {
-                    user = existingUser
-                } else {
-                    // Create user if doesn't exist
-                    user = UserCD(context: context)
-                    user.id = UUID()
-                    user.primaryIdentifier = primaryId
-                    user.userId = UserState.shared.userId.isEmpty ? UUID().uuidString : UserState.shared.userId
-                    user.username = userManager.playerName
-                    user.displayName = userManager.playerName
-                    user.isActive = true
-                    user.registrationDate = Date()
-                }
-            } else {
-                // Use anonymous user
-                if let anonUser = userManager.getOrCreateAnonymousUser() {
-                    user = anonUser
-                } else {
-                    print("❌ Failed to get anonymous user")
-                    return
-                }
-            }
+            let user = identityManager.getCurrentUser()
             
-            // Get or create stats
-            let stats: UserStatsCD
-            if let existingStats = user.stats {
-                stats = existingStats
-            } else {
-                stats = UserStatsCD(context: context)
-                user.stats = stats
-                stats.user = user
-            }
-            
-            // Update stats
-            stats.gamesPlayed += 1
-            if game.hasWon {
-                stats.gamesWon += 1
-                stats.currentStreak += 1
-                if stats.currentStreak > stats.bestStreak {
-                    stats.bestStreak = stats.currentStreak
-                }
-                stats.totalScore += Int32(finalScore)
-            } else {
-                stats.currentStreak = 0
-            }
-            
-            // Update averages
-            let oldMistakesTotal = stats.averageMistakes * Double(max(0, stats.gamesPlayed - 1))
-            stats.averageMistakes = (oldMistakesTotal + Double(game.mistakes)) / Double(stats.gamesPlayed)
-            
-            let oldTimeTotal = stats.averageTime * Double(max(0, stats.gamesPlayed - 1))
-            stats.averageTime = (oldTimeTotal + Double(timeTaken)) / Double(stats.gamesPlayed)
-            
-            stats.lastPlayedDate = Date()
-            
-            // Update the existing GameCD record with final score and user association
             if let gameId = game.gameId {
                 let gameUUID: UUID
                 if gameId.hasPrefix("daily-") {
@@ -799,15 +773,15 @@ class GameState: ObservableObject {
                 
                 if let games = try? context.fetch(gameFetchRequest),
                    let gameEntity = games.first {
-                    // Update the existing game record
+                    // Update existing game
                     gameEntity.score = Int32(finalScore)
                     gameEntity.user = user
                     gameEntity.hasWon = game.hasWon
                     gameEntity.hasLost = game.hasLost
                     gameEntity.timeTaken = Int32(timeTaken)
-                    print("✅ Updated existing game record with score: \(finalScore)")
-                } else {
-                    // Create new game record if it doesn't exist
+                    print("✅ Updated existing game record")
+                } else if let user = user {
+                    // Create new game record
                     let gameEntity = GameCD(context: context)
                     gameEntity.gameId = gameUUID
                     gameEntity.encrypted = game.encrypted
@@ -824,37 +798,28 @@ class GameState: ObservableObject {
                     gameEntity.timeTaken = Int32(timeTaken)
                     gameEntity.isDaily = isDailyChallenge
                     gameEntity.user = user
-                    
-                    // Save mappings
-                    gameEntity.mapping = try? JSONEncoder().encode(game.mapping.mapToStringDict())
-                    gameEntity.correctMappings = try? JSONEncoder().encode(game.correctMappings.mapToStringDict())
-                    gameEntity.guessedMappings = try? JSONEncoder().encode(game.guessedMappings.mapToStringDict())
-                    
-                    print("✅ Created new game record with score: \(finalScore)")
+                    print("✅ Created new game record")
                 }
+                
+                try context.save()
             }
-            
-            try context.save()
-            
-            print("✅ Score submission complete - Score: \(finalScore), Total Score: \(stats.totalScore)")
-            
-            // Refresh user manager stats
-            userManager.refreshStats()
-            
-            // Also update UserState if needed
-            UserState.shared.updateStats(won: game.hasWon, score: finalScore)
             
             // Submit to Game Center if available
-            Task {
-                if game.hasWon {
-                    await GameCenterManager.shared.submitTotalScore(Int(stats.totalScore))
+            if game.hasWon {
+                Task {
+                    if let stats = identityManager.getUserStats() {
+                        await GameCenterManager.shared.submitTotalScore(Int(stats.totalScore))
+                    }
                 }
             }
             
+            print("✅ Score submission complete")
+            
         } catch {
-            print("❌ Error submitting score: \(error.localizedDescription)")
+            print("❌ Error saving game record: \(error)")
         }
     }
+
     
     // MARK: - State Management
     

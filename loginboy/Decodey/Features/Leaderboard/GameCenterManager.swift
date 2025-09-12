@@ -31,6 +31,7 @@ class GameCenterManager: ObservableObject {
     // MARK: - Setup authentication handler (call from app init)
     func setupAuthentication() {
         let localPlayer = GKLocalPlayer.local
+        let identityManager = UserIdentityManager.shared
         
         localPlayer.authenticateHandler = { [weak self] viewController, error in
             guard let self = self else { return }
@@ -43,21 +44,26 @@ class GameCenterManager: ObservableObject {
                     self.presentAuthenticationViewController()
                     #endif
                 } else if localPlayer.isAuthenticated {
-                    print("   ✅ AUTHENTICATED!")
+                    print("   ✅ GAME CENTER AUTHENTICATED!")
                     print("   - Player ID: \(localPlayer.gamePlayerID)")
                     print("   - Display Name: \(localPlayer.displayName)")
                     print("   - Alias: \(localPlayer.alias)")
                     
-                    Task { @MainActor in
-                        self.isAuthenticated = true
-                        self.localPlayer = localPlayer
-                        // Use alias if display name is empty
-                        self.playerDisplayName = localPlayer.displayName.isEmpty ? localPlayer.alias : localPlayer.displayName
-                        self.isGameCenterAvailable = true
-                        
-                        // Test: Try to load leaderboards immediately
-//                        await self.testLeaderboardAccess()
-                    }
+                    self.isAuthenticated = true
+                    self.localPlayer = localPlayer
+                    
+                    // Use alias if display name is empty (common in sandbox)
+                    self.playerDisplayName = localPlayer.displayName.isEmpty ?
+                        localPlayer.alias : localPlayer.displayName
+                    self.isGameCenterAvailable = true
+                    
+                    // Update identity manager with Game Center info
+                    identityManager.setGameCenterUser(
+                        id: localPlayer.gamePlayerID,
+                        displayName: localPlayer.displayName,
+                        alias: localPlayer.alias
+                    )
+                    
                 } else if let error = error {
                     // Authentication failed
                     self.isAuthenticated = false
