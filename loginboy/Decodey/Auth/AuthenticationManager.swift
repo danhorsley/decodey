@@ -47,7 +47,13 @@ class AuthenticationManager: NSObject, ObservableObject, ASAuthorizationControll
                         self?.userName = UserDefaults.standard.string(forKey: self?.userNameKey ?? "") ?? ""
                         self?.userEmail = UserDefaults.standard.string(forKey: self?.userEmailKey ?? "") ?? ""
                         self?.isAuthenticated = true
+                        
+                        // IMPORTANT: Create or update user in Core Data
+                        self?.createOrUpdateUser()
+                        
+                        // Then update state
                         self?.updateUserState()
+                        
                         print("✅ User still authorized with Apple ID")
                         
                     case .revoked, .notFound:
@@ -178,39 +184,57 @@ class AuthenticationManager: NSObject, ObservableObject, ASAuthorizationControll
     private func createOrUpdateUser() {
         let context = coreData.mainContext
         
+        // Use Apple userID as primary identifier
+        let primaryId = userID
+        
+        // Check if user exists by primary identifier
         let fetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
-        fetchRequest.predicate = NSPredicate(format: "userId == %@", userID)
+        fetchRequest.predicate = NSPredicate(format: "primaryIdentifier == %@", primaryId)
         
         do {
             let users = try context.fetch(fetchRequest)
-            let user: UserCD
             
             if let existingUser = users.first {
-                user = existingUser
-                user.lastLoginDate = Date()
-                print("✅ Updated existing user in Core Data")
+                // Update existing user
+                existingUser.userId = userID
+                existingUser.username = userName
+                existingUser.displayName = userName
+                existingUser.email = userEmail
+                existingUser.lastLoginDate = Date()
             } else {
-                user = UserCD(context: context)
-                user.userId = userID
-                user.username = userName
-                user.displayName = userName
-                user.email = userEmail
-                user.isActive = true
-                user.registrationDate = Date()
-                user.lastLoginDate = Date()
+                // Create new user
+                let newUser = UserCD(context: context)
+                newUser.id = UUID()
+                newUser.primaryIdentifier = primaryId
+                newUser.userId = userID
+                newUser.username = userName
+                newUser.displayName = userName
+                newUser.email = userEmail
+                newUser.registrationDate = Date()
+                newUser.lastLoginDate = Date()
+                newUser.isActive = true
+                newUser.isVerified = true
+                newUser.isSubadmin = false
                 
                 // Create initial stats
                 let stats = UserStatsCD(context: context)
-                stats.user = user
-                user.stats = stats
+                stats.user = newUser
+                stats.totalScore = 0
+                stats.gamesPlayed = 0
+                stats.gamesWon = 0
+                stats.currentStreak = 0
+                stats.bestStreak = 0
+                stats.averageMistakes = 0.0
+                stats.averageTime = 0.0
+                stats.lastPlayedDate = nil
                 
-                print("✅ Created new user in Core Data")
+                newUser.stats = stats
             }
             
             try context.save()
-            
+            print("✅ User saved to Core Data")
         } catch {
-            print("❌ Error managing user in Core Data: \(error)")
+            print("❌ Error saving user to Core Data: \(error)")
         }
     }
     
@@ -263,9 +287,9 @@ class AuthenticationManager: NSObject, ObservableObject, ASAuthorizationControll
         UserState.shared.isAuthenticated = isAuthenticated
         UserState.shared.isSignedIn = isAuthenticated
         
-        // Update SimpleUserManager if you're using it
+        // Update SimpleUserManager with Apple ID as primary identifier
         if isAuthenticated {
-            SimpleUserManager.shared.setupLocalPlayer(name: userName)
+            SimpleUserManager.shared.setupLocalPlayer(name: userName, appleUserId: userID)
         }
     }
     

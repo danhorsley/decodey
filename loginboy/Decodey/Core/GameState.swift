@@ -544,14 +544,18 @@ class GameState: ObservableObject {
             entity.score = Int32(game.calculateScore())
             
             // Associate with current user if signed in
-            if userManager.isSignedIn {
+            if userManager.isSignedIn && !userManager.playerName.isEmpty {
+                let primaryId = UserState.shared.userId.isEmpty ? userManager.playerName.lowercased() : UserState.shared.userId
                 let userFetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
-                userFetchRequest.predicate = NSPredicate(format: "username == %@", userManager.playerName)
+                userFetchRequest.predicate = NSPredicate(format: "primaryIdentifier == %@", primaryId)
                 
                 if let users = try? context.fetch(userFetchRequest),
                    let user = users.first {
                     entity.user = user
                 }
+            } else {
+                // Associate with anonymous user
+                entity.user = userManager.getOrCreateAnonymousUser()
             }
             
             // Save the saved game reference
@@ -705,11 +709,6 @@ class GameState: ObservableObject {
             return
         }
         
-        guard userManager.isSignedIn else {
-            print("⚠️ Cannot submit score - user not signed in")
-            return
-        }
-        
         let context = coreData.mainContext
         
         // Calculate the score once
@@ -718,24 +717,38 @@ class GameState: ObservableObject {
         
         print("📊 Submitting score - Score: \(finalScore), Time: \(timeTaken)s, Won: \(game.hasWon)")
         
-        // Use username for the predicate
-        let userFetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
-        userFetchRequest.predicate = NSPredicate(format: "username == %@", userManager.playerName)
-        
         do {
-            let users = try context.fetch(userFetchRequest)
-            
+            // Get the appropriate user
             let user: UserCD
-            if let existingUser = users.first {
-                user = existingUser
+            if userManager.isSignedIn && !userManager.playerName.isEmpty {
+                // Find or create user by primary identifier
+                let primaryId = UserState.shared.userId.isEmpty ? userManager.playerName.lowercased() : UserState.shared.userId
+                
+                let fetchRequest = NSFetchRequest<UserCD>(entityName: "UserCD")
+                fetchRequest.predicate = NSPredicate(format: "primaryIdentifier == %@", primaryId)
+                
+                let users = try context.fetch(fetchRequest)
+                if let existingUser = users.first {
+                    user = existingUser
+                } else {
+                    // Create user if doesn't exist
+                    user = UserCD(context: context)
+                    user.id = UUID()
+                    user.primaryIdentifier = primaryId
+                    user.userId = UserState.shared.userId.isEmpty ? UUID().uuidString : UserState.shared.userId
+                    user.username = userManager.playerName
+                    user.displayName = userManager.playerName
+                    user.isActive = true
+                    user.registrationDate = Date()
+                }
             } else {
-                // Create user if doesn't exist
-                user = UserCD(context: context)
-                user.userId = UUID().uuidString
-                user.username = userManager.playerName
-                user.displayName = userManager.playerName
-                user.isActive = true
-                user.registrationDate = Date()
+                // Use anonymous user
+                if let anonUser = userManager.getOrCreateAnonymousUser() {
+                    user = anonUser
+                } else {
+                    print("❌ Failed to get anonymous user")
+                    return
+                }
             }
             
             // Get or create stats
@@ -791,6 +804,7 @@ class GameState: ObservableObject {
                     gameEntity.user = user
                     gameEntity.hasWon = game.hasWon
                     gameEntity.hasLost = game.hasLost
+                    gameEntity.timeTaken = Int32(timeTaken)
                     print("✅ Updated existing game record with score: \(finalScore)")
                 } else {
                     // Create new game record if it doesn't exist
@@ -807,6 +821,7 @@ class GameState: ObservableObject {
                     gameEntity.startTime = game.startTime
                     gameEntity.lastUpdateTime = game.lastUpdateTime
                     gameEntity.score = Int32(finalScore)
+                    gameEntity.timeTaken = Int32(timeTaken)
                     gameEntity.isDaily = isDailyChallenge
                     gameEntity.user = user
                     
@@ -833,15 +848,11 @@ class GameState: ObservableObject {
             Task {
                 if game.hasWon {
                     await GameCenterManager.shared.submitTotalScore(Int(stats.totalScore))
-//                    await GameCenterManager.shared.submitWinStreak(Int(stats.currentStreak))
                 }
-//                if isDailyChallenge {
-//                    await GameCenterManager.shared.submitDailyScore(finalScore)
-//                }
             }
             
         } catch {
-            print("❌ Error updating user stats: \(error.localizedDescription)")
+            print("❌ Error submitting score: \(error.localizedDescription)")
         }
     }
     

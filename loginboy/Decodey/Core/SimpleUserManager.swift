@@ -1,8 +1,3 @@
-//
-//  SimpleUserManager.swift - Local-Only User Management
-//  loginboy
-//
-
 import Foundation
 import SwiftUI
 import Combine
@@ -22,6 +17,10 @@ class SimpleUserManager: ObservableObject {
     // Core Data access
     private let coreData = CoreDataStack.shared
     
+    // Constants
+    private let anonymousIdentifier = "anonymous-user"
+    private let anonymousDisplayName = "Anonymous"
+    
     // Singleton
     static let shared = SimpleUserManager()
     
@@ -32,7 +31,7 @@ class SimpleUserManager: ObservableObject {
     // MARK: - Public Methods
     
     /// Set up local player (replaces authentication)
-    func setupLocalPlayer(name: String) {
+    func setupLocalPlayer(name: String, appleUserId: String? = nil) {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else { return }
         
@@ -44,8 +43,8 @@ class SimpleUserManager: ObservableObject {
         playerName = trimmedName
         isSignedIn = true
         
-        // Create local user in Core Data
-        createLocalUser(name: trimmedName)
+        // Create local user in Core Data with proper identity
+        createOrUpdateLocalUser(name: trimmedName, appleUserId: appleUserId)
         
         print("✅ Local player setup: \(trimmedName)")
     }
@@ -88,24 +87,44 @@ class SimpleUserManager: ObservableObject {
         }
     }
     
-    private func createLocalUser(name: String) {
+    private func createOrUpdateLocalUser(name: String, appleUserId: String? = nil) {
         let context = coreData.mainContext
         
-        // Check if user already exists
+        // Determine the primary identifier
+        let primaryId = appleUserId ?? name.lowercased()
+        
+        // Check if user already exists by primary identifier
         let fetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "username == %@", name)
+        fetchRequest.predicate = NSPredicate(format: "primaryIdentifier == %@", primaryId)
         
         do {
             let existingUsers = try context.fetch(fetchRequest)
             
-            if existingUsers.isEmpty {
+            if let existingUser = existingUsers.first {
+                // Update existing user
+                existingUser.displayName = name
+                existingUser.username = name
+                existingUser.lastLoginDate = Date()
+                
+                // Update userId if we have Apple ID
+                if let appleId = appleUserId {
+                    existingUser.userId = appleId
+                }
+                
+                try context.save()
+                print("✅ Updated existing user: \(name)")
+                
+                // Check for anonymous games to claim
+                offerToClaimAnonymousGames(for: existingUser)
+            } else {
                 // Create new local user
                 let user = UserCD(context: context)
                 user.id = UUID()
-                user.userId = "local-\(UUID().uuidString)"
+                user.primaryIdentifier = primaryId
+                user.userId = appleUserId ?? "local-\(UUID().uuidString)"
                 user.username = name
                 user.displayName = name
-                user.email = nil // No email for local users
+                user.email = nil
                 user.registrationDate = Date()
                 user.lastLoginDate = Date()
                 user.isActive = true
@@ -128,17 +147,80 @@ class SimpleUserManager: ObservableObject {
                 
                 try context.save()
                 print("✅ Created local user: \(name)")
-            } else {
-                // Update existing user's last login
-                let user = existingUsers.first!
-                user.lastLoginDate = Date()
-                try context.save()
-                print("✅ Updated existing local user: \(name)")
+                
+                // Check for anonymous games to claim
+                offerToClaimAnonymousGames(for: user)
             }
             
             loadLocalStats()
         } catch {
-            print("❌ Error creating local user: \(error)")
+            print("❌ Error creating/updating local user: \(error)")
+        }
+    }
+    
+    private func offerToClaimAnonymousGames(for user: UserCD) {
+        let context = coreData.mainContext
+        
+        // Find anonymous games from the last 24 hours
+        let oneDayAgo = Date().addingTimeInterval(-86400)
+        let gameFetchRequest: NSFetchRequest<GameCD> = GameCD.fetchRequest()
+        
+        // Get anonymous user
+        let anonUserRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
+        anonUserRequest.predicate = NSPredicate(format: "primaryIdentifier == %@", anonymousIdentifier)
+        
+        do {
+            if let anonUser = try context.fetch(anonUserRequest).first {
+                // Find recent anonymous games
+                gameFetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+                    NSPredicate(format: "user == %@", anonUser),
+                    NSPredicate(format: "lastUpdateTime >= %@", oneDayAgo as NSDate)
+                ])
+                
+                let recentAnonGames = try context.fetch(gameFetchRequest)
+                
+                if !recentAnonGames.isEmpty {
+                    print("📊 Found \(recentAnonGames.count) recent anonymous games")
+                    
+                    // In a real app, you'd show a dialog here
+                    // For now, auto-claim recent games
+                    claimAnonymousGames(recentAnonGames, for: user)
+                }
+            }
+        } catch {
+            print("❌ Error checking for anonymous games: \(error)")
+        }
+    }
+    
+    private func claimAnonymousGames(_ games: [GameCD], for user: UserCD) {
+        let context = coreData.mainContext
+        
+        do {
+            for game in games {
+                game.user = user
+            }
+            
+            // Recalculate user stats
+            if let stats = user.stats {
+                let completedGames = games.filter { $0.hasWon || $0.hasLost }
+                stats.gamesPlayed += Int32(completedGames.count)
+                stats.gamesWon += Int32(completedGames.filter { $0.hasWon }.count)
+                stats.totalScore += completedGames.reduce(0) { $0 + $1.score }
+                
+                // Recalculate averages
+                if stats.gamesPlayed > 0 {
+                    let totalTime = completedGames.reduce(0) { $0 + Double($1.timeTaken) }
+                    stats.averageTime = totalTime / Double(stats.gamesPlayed)
+                    
+                    let totalMistakes = completedGames.reduce(0) { $0 + Double($1.mistakes) }
+                    stats.averageMistakes = totalMistakes / Double(stats.gamesPlayed)
+                }
+            }
+            
+            try context.save()
+            print("✅ Claimed \(games.count) anonymous games")
+        } catch {
+            print("❌ Error claiming anonymous games: \(error)")
         }
     }
     
@@ -183,6 +265,50 @@ class SimpleUserManager: ObservableObject {
         } catch {
             print("❌ Error loading local stats: \(error)")
             localStats = nil
+        }
+    }
+    
+    // MARK: - Anonymous User Management
+    
+    func getOrCreateAnonymousUser() -> UserCD? {
+        let context = coreData.mainContext
+        let fetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "primaryIdentifier == %@", anonymousIdentifier)
+        
+        do {
+            if let anonUser = try context.fetch(fetchRequest).first {
+                return anonUser
+            } else {
+                // Create anonymous user
+                let anonUser = UserCD(context: context)
+                anonUser.id = UUID()
+                anonUser.primaryIdentifier = anonymousIdentifier
+                anonUser.userId = anonymousIdentifier
+                anonUser.username = anonymousDisplayName
+                anonUser.displayName = anonymousDisplayName
+                anonUser.registrationDate = Date()
+                anonUser.isActive = true
+                
+                // Create stats for anonymous user
+                let stats = UserStatsCD(context: context)
+                stats.user = anonUser
+                stats.totalScore = 0
+                stats.gamesPlayed = 0
+                stats.gamesWon = 0
+                stats.currentStreak = 0
+                stats.bestStreak = 0
+                stats.averageMistakes = 0.0
+                stats.averageTime = 0.0
+                
+                anonUser.stats = stats
+                
+                try context.save()
+                print("✅ Created anonymous user")
+                return anonUser
+            }
+        } catch {
+            print("❌ Error managing anonymous user: \(error)")
+            return nil
         }
     }
 }

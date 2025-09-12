@@ -1,3 +1,5 @@
+// LocalQuoteManager.swift - Updated loadQuotesIfNeeded function
+
 import Foundation
 import CoreData
 import SwiftUI
@@ -16,18 +18,43 @@ class LocalQuoteManager: ObservableObject {
     // MARK: - Simple Loading
     
     func loadQuotesIfNeeded() async {
-        if UserDefaults.standard.bool(forKey: quotesLoadedKey) {
-            print("✅ Quotes already loaded")
+        // Check BOTH UserDefaults AND actual database count
+        let hasQuotesInDB = getQuoteCount() > 0
+        let hasLoadedFlag = UserDefaults.standard.bool(forKey: quotesLoadedKey)
+        
+        if hasLoadedFlag && hasQuotesInDB {
+            print("✅ Quotes already loaded (Count: \(getQuoteCount()))")
             await MainActor.run {
                 self.isLoaded = true
             }
             return
         }
         
+        // If we have the flag but no quotes, clear the flag
+        if hasLoadedFlag && !hasQuotesInDB {
+            print("⚠️ UserDefaults says quotes loaded but database is empty. Clearing flag.")
+            UserDefaults.standard.removeObject(forKey: quotesLoadedKey)
+        }
+        
         print("📚 Loading quotes from bundle...")
         await loadQuotesFromBundle()
     }
     
+    // Alternative: Add a force reload function for debugging
+    func forceReloadQuotes() async {
+        print("🔄 Force reloading quotes...")
+        
+        // Clear the flag
+        UserDefaults.standard.removeObject(forKey: quotesLoadedKey)
+        
+        // Clear existing quotes
+        await resetData()
+        
+        // Reload from bundle
+        await loadQuotesFromBundle()
+    }
+    
+    // Keep the rest of the implementation the same...
     private func loadQuotesFromBundle() async {
         // Find the file
         guard let url = Bundle.main.url(forResource: "quotes_classic", withExtension: "json") else {
