@@ -58,6 +58,14 @@ class SettingsState: ObservableObject {
         }
     }
     
+    // NEW: Haptic feedback setting
+    @Published var hapticEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(hapticEnabled, forKey: Keys.hapticEnabled)
+            SoundManager.shared.isHapticEnabled = hapticEnabled
+        }
+    }
+    
     // Security settings
     @Published var useBiometricAuth: Bool {
         didSet {
@@ -80,6 +88,7 @@ class SettingsState: ObservableObject {
         static let gameDifficulty = "gameDifficulty"
         static let soundEnabled = "soundEnabled"
         static let soundVolume = "soundVolume"
+        static let hapticEnabled = "hapticEnabled"  // NEW
         static let useBiometricAuth = "useBiometricAuth"
         static let useEnhancedLetterCells = "useEnhancedLetterCells"
     }
@@ -104,6 +113,7 @@ class SettingsState: ObservableObject {
         gameDifficulty = UserDefaults.standard.object(forKey: Keys.gameDifficulty) as? String ?? "medium"
         soundEnabled = UserDefaults.standard.object(forKey: Keys.soundEnabled) as? Bool ?? true
         soundVolume = UserDefaults.standard.object(forKey: Keys.soundVolume) as? Float ?? 0.5
+        hapticEnabled = UserDefaults.standard.object(forKey: Keys.hapticEnabled) as? Bool ?? true  // NEW
         useEnhancedLetterCells = UserDefaults.standard.object(forKey: Keys.useEnhancedLetterCells) as? Bool ?? false
         
         // Check biometric availability for default
@@ -127,6 +137,7 @@ class SettingsState: ObservableObject {
         gameDifficulty: String? = nil,
         soundEnabled: Bool? = nil,
         soundVolume: Float? = nil,
+        hapticEnabled: Bool? = nil,  // NEW
         useBiometricAuth: Bool? = nil
     ) {
         if let darkMode = darkMode {
@@ -152,6 +163,8 @@ class SettingsState: ObservableObject {
         if let soundVolume = soundVolume {
             self.soundVolume = soundVolume
         }
+        
+        if let hapticEnabled = hapticEnabled { self.hapticEnabled = hapticEnabled } //NEW
         
         if let useBiometricAuth = useBiometricAuth {
             self.useBiometricAuth = useBiometricAuth

@@ -248,7 +248,7 @@ struct SettingsView: View {
     }
     
     private var audioSettingsSection: some View {
-        SettingsSection(title: "Audio", icon: "speaker.wave.2.fill") {
+        SettingsSection(title: "Sound & Haptics", icon: "speaker.wave.2.fill") {
             VStack(spacing: 12) {
                 // Sound Enabled
                 SettingRow(
@@ -267,33 +267,46 @@ struct SettingsView: View {
                     
                     // Volume Slider
                     VStack(alignment: .leading, spacing: 8) {
-                        SettingRow(
-                            title: "Volume",
-                            subtitle: "\(Int(settings.soundVolume * 100))%",
-                            icon: "volume.2.fill"
-                        ) {
-                            EmptyView()
+                        HStack {
+                            Image(systemName: "speaker.wave.1.fill")
+                                .font(.subheadline)
+                                .foregroundStyle(ColorSystem.shared.secondaryText(for: colorScheme))
+                            
+                            Text("Volume")
+                                .font(.subheadline)
+                                .foregroundStyle(ColorSystem.shared.primaryText(for: colorScheme))
+                            
+                            Spacer()
+                            
+                            Text("\(Int(settings.soundVolume * 100))%")
+                                .font(.subheadline.monospacedDigit())
+                                .foregroundStyle(ColorSystem.shared.secondaryText(for: colorScheme))
                         }
                         
-                        HStack(spacing: 12) {
-                            Image(systemName: "speaker.fill")
-                                .foregroundStyle(ColorSystem.shared.secondaryText(for: colorScheme))
-                                .font(.caption)
-                            
-                            Slider(
-                                value: $settings.soundVolume,
-                                in: 0...1,
-                                step: 0.1
-                            )
+                        Slider(value: $settings.soundVolume, in: 0...1)
                             .tint(ColorSystem.shared.accent)
-                            
-                            Image(systemName: "speaker.wave.3.fill")
-                                .foregroundStyle(ColorSystem.shared.secondaryText(for: colorScheme))
-                                .font(.caption)
-                        }
-                        .padding(.horizontal, 16)
-                        .padding(.bottom, 4)
                     }
+                    .padding(.horizontal, 4)
+                }
+                
+                Divider()
+                    .background(ColorSystem.shared.border(for: colorScheme))
+                
+                // NEW: Haptic Feedback Toggle
+                SettingRow(
+                    title: "Haptic Feedback",
+                    subtitle: "Vibration feedback for actions",
+                    icon: "iphone.radiowaves.left.and.right"
+                ) {
+                    Toggle("", isOn: $settings.hapticEnabled)
+                        .toggleStyle(SwitchToggleStyle(tint: ColorSystem.shared.accent))
+                        .scaleEffect(0.9)
+                        .onChange(of: settings.hapticEnabled) { isEnabled in
+                            if isEnabled {
+                                // Give a sample haptic when turned on
+                                SoundManager.shared.play(.letterClick)
+                            }
+                        }
                 }
             }
         }
