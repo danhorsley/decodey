@@ -26,8 +26,6 @@ struct MainView: View {
             } else {
                 // Main game interface
                 VStack(spacing: 0) {
-
-                    
                     // Game content
                     TabView {
                         // Daily Challenge Tab
@@ -58,23 +56,45 @@ struct MainView: View {
                             }
                             .tag(2)
                         
-                        // ADD THIS SETTINGS TAB:
+                        // Settings Tab
                         SettingsView()
                             .tabItem {
                                 Image(systemName: "gear")
                                 Text("Settings")
                             }
                     }
-                    .tutorialTarget(.tabBar)  // <-- ADD THIS
+                    .tutorialTarget(.tabBar)  // Mark the TabView for tutorial
                 }
                 .transition(.slide)
+                .withTutorialOverlay()  // Tutorial overlay ONLY on game view
+                .onAppear {
+                    // Check for pending tutorial from settings or first launch
+                    if !hasCheckedTutorial {
+                        hasCheckedTutorial = true
+                        
+                        // Check if tutorial was triggered from settings
+                        if UserDefaults.standard.bool(forKey: "tutorial-pending") {
+                            UserDefaults.standard.set(false, forKey: "tutorial-pending")
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                tutorialManager.startTutorial()
+                            }
+                        }
+                        // Or check for first launch
+                        else if !tutorialManager.hasCompletedTutorial &&
+                                !UserDefaults.standard.bool(forKey: "tutorial-started") {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                tutorialManager.startTutorial()
+                            }
+                        }
+                    }
+                }
             }
         }
         .environmentObject(gameState)
         .environmentObject(userState)
         .environmentObject(settingsState)
         .environmentObject(soundManager)
-        .environmentObject(tutorialManager)  // <-- ADD THIS
+        .environmentObject(tutorialManager)
                 .overlay(  // <-- ADD THIS OVERLAY
                     EnhancedTutorialOverlay()
                         .allowsHitTesting(tutorialManager.isShowingTutorial)

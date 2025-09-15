@@ -38,6 +38,9 @@ struct SettingsView: View {
                     // Audio Settings Section
                     audioSettingsSection
                     
+                    //tutorial section
+                    tutorialSection
+                    
                     // Accessibility Section
                     accessibilitySection
                     
@@ -133,14 +136,15 @@ struct SettingsView: View {
                       icon: "book.fill"
                   ) {
                       Button(action: {
-                          // Dismiss settings first so tutorial shows properly
+                          // Dismiss settings first
                           dismiss()
                           
-                          // Small delay to ensure settings is dismissed
-                          DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                              tutorialManager.resetTutorial()
-                              tutorialManager.startTutorial()
-                          }
+                          // Set a flag that tutorial should start when the game view appears
+                          tutorialManager.resetTutorial()
+                          UserDefaults.standard.set(true, forKey: "tutorial-pending")
+                          
+                          // Don't start immediately - let MainView handle it when game view is ready
+                          // Remove this line: tutorialManager.startTutorial()
                       }) {
                           HStack(spacing: 4) {
                               Image(systemName: "play.fill")
