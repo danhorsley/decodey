@@ -1,8 +1,11 @@
 import AVFoundation
 import SwiftUI
+#if os(iOS)
+import UIKit
+#endif
 
-// MARK: - Sound Manager with Haptic Support
-/// Manages all sound effects and music for the game using AVAudioEngine for low latency
+// MARK: - Sound Manager with Full Haptic Support
+/// Manages all sound effects and haptic feedback for the game
 class SoundManager: ObservableObject {
     // Singleton
     static let shared = SoundManager()
@@ -16,7 +19,7 @@ class SoundManager: ObservableObject {
         case lose = "lose"                       // Game lost
         case hint = "hint"                       // Hint used
         
-        // Map to sensory feedback for iOS 17+
+        // Map to sensory feedback for iOS 17+ (keeping as backup)
         @available(iOS 17.0, *)
         var sensoryFeedback: SensoryFeedback {
             switch self {
@@ -43,13 +46,14 @@ class SoundManager: ObservableObject {
             if !isSoundEnabled {
                 stopAllSounds()
             }
+            print("🔊 Sound enabled: \(isSoundEnabled)")
         }
     }
     
-    // NEW: Haptic feedback setting
     @Published var isHapticEnabled: Bool = true {
         didSet {
             UserDefaults.standard.set(isHapticEnabled, forKey: "hapticEnabled")
+            print("📳 Haptic enabled: \(isHapticEnabled)")
         }
     }
     
@@ -60,7 +64,7 @@ class SoundManager: ObservableObject {
         }
     }
     
-    // NEW: Track haptic triggers for SwiftUI's sensoryFeedback
+    // Track haptic triggers for SwiftUI's sensoryFeedback (backup method)
     @Published var hapticTriggerID = UUID()
     @Published var lastTriggeredSound: SoundType? = nil
     
@@ -75,11 +79,21 @@ class SoundManager: ObservableObject {
     // Track what's playing
     private var isPlaying: [SoundType: Bool] = [:]
     
-    // Debug mode
-    private let debugMode = false
+    // Haptic generators (iOS only) - pre-initialized for better performance
+    #if os(iOS)
+    private let selectionGenerator = UISelectionFeedbackGenerator()
+    private let notificationGenerator = UINotificationFeedbackGenerator()
+    private let lightImpactGenerator = UIImpactFeedbackGenerator(style: .light)
+    private let mediumImpactGenerator = UIImpactFeedbackGenerator(style: .medium)
+    private let heavyImpactGenerator = UIImpactFeedbackGenerator(style: .heavy)
+    #endif
+    
+    // Debug mode - set to true for troubleshooting
+    private let debugMode = true
     
     // Load state
     private var soundsLoaded = false
+    private var audioSessionConfigured = false
     
     private init() {
         // Load preferences
@@ -87,21 +101,29 @@ class SoundManager: ObservableObject {
         isHapticEnabled = UserDefaults.standard.object(forKey: "hapticEnabled") as? Bool ?? true
         volume = UserDefaults.standard.object(forKey: "soundVolume") as? Float ?? 0.7
         
+        print("🎮 SoundManager initializing...")
+        print("   Sound: \(isSoundEnabled), Haptic: \(isHapticEnabled), Volume: \(volume)")
+        
         // Set up the audio
         setupAudio()
+        
+        // Prepare haptic generators
+        prepareHapticGenerators()
     }
     
-    // MARK: - Audio Setup (keeping your existing implementation)
+    // MARK: - Audio Setup
     
     private func setupAudio() {
-        #if os(iOS)
-        // Configure audio session
-        do {
-            try AVAudioSession.sharedInstance().setCategory(.ambient, mode: .default)
-            try AVAudioSession.sharedInstance().setActive(true)
-        } catch {
-            print("❌ Failed to configure audio session: \(error.localizedDescription)")
+        print("\n🎵 Setting up audio system...")
+        
+        // First, verify audio files exist
+        if !verifyAudioFiles() {
+            print("❌ Critical: Audio files missing! Check bundle resources.")
         }
+        
+        #if os(iOS)
+        // Configure audio session for iOS
+        configureAudioSession()
         #endif
         
         // Initialize audio engine
@@ -126,143 +148,64 @@ class SoundManager: ObservableObject {
         }
     }
     
-    // MARK: - Playback with Haptic Support
-    
-    func play(_ type: SoundType) {
-        guard isSoundEnabled else {
-            // Even if sound is disabled, we might still want haptics
-            if isHapticEnabled {
-                triggerHaptic(for: type)
-            }
-            return
-        }
-        
-        // Trigger haptic feedback
-        if isHapticEnabled {
-            triggerHaptic(for: type)
-        }
-        
-        // Don't play the same sound if it's already playing (prevents overlap)
-        if isPlaying[type] == true && type != .letterClick {
-            return
-        }
-        
-        isPlaying[type] = true
-        
-        // Try AVAudioEngine first for lowest latency
-        if let engine = audioEngine, engine.isRunning,
-           let playerNode = audioPlayerNodes[type],
-           let file = audioFiles[type] {
-            playWithEngine(playerNode: playerNode, file: file, type: type)
-        } else {
-            // Fallback to AVAudioPlayer
-            playWithAudioPlayer(type)
-        }
-    }
-    
-    // NEW: Trigger haptic feedback
-    private func triggerHaptic(for type: SoundType) {
-        DispatchQueue.main.async { [weak self] in
-            self?.lastTriggeredSound = type
-            self?.hapticTriggerID = UUID() // Force update for sensoryFeedback
-        }
-    }
-    
-    // Keep all your existing methods unchanged...
-    private func playWithAudioPlayer(_ type: SoundType) {
-        guard let player = audioPlayers[type] else {
-            if debugMode {
-                print("⚠️ No audio player for: \(type.rawValue)")
-            }
-            isPlaying[type] = false
-            return
-        }
-        
-        if debugMode {
-            print("🔊 Playing with AVAudioPlayer: \(type.rawValue)")
-        }
-        
-        // Reset to beginning and play
-        player.currentTime = 0
-        player.volume = volume
-        player.play()
-        
-        // Mark as not playing after estimated duration
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
-            self?.isPlaying[type] = false
-        }
-    }
-    
-    private func playWithEngine(playerNode: AVAudioPlayerNode, file: AVAudioFile, type: SoundType) {
-        guard let engine = audioEngine, engine.isRunning else {
-            if debugMode {
-                print("⚠️ Engine not running, falling back to AVAudioPlayer")
-            }
-            playWithAudioPlayer(type)
-            return
-        }
-        
-        if debugMode {
-            print("🔊 Playing with AVAudioEngine: \(type.rawValue)")
-        }
-        
-        // Stop if already playing
-        if playerNode.isPlaying {
-            playerNode.stop()
-        }
-        
-        // Set volume
-        playerNode.volume = volume
-        
-        // Schedule file to play
+    #if os(iOS)
+    private func configureAudioSession() {
         do {
-            playerNode.scheduleFile(file, at: nil) { [weak self] in
-                DispatchQueue.main.async {
-                    self?.isPlaying[type] = false
-                    if self?.debugMode == true {
-                        print("✅ Finished playing: \(type.rawValue)")
-                    }
-                }
-            }
+            let session = AVAudioSession.sharedInstance()
             
-            // Start playing
-            if !playerNode.isPlaying {
-                playerNode.play()
-            }
+            // Use .playback to ignore silent switch, with mixWithOthers to be polite to other apps
+            // This is KEY for iPhone - .ambient respects the silent switch!
+            try session.setCategory(.ambient, mode: .default, options: [.mixWithOthers])
+            
+            // Activate the session
+            try session.setActive(true, options: .notifyOthersOnDeactivation)
+            
+            audioSessionConfigured = true
+            
+            print("✅ iOS Audio Session configured successfully")
+            print("   Category: \(session.category.rawValue)")
+            print("   Mode: \(session.mode.rawValue)")
+            print("   Output Volume: \(session.outputVolume)")
+            print("   Output Port: \(session.currentRoute.outputs.first?.portType.rawValue ?? "none")")
+            print("   Other audio playing: \(session.isOtherAudioPlaying)")
+            
         } catch {
-            print("❌ Failed to schedule audio file: \(error)")
-            isPlaying[type] = false
-            // Fallback
-            playWithAudioPlayer(type)
+            print("❌ Failed to configure audio session: \(error.localizedDescription)")
+            print("   Error details: \(error)")
+            audioSessionConfigured = false
         }
     }
+    #endif
     
-    // Keep all other existing methods unchanged...
-    private func preloadSound(_ type: SoundType) {
-        // Finding sound file with multiple attempts
-        var url: URL? = nil
+    private func verifyAudioFiles() -> Bool {
+        print("\n📁 Verifying audio files in bundle...")
+        var allFound = true
         
-        // Try multiple paths and extensions
-        let extensions = ["m4a", "wav", "mp3", "caf"] // M4A first, then fallbacks
-        let names = [type.rawValue, type.rawValue.lowercased()]
-        
-        for ext in extensions {
-            for name in names {
-                if url == nil {
-                    url = Bundle.main.url(forResource: name, withExtension: ext)
+        for soundType in SoundType.allCases {
+            if let url = Bundle.main.url(forResource: soundType.rawValue, withExtension: "m4a") {
+                do {
+                    let resourceValues = try url.resourceValues(forKeys: [.fileSizeKey])
+                    let fileSize = resourceValues.fileSize ?? 0
+                    print("   ✅ \(soundType.rawValue).m4a - \(fileSize) bytes")
+                } catch {
+                    print("   ⚠️ \(soundType.rawValue).m4a - found but can't read size")
                 }
-                if url == nil {
-                    url = Bundle.main.url(forResource: name, withExtension: ext, subdirectory: "Sounds")
-                }
+            } else {
+                print("   ❌ \(soundType.rawValue).m4a - MISSING!")
+                allFound = false
             }
         }
         
-        guard let soundUrl = url else {
-            print("⚠️ Sound file not found: \(type.rawValue)")
+        return allFound
+    }
+    
+    private func preloadSound(_ type: SoundType) {
+        guard let soundUrl = Bundle.main.url(forResource: type.rawValue, withExtension: "m4a") else {
+            print("❌ Cannot find sound file: \(type.rawValue).m4a")
             return
         }
         
-        // Preload for AVAudioPlayer (fallback)
+        // Prepare AVAudioPlayer (fallback)
         do {
             let player = try AVAudioPlayer(contentsOf: soundUrl)
             player.prepareToPlay()
@@ -270,10 +213,10 @@ class SoundManager: ObservableObject {
             audioPlayers[type] = player
             
             if debugMode {
-                print("✅ Loaded sound: \(type.rawValue) from \(soundUrl.lastPathComponent)")
+                print("   ✅ Loaded \(type.rawValue) into AVAudioPlayer (duration: \(player.duration)s)")
             }
         } catch {
-            print("❌ Failed to load sound \(type.rawValue): \(error.localizedDescription)")
+            print("   ❌ Failed to load \(type.rawValue): \(error.localizedDescription)")
         }
         
         // Also prepare for AVAudioEngine
@@ -293,30 +236,194 @@ class SoundManager: ObservableObject {
                 audioPlayerNodes[type] = playerNode
                 
                 if debugMode {
-                    print("✅ Added to audio engine: \(type.rawValue)")
+                    print("   ✅ Added \(type.rawValue) to audio engine")
                 }
             } catch {
-                print("⚠️ Failed to add \(type.rawValue) to audio engine: \(error.localizedDescription)")
+                print("   ⚠️ Failed to add \(type.rawValue) to engine: \(error.localizedDescription)")
             }
         }
     }
     
     private func startAudioEngine() {
-        guard let engine = audioEngine, !audioPlayerNodes.isEmpty else {
-            if debugMode {
-                print("⚠️ Audio engine not started - no player nodes attached")
-            }
+        guard let engine = audioEngine else {
+            print("⚠️ No audio engine to start")
+            return
+        }
+        
+        guard !audioPlayerNodes.isEmpty else {
+            print("⚠️ Audio engine has no player nodes attached")
             return
         }
         
         do {
             try engine.start()
-            if debugMode {
-                print("✅ Audio engine started with \(audioPlayerNodes.count) nodes")
-            }
+            print("✅ Audio engine started with \(audioPlayerNodes.count) nodes")
         } catch {
             print("❌ Failed to start audio engine: \(error.localizedDescription)")
-            // Will fall back to AVAudioPlayer
+            print("   Will fall back to AVAudioPlayer for playback")
+        }
+    }
+    
+    // MARK: - Haptic Setup
+    
+    private func prepareHapticGenerators() {
+        #if os(iOS)
+        // Prepare all generators for immediate use
+        selectionGenerator.prepare()
+        notificationGenerator.prepare()
+        lightImpactGenerator.prepare()
+        mediumImpactGenerator.prepare()
+        heavyImpactGenerator.prepare()
+        
+        print("📳 Haptic generators prepared")
+        #endif
+    }
+    
+    // MARK: - Playback with Haptic Support
+    
+    func play(_ type: SoundType) {
+        if debugMode {
+            print("\n🎮 Play requested: \(type.rawValue)")
+            print("   Sound enabled: \(isSoundEnabled), Haptic enabled: \(isHapticEnabled)")
+        }
+        
+        // Trigger haptic feedback first (even if sound is disabled)
+        if isHapticEnabled {
+            triggerHaptic(for: type)
+        }
+        
+        guard isSoundEnabled else {
+            if debugMode {
+                print("   Sound disabled by user preference")
+            }
+            return
+        }
+        
+        // Don't play the same sound if it's already playing (prevents overlap)
+        if isPlaying[type] == true && type != .letterClick {
+            if debugMode {
+                print("   Already playing, skipping")
+            }
+            return
+        }
+        
+        isPlaying[type] = true
+        
+        // Try AVAudioEngine first for lowest latency
+        if let engine = audioEngine, engine.isRunning,
+           let playerNode = audioPlayerNodes[type],
+           let file = audioFiles[type] {
+            playWithEngine(playerNode: playerNode, file: file, type: type)
+        } else {
+            // Fallback to AVAudioPlayer
+            playWithAudioPlayer(type)
+        }
+    }
+    
+    private func triggerHaptic(for type: SoundType) {
+        #if os(iOS)
+        // Use UIKit haptics directly for reliability
+        DispatchQueue.main.async { [weak self] in
+            guard self?.isHapticEnabled == true else { return }
+            
+            switch type {
+            case .letterClick:
+                self?.selectionGenerator.selectionChanged()
+                if self?.debugMode == true {
+                    print("   📳 Haptic: selection")
+                }
+                
+            case .correctGuess:
+                self?.notificationGenerator.notificationOccurred(.success)
+                if self?.debugMode == true {
+                    print("   📳 Haptic: success")
+                }
+                
+            case .incorrectGuess:
+                self?.notificationGenerator.notificationOccurred(.warning)
+                if self?.debugMode == true {
+                    print("   📳 Haptic: warning")
+                }
+                
+            case .win:
+                self?.notificationGenerator.notificationOccurred(.success)
+                if self?.debugMode == true {
+                    print("   📳 Haptic: win (success)")
+                }
+                
+            case .lose:
+                self?.notificationGenerator.notificationOccurred(.error)
+                if self?.debugMode == true {
+                    print("   📳 Haptic: error")
+                }
+                
+            case .hint:
+                self?.lightImpactGenerator.impactOccurred(intensity: 0.7)
+                if self?.debugMode == true {
+                    print("   📳 Haptic: light impact")
+                }
+            }
+            
+            // Re-prepare the generator for next use
+            switch type {
+            case .letterClick:
+                self?.selectionGenerator.prepare()
+            case .correctGuess, .incorrectGuess, .win, .lose:
+                self?.notificationGenerator.prepare()
+            case .hint:
+                self?.lightImpactGenerator.prepare()
+            }
+        }
+        #endif
+        
+        // Also update SwiftUI state for any sensoryFeedback modifiers (backup)
+        DispatchQueue.main.async { [weak self] in
+            self?.lastTriggeredSound = type
+            self?.hapticTriggerID = UUID()
+        }
+    }
+    
+    private func playWithEngine(playerNode: AVAudioPlayerNode, file: AVAudioFile, type: SoundType) {
+        if debugMode {
+            print("   🔊 Playing with AVAudioEngine: \(type.rawValue)")
+        }
+        
+        // Schedule the buffer
+        playerNode.scheduleFile(file, at: nil) { [weak self] in
+            DispatchQueue.main.async {
+                self?.isPlaying[type] = false
+            }
+        }
+        
+        // Play
+        playerNode.play()
+    }
+    
+    private func playWithAudioPlayer(_ type: SoundType) {
+        guard let player = audioPlayers[type] else {
+            if debugMode {
+                print("   ⚠️ No audio player for: \(type.rawValue)")
+            }
+            isPlaying[type] = false
+            return
+        }
+        
+        if debugMode {
+            print("   🔊 Playing with AVAudioPlayer: \(type.rawValue)")
+        }
+        
+        // Reset to beginning and play
+        player.currentTime = 0
+        player.volume = volume
+        let success = player.play()
+        
+        if debugMode {
+            print("   Play result: \(success ? "✅" : "❌")")
+        }
+        
+        // Mark as not playing after estimated duration
+        DispatchQueue.main.asyncAfter(deadline: .now() + player.duration + 0.1) { [weak self] in
+            self?.isPlaying[type] = false
         }
     }
     
@@ -334,9 +441,7 @@ class SoundManager: ObservableObject {
         // Clear playing states
         isPlaying.removeAll()
         
-        if debugMode {
-            print("🔇 All sounds stopped")
-        }
+        print("🔇 All sounds stopped")
     }
     
     private func updateVolume() {
@@ -345,16 +450,16 @@ class SoundManager: ObservableObject {
             player.volume = volume
         }
         
-        // Update all node volumes
-        for node in audioPlayerNodes.values {
-            node.volume = volume
-        }
+        // Update engine main mixer volume
+        audioEngine?.mainMixerNode.outputVolume = volume
+        
+        print("🔊 Volume updated to: \(volume)")
     }
     
-    // Keep all notification handling unchanged...
+    // MARK: - Notification Handlers
+    
     private func registerForNotifications() {
         #if os(iOS)
-        // Handle interruptions (phone calls, etc.)
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleInterruption),
@@ -362,13 +467,14 @@ class SoundManager: ObservableObject {
             object: nil
         )
         
-        // Handle route changes (headphones, bluetooth)
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(handleRouteChange),
             name: AVAudioSession.routeChangeNotification,
             object: nil
         )
+        
+        print("📡 Registered for iOS audio notifications")
         #endif
     }
     
@@ -380,6 +486,8 @@ class SoundManager: ObservableObject {
             return
         }
         
+        print("🔔 Audio interruption: \(type == .began ? "began" : "ended")")
+        
         if type == .began {
             // Pause during interruption
             stopAllSounds()
@@ -390,58 +498,132 @@ class SoundManager: ObservableObject {
                 do {
                     try AVAudioSession.sharedInstance().setActive(true)
                     startAudioEngine()
+                    print("   ✅ Resumed after interruption")
                 } catch {
-                    print("❌ Failed to restart audio after interruption: \(error.localizedDescription)")
+                    print("   ❌ Failed to resume: \(error.localizedDescription)")
                 }
             }
         }
     }
     
     @objc private func handleRouteChange(notification: Notification) {
-        // Restart engine on route changes
-        startAudioEngine()
+        guard let info = notification.userInfo,
+              let reasonValue = info[AVAudioSessionRouteChangeReasonKey] as? UInt,
+              let reason = AVAudioSession.RouteChangeReason(rawValue: reasonValue) else {
+            return
+        }
+        
+        print("🔔 Audio route changed: \(reason)")
+        
+        // Restart engine on significant route changes
+        if reason == .newDeviceAvailable || reason == .oldDeviceUnavailable {
+            startAudioEngine()
+        }
     }
     #endif
     
-    // Debug info method unchanged...
+    // MARK: - Testing & Debugging
+    
+    func testAudioAndHaptics() {
+        print("\n" + String(repeating: "=", count: 50))
+        print("🧪 AUDIO & HAPTIC SYSTEM TEST")
+        print(String(repeating: "=", count: 50))
+        
+        #if os(iOS)
+        // Test 1: Check iOS audio session
+        print("\n📱 iOS Audio Session:")
+        let session = AVAudioSession.sharedInstance()
+        print("   Category: \(session.category.rawValue)")
+        print("   Mode: \(session.mode.rawValue)")
+        print("   Is Active: \(audioSessionConfigured)")
+        print("   Output Volume: \(session.outputVolume)")
+        print("   Route: \(session.currentRoute.outputs.first?.portName ?? "none")")
+        print("   Port Type: \(session.currentRoute.outputs.first?.portType.rawValue ?? "none")")
+        
+        // Test 2: Settings check
+        print("\n⚙️ Settings:")
+        print("   Sound Enabled: \(isSoundEnabled)")
+        print("   Haptic Enabled: \(isHapticEnabled)")
+        print("   Volume: \(volume)")
+        
+        // Test 3: File check
+        print("\n📁 Audio Files:")
+        for soundType in SoundType.allCases {
+            if Bundle.main.url(forResource: soundType.rawValue, withExtension: "m4a") != nil {
+                print("   ✅ \(soundType.rawValue).m4a")
+            } else {
+                print("   ❌ \(soundType.rawValue).m4a MISSING!")
+            }
+        }
+        
+        // Test 4: Try direct playback
+        print("\n🔊 Direct Playback Test:")
+        if let url = Bundle.main.url(forResource: SoundType.letterClick.rawValue, withExtension: "m4a") {
+            do {
+                let testPlayer = try AVAudioPlayer(contentsOf: url)
+                testPlayer.prepareToPlay()
+                testPlayer.volume = 1.0
+                let played = testPlayer.play()
+                print("   AVAudioPlayer test: \(played ? "✅ Playing" : "❌ Failed")")
+                if played {
+                    print("   Duration: \(testPlayer.duration) seconds")
+                }
+            } catch {
+                print("   ❌ Error: \(error)")
+            }
+        }
+        
+        // Test 5: Test haptics
+        print("\n📳 Haptic Test:")
+        let generator = UIImpactFeedbackGenerator(style: .heavy)
+        generator.prepare()
+        generator.impactOccurred()
+        print("   Heavy impact triggered ✅")
+        
+        #else
+        print("\n💻 macOS Audio Test:")
+        print("   Audio Engine: \(audioEngine?.isRunning == true ? "✅ Running" : "❌ Not running")")
+        print("   Players loaded: \(audioPlayers.count)")
+        print("   Engine nodes: \(audioPlayerNodes.count)")
+        #endif
+        
+        // Test 6: Try the actual play method
+        print("\n🎮 Full System Test:")
+        print("   Playing letterClick sound with haptics...")
+        play(.letterClick)
+        
+        print("\n" + String(repeating: "=", count: 50))
+        print("🧪 TEST COMPLETE - Check above for any ❌ marks")
+        print(String(repeating: "=", count: 50) + "\n")
+    }
+    
     private func printSoundSetupInfo() {
-        print("=== Sound Manager Debug Info ===")
+        print("\n=== Sound Manager Setup Info ===")
         print("Sound enabled: \(isSoundEnabled)")
         print("Haptic enabled: \(isHapticEnabled)")
         print("Volume: \(volume)")
         print("Sounds loaded: \(soundsLoaded)")
         
-        print("\nAudio Players:")
-        for (type, _) in audioPlayers {
-            print("  ✅ \(type.rawValue)")
+        print("\nAudio Players: \(audioPlayers.count)")
+        for (type, player) in audioPlayers {
+            print("  ✅ \(type.rawValue) - duration: \(player.duration)s")
         }
         
-        print("\nAudio Engine Nodes:")
+        print("\nAudio Engine Nodes: \(audioPlayerNodes.count)")
         for (type, _) in audioPlayerNodes {
-            print("  ✅ \(type.rawValue)")
-        }
-        
-        print("\nAudio Files:")
-        for (type, _) in audioFiles {
             print("  ✅ \(type.rawValue)")
         }
         
         if let engine = audioEngine {
             print("\nEngine running: \(engine.isRunning)")
+            print("Engine output volume: \(engine.mainMixerNode.outputVolume)")
         }
         
-        print("================================")
+        print("================================\n")
     }
 }
 
-// Make SoundType Identifiable for SwiftUI
-extension SoundManager.SoundType: Identifiable {
-    var id: String {
-        return self.rawValue
-    }
-}
-
-// MARK: - SwiftUI View Modifier for Haptic Integration
+// MARK: - SwiftUI View Modifier (keeping for compatibility)
 struct SoundAndHapticModifier: ViewModifier {
     @EnvironmentObject var soundManager: SoundManager
     
@@ -463,9 +645,15 @@ struct SoundAndHapticModifier: ViewModifier {
     }
 }
 
-// Extension to apply the modifier easily
 extension View {
     func withSoundAndHaptics() -> some View {
         self.modifier(SoundAndHapticModifier())
+    }
+}
+
+// Make SoundType Identifiable for SwiftUI
+extension SoundManager.SoundType: Identifiable {
+    var id: String {
+        return self.rawValue
     }
 }

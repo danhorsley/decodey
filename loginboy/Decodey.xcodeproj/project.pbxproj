@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		285B4E742DDB3A0C00CAC666 /* DecodeyApp.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 285B4E722DDB3A0C00CAC666 /* DecodeyApp.xcdatamodeld */; };
+		28A93DB02E78383400819F78 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28A93DAF2E78383400819F78 /* UIKit.framework */; platformFilter = ios; };
 		28D1B2F92DD235CB001C2A15 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 28D1B2F82DD235CB001C2A15 /* SwiftUI.framework */; };
 /* End PBXBuildFile section */
 
@@ -46,6 +47,7 @@
 		284A1A042DD21B7F00606222 /* DecodeyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DecodeyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		284A1A0E2DD21B7F00606222 /* DecodeyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DecodeyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		285B4E732DDB3A0C00CAC666 /* DecodeyApp.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = DecodeyApp.xcdatamodel; sourceTree = "<group>"; };
+		28A93DAF2E78383400819F78 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.4.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		28D1B2F82DD235CB001C2A15 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.4.sdk/System/Library/Frameworks/SwiftUI.framework; sourceTree = DEVELOPER_DIR; };
 /* End PBXFileReference section */
 
@@ -86,6 +88,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				28D1B2F92DD235CB001C2A15 /* SwiftUI.framework in Frameworks */,
+				28A93DB02E78383400819F78 /* UIKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -131,6 +134,7 @@
 		28D1B2F72DD235CB001C2A15 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				28A93DAF2E78383400819F78 /* UIKit.framework */,
 				28D1B2F82DD235CB001C2A15 /* SwiftUI.framework */,
 			);
 			name = Frameworks;
