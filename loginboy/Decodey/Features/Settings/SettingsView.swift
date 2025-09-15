@@ -15,6 +15,7 @@ struct SettingsView: View {
     
     // Settings state - adjust based on your actual settings manager
     @StateObject private var settings = SettingsState.shared
+    @StateObject private var tutorialManager = TutorialManager.shared  // <-- ADD THIS
     
     // Local state for UI
     @State private var showingDifficultyPicker = false
@@ -121,6 +122,85 @@ struct SettingsView: View {
             }
         }
     }
+    
+    private var tutorialSection: some View {
+          SettingsSection(title: "Help & Tutorial", icon: "questionmark.circle.fill") {
+              VStack(spacing: 12) {
+                  // Show Tutorial Button
+                  SettingRow(
+                      title: "Show Tutorial",
+                      subtitle: "Learn how to play Decodey",
+                      icon: "book.fill"
+                  ) {
+                      Button(action: {
+                          // Dismiss settings first so tutorial shows properly
+                          dismiss()
+                          
+                          // Small delay to ensure settings is dismissed
+                          DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                              tutorialManager.resetTutorial()
+                              tutorialManager.startTutorial()
+                          }
+                      }) {
+                          HStack(spacing: 4) {
+                              Image(systemName: "play.fill")
+                              Text("Start")
+                          }
+                          .font(.subheadline.weight(.medium))
+                          .foregroundStyle(ColorSystem.shared.accent)
+                      }
+                  }
+                  
+                  Divider()
+                      .background(ColorSystem.shared.border(for: colorScheme))
+                  
+                  // Tutorial Status
+                  SettingRow(
+                      title: "Tutorial Status",
+                      subtitle: tutorialManager.hasCompletedTutorial ? "Completed" : "Not completed",
+                      icon: "checkmark.circle.fill"
+                  ) {
+                      if tutorialManager.hasCompletedTutorial {
+                          Image(systemName: "checkmark.circle.fill")
+                              .foregroundStyle(ColorSystem.shared.success)
+                              .font(.body)
+                      } else {
+                          Image(systemName: "circle")
+                              .foregroundStyle(ColorSystem.shared.secondaryText(for: colorScheme))
+                              .font(.body)
+                      }
+                  }
+                  
+                  if tutorialManager.hasCompletedTutorial {
+                      Divider()
+                          .background(ColorSystem.shared.border(for: colorScheme))
+                      
+                      // Reset Tutorial Button
+                      SettingRow(
+                          title: "Reset Tutorial",
+                          subtitle: "Show tutorial on next app launch",
+                          icon: "arrow.counterclockwise"
+                      ) {
+                          Button(action: {
+                              tutorialManager.resetTutorial()
+                              // Tutorial will show on next app launch
+                          }) {
+                              Text("Reset")
+                                  .font(.subheadline.weight(.medium))
+                                  .foregroundStyle(ColorSystem.shared.accent)
+                                  .padding(.horizontal, 12)
+                                  .padding(.vertical, 6)
+                                  .background(
+                                      Capsule()
+                                          .stroke(ColorSystem.shared.accent, lineWidth: 1)
+                                  )
+                          }
+                      }
+                  }
+              }
+          }
+      }
+    
     
     private var gameSettingsSection: some View {
         SettingsSection(title: "Game Settings", icon: "gamecontroller.fill") {

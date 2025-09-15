@@ -48,12 +48,13 @@ struct EnhancedTutorialOverlay: View {
     @State private var modalOffset: CGSize = .zero
     @State private var modalOpacity: Double = 1.0
     @State private var showHighlight: Bool = false
+    @State private var screenSize: CGSize = .zero
     
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(\.verticalSizeClass) var verticalSizeClass
     
     private var isSmallScreen: Bool {
-        horizontalSizeClass == .compact || UIScreen.main.bounds.height < 700
+        horizontalSizeClass == .compact || screenSize.height < 700
     }
     
     private var highlightFrame: CGRect {
@@ -113,6 +114,11 @@ struct EnhancedTutorialOverlay: View {
                 }
                 .onAppear {
                     screenSize = geometry.size
+                    if step.targetView != .welcome {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            showHighlight = true
+                        }
+                    }
                 }
                 .onChange(of: geometry.size) { newSize in
                     screenSize = newSize

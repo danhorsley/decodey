@@ -5,10 +5,12 @@ struct MainView: View {
     @StateObject private var userState = UserState.shared
     @StateObject private var settingsState = SettingsState.shared
     @StateObject private var soundManager = SoundManager.shared
-    @EnvironmentObject var authManager: AuthenticationManager  // Add
-    @EnvironmentObject var gameCenterManager: GameCenterManager  // Add
+    @StateObject private var tutorialManager = TutorialManager.shared  // <-- ADD THIS
+    @EnvironmentObject var authManager: AuthenticationManager
+    @EnvironmentObject var gameCenterManager: GameCenterManager
     
     @State private var showingHomeScreen = true
+    @State private var hasCheckedTutorial = false  // <-- ADD THIS
     
     var body: some View {
         ZStack {
@@ -63,6 +65,7 @@ struct MainView: View {
                                 Text("Settings")
                             }
                     }
+                    .tutorialTarget(.tabBar)  // <-- ADD THIS
                 }
                 .transition(.slide)
             }
@@ -71,8 +74,14 @@ struct MainView: View {
         .environmentObject(userState)
         .environmentObject(settingsState)
         .environmentObject(soundManager)
+        .environmentObject(tutorialManager)  // <-- ADD THIS
+                .overlay(  // <-- ADD THIS OVERLAY
+                    EnhancedTutorialOverlay()
+                        .allowsHitTesting(tutorialManager.isShowingTutorial)
+                )
+                 }
     }
-}
+
 
 // Simple Stats View
 struct StatsView: View {

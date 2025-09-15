@@ -38,6 +38,7 @@ struct GameGridsView: View {
                 }
                 
                 encryptedGrid
+                    .tutorialTarget(.encryptedGrid)  // <-- ADD THIS
             }
             
             // Hint button - floating between grids
@@ -47,6 +48,7 @@ struct GameGridsView: View {
                 isDarkMode: colorScheme == .dark,
                 onHintRequested: handleHintRequest
             )
+            .tutorialTarget(.hintButton)  // <-- ADD THIS
             .frame(width: 140, height: 80)
             .padding(.vertical, 8)
             
@@ -60,6 +62,7 @@ struct GameGridsView: View {
                 }
                 
                 guessGrid
+                    .tutorialTarget(.guessGrid)  // <-- ADD THIS
             }
         }
         .padding(.horizontal, 20)

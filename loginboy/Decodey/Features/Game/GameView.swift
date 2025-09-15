@@ -109,6 +109,7 @@ struct GameView: View {
                 VStack(spacing: sectionSpacing) {
                     // Text display section - matching GameGridsView styling
                     textDisplaySection
+                        .tutorialTarget(.textDisplay)  // <-- ADD THIS
                         .padding(.top, headerToContentGap)
                     
                     // Game grids section
