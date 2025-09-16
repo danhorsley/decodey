@@ -1,3 +1,5 @@
+// Tutorial.swift - Fixed version with improved frame tracking
+
 import SwiftUI
 
 // MARK: - Tutorial Step
@@ -15,9 +17,9 @@ struct TutorialStep {
             switch self {
             case .welcome: return .center
             case .textDisplay: return .bottom
-            case .encryptedGrid: return .right
-            case .guessGrid: return .left
-            case .hintButton: return .left
+            case .encryptedGrid: return .bottom  // Changed from .right
+            case .guessGrid: return .top         // Changed from .left
+            case .hintButton: return .bottom     // Changed from .left
             case .tabBar: return .top
             }
         }
@@ -35,8 +37,9 @@ class TutorialManager: ObservableObject {
     @Published var isActive = false
     @Published var currentIndex = 0
     @Published var hasCompleted = UserDefaults.standard.bool(forKey: "tutorial-completed")
+    @Published var frames: [TutorialStep.Target: CGRect] = [:]  // Make frames observable
     
-    // Compatibility aliases for existing code
+    // Compatibility aliases
     var isShowingTutorial: Bool { isActive }
     var hasCompletedTutorial: Bool { hasCompleted }
     
@@ -51,7 +54,7 @@ class TutorialManager: ObservableObject {
                     description: "Click a letter here to select it for decoding.",
                     target: .encryptedGrid, icon: "lock.fill"),
         TutorialStep(id: "guess", title: "Original Letters",
-                    description: "And then click on this grid to choose the real letter you think it represents.",
+                    description: "And then click here to choose the real letter you think it represents.",
                     target: .guessGrid, icon: "key.fill"),
         TutorialStep(id: "hint", title: "Hint Button",
                     description: "Stuck? Use a hint to reveal a letter. Each hint or mistake costs one token.",
@@ -73,9 +76,9 @@ class TutorialManager: ObservableObject {
     func start() {
         currentIndex = 0
         isActive = true
+        frames = [:]  // Clear frames when starting
     }
     
-    // Compatibility alias for existing code
     func startTutorial() {
         start()
     }
@@ -101,17 +104,25 @@ class TutorialManager: ObservableObject {
             isActive = false
         }
         currentIndex = 0
+        frames = [:]  // Clear frames when completing
     }
     
     func reset() {
         UserDefaults.standard.set(false, forKey: "tutorial-completed")
         hasCompleted = false
         currentIndex = 0
+        frames = [:]
     }
     
-    // Compatibility alias for existing code
     func resetTutorial() {
         reset()
+    }
+    
+    // New method to update frame for a target
+    func updateFrame(for target: TutorialStep.Target, frame: CGRect) {
+        DispatchQueue.main.async {
+            self.frames[target] = frame
+        }
     }
 }
 
@@ -126,14 +137,14 @@ struct FramePreferenceKey: PreferenceKey {
 // MARK: - Tutorial Overlay
 struct TutorialOverlay: View {
     @StateObject private var manager = TutorialManager.shared
-    @State private var frames: [TutorialStep.Target: CGRect] = [:]
     @State private var modalPos = CGPoint.zero
     @State private var modalOpacity = 0.0
     @State private var showModal = false
+    @State private var highlightOpacity = 0.0
     
     var highlightFrame: CGRect {
         guard let step = manager.currentStep,
-              let frame = frames[step.target] else { return .zero }
+              let frame = manager.frames[step.target] else { return .zero }
         return frame.insetBy(dx: -5, dy: -5)
     }
     
@@ -153,15 +164,18 @@ struct TutorialOverlay: View {
                         }
                         .ignoresSafeArea()
                         .allowsHitTesting(false)
+                        .animation(.easeInOut(duration: 0.3), value: highlightFrame)
                         
-                        // Highlight border
+                        // Highlight border with animation
                         if highlightFrame != .zero {
                             RoundedRectangle(cornerRadius: 8)
                                 .stroke(Color.white, lineWidth: 2)
                                 .frame(width: highlightFrame.width, height: highlightFrame.height)
                                 .position(x: highlightFrame.midX, y: highlightFrame.midY)
                                 .shadow(color: .white.opacity(0.3), radius: 8)
+                                .opacity(highlightOpacity)
                                 .allowsHitTesting(false)
+                                .animation(.easeInOut(duration: 0.3), value: highlightFrame)
                         }
                     } else {
                         Color.black.opacity(0.4)
@@ -178,17 +192,22 @@ struct TutorialOverlay: View {
                     }
                 }
                 .onAppear {
-                    calculatePosition(for: step, in: geo)
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    // Wait for frames to be collected
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        calculatePosition(for: step, in: geo)
                         showModal = true
-                        withAnimation(.easeIn(duration: 0.2)) {
+                        withAnimation(.easeIn(duration: 0.3)) {
                             modalOpacity = 1
+                            highlightOpacity = 1
                         }
                     }
                 }
                 .onPreferenceChange(FramePreferenceKey.self) { newFrames in
-                    frames = newFrames
-                    print("Tutorial frames updated: \(newFrames.keys.map { "\($0)" }.joined(separator: ", "))")
+                    // Update manager's frames
+                    for (target, frame) in newFrames {
+                        manager.updateFrame(for: target, frame: frame)
+                    }
+                    
                     // Recalculate position when frames update
                     if let step = manager.currentStep {
                         calculatePosition(for: step, in: geo)
@@ -196,18 +215,24 @@ struct TutorialOverlay: View {
                 }
                 .onChange(of: manager.currentIndex) { _ in
                     modalOpacity = 0
+                    highlightOpacity = 0
                     showModal = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                         if let newStep = manager.currentStep {
-                            calculatePosition(for: newStep, in: geo)
-                            showModal = true
-                            withAnimation(.easeIn(duration: 0.2)) {
-                                modalOpacity = 1
+                            // Wait a bit for new frames to be collected
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                calculatePosition(for: newStep, in: geo)
+                                showModal = true
+                                withAnimation(.easeIn(duration: 0.3)) {
+                                    modalOpacity = 1
+                                    highlightOpacity = 1
+                                }
                             }
                         }
                     }
                 }
-                .onChange(of: frames) { _ in
+                .onChange(of: manager.frames) { _ in
                     // Recalculate when frames change
                     if let step = manager.currentStep {
                         calculatePosition(for: step, in: geo)
@@ -219,7 +244,7 @@ struct TutorialOverlay: View {
     
     private func calculatePosition(for step: TutorialStep, in geo: GeometryProxy) {
         let modalSize = CGSize(width: 300, height: 220)
-        let padding: CGFloat = 20
+        let padding: CGFloat = 30
         let bounds = geo.frame(in: .global)
         
         // Center for welcome
@@ -229,13 +254,26 @@ struct TutorialOverlay: View {
         }
         
         // Get the actual frame from tracked frames
-        guard let targetFrame = frames[step.target], targetFrame != .zero else {
-            // If no frame yet, center it but try again when frames update
-            modalPos = CGPoint(x: bounds.midX, y: bounds.midY)
+        guard let targetFrame = manager.frames[step.target], targetFrame != .zero else {
+            // If no frame yet, position based on expected location
+            switch step.target {
+            case .textDisplay:
+                modalPos = CGPoint(x: bounds.midX, y: bounds.height * 0.3)
+            case .encryptedGrid:
+                modalPos = CGPoint(x: bounds.midX, y: bounds.height * 0.5)
+            case .guessGrid:
+                modalPos = CGPoint(x: bounds.midX, y: bounds.height * 0.7)
+            case .hintButton:
+                modalPos = CGPoint(x: bounds.midX, y: bounds.height * 0.6)
+            case .tabBar:
+                modalPos = CGPoint(x: bounds.midX, y: bounds.height - 150)
+            default:
+                modalPos = CGPoint(x: bounds.midX, y: bounds.midY)
+            }
             return
         }
         
-        // Use the actual highlighted frame for positioning
+        // Calculate position relative to target
         var pos = CGPoint(x: targetFrame.midX, y: targetFrame.midY)
         
         switch step.target.preferredPosition {
@@ -332,15 +370,24 @@ private struct ModalView: View {
     }
 }
 
-// MARK: - View Extensions
+// MARK: - Improved View Extension
 extension View {
     func tutorialTarget(_ target: TutorialStep.Target) -> some View {
-        self.background(
+        self.overlay(
             GeometryReader { geo in
-                Color.clear.preference(
-                    key: FramePreferenceKey.self,
-                    value: [target: geo.frame(in: .global)]
-                )
+                Color.clear
+                    .preference(
+                        key: FramePreferenceKey.self,
+                        value: [target: geo.frame(in: .global)]
+                    )
+                    .onAppear {
+                        // Also update the frame immediately when view appears
+                        TutorialManager.shared.updateFrame(for: target, frame: geo.frame(in: .global))
+                    }
+                    .onChange(of: geo.frame(in: .global)) { newFrame in
+                        // Update frame when it changes
+                        TutorialManager.shared.updateFrame(for: target, frame: newFrame)
+                    }
             }
         )
     }
