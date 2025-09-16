@@ -1,181 +1,1596 @@
 {
-  "version": "1.0",
-  "description": "Classic quotes for cryptogram puzzles - local offline bundle",
   "quotes": [
     {
-      "text": "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG",
-      "author": "Pangram",
-      "attribution": "Traditional typing practice phrase",
-      "difficulty": "1",
-      "category": "practice"
+      "text": "Hell hath no fury like a woman scorned.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
     },
     {
-      "text": "TO BE OR NOT TO BE THAT IS THE QUESTION",
-      "author": "William Shakespeare",
-      "attribution": "Hamlet",
-      "difficulty": "2",
-      "category": "literature"
+      "text": "The man who is always blowing his own horn is usually out of tune.",
+      "author": "Josh Billings",
+      "attribution": "Josh Billings' Encyclopedia of Wit and Wisdom 1874",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
     },
     {
-      "text": "I HAVE A DREAM THAT ONE DAY THIS NATION WILL RISE UP",
-      "author": "Martin Luther King Jr",
-      "attribution": "I Have a Dream Speech",
-      "difficulty": "2",
-      "category": "history"
+      "text": "A man who carries a cat by the tail learns something he can learn in no other way.",
+      "author": "Mark Twain",
+      "attribution": "Following the Equator 1897",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
     },
     {
-      "text": "LIFE IS WHAT HAPPENS WHEN YOU ARE BUSY MAKING OTHER PLANS",
-      "author": "John Lennon",
-      "attribution": "Beautiful Boy",
-      "difficulty": "2",
-      "category": "philosophy"
+      "text": "Half the lies they tell about me aren't true.",
+      "author": "Chauncey Depew",
+      "attribution": "Pre-1928 speeches",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
     },
     {
-      "text": "THE ONLY THING WE HAVE TO FEAR IS FEAR ITSELF",
+      "text": "A man with a new idea is a crank until the idea succeeds.",
+      "author": "Elbert Hubbard",
+      "attribution": "The Roycroft Dictionary and Book of Epigrams 1923",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "When you come to a fork in the road, take it.",
+      "author": "Yogi Berra",
+      "attribution": "attributed",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "You can observe a lot just by watching.",
+      "author": "Yogi Berra",
+      "attribution": "attributed",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "Baseball is ninety percent mental and the other half is physical.",
+      "author": "Yogi Berra",
+      "attribution": "attributed",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
+    },
+    {
+      "text": "Always go to other people's funerals, otherwise they won't come to yours.",
+      "author": "Yogi Berra",
+      "attribution": "attributed",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "If the world were perfect, it wouldn't be.",
+      "author": "Yogi Berra",
+      "attribution": "attributed",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "A bad workman blames his tools.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "A bird in the hand is worth two in the bush",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "Don't bite the hand that feeds you.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "You can't have your cake and eat it too.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "Early to bed and early to rise, makes a man healthy, wealthy and wise.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "You can't make an omlette without breaking a few eggs.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 19
+    },
+    {
+      "text": "Don't put all your eggs in one basket.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "With friends like these, who needs enemies?",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "When the going gets tough, the tough get going.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 10
+    },
+    {
+      "text": "Never look a gift horse in the mouth.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "You can lead a horse to water but you can't make it drink.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "People who live in glass houses shouldn't throw stones.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "Keep your friends close but your enemies closer.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
+    },
+    {
+      "text": "If you can't take the heat, get out of the kitchen",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "In the land of the blind, the one-eyed man is king.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "He who laughs last, laughs best.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 11
+    },
+    {
+      "text": "The way to a man's heart is through his stomach.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "It's no use crying over spilt milk.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "Put your money where your mouth is.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "Don't make a mountain out of a molehill.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "If you don't have anything nice to say, don't say anything at all.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "Nothing ventured, nothing gained.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 12
+    },
+    {
+      "text": "Look after the pennies and the pounds will look after themselves.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "Hope for the best, but prepare for the worst.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 12
+    },
+    {
+      "text": "Revenge is a dish best served cold.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "Sticks and stones may break my bones but words will never hurt me.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 19
+    },
+    {
+      "text": "One swallow does not make a summer.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "The pen is mightier than the sword.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "Live by the sword, die by the sword.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "Time and tide wait for no man.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 11
+    },
+    {
+      "text": "The truth shall set you free.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 11
+    },
+    {
+      "text": "Empty vessels make the most noise.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "Where there is a will, there is a way.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 10
+    },
+    {
+      "text": "Slow and steady wins the race.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "Many a true word is spoken in jest.",
+      "author": "Traditional English",
+      "attribution": "Proverb",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "Youth is wasted on the young.",
+      "author": "George Bernard Shaw",
+      "attribution": "Attributed often linked to Misalliance 1910",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "The female of the species is more deadly than the male.",
+      "author": "Rudyard Kipling",
+      "attribution": "The Female of the Species poem 1911",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "If you can keep your head when all about you are losing theirs.",
+      "author": "Rudyard Kipling",
+      "attribution": "If poem 1910",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 20
+    },
+    {
+      "text": "It was the best of times it was the worst of times.",
+      "author": "Charles Dickens",
+      "attribution": "A Tale of Two Cities 1859",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 12
+    },
+    {
+      "text": "We forge the chains we wear in life.",
+      "author": "Charles Dickens",
+      "attribution": "A Christmas Carol 1843",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "The only thing we have to fear is fear itself.",
       "author": "Franklin D. Roosevelt",
-      "attribution": "First Inaugural Address",
-      "difficulty": "2",
-      "category": "history"
+      "attribution": "First Inaugural Address 1933",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
     },
     {
-      "text": "ASK NOT WHAT YOUR COUNTRY CAN DO FOR YOU",
+      "text": "Ask not what your country can do for you ask what you can do for your country.",
       "author": "John F. Kennedy",
-      "attribution": "Inaugural Address",
-      "difficulty": "2",
-      "category": "history"
+      "attribution": "Inaugural Address 1961",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
     },
     {
-      "text": "ALL MEN ARE CREATED EQUAL",
-      "author": "Thomas Jefferson",
-      "attribution": "Declaration of Independence",
-      "difficulty": "1",
-      "category": "history"
+      "text": "The ballot is stronger than the bullet.",
+      "author": "Abraham Lincoln",
+      "attribution": "Speech in Springfield 1856",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
     },
     {
-      "text": "THE BEST TIME TO PLANT A TREE WAS TWENTY YEARS AGO",
-      "author": "Chinese Proverb",
-      "attribution": "Traditional wisdom",
-      "difficulty": "2",
-      "category": "wisdom"
+      "text": "Wherever law ends tyranny begins.",
+      "author": "John Locke",
+      "attribution": "Second Treatise of Government 1689",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
     },
     {
-      "text": "KNOWLEDGE IS POWER",
-      "author": "Francis Bacon",
-      "attribution": "Meditationes Sacrae",
-      "difficulty": "1",
-      "category": "philosophy"
+      "text": "The past is a foreign country; they do things differently there.",
+      "author": "Marcel Proust",
+      "attribution": "In Search of Lost Time 1913 often misquoted",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
     },
     {
-      "text": "PRACTICE MAKES PERFECT",
-      "author": "Traditional",
-      "attribution": "Common proverb",
-      "difficulty": "1",
-      "category": "wisdom"
+      "text": "An army marches on its stomach.",
+      "author": "Napoleon Bonaparte",
+      "attribution": "Attributed from military campaigns 1800s",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 12
     },
     {
-      "text": "TIME IS MONEY",
+      "text": "That which does not kill us makes us stronger.",
+      "author": "Friedrich Nietzsche",
+      "attribution": "Twilight of the Idols 1888",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
+    },
+    {
+      "text": "Religion is the opium of the people.",
+      "author": "Karl Marx",
+      "attribution": "Critique of Hegel's Philosophy of Right 1843",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "Workers of the world unite; you have nothing to lose but your chains.",
+      "author": "Karl Marx",
+      "attribution": "The Communist Manifesto 1848",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 20
+    },
+    {
+      "text": "Prevention is better than cure.",
+      "author": "Desiderius Erasmus",
+      "attribution": "Letter to Christian Northoff 1497",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "I think therefore I am.",
+      "author": "Rene Descartes",
+      "attribution": "Discourse on the Method 1637",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 11
+    },
+    {
+      "text": "The ends justify the means.",
+      "author": "Niccolo Machiavelli",
+      "attribution": "The Prince 1513",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "When a man is tired of London he is tired of life.",
+      "author": "Samuel Johnson",
+      "attribution": "Boswell's Life of Johnson 1776",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "All power tends to corrupt and absolute power corrupts absolutely.",
+      "author": "Lord Acton",
+      "attribution": "Letter to Bishop Mandell Creighton 1887",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "I came I saw I conquered.",
+      "author": "Julius Caesar",
+      "attribution": "Letter to Roman Senate 47 BCE Veni vidi vici",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "The unexamined life is not worth living.",
+      "author": "Socrates",
+      "attribution": "Plato's Apology 399 BCE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "The whole is greater than the sum of its parts.",
+      "author": "Aristotle",
+      "attribution": "Metaphysics 335 BCE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "In this world nothing can be said to be certain except death and taxes.",
       "author": "Benjamin Franklin",
-      "attribution": "Advice to a Young Tradesman",
-      "difficulty": "1",
-      "category": "wisdom"
+      "attribution": "Letter to Jean-Baptiste Leroy 1789",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
     },
     {
-      "text": "HONESTY IS THE BEST POLICY",
+      "text": "A penny saved is a penny earned.",
       "author": "Benjamin Franklin",
-      "attribution": "Poor Richard's Almanack",
-      "difficulty": "1",
-      "category": "wisdom"
+      "attribution": "Poor Richard's Almanack 1737",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 10
     },
     {
-      "text": "WHERE THERE IS A WILL THERE IS A WAY",
-      "author": "Traditional",
-      "attribution": "English proverb",
-      "difficulty": "2",
-      "category": "wisdom"
+      "text": "Fish and visitors stink after three days.",
+      "author": "Benjamin Franklin",
+      "attribution": "Poor Richard's Almanack 1736",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
     },
     {
-      "text": "ACTIONS SPEAK LOUDER THAN WORDS",
-      "author": "Traditional",
-      "attribution": "English proverb",
-      "difficulty": "2",
-      "category": "wisdom"
-    },
-    {
-      "text": "BETTER LATE THAN NEVER",
-      "author": "Traditional",
-      "attribution": "English proverb",
-      "difficulty": "1",
-      "category": "wisdom"
-    },
-    {
-      "text": "DO UNTO OTHERS AS YOU WOULD HAVE THEM DO UNTO YOU",
-      "author": "Jesus Christ",
-      "attribution": "Matthew 7:12",
-      "difficulty": "3",
-      "category": "wisdom"
-    },
-    {
-      "text": "THE PEN IS MIGHTIER THAN THE SWORD",
-      "author": "Edward Bulwer-Lytton",
-      "attribution": "Richelieu",
-      "difficulty": "2",
-      "category": "literature"
-    },
-    {
-      "text": "ALL THAT GLITTERS IS NOT GOLD",
+      "text": "Brevity is the soul of wit.",
       "author": "William Shakespeare",
-      "attribution": "The Merchant of Venice",
-      "difficulty": "2",
-      "category": "literature"
+      "attribution": "Hamlet 1600",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
     },
     {
-      "text": "A PENNY SAVED IS A PENNY EARNED",
+      "text": "The course of true love never did run smooth.",
+      "author": "William Shakespeare",
+      "attribution": "A Midsummer Night's Dream 1595",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "This above all: to thine own self be true.",
+      "author": "William Shakespeare",
+      "attribution": "Hamlet 1600",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "The life of man is threescore years and ten.",
+      "author": "Geoffrey Chaucer",
+      "attribution": "The Canterbury Tales 1400 modernized from Prologue",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "All hope abandon ye who enter here.",
+      "author": "John Milton",
+      "attribution": "Paradise Lost 1667 via Dante but Milton's spin",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "Fools rush in where angels fear to tread.",
+      "author": "Alexander Pope",
+      "attribution": "An Essay on Criticism 1711",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "Hope springs eternal in the human breast.",
+      "author": "Alexander Pope",
+      "attribution": "An Essay on Man 1733",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "Do not go gentle into that good night.",
+      "author": "Dylan Thomas",
+      "attribution": "Do Not Go Gentle Into That Good Night 1951",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 10
+    },
+    {
+      "text": "Rage rage against the dying of the light.",
+      "author": "Dylan Thomas",
+      "attribution": "Do Not Go Gentle Into That Good Night 1951",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "It's better to have loved and lost than never to have loved at all.",
+      "author": "Alfred Lord Tennyson",
+      "attribution": "In Memoriam A.H.H. 1850",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "Absence makes the heart grow fonder.",
+      "author": "John Dryden",
+      "attribution": "The Spanish Friar 1681 attrib. via paraphrase",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "Drink to me only with thine eyes.",
+      "author": "Ben Jonson",
+      "attribution": "To Celia 1616",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "My love is like a red red rose.",
+      "author": "Robert Burns",
+      "attribution": "A Red Red Rose 1794",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 12
+    },
+    {
+      "text": "I am dying as I have lived : beyond my means.",
+      "author": "Oscar Wilde",
+      "attribution": "Apocryphal last words 1900",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "The road to hell is paved with good intentions.",
+      "author": "Saint Bernard of Clairvaux",
+      "attribution": "Letter to the Pope, 12th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "Honesty is the best policy.",
+      "author": "Traditional",
+      "attribution": "English proverb 19th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 12
+    },
+    {
+      "text": "Actions speak louder than words.",
+      "author": "Traditional",
+      "attribution": "Attributed to John Pym 17th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "A stitch in time saves nine.",
+      "author": "Thomas Fuller",
+      "attribution": "Gnomologia 1732",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 10
+    },
+    {
+      "text": "Fortune favors the bold.",
+      "author": "Traditional",
+      "attribution": "Latin proverb adapted 19th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "Discretion is the better part of valor.",
+      "author": "Traditional",
+      "attribution": "Shakespeare Henry IV 1597",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "Knowledge is power.",
+      "author": "Francis Bacon",
+      "attribution": "Meditationes Sacrae 1597",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 12
+    },
+    {
+      "text": "Patience is a virtue.",
+      "author": "William Langland",
+      "attribution": "Piers Plowman 14th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 11
+    },
+    {
+      "text": "Necessity is the mother of invention.",
+      "author": "Traditional",
+      "attribution": "Plato adapted 16th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "Every cloud has a silver lining.",
+      "author": "John Milton",
+      "attribution": "Comus 1634",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "The squeaky wheel gets the grease.",
+      "author": "Traditional",
+      "attribution": "American proverb 19th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "A leopard can't change its spots.",
+      "author": "Traditional",
+      "attribution": "English proverb 16th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "Absence sharpens love.",
+      "author": "Traditional",
+      "attribution": "English proverb 17th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 12
+    },
+    {
+      "text": "Cold hands, warm heart.",
+      "author": "Traditional",
+      "attribution": "English proverb 19th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "A full belly makes a dull brain.",
+      "author": "Traditional",
+      "attribution": "English proverb 17th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "The cobbler's children go barefoot.",
+      "author": "Traditional",
+      "attribution": "English proverb 16th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "A drowning man will clutch at straws.",
+      "author": "Traditional",
+      "attribution": "English proverb 16th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "Fair words butter no parsnips.",
+      "author": "John Clarke",
+      "attribution": "Paroemiologia 1639",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "A good name is better than riches.",
+      "author": "Traditional",
+      "attribution": "English proverb 16th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "Hunger is the best sauce.",
+      "author": "Traditional",
+      "attribution": "English proverb 14th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 12
+    },
+    {
+      "text": "A little learning is a dangerous thing.",
+      "author": "Alexander Pope",
+      "attribution": "An Essay on Criticism 1711",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "No rose without a thorn.",
+      "author": "Traditional",
+      "attribution": "English proverb 15th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 11
+    },
+    {
+      "text": "One man's meat is another man's poison.",
+      "author": "Traditional",
+      "attribution": "English proverb 16th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 11
+    },
+    {
+      "text": "If I have seen further, it is by standing on the shoulders of Giants.",
+      "author": "Isaac Newton",
+      "attribution": "Letter to Hooke 1675",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
+    },
+    {
+      "text": "No one can make you feel inferior without your consent.",
+      "author": "Eleanor Roosevelt",
+      "attribution": "This Is My Story (1937)",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
+    },
+    {
+      "text": "We are all in the gutter,  but some of us are looking at the stars.",
+      "author": "Oscar Wilde",
+      "attribution": "Lady Windermere's Fan, 1892",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
+    },
+    {
+      "text": "One half of the world cannot understand the pleasures of the other.",
+      "author": "Jane Austen",
+      "attribution": "Emma, 1815",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "Everything in moderation, including moderation.",
+      "author": "Oscar Wilde",
+      "attribution": "attributed, possibly apocryphal",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "I generally avoid temptation unless I can't resist it.",
+      "author": "Mae West",
+      "attribution": "Temptation, play, 1926",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
+    },
+    {
+      "text": "I don't care what is written about me so long as it isn't true.",
+      "author": "Dorothy Parker",
+      "attribution": "attributed",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
+    },
+    {
+      "text": "We few, we happy few, we band of brothers.",
+      "author": "William Shakespeare",
+      "attribution": "Henry V",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "I ain't afraid to love a man. I ain't afraid to shoot him either.",
+      "author": "Annie Oakley",
+      "attribution": "attributed, possibly apocryphal",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "It's not the men in your life that matters, it's the life in your men.",
+      "author": "Mae West",
+      "attribution": "I'm No Angel, film, 1933",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "Love all,  trust a few, do wrong to none.",
+      "author": "William Shakespeare",
+      "attribution": "All's Well That Ends Well",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "The difference between fiction and reality? Fiction has to make sense.",
+      "author": "Tom Clancy",
+      "attribution": "Larry King Live, 1997",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "I have spread my dreams under your feet. Tread softly because you tread on my dreams.",
+      "author": "W.B. Yeats",
+      "attribution": "from \"He Wishes for the Cloths of Heaven\"",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 19
+    },
+    {
+      "text": "It is the mark of an educated mind to be able to entertain a thought without accepting it.",
+      "author": "Aristotle",
+      "attribution": "paraphrase",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 20
+    },
+    {
+      "text": "Democracy is the worst form of government,  except for all the others.",
+      "author": "Winston Churchill",
+      "attribution": "House of Commons, 1947",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 20
+    },
+    {
+      "text": "I've been on a calendar,  but I've never been on time.",
+      "author": "Marilyn Monroe",
+      "attribution": "interview, 1952",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "Always forgive your enemies; nothing annoys them so much.",
+      "author": "Oscar Wilde",
+      "attribution": "attributed, possibly apocryphal",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "Nothing in life is to be feared; it is only to be understood.",
+      "author": "Marie Curie",
+      "attribution": "Laval medical, 1951",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "Be less curious about people and more curious about ideas.",
+      "author": "Marie Curie",
+      "attribution": "attributed, possibly apocryphal",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "The tongue cuts deeper than the sword.",
+      "author": "Traditional",
+      "attribution": "English proverb 17th century",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "A single death is a tragedy; a million deaths is a statistic.",
+      "author": "Joseph Stalin",
+      "attribution": "Paraphrased from 1947 interview",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "Three may keep a secret, if two of them are dead.",
       "author": "Benjamin Franklin",
-      "attribution": "Poor Richard's Almanack",
-      "difficulty": "2",
-      "category": "wisdom"
+      "attribution": "Poor Richard's Almanack 1735",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
     },
     {
-      "text": "ROME WAS NOT BUILT IN A DAY",
-      "author": "Traditional",
-      "attribution": "Medieval French proverb",
-      "difficulty": "2",
-      "category": "wisdom"
+      "text": "There is nothing new under the sun.",
+      "author": "Ecclesiastes",
+      "attribution": "Bible, c. 3rd century BCE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 12
     },
     {
-      "text": "WHEN IN ROME DO AS THE ROMANS DO",
-      "author": "Traditional",
-      "attribution": "Latin proverb",
-      "difficulty": "2",
-      "category": "wisdom"
+      "text": "Live as if you were to die tomorrow. Learn as if you were to live forever.",
+      "author": "Mahatma Gandhi",
+      "attribution": "Speech, 1913",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
     },
     {
-      "text": "THE EARLY BIRD CATCHES THE WORM",
-      "author": "Traditional",
-      "attribution": "English proverb",
-      "difficulty": "2",
-      "category": "wisdom"
+      "text": "The gods help those who help themselves.",
+      "author": "Aesop",
+      "attribution": "Fables, c. 6th century BCE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 12
     },
     {
-      "text": "FORTUNE FAVORS THE BOLD",
-      "author": "Virgil",
-      "attribution": "The Aeneid",
-      "difficulty": "1",
-      "category": "literature"
+      "text": "Experience is the name everyone gives to their mistakes.",
+      "author": "Oscar Wilde",
+      "attribution": "Lady Windermere's Fan, 1892",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
     },
     {
-      "text": "NECESSITY IS THE MOTHER OF INVENTION",
-      "author": "Traditional",
-      "attribution": "English proverb",
-      "difficulty": "2",
-      "category": "wisdom"
+      "text": "The race is not to the swift, nor the battle to the strong.",
+      "author": "Bible",
+      "attribution": "Ecclesiastes 9:11",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
     },
     {
-      "text": "HOPE FOR THE BEST BUT PREPARE FOR THE WORST",
-      "author": "Traditional",
-      "attribution": "English saying",
-      "difficulty": "3",
-      "category": "wisdom"
+      "text": "My heart beats as a king's would.",
+      "author": "Elizabeth I",
+      "attribution": "Tilbury Speech 1588",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "Fear makes men obedient.",
+      "author": "Ivan the Terrible",
+      "attribution": "attributed, possibly apocryphal",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "What you do not wish done to you do not do to others.",
+      "author": "Confucius",
+      "attribution": "Analects 500 BCE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "The man who moves a mountain begins by carrying away small stones.",
+      "author": "Confucius",
+      "attribution": "Analects 500 BCE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "To know what you know and what you do not know that is true knowledge.",
+      "author": "Confucius",
+      "attribution": "Analects 500 BCE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "The mind is everything. What you think you become.",
+      "author": "Buddha",
+      "attribution": "Dhammapada 400 BCE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 19
+    },
+    {
+      "text": "Peace comes from within. Do not seek it without.",
+      "author": "Buddha",
+      "attribution": "Sutta Pitaka 400 BCE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
+    },
+    {
+      "text": "You only lose what you cling to.",
+      "author": "Buddha",
+      "attribution": "Attributed from teachings 400 BCE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "Do not fear an enemy who attacks you; fear a friend who flatters you.",
+      "author": "Miyamoto Musashi",
+      "attribution": "The Book of Five Rings 1645",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "The ultimate aim of martial arts is not having to use them.",
+      "author": "Miyamoto Musashi",
+      "attribution": "The Book of Five Rings 1645",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "A single spark can start a prairie fire.",
+      "author": "Mao Zedong",
+      "attribution": "On Coalition Government 1945",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "He has no enemies but is intensely disliked by his friends.",
+      "author": "Oscar Wilde",
+      "attribution": "The Picture of Dorian Gray 1890",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
+    },
+    {
+      "text": "His ignorance covers the world like a blanket and there's nothing under it.",
+      "author": "Mark Twain",
+      "attribution": "Letter to William Dean Howells 1887",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "Politics is the art of the possible.",
+      "author": "Otto von Bismarck",
+      "attribution": "Interview with Meyer von Waldeck 1867",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "The balance of power is the only guarantee of peace.",
+      "author": "Robert Stewart Viscount Castlereagh",
+      "attribution": "Speech in House of Commons 1817",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "Every man's house is his castle.",
+      "author": "Robert Walpole",
+      "attribution": "Speech in House of Commons 1731",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "Knowledge is safer in the hands of the multitude than in the hands of the few.",
+      "author": "Bede",
+      "attribution": "Ecclesiastical History of the English People 731",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
+    },
+    {
+      "text": "Men's characters are not shaped by their circumstances but revealed by them.",
+      "author": "Plutarch",
+      "attribution": "Parallel Lives 100 CE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "The mind is not a vessel to be filled but a fire to be kindled.",
+      "author": "Plutarch",
+      "attribution": "Moralia 100 CE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
+    },
+    {
+      "text": "In peace sons bury their fathers; in war fathers bury their sons.",
+      "author": "Herodotus",
+      "attribution": "The Histories 440 BCE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "The more corrupt the state the more numerous the laws.",
+      "author": "Tacitus",
+      "attribution": "Annals 116 CE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "The secret of happiness is freedom and the secret of freedom is courage.",
+      "author": "Thucydides",
+      "attribution": "History of the Peloponnesian War 410 BCE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "Truth is the daughter of time.",
+      "author": "Pliny the Elder",
+      "attribution": "Natural History 77 CE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "The only certainty is that nothing is certain.",
+      "author": "Pliny the Elder",
+      "attribution": "Natural History 77 CE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "A room without books is like a body without a soul.",
+      "author": "Cicero",
+      "attribution": "Letters to Friends 45 BCE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "I am not ashamed to confess that I am ignorant of what I do not know.",
+      "author": "Cicero",
+      "attribution": "On the Nature of the Gods 45 BCE",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "The only way to have a friend is to be one.",
+      "author": "Cato the Younger",
+      "attribution": "Plutarch's Lives 100 CE attrib.",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "I would rather be right than be president.",
+      "author": "Claudius",
+      "attribution": "Suetonius' Lives of the Caesars 121 CE attrib. via historians",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "Every man is the architect of his own fortune.",
+      "author": "Claudius",
+      "attribution": "Appian's Roman History 160 CE attrib.",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "An ounce of prevention is worth a pound of cure.",
+      "author": "Benjamin Franklin",
+      "attribution": "Poor Richard's Almanack 1735",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "Well done is better than well said.",
+      "author": "Benjamin Franklin",
+      "attribution": "Poor Richard's Almanack 1737",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "Early to bed and early to rise makes a man healthy wealthy and wise.",
+      "author": "Benjamin Franklin",
+      "attribution": "Poor Richard's Almanack 1735",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "He that lies down with dogs shall rise up with fleas.",
+      "author": "Benjamin Franklin",
+      "attribution": "Poor Richard's Almanack 1733",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "Lost time is never found again.",
+      "author": "Benjamin Franklin",
+      "attribution": "Poor Richard's Almanack 1748",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "Many have been ruined by buying good pennyworths.",
+      "author": "Benjamin Franklin",
+      "attribution": "Poor Richard's Almanack 1735",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "He that can have patience can have what he will.",
+      "author": "Benjamin Franklin",
+      "attribution": "Poor Richard's Almanack 1736",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 11
+    },
+    {
+      "text": "We are all born ignorant but one must work hard to remain stupid.",
+      "author": "Benjamin Franklin",
+      "attribution": "Letter to Joseph Priestley 1772",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "They who can give up essential liberty to obtain a little temporary safety deserve neither.",
+      "author": "Benjamin Franklin",
+      "attribution": "Pennsylvania Assembly Reply 1755",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 21
+    },
+    {
+      "text": "Tell me and I forget. Teach me and I remember. Involve me and I learn.",
+      "author": "Benjamin Franklin",
+      "attribution": "Attributed from writings 1750s",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "All the world's a stage and all the men and women merely players.",
+      "author": "William Shakespeare",
+      "attribution": "As You Like It 1599",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "The fault dear Brutus is not in our stars but in ourselves.",
+      "author": "William Shakespeare",
+      "attribution": "Julius Caesar 1599",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "Cowards die many times before their deaths.",
+      "author": "William Shakespeare",
+      "attribution": "Julius Caesar 1599",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "Some are born great some achieve greatness and some have greatness thrust upon them.",
+      "author": "William Shakespeare",
+      "attribution": "Twelfth Night 1601",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
+    },
+    {
+      "text": "What's done is done.",
+      "author": "William Shakespeare",
+      "attribution": "Macbeth 1606",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 10
+    },
+    {
+      "text": "There is nothing either good or bad but thinking makes it so.",
+      "author": "William Shakespeare",
+      "attribution": "Hamlet 1600",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "Love all, trust a few, do wrong to none.",
+      "author": "William Shakespeare",
+      "attribution": "All's Well That Ends Well 1604",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "All that we see or seem is but a dream within a dream.",
+      "author": "Edgar Allan Poe",
+      "attribution": "A Dream Within a Dream 1849",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "The raven said Nevermore.",
+      "author": "Edgar Allan Poe",
+      "attribution": "The Raven 1845",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 12
+    },
+    {
+      "text": "Hope is the thing with feathers that perches in the soul.",
+      "author": "Emily Dickinson",
+      "attribution": "Poem 254 1861",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "Because I could not stop for Death he kindly stopped for me.",
+      "author": "Emily Dickinson",
+      "attribution": "Poem 712 1863",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 19
+    },
+    {
+      "text": "Success is counted sweetest by those who ne'er succeed.",
+      "author": "Emily Dickinson",
+      "attribution": "Poem 67 1859",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "The heart asks pleasure first.",
+      "author": "Emily Dickinson",
+      "attribution": "Poem 536 1862",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 12
+    },
+    {
+      "text": "They couldn't hit an elephant at this dist-.",
+      "author": "John Sedgwick, US Civil War general",
+      "attribution": "Apocryphal last words 1864",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 14
+    },
+    {
+      "text": "I should never have switched from Scotch to martinis.",
+      "author": "Humphrey Bogart",
+      "attribution": "Apocryphal last words 1957",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
+    },
+    {
+      "text": "Don't let it end like this. Tell them I said something.",
+      "author": "Pancho Villa",
+      "attribution": "Apocryphal last words 1923",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 13
+    },
+    {
+      "text": "I have just had eighteen whiskeys in a row. I do believe that is a record.",
+      "author": "Douglas Fairbanks Sr.",
+      "attribution": "Apocryphal last words 1939",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 20
+    },
+    {
+      "text": "I knew it. I knew it. Born in a hotel room, and God damn it, died in a hotel room.",
+      "author": "Eugene O'Neill",
+      "attribution": "Apocryphal last words 1953",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 15
+    },
+    {
+      "text": "The public have an insatiable curiosity to know everything, except what is worth knowing.",
+      "author": "Oliver Herford",
+      "attribution": "The Rubaiyat of a Persian Kitten 1904",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 20
+    },
+    {
+      "text": "A bore is a man who, when you ask him how he is, tells you.",
+      "author": "Bert Leston Taylor",
+      "attribution": "The So-Called Human Race 1922",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 16
+    },
+    {
+      "text": "Some people think they have an open mind, when it is really their mouth.",
+      "author": "Arnold H. Glasow",
+      "attribution": "Pre-1928 writings",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "Many a man's reputation would not know his character if they met on the street.",
+      "author": "Elbert Hubbard",
+      "attribution": "The Philistine 1907",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 19
+    },
+    {
+      "text": "The world is full of willing people; some willing to work, the rest willing to let them.",
+      "author": "Robert Frost",
+      "attribution": "Pre-1928 interviews",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 17
+    },
+    {
+      "text": "An optimist is a man who starts a crossword puzzle with a fountain pen.",
+      "author": "Don Marquis",
+      "attribution": "Archy and Mehitabel 1927",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 18
+    },
+    {
+      "text": "The trouble with most of us is that we would rather be ruined by praise than saved by criticism.",
+      "author": "Norman Vincent Peale",
+      "attribution": "Pre-1928 sermons",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 20
+    },
+    {
+      "text": "Many a man who thinks he's thinking is only rearranging his prejudices.",
+      "author": "William James",
+      "attribution": "Pragmatism 1907",
+      "difficulty": 0,
+      "category": "starter_pack",
+      "unique_letters": 20
     }
   ]
 }
