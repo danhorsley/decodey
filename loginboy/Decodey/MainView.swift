@@ -76,14 +76,14 @@ struct MainView: View {
                         if UserDefaults.standard.bool(forKey: "tutorial-pending") {
                             UserDefaults.standard.set(false, forKey: "tutorial-pending")
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                tutorialManager.startTutorial()
+                                tutorialManager.startTutorial()  // This now works with compatibility alias
                             }
                         }
                         // Or check for first launch
-                        else if !tutorialManager.hasCompletedTutorial &&
+                        else if !tutorialManager.hasCompletedTutorial &&  // This now works with compatibility alias
                                 !UserDefaults.standard.bool(forKey: "tutorial-started") {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                                tutorialManager.startTutorial()
+                                tutorialManager.startTutorial()  // This now works with compatibility alias
                             }
                         }
                     }
@@ -95,10 +95,10 @@ struct MainView: View {
         .environmentObject(settingsState)
         .environmentObject(soundManager)
         .environmentObject(tutorialManager)
-                .overlay(  // <-- ADD THIS OVERLAY
-                    EnhancedTutorialOverlay()
-                        .allowsHitTesting(tutorialManager.isShowingTutorial)
-                )
+//                .overlay(  // <-- ADD THIS OVERLAY
+//                    EnhancedTutorialOverlay()
+//                        .allowsHitTesting(tutorialManager.isShowingTutorial)
+//                )
                  }
     }
 
