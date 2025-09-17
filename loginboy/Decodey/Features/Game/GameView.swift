@@ -9,6 +9,9 @@ struct GameView: View {
     private let fonts = FontSystem.shared
     private let colors = ColorSystem.shared
     
+    // Text Alignment manager
+    @StateObject private var alignmentManager = TextAlignmentManager()
+    
     // Layout constants
     private let maxContentWidth: CGFloat = 600
     private let headerToContentGap: CGFloat = 24
@@ -73,6 +76,7 @@ struct GameView: View {
         .onAppear {
             gameState.validateModalState()  // Make sure we're not showing wrong modal
             gameState.checkForInProgressGame(isDailyChallenge: false)
+            alignmentManager.preloadFonts()
         }
     }
     

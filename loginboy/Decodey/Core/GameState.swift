@@ -51,6 +51,9 @@ class GameState: ObservableObject {
     // Core Data access
     private let coreData = CoreDataStack.shared
     
+    // text alignment
+    private let alignmentManager = TextAlignmentManager()
+    
     // Singleton instance
     static let shared = GameState()
     
@@ -226,96 +229,156 @@ class GameState: ObservableObject {
     }
     
     private func createGameFromLocalQuote(_ quote: LocalQuoteModel, gameId: String) {
-        // Update UI data
-        quoteAuthor = quote.author
-        quoteAttribution = quote.attribution
-        
-        let text = quote.text.uppercased()
-        let correctMappings = generateCryptogramMapping(for: text)
-        let encrypted = encryptText(text, with: correctMappings)
-        
-        // Create game model
-        let game = GameModel(
-            gameId: gameId,
-            encrypted: encrypted,
-            solution: text,
-            currentDisplay: encrypted,
-            mapping: [:],
-            correctMappings: correctMappings,
-            guessedMappings: [:],
-            incorrectGuesses: [:],
-            mistakes: 0,
-            maxMistakes: getMaxMistakesForDifficulty(SettingsState.shared.gameDifficulty),
-            hasWon: false,
-            hasLost: false,
-            difficulty: SettingsState.shared.gameDifficulty,
-            startTime: Date(),
-            lastUpdateTime: Date()
-        )
-        
-        currentGame = game
-        isLoading = false
-        
-        // Save initial game state
-        saveGameState(game)
-    }
+            // Update UI data
+            quoteAuthor = quote.author
+            quoteAttribution = quote.attribution
+            
+            let text = quote.text.uppercased()
+            let correctMappings = generateCryptogramMapping(for: text)
+            
+            // USE ALIGNMENT MANAGER HERE - just pass the text string
+            let aligned = alignmentManager.processQuoteForDisplay(
+                text,
+                cipher: correctMappings
+            )
+            
+            // Create game model with aligned text
+            let game = GameModel(
+                gameId: gameId,
+                encrypted: aligned.encrypted,  // Use aligned encrypted
+                solution: aligned.solution,     // Use aligned solution
+                currentDisplay: aligned.encrypted,
+                mapping: [:],
+                correctMappings: correctMappings,
+                guessedMappings: [:],
+                incorrectGuesses: [:],
+                mistakes: 0,
+                maxMistakes: getMaxMistakesForDifficulty(SettingsState.shared.gameDifficulty),
+                hasWon: false,
+                hasLost: false,
+                difficulty: SettingsState.shared.gameDifficulty,
+                startTime: Date(),
+                lastUpdateTime: Date()
+            )
+            
+            currentGame = game
+            isLoading = false
+            
+            // Verify alignment before saving
+            if !aligned.isValid {
+                print("⚠️ Warning: Created game with misaligned text")
+            }
+            
+            // Save initial game state
+            saveGameState(game)
+        }
     
     private func loadQuoteFromCoreData(isDaily: Bool) {
-        let context = coreData.mainContext
-        let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
-        fetchRequest.predicate = NSPredicate(format: "isActive == YES")
-        
-        do {
-            let quotes = try context.fetch(fetchRequest)
+            let context = coreData.mainContext
+            let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
+            fetchRequest.predicate = NSPredicate(format: "isActive == YES")
             
-            if !quotes.isEmpty {
-                let randomIndex = isDaily ?
-                    abs(Calendar.current.dateComponents([.day], from: Date()).day ?? 0) % quotes.count :
-                    Int.random(in: 0..<quotes.count)
+            do {
+                let quotes = try context.fetch(fetchRequest)
                 
-                let quote = quotes[randomIndex]
-                
-                // Update UI data
-                quoteAuthor = quote.author ?? ""
-                quoteAttribution = quote.attribution
-                
-                let text = (quote.text ?? "").uppercased()
-                let correctMappings = generateCryptogramMapping(for: text)
-                let encrypted = encryptText(text, with: correctMappings)
-                
-                let gameId = isDaily ? "daily-\(Date().formatted(.iso8601.year().month().day()))" : UUID().uuidString
-                
-                let game = GameModel(
-                    gameId: gameId,
-                    encrypted: encrypted,
-                    solution: text,
-                    currentDisplay: encrypted,
-                    mapping: [:],
-                    correctMappings: correctMappings,
-                    guessedMappings: [:],
-                    incorrectGuesses: [:],
-                    mistakes: 0,
-                    maxMistakes: getMaxMistakesForDifficulty(SettingsState.shared.gameDifficulty),
-                    hasWon: false,
-                    hasLost: false,
-                    difficulty: SettingsState.shared.gameDifficulty,
-                    startTime: Date(),
-                    lastUpdateTime: Date()
-                )
-                
-                currentGame = game
-                saveGameState(game)
-            } else {
-                errorMessage = "No quotes available"
+                if !quotes.isEmpty {
+                    let randomIndex = isDaily ?
+                        abs(Calendar.current.dateComponents([.day], from: Date()).day ?? 0) % quotes.count :
+                        Int.random(in: 0..<quotes.count)
+                    
+                    let quote = quotes[randomIndex]
+                    
+                    // Update UI data
+                    quoteAuthor = quote.author ?? ""
+                    quoteAttribution = quote.attribution
+                    
+                    let text = (quote.text ?? "").uppercased()
+                    let correctMappings = generateCryptogramMapping(for: text)
+                    
+                    // USE ALIGNMENT MANAGER HERE - just pass the text string
+                    let aligned = alignmentManager.processQuoteForDisplay(
+                        text,
+                        cipher: correctMappings
+                    )
+                    
+                    let gameId = isDaily ?
+                        "daily-\(Date().formatted(.iso8601.year().month().day()))" :
+                        UUID().uuidString
+                    
+                    let game = GameModel(
+                        gameId: gameId,
+                        encrypted: aligned.encrypted,  // Use aligned encrypted
+                        solution: aligned.solution,     // Use aligned solution
+                        currentDisplay: aligned.encrypted,
+                        mapping: [:],
+                        correctMappings: correctMappings,
+                        guessedMappings: [:],
+                        incorrectGuesses: [:],
+                        mistakes: 0,
+                        maxMistakes: getMaxMistakesForDifficulty(SettingsState.shared.gameDifficulty),
+                        hasWon: false,
+                        hasLost: false,
+                        difficulty: SettingsState.shared.gameDifficulty,
+                        startTime: Date(),
+                        lastUpdateTime: Date()
+                    )
+                    
+                    currentGame = game
+                    
+                    // Verify alignment before saving
+                    if !aligned.isValid {
+                        print("⚠️ Warning: Created game with misaligned text from CoreData")
+                    }
+                    
+                    saveGameState(game)
+                } else {
+                    errorMessage = "No quotes available"
+                    useFallbackQuote()
+                }
+            } catch {
+                errorMessage = "Failed to load quote: \(error.localizedDescription)"
                 useFallbackQuote()
             }
-        } catch {
-            errorMessage = "Failed to load quote: \(error.localizedDescription)"
-            useFallbackQuote()
+            
+            isLoading = false
         }
         
-        isLoading = false
-    }
+        // ADD THIS: Helper method if you need to update display during game
+        func refreshGameDisplay() {
+            guard let game = currentGame else { return }
+            
+            // Just use the solution text directly
+            let aligned = alignmentManager.processQuoteForDisplay(
+                game.solution,
+                cipher: game.correctMappings
+            )
+            
+            // Update display atomically on main thread
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                
+                // Update the game model with aligned text
+                var updatedGame = game
+                updatedGame.encrypted = aligned.encrypted
+                updatedGame.solution = aligned.solution
+                updatedGame.currentDisplay = self.buildCurrentDisplay(
+                    encrypted: aligned.encrypted,
+                    guessedMappings: game.guessedMappings
+                )
+                
+                self.currentGame = updatedGame
+            }
+        }
+        
+        // Helper to build current display with guesses applied
+        private func buildCurrentDisplay(encrypted: String, guessedMappings: [Character: Character]) -> String {
+            return String(encrypted.map { char in
+                if let guessed = guessedMappings[char] {
+                    return guessed
+                }
+                return char
+            })
+        }
     
     private func useFallbackQuote() {
         setupDefaultGame()
