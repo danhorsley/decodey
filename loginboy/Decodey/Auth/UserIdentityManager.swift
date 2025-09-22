@@ -216,22 +216,56 @@ class UserIdentityManager: ObservableObject {
     }
     
     func updateStatsAfterGame(won: Bool, score: Int, mistakes: Int, timeTaken: Int) {
-        guard let stats = getUserStats() else {
-            print("❌ No stats to update")
+        // IMPORTANT: Get fresh context and user to avoid stale data
+        let context = CoreDataStack.shared.mainContext
+        
+        guard let user = getCurrentUser() else {
+            print("❌ No user found to update stats")
             return
         }
         
-        let context = coreData.mainContext
+        // Get or create stats
+        let stats: UserStatsCD
+        if let existingStats = user.stats {
+            stats = existingStats
+            print("📊 Found existing stats")
+        } else {
+            stats = UserStatsCD(context: context)
+            stats.user = user
+            user.stats = stats
+            print("📊 Created new stats")
+        }
         
-        // Update stats
+        // Log current state BEFORE update
+        print("📊 BEFORE Update:")
+        print("   Games Played: \(stats.gamesPlayed)")
+        print("   Games Won: \(stats.gamesWon)")
+        print("   Current Streak: \(stats.currentStreak)")
+        print("   Best Streak: \(stats.bestStreak)")
+        print("   Game Result: \(won ? "WON" : "LOST")")
+        
+        // Update basic stats
         stats.gamesPlayed += 1
+        
         if won {
             stats.gamesWon += 1
-            stats.currentStreak += 1
-            stats.bestStreak = max(stats.bestStreak, stats.currentStreak)
             stats.totalScore += Int32(score)
+            
+            // IMPORTANT: Increment streak for wins
+            let newStreak = stats.currentStreak + 1
+            stats.currentStreak = newStreak
+            
+            // Update best streak if needed
+            if newStreak > stats.bestStreak {
+                stats.bestStreak = newStreak
+            }
+            
+            print("✅ WON! Streak incremented from \(newStreak - 1) to \(newStreak)")
         } else {
+            // IMPORTANT: Only reset streak on loss
+            let oldStreak = stats.currentStreak
             stats.currentStreak = 0
+            print("❌ LOST! Streak reset from \(oldStreak) to 0")
         }
         
         // Update averages
@@ -249,9 +283,25 @@ class UserIdentityManager: ObservableObject {
         
         stats.lastPlayedDate = Date()
         
+        // Log AFTER update but BEFORE save
+        print("📊 AFTER Update (before save):")
+        print("   Games Played: \(stats.gamesPlayed)")
+        print("   Games Won: \(stats.gamesWon)")
+        print("   Current Streak: \(stats.currentStreak)")
+        print("   Best Streak: \(stats.bestStreak)")
+        
+        // Save changes
         do {
             try context.save()
-            print("✅ Stats updated: Games:\(stats.gamesPlayed), Won:\(stats.gamesWon), Score:\(stats.totalScore)")
+            
+            // Verify the save worked by fetching again
+            context.refresh(stats, mergeChanges: false)
+            
+            print("📊 VERIFIED After Save:")
+            print("   Current Streak: \(stats.currentStreak)")
+            print("   Best Streak: \(stats.bestStreak)")
+            print("✅ Stats saved successfully")
+            
         } catch {
             print("❌ Error saving stats: \(error)")
         }
