@@ -206,7 +206,12 @@ class GameCenterManager: ObservableObject {
     
     // MARK: - Leaderboard Data (Pure GameKit)
     
-    func fetchLeaderboardScores(leaderboardID: String, scope: GKLeaderboard.PlayerScope = .global, timeScope: GKLeaderboard.TimeScope = .allTime, range: NSRange = NSRange(location: 1, length: 10)) async -> [LeaderboardEntry] {
+    func fetchLeaderboardScores(
+        leaderboardID: String,
+        scope: GKLeaderboard.PlayerScope = .global,
+        timeScope: GKLeaderboard.TimeScope = .allTime,
+        range: NSRange = NSRange(location: 1, length: 50)
+    ) async -> [LeaderboardEntry] {
         
         guard isAuthenticated else {
             print("❌ Cannot fetch leaderboard - not authenticated")
@@ -227,29 +232,59 @@ class GameCenterManager: ObservableObject {
                 range: range
             )
             
-            var entries: [LeaderboardEntry] = []
+            // Dictionary to track best score per player
+            var bestScoresByPlayer: [String: LeaderboardEntry] = [:]
             
-            // Add local player entry if available
+            // Process local player entry if available
             if let localEntry = localPlayerEntry {
-                entries.append(LeaderboardEntry(
+                let entry = LeaderboardEntry(
                     player: localEntry.player,
                     score: localEntry.score,
                     rank: localEntry.rank,
                     isLocalPlayer: true
-                ))
+                )
+                bestScoresByPlayer[localEntry.player.gamePlayerID] = entry
             }
             
-            // Add other entries
+            // Process all other entries, keeping only the best score per player
             for entry in regularEntries {
-                entries.append(LeaderboardEntry(
+                let playerID = entry.player.gamePlayerID
+                let newEntry = LeaderboardEntry(
                     player: entry.player,
                     score: entry.score,
                     rank: entry.rank,
                     isLocalPlayer: entry.player.gamePlayerID == GKLocalPlayer.local.gamePlayerID
-                ))
+                )
+                
+                // Check if we already have an entry for this player
+                if let existingEntry = bestScoresByPlayer[playerID] {
+                    // Keep the better score
+                    if newEntry.score > existingEntry.score {
+                        bestScoresByPlayer[playerID] = newEntry
+                    }
+                } else {
+                    // First entry for this player
+                    bestScoresByPlayer[playerID] = newEntry
+                }
             }
             
-            return entries.sorted { $0.rank < $1.rank }
+            // Convert to array and re-rank properly
+            let dedupedEntries = Array(bestScoresByPlayer.values)
+                .sorted { $0.score > $1.score }
+                .enumerated()
+                .map { index, entry in
+                    // Create new entry with corrected rank
+                    LeaderboardEntry(
+                        player: entry.player,
+                        score: entry.score,
+                        rank: index + 1,  // Recalculate rank after deduplication
+                        isLocalPlayer: entry.isLocalPlayer
+                    )
+                }
+            
+            print("📊 Leaderboard fetched: \(dedupedEntries.count) unique players (from \(regularEntries.count) total entries)")
+            
+            return dedupedEntries
             
         } catch {
             print("❌ Failed to fetch leaderboard: \(error.localizedDescription)")
