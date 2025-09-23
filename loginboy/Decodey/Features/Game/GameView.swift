@@ -18,11 +18,11 @@ struct GameView: View {
     private let sectionSpacing: CGFloat = 32
     
     var body: some View {
-                ZStack {
+        ZStack {
             // Background
-//            let currentColorScheme: ColorScheme = settingsState.isDarkMode ? .dark : .light
+            //            let currentColorScheme: ColorScheme = settingsState.isDarkMode ? .dark : .light
             let _ = print("GameView colorScheme: \(colorScheme)") // Debug line
-
+            
             colors.primaryBackground(for: colorScheme)
                 .ignoresSafeArea()
             
@@ -50,7 +50,7 @@ struct GameView: View {
                     }
                 }
             }
-
+            
             
             // Lose overlay
             if gameState.showLoseMessage {
@@ -66,20 +66,24 @@ struct GameView: View {
                     }
                 }
             }
-                    
-                    
+            
+            
         }
-//        .sheet(isPresented: $gameState.showContinueGameModal) {
-//            ContinueGameSheet(isDailyChallenge: gameState.isDailyChallenge)
-//                .presentationDetents([.medium])
-//        }
+        //        .sheet(isPresented: $gameState.showContinueGameModal) {
+        //            ContinueGameSheet(isDailyChallenge: gameState.isDailyChallenge)
+        //                .presentationDetents([.medium])
+        //        }
         .onAppear {
-            gameState.validateModalState()  // Make sure we're not showing wrong modal
-            gameState.checkForInProgressGame(isDailyChallenge: false)
-            alignmentManager.preloadFonts()
+            // Setup game if needed
+            if gameState.currentGame == nil {
+                if gameState.isDailyChallenge {
+                    gameState.setupDailyChallenge()
+                } else {
+                    gameState.setupCustomGame()
+                }
+            }
         }
     }
-    
     private var enhancedSolutionDisplay: String {
         guard let game = gameState.currentGame else { return "" }
         

@@ -135,7 +135,8 @@ struct GameGridsView: View {
                                         // Check if this will be a correct guess
                                         let willBeCorrect = game.correctMappings[game.selectedLetter!] == letter
                                         
-                                        gameState.makeGuess(letter)
+                                        // Call with proper parameters: for (encrypted) and with (guessed)
+                                        gameState.makeGuess(for: game.selectedLetter!, with: letter)
                                         
                                         // Play appropriate sound after the guess
                                         if willBeCorrect {
@@ -158,7 +159,8 @@ struct GameGridsView: View {
                                         // Check if this will be a correct guess
                                         let willBeCorrect = game.correctMappings[game.selectedLetter!] == letter
                                         
-                                        gameState.makeGuess(letter)
+                                        // Call with proper parameters: for (encrypted) and with (guessed)
+                                        gameState.makeGuess(for: game.selectedLetter!, with: letter)
                                         
                                         // Play appropriate sound after the guess
                                         if willBeCorrect {
