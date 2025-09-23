@@ -87,20 +87,24 @@ struct GameView: View {
     private var enhancedSolutionDisplay: String {
         guard let game = gameState.currentGame else { return "" }
         
-        return game.encrypted.map { char in
-            if char.isLetter {
-                if let decrypted = game.guessedMappings[char] {
-                    // Show the correctly guessed letter
-                    return String(decrypted)
+        // Map each character in the encrypted text to ensure perfect alignment
+        return String(game.encrypted.enumerated().map { index, char in
+            let stringIndex = game.encrypted.index(game.encrypted.startIndex, offsetBy: index)
+            let encryptedChar = game.encrypted[stringIndex]
+            
+            if encryptedChar.isLetter {
+                // Check if this encrypted letter has been guessed
+                if let decrypted = game.guessedMappings[encryptedChar] {
+                    return decrypted
                 } else {
-                    // Show a monospace block instead of the encrypted letter
-                    return "█"
+                    // Use a monospace placeholder that matches character width
+                    return "█" // or "█" or "_"
                 }
             } else {
-                // Preserve spaces and punctuation
-                return String(char)
+                // Preserve spaces, punctuation exactly as they are
+                return encryptedChar
             }
-        }.joined()
+        })
     }
     
     private var gameContentView: some View {
@@ -137,7 +141,7 @@ struct GameView: View {
     
     private var textDisplaySection: some View {
         VStack(spacing: 24) {
-            // Encrypted text section - matching GameGridsView exactly
+            // Encrypted text section - shows the scrambled letters
             VStack(alignment: .center, spacing: 8) {
                 if settingsState.showTextHelpers {
                     Text("ENCRYPTED")
@@ -146,6 +150,7 @@ struct GameView: View {
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 
+                // Show the encrypted text directly
                 Text(gameState.currentGame?.encrypted ?? "")
                     .font(fonts.encryptedDisplayText())
                     .foregroundColor(colors.encryptedColor(for: colorScheme))
@@ -153,9 +158,10 @@ struct GameView: View {
                     .lineSpacing(2)
                     .padding(.horizontal, 16)
                     .frame(maxWidth: .infinity)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             
-            // Solution text section - matching GameGridsView exactly
+            // Solution text section - shows progress with blocks for unguessed
             VStack(alignment: .center, spacing: 8) {
                 if settingsState.showTextHelpers {
                     Text("YOUR SOLUTION")
@@ -164,15 +170,40 @@ struct GameView: View {
                         .foregroundColor(.secondary.opacity(0.7))
                 }
                 
-                Text(enhancedSolutionDisplay)
+                // Show solution with blocks for unguessed letters
+                Text(solutionDisplayWithBlocks)
                     .font(fonts.solutionDisplayText())
                     .foregroundColor(colors.guessColor(for: colorScheme))
                     .multilineTextAlignment(.center)
                     .lineSpacing(2)
                     .padding(.horizontal, 16)
                     .frame(maxWidth: .infinity)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
+    }
+
+    // Add this computed property to show blocks for unguessed letters
+    private var solutionDisplayWithBlocks: String {
+        guard let game = gameState.currentGame else { return "" }
+        
+        // Map each character in encrypted to either show the solution or a block
+        return game.encrypted.map { char in
+            if char.isLetter {
+                // Check if this encrypted letter has been correctly guessed
+                if let guessedLetter = game.guessedMappings[char] {
+                    // Show the guessed letter
+                    return String(guessedLetter)
+                } else {
+                    // Show a block/placeholder for unguessed letters
+                    // Options: "█", "▪", "■", "●", "•", "_"
+                    return "█"  // This is a full block character
+                }
+            } else {
+                // Preserve spaces, punctuation, etc. exactly as they are
+                return String(char)
+            }
+        }.joined()
     }
     
     // Loading view - simplified, no "progress" container

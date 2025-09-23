@@ -343,7 +343,10 @@ class GameState: ObservableObject {
         
         // Save game state
         saveGameState(game)
+        
+    
     }
+    
     
     // MARK: - Game Actions
     
@@ -599,6 +602,23 @@ class GameState: ObservableObject {
         }
     }
     
+    private func validateTextAlignment(_ game: GameModel) -> Bool {
+        // Ensure encrypted and currentDisplay have same length
+        guard game.encrypted.count == game.currentDisplay.count else {
+            print("⚠️ Text alignment error: encrypted(\(game.encrypted.count)) != display(\(game.currentDisplay.count))")
+            return false
+        }
+        
+        // Ensure non-letter characters are in the same positions
+        for (index, (e, d)) in zip(game.encrypted, game.currentDisplay).enumerated() {
+            if !e.isLetter && e != d {
+                print("⚠️ Alignment error at position \(index): '\(e)' != '\(d)'")
+                return false
+            }
+        }
+        
+        return true
+    }
     /// Save quote if needed
     private func saveQuoteIfNeeded(_ quote: LocalQuoteModel) {
         let context = coreData.mainContext
