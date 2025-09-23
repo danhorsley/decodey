@@ -69,10 +69,10 @@ struct GameView: View {
                     
                     
         }
-        .sheet(isPresented: $gameState.showContinueGameModal) {
-            ContinueGameSheet(isDailyChallenge: gameState.isDailyChallenge)
-                .presentationDetents([.medium])
-        }
+//        .sheet(isPresented: $gameState.showContinueGameModal) {
+//            ContinueGameSheet(isDailyChallenge: gameState.isDailyChallenge)
+//                .presentationDetents([.medium])
+//        }
         .onAppear {
             gameState.validateModalState()  // Make sure we're not showing wrong modal
             gameState.checkForInProgressGame(isDailyChallenge: false)
