@@ -3,20 +3,39 @@ import CoreData
 
 struct UserStatsView: View {
     @EnvironmentObject var userState: UserState
-    @State private var isLoading = false
-    @State private var errorMessage: String?
-    @State private var detailedStats: DetailedUserStats?
     
     private let coreData = CoreDataStack.shared
     
+    // Compute stats directly - no async, no loading state needed
+    private var userStats: UserStatsCD? {
+        let context = coreData.mainContext
+        let fetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
+        
+        // Try to find user by primary identifier first, then by username
+        if !userState.userId.isEmpty {
+            fetchRequest.predicate = NSPredicate(format: "primaryIdentifier == %@ OR userId == %@",
+                                                userState.userId, userState.userId)
+        } else if !userState.playerName.isEmpty {
+            fetchRequest.predicate = NSPredicate(format: "username == %@", userState.playerName)
+        } else {
+            // No user identifier available
+            return nil
+        }
+        
+        fetchRequest.fetchLimit = 1
+        
+        do {
+            let users = try context.fetch(fetchRequest)
+            return users.first?.stats
+        } catch {
+            print("Error fetching stats: \(error)")
+            return nil
+        }
+    }
+    
     var body: some View {
         ThemedDataDisplay(title: "Your Statistics") {
-            if isLoading {
-                ThemedLoadingView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else if let errorMessage = errorMessage {
-                errorView(message: errorMessage)
-            } else if let stats = detailedStats {
+            if let stats = userStats {
                 ScrollView {
                     VStack(spacing: 24) {
                         // Overview Cards Grid
@@ -26,7 +45,7 @@ struct UserStatsView: View {
                         ], spacing: 16) {
                             ThemedStatCard(
                                 title: "Games Played",
-                                value: "\(stats.totalGamesPlayed)",
+                                value: "\(stats.gamesPlayed)",
                                 icon: "gamecontroller.fill",
                                 trend: nil
                             )
@@ -40,7 +59,7 @@ struct UserStatsView: View {
                             
                             ThemedStatCard(
                                 title: "Win Rate",
-                                value: String(format: "%.1f%%", stats.winPercentage),
+                                value: String(format: "%.1f%%", winPercentage(stats)),
                                 icon: "percent",
                                 trend: nil
                             )
@@ -51,430 +70,86 @@ struct UserStatsView: View {
                                 icon: "star.fill",
                                 trend: nil
                             )
-                            
-                            ThemedStatCard(
-                                title: "Average Score",
-                                value: String(format: "%.0f", stats.averageScore),
-                                icon: "chart.line.uptrend.xyaxis",
-                                trend: nil
-                            )
-                            
-                            ThemedStatCard(
-                                title: "Avg Time",
-                                value: formatTime(Int(stats.averageTime)),
-                                icon: "clock.fill",
-                                trend: nil
-                            )
-                            
-                            ThemedStatCard(
-                                title: "Current Streak",
-                                value: "\(stats.currentStreak)",
-                                icon: "flame.fill",
-                                trend: nil
-                            )
-                            
-                            ThemedStatCard(
-                                title: "Best Streak",
-                                value: "\(stats.bestStreak)",
-                                icon: "crown.fill",
-                                trend: nil
-                            )
                         }
                         .padding(.horizontal)
                         
-                        // Weekly Stats Section
-                        weeklyStatsSection(stats: stats)
-                        
-                        // Top Scores Section
-                        topScoresSection(stats: stats)
-                        
-                        // Game Breakdown Section
-                        gameBreakdownSection(stats: stats)
-                        
-                        // Last Played
-                        if let lastPlayed = stats.lastPlayedDate {
-                            Text("Last played: \(formatDate(lastPlayed))")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                                .padding(.horizontal)
+                        // Detailed Stats
+                        VStack(spacing: 16) {
+                            detailRow(title: "Current Streak", value: "\(stats.currentStreak) games")
+                            detailRow(title: "Best Streak", value: "\(stats.bestStreak) games")
+                            detailRow(title: "Average Mistakes", value: String(format: "%.1f", stats.averageMistakes))
+                            detailRow(title: "Average Time", value: formatTime(stats.averageTime))
+                            if let lastPlayed = stats.lastPlayedDate {
+                                detailRow(title: "Last Played", value: formatDate(lastPlayed))
+                            }
                         }
+                        .padding()
+                        .background(Color.gray.opacity(0.1))
+                        .cornerRadius(12)
+                        .padding(.horizontal)
+                        
+                        Spacer(minLength: 40)
                     }
-                    .padding(.vertical)
+                    .padding(.top)
                 }
             } else {
-                // Empty state
-                ThemedEmptyState(
-//                    title: "No Statistics Yet",
-                    message: "Play some games to see your stats!",
-                    icon: "chart.bar"
-                )
+                // No stats available
+                VStack(spacing: 20) {
+                    Image(systemName: "chart.bar.xaxis")
+                        .font(.system(size: 60))
+                        .foregroundColor(.gray)
+                    
+                    Text("No Statistics Available")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                    
+                    Text("Play some games to see your stats!")
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
         }
-        .onAppear {
-            refreshStats()
-        }
-        .refreshable {
-            refreshStats()
-        }
     }
     
-    // MARK: - Sections
+    // MARK: - Helper Views
     
-    private func weeklyStatsSection(stats: DetailedUserStats) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("This Week")
-                .font(.headline)
-                .padding(.horizontal)
-            
-            HStack(spacing: 16) {
-                ThemedStatCard(
-                    title: "Weekly Score",
-                    value: "\(stats.weeklyStats.totalScore)",
-                    icon: "calendar",
-                    trend: calculateWeeklyTrend(current: stats.weeklyStats.totalScore)
-                )
-                
-                ThemedStatCard(
-                    title: "Games This Week",
-                    value: "\(stats.weeklyStats.gamesPlayed)",
-                    icon: "calendar.badge.clock",
-                    trend: nil
-                )
-            }
-            .padding(.horizontal)
+    private func detailRow(title: String, value: String) -> some View {
+        HStack {
+            Text(title)
+                .foregroundColor(.secondary)
+            Spacer()
+            Text(value)
+                .fontWeight(.medium)
         }
+        .padding(.vertical, 4)
     }
     
-    private func topScoresSection(stats: DetailedUserStats) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Top Scores")
-                .font(.headline)
-                .padding(.horizontal)
-            
-            if !stats.topScores.isEmpty {
-                ThemedTableHeader(columns: ["Rank", "Score", "Time", "Mistakes", "Date"])
-                
-                ForEach(Array(stats.topScores.enumerated()), id: \.offset) { index, score in
-                    ThemedDataRow(
-                        data: [
-                            "#\(index + 1)",
-                            "\(score.score)",
-                            formatTime(score.timeTaken),
-                            "\(score.mistakes)",
-                            formatDate(score.date)
-                        ],
-                        isHighlighted: score.isDaily
-                    )
-                    .padding(.vertical, 2)
-                }
-                .padding(.horizontal)
-            } else {
-                Text("No completed games yet")
-                    .foregroundColor(.secondary)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-            }
-        }
+    // MARK: - Helper Functions
+    
+    private func winPercentage(_ stats: UserStatsCD) -> Double {
+        guard stats.gamesPlayed > 0 else { return 0 }
+        return Double(stats.gamesWon) / Double(stats.gamesPlayed) * 100
     }
     
-    private func gameBreakdownSection(stats: DetailedUserStats) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Game Breakdown")
-                .font(.headline)
-                .padding(.horizontal)
-            
-            ThemedTableHeader(columns: ["Type", "Count", "Percentage"])
-            
-            ThemedDataRow(
-                data: [
-                    "Daily Challenges",
-                    "\(stats.dailyGamesCompleted)",
-                    "\(calculatePercentage(stats.dailyGamesCompleted, of: stats.totalGamesPlayed))%"
-                ],
-                isHighlighted: false
-            )
-            .padding(.vertical, 2)
-            .padding(.horizontal)
-            
-            ThemedDataRow(
-                data: [
-                    "Custom Games",
-                    "\(stats.customGamesCompleted)",
-                    "\(calculatePercentage(stats.customGamesCompleted, of: stats.totalGamesPlayed))%"
-                ],
-                isHighlighted: false
-            )
-            .padding(.vertical, 2)
-            .padding(.horizontal)
-        }
-    }
-    
-    private func errorView(message: String) -> some View {
-        VStack(spacing: 20) {
-            Image(systemName: "exclamationmark.triangle")
-                .font(.system(size: 50))
-                .foregroundColor(.orange)
-            
-            Text("Error loading statistics")
-                .font(.title2)
-                .fontWeight(.bold)
-            
-            Text(message)
-                .foregroundColor(.red)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 40)
-            
-            Button("Try Again") {
-                refreshStats()
-            }
-            .buttonStyle(.bordered)
-            .buttonBorderShape(.roundedRectangle)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-    
-    // MARK: - Helper Methods
-    
-    private func refreshStats() {
-        print("🔄 === REFRESH STATS CALLED ===")
-        print("   userState.userId: '\(userState.userId)'")
-        print("   userState.username: '\(userState.username)'")
-        print("   userState.playerName: '\(userState.playerName)'")
-        print("   userState.isAuthenticated: \(userState.isAuthenticated)")
-        
-        isLoading = true
-        errorMessage = nil
-        
-        // Calculate stats from local Core Data
-        let context = coreData.mainContext
-        
-        // For Apple Sign In users, we don't need playerName - we'll use userId
-        let playerName = userState.playerName.isEmpty ? userState.username : userState.playerName
-        
-        print("   Using playerName: '\(playerName)'")
-        
-        // Don't check if playerName is empty if we have userId
-        if userState.userId.isEmpty && playerName.isEmpty {
-            print("   ❌ No userId and no playerName - showing empty stats")
-            isLoading = false
-            detailedStats = nil
-            return
-        }
-        
-        do {
-            let stats = try calculateDetailedStats(context: context, playerName: playerName)
-            detailedStats = stats
-            isLoading = false
-            print("   ✅ Stats loaded successfully")
-        } catch {
-            errorMessage = "Failed to calculate statistics: \(error.localizedDescription)"
-            isLoading = false
-            print("   ❌ Error loading stats: \(error)")
-        }
-    }
-    
-    private func calculateDetailedStats(context: NSManagedObjectContext, playerName: String) throws -> DetailedUserStats {
-        print("🔍 === CALCULATING USER STATS ===")
-        print("   userId: '\(userState.userId)'")
-        print("   playerName: '\(playerName)'")
-        
-        // Determine which user to fetch stats for
-        let userFetchRequest: NSFetchRequest<UserCD> = UserCD.fetchRequest()
-        
-        // IMPORTANT: Use userId (primaryIdentifier) if available, otherwise fall back to username
-        if !userState.userId.isEmpty {
-            // User is signed in with Apple - use primaryIdentifier
-            print("   Searching by primaryIdentifier: \(userState.userId)")
-            userFetchRequest.predicate = NSPredicate(format: "primaryIdentifier == %@", userState.userId)
-        } else if !playerName.isEmpty {
-            // Local user - use username
-            print("   Searching by username: \(playerName)")
-            userFetchRequest.predicate = NSPredicate(format: "username == %@", playerName)
+    private func formatTime(_ seconds: Double) -> String {
+        if seconds < 60 {
+            return String(format: "%.0f sec", seconds)
+        } else if seconds < 3600 {
+            let minutes = Int(seconds / 60)
+            let secs = Int(seconds.truncatingRemainder(dividingBy: 60))
+            return String(format: "%d:%02d", minutes, secs)
         } else {
-            // Show anonymous user stats
-            print("   Searching for anonymous user")
-            userFetchRequest.predicate = NSPredicate(format: "primaryIdentifier == %@", "anonymous-user")
+            let hours = Int(seconds / 3600)
+            let minutes = Int((seconds - Double(hours * 3600)) / 60)
+            return String(format: "%d:%02d hrs", hours, minutes)
         }
-        
-        let users = try context.fetch(userFetchRequest)
-        print("   Found \(users.count) user(s)")
-        
-        // If no user found by primary method, try fallbacks
-        let user: UserCD?
-        if let foundUser = users.first {
-            user = foundUser
-            print("   ✅ Found user: \(foundUser.username ?? "unknown") [\(foundUser.primaryIdentifier ?? "no-id")]")
-        } else if !playerName.isEmpty {
-            // Try username/displayName as fallback
-            print("   Trying fallback search by username/displayName: \(playerName)")
-            userFetchRequest.predicate = NSPredicate(format: "username == %@ OR displayName == %@", playerName, playerName)
-            let fallbackUsers = try context.fetch(userFetchRequest)
-            user = fallbackUsers.first
-            if let u = user {
-                print("   ✅ Found user via fallback: \(u.username ?? "unknown")")
-            }
-        } else {
-            user = nil
-        }
-        
-        // If still no user, create empty stats
-        guard let validUser = user else {
-            print("   ❌ No user found - returning empty stats")
-            return DetailedUserStats(
-                totalGamesPlayed: 0,
-                gamesWon: 0,
-                totalScore: 0,
-                winPercentage: 0,
-                averageScore: 0,
-                averageTime: 0,
-                currentStreak: 0,
-                bestStreak: 0,
-                lastPlayedDate: nil,
-                weeklyStats: WeeklyStats(gamesPlayed: 0, totalScore: 0),
-                topScores: [],
-                dailyGamesCompleted: 0,
-                customGamesCompleted: 0
-            )
-        }
-        
-        // Get the stored stats (this includes imported legacy games)
-        let userStats = validUser.stats
-        
-        if let stats = userStats {
-            print("   📊 User Stats Found:")
-            print("      Games Played: \(stats.gamesPlayed)")
-            print("      Games Won: \(stats.gamesWon)")
-            print("      Total Score: \(stats.totalScore)")
-            print("      Current Streak: \(stats.currentStreak)")
-            print("      Best Streak: \(stats.bestStreak)")
-        } else {
-            print("   ❌ User has no stats object!")
-        }
-        
-        let totalGamesPlayed = Int(userStats?.gamesPlayed ?? 0)
-        let gamesWon = Int(userStats?.gamesWon ?? 0)
-        let totalScore = Int(userStats?.totalScore ?? 0)
-        let currentStreak = Int(userStats?.currentStreak ?? 0)
-        let bestStreak = Int(userStats?.bestStreak ?? 0)
-        let averageTime = userStats?.averageTime ?? 0
-        let lastPlayedDate = userStats?.lastPlayedDate
-        
-        // Calculate derived stats
-        let winPercentage = totalGamesPlayed > 0 ? (Double(gamesWon) / Double(totalGamesPlayed)) * 100 : 0
-        let averageScore = totalGamesPlayed > 0 ? Double(totalScore) / Double(totalGamesPlayed) : 0
-        
-        // Now get actual game records for detailed breakdowns
-        let gameFetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
-        gameFetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
-            NSPredicate(format: "user == %@", validUser),
-            NSPredicate(format: "(hasWon == YES OR hasLost == YES)")
-        ])
-        gameFetchRequest.sortDescriptors = [NSSortDescriptor(key: "lastUpdateTime", ascending: false)]
-        
-        let completedGames = try context.fetch(gameFetchRequest)
-        
-        print("   📋 Found \(completedGames.count) completed game records")
-        
-        // Calculate weekly stats from actual games
-        let oneWeekAgo = Calendar.current.date(byAdding: .weekOfYear, value: -1, to: Date()) ?? Date()
-            let weeklyGames = completedGames.filter { ($0.lastUpdateTime ?? Date()) >= oneWeekAgo }
-            let weeklyScore = weeklyGames.reduce(0) { $0 + Int($1.score) }
-            
-            // Calculate daily vs custom
-            let dailyGames = completedGames.filter { $0.isDaily }
-            let customGames = completedGames.filter { !$0.isDaily }
-            
-            // Get top scores - CREATE TopScore OBJECTS, not just Int values
-            let topScoresList = completedGames
-                .filter { $0.hasWon }
-                .sorted { $0.score > $1.score }
-                .prefix(5)
-                .map { game in
-                    TopScore(
-                        score: Int(game.score),
-                        timeTaken: Int(game.timeTaken),
-                        mistakes: Int(game.mistakes),
-                        date: game.lastUpdateTime ?? Date(),
-                        isDaily: game.isDaily
-                    )
-                }
-            
-            print("   === END STATS CALCULATION ===")
-            
-            return DetailedUserStats(
-                totalGamesPlayed: totalGamesPlayed,
-                gamesWon: gamesWon,
-                totalScore: totalScore,
-                winPercentage: winPercentage,
-                averageScore: averageScore,
-                averageTime: averageTime,
-                currentStreak: currentStreak,
-                bestStreak: bestStreak,
-                lastPlayedDate: lastPlayedDate,
-                weeklyStats: WeeklyStats(
-                    gamesPlayed: weeklyGames.count,
-                    totalScore: weeklyScore
-                ),
-                topScores: Array(topScoresList),  // Convert to Array of TopScore objects
-                dailyGamesCompleted: dailyGames.count,
-                customGamesCompleted: customGames.count
-            )
-    }
-    
-    
-    private func calculatePercentage(_ value: Int, of total: Int) -> Int {
-        guard total > 0 else { return 0 }
-        return Int((Double(value) / Double(total)) * 100)
-    }
-    
-    private func calculateWeeklyTrend(current: Int) -> Double? {
-        // This would compare to last week's score
-        // For now, return nil or implement comparison logic
-        return nil
-    }
-    
-    private func formatTime(_ seconds: Int) -> String {
-        let minutes = seconds / 60
-        let secs = seconds % 60
-        return String(format: "%d:%02d", minutes, secs)
     }
     
     private func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .short
-        return formatter.string(from: date)
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .full
+        return formatter.localizedString(for: date, relativeTo: Date())
     }
-}
-
-// MARK: - Data Models
-
-struct DetailedUserStats {
-    let totalGamesPlayed: Int
-    let gamesWon: Int
-    let totalScore: Int
-    let winPercentage: Double
-    let averageScore: Double
-    let averageTime: Double
-    let currentStreak: Int
-    let bestStreak: Int
-    let lastPlayedDate: Date?
-    let weeklyStats: WeeklyStats
-    let topScores: [TopScore]
-    let dailyGamesCompleted: Int
-    let customGamesCompleted: Int
-}
-
-struct WeeklyStats {
-    let gamesPlayed: Int
-    let totalScore: Int
-}
-
-struct TopScore: Identifiable {
-    let id = UUID()
-    let score: Int
-    let timeTaken: Int
-    let mistakes: Int
-    let date: Date
-    let isDaily: Bool
 }

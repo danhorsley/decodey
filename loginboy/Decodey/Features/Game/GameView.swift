@@ -9,8 +9,8 @@ struct GameView: View {
     private let fonts = FontSystem.shared
     private let colors = ColorSystem.shared
     
-    // Text Alignment manager
-    @StateObject private var alignmentManager = TextAlignmentManager()
+//    // Text Alignment manager
+//    @StateObject private var alignmentManager = TextAlignmentManager()
     
     // Layout constants
     private let maxContentWidth: CGFloat = 600
