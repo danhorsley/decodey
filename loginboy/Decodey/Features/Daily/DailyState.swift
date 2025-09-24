@@ -12,6 +12,7 @@ class DailyState: ObservableObject {
     @Published var todaysDailyCompleted = false
     @Published var showCompletedModal = false
     @Published var dailyStats: DailyStats?
+    private let colors = ColorSystem.shared
     
     // MARK: - Daily Stats Structure
     struct DailyStats {
@@ -118,16 +119,16 @@ class DailyState: ObservableObject {
     
     // MARK: - Private Methods
     
-    private func checkDailyStatus() {
-        // Check if today's daily is completed
-        if let stats = getTodaysCompletedStats() {
-            self.dailyStats = stats
-            self.todaysDailyCompleted = true
-        }
-        
-        // Clean up old abandoned games on app launch
-        cleanupAbandonedGames()
-    }
+//    private func checkDailyStatus() {
+//        // Check if today's daily is completed
+//        if let stats = getTodaysCompletedStats() {
+//            self.dailyStats = stats
+//            self.todaysDailyCompleted = true
+//        }
+//        
+//        // Clean up old abandoned games on app launch
+//        cleanupAbandonedGames()
+//    }
     
     private func getInProgressDailyForToday() -> GameModel? {
         let context = coreData.mainContext
@@ -332,6 +333,9 @@ enum DailyLoadResult {
 struct DailyCompletedModal: View {
     @ObservedObject var dailyState = DailyState.shared
     @EnvironmentObject var gameState: GameState
+    private let colors = ColorSystem.shared
+    @Environment(\.colorScheme) private var colorScheme
+    
     let onPlayRandom: () -> Void
     let onDismiss: () -> Void
     
@@ -393,7 +397,8 @@ struct DailyCompletedModal: View {
             }
         }
         .padding(30)
-        .background(Color(UIColor.systemBackground))
+        colors.primaryBackground(for: colorScheme)
+            .ignoresSafeArea()
         .cornerRadius(20)
         .shadow(radius: 20)
     }
