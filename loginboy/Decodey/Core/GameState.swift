@@ -84,14 +84,25 @@ class GameState: ObservableObject {
     /// Create encrypted version of text
     private func encryptText(_ text: String, with mapping: [Character: Character]) -> String {
         let reversedMapping = Dictionary(uniqueKeysWithValues: mapping.map { ($1, $0) })
+        
         return text.map { char in
             if char.isLetter {
-                let upperChar = char.uppercased().first!
-                return reversedMapping[upperChar] ?? char
+                // FIXED: Safely get the uppercase character
+                guard let upperChar = char.uppercased().first else {
+                    return String(char) // Return original if uppercase fails
+                }
+                
+                // Return the mapped character or original if not in mapping
+                if let mappedChar = reversedMapping[upperChar] {
+                    return String(mappedChar)
+                } else {
+                    return String(char) // Return original if not in mapping
+                }
             } else {
-                return char
+                // Non-letter characters pass through unchanged
+                return String(char)
             }
-        }.map(String.init).joined()
+        }.joined()
     }
     
     private func setupDefaultGame() {
@@ -99,87 +110,41 @@ class GameState: ObservableObject {
         isSettingUpGame = true
         defer { isSettingUpGame = false }
         
-        let defaultText = "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG"
-        let correctMappings = generateCryptogramMapping(for: defaultText)
-        let encrypted = encryptText(defaultText, with: correctMappings)
-        
-        let game = GameModel(
-            gameId: UUID().uuidString,
-            encrypted: encrypted,
-            solution: defaultText,
-            currentDisplay: encrypted,
-            mapping: [:],
-            correctMappings: correctMappings,
-            guessedMappings: [:],
-            incorrectGuesses: [:],
-            mistakes: 0,
-            maxMistakes: getMaxMistakesForDifficulty(SettingsState.shared.gameDifficulty),
-            hasWon: false,
-            hasLost: false,
-            difficulty: SettingsState.shared.gameDifficulty,
-            startTime: Date(),
-            lastUpdateTime: Date()
-        )
-        
-        self.currentGame = game
-        self.quoteAuthor = "Anonymous"
-        self.quoteAttribution = nil
+        // Don't use the terrible pangram! Load a real quote instead
+        if isDailyChallenge {
+            // For daily challenge, load today's quote
+            setupDailyChallenge()
+        } else {
+            // For random game, load a random quote
+            setupCustomGame()
+        }
     }
     
     // MARK: - Game Setup
     
     /// Set up daily challenge
     func setupDailyChallenge() {
-        guard !isSettingUpGame else { return }
-        
-        // Clear any custom game modals when switching to daily
-        if !winModalIsDaily && showWinMessage {
-            showWinMessage = false
-        }
-        if !loseModalIsDaily && showLoseMessage {
-            showLoseMessage = false
-        }
-        
-        self.isDailyChallenge = true
-        
-        // Check if we should show the stored daily modal
-        if let dailyStats = lastDailyGameStats,
-           let currentGame = currentGame,
-           currentGame.hasWon || currentGame.hasLost {
-            // Restore the modal for the last daily game
-            quoteAuthor = dailyStats.author
-            quoteAttribution = dailyStats.attribution
+            guard !isSettingUpGame else { return }
             
-            if dailyStats.hasWon {
-                winModalIsDaily = true
-                showWinMessage = true
-            } else {
-                loseModalIsDaily = true
-                showLoseMessage = true
+            self.isDailyChallenge = true
+            
+            // Get today's daily quote
+            guard let dailyQuote = DailyChallengeManager.shared.getTodaysDailyQuote() else {
+                print("❌ Failed to get daily quote")
+                // Fallback to regular quote system
+                loadQuoteFromCoreData(isDaily: true)
+                return
             }
-            return  // Don't setup a new game
+            
+            // Create game with daily quote
+            let dateString = DateFormatter.yyyyMMdd.string(from: Date())
+            createGameFromLocalQuote(dailyQuote, gameId: "daily-\(dateString)")
+            
+            // Set the quote date for display
+            self.quoteDate = dateString
+            
+            print("✅ Daily challenge loaded for \(dateString)")
         }
-        
-        // Continue with normal daily setup...
-        isLoading = true
-        errorMessage = nil
-        
-        let today = Date()
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        let dateString = formatter.string(from: today)
-        
-        self.quoteDate = dateString
-        
-        // Try LocalQuoteManager first
-        let daysSinceEpoch = Int(today.timeIntervalSince1970 / 86400)
-        if let quote = LocalQuoteManager.shared.getDailyQuote(for: daysSinceEpoch) {
-            createGameFromLocalQuote(quote, gameId: "daily-\(dateString)")
-        } else {
-            // Fallback to Core Data
-            loadQuoteFromCoreData(isDaily: true)
-        }
-    }
     
     /// Set up a custom/random game
     func setupCustomGame() {
