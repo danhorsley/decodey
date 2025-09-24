@@ -113,6 +113,13 @@ class GameState: ObservableObject {
     private func loadOrCreateRandomGame() {
         let context = coreData.mainContext
         
+        // If there's a current game that's completed, clear it
+        if let current = currentGame, (current.hasWon || current.hasLost) {
+            currentGame = nil
+            showWinMessage = false
+            showLoseMessage = false
+        }
+        
         // Look for active random game
         let fetchRequest: NSFetchRequest<GameCD> = GameCD.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "isActive == YES AND isDaily == NO")
@@ -121,12 +128,12 @@ class GameState: ObservableObject {
         do {
             if let activeGame = try context.fetch(fetchRequest).first {
                 if activeGame.hasWon || activeGame.hasLost {
-                    // Completed but still active - deactivate and create new
+                    // Completed but still marked active - deactivate and create new
                     activeGame.isActive = false
                     try? context.save()
                     createNewRandomGame()
                 } else {
-                    // Resume active game
+                    // Resume active game only if not completed
                     loadGameFromEntity(activeGame)
                 }
             } else {

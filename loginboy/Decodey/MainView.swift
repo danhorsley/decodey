@@ -30,22 +30,25 @@ struct MainView: View {
                 VStack(spacing: 0) {
                     TabView(selection: $selectedTab) {
                         // Daily Challenge Tab
-                        DailyGameView()
-                            .tabItem {
-                                Image(systemName: "calendar")
-                                Text("Daily")
-                            }
-                            .tag(0)
-                            .badge(isDailyCompleted() ? nil : "NEW")
-                        
-                        // Random Game Tab
-                        RandomGameView()
-                            .tabItem {
-                                Image(systemName: "shuffle")
-                                Text("Random")
-                            }
-                            .tag(1)
-                        
+                        GameView()
+                           .tabItem {
+                               Label("Daily", systemImage: "calendar")
+                           }
+                           .tag(0)
+                           .onAppear {
+                               // Always check/load when tab appears
+                               gameState.loadOrCreateGame(isDaily: true)
+                           }
+                       
+                       GameView()
+                           .tabItem {
+                               Label("Random", systemImage: "shuffle")
+                           }
+                           .tag(1)
+                           .onAppear {
+                               // Always check/load when tab appears
+                               gameState.loadOrCreateGame(isDaily: false)
+                           }
                         // Stats Tab
                         UserStatsView()
                             .tabItem {
