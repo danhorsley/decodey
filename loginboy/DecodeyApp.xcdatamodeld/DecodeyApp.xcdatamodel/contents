@@ -10,6 +10,7 @@
         <attribute name="hasLost" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="hasWon" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="incorrectGuesses" optional="YES" attributeType="Binary"/>
+        <attribute name="isActive" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="isDaily" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="lastUpdateTime" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="mapping" optional="YES" attributeType="Binary"/>

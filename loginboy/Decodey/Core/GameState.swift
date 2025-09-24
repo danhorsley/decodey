@@ -1,27 +1,44 @@
 import SwiftUI
 import CoreData
-import Foundation
 import Combine
 
+// MARK: - Simplified GameState with isActive Management
 class GameState: ObservableObject {
-    // Game state properties
+    static let shared = GameState()
+    
+    // MARK: - Published Properties (keep existing ones)
     @Published var currentGame: GameModel?
-    @Published var savedGame: GameModel?
+    @Published var isDailyChallenge = false
     @Published var isLoading = false
     @Published var errorMessage: String?
-    @Published var isInfiniteMode = false
+    @Published var defaultDifficulty = "medium"
     
-    // Track which mode the win/loss modal is for
-    @Published var winModalIsDaily = false
-    @Published var loseModalIsDaily = false
+    // Quote information (keep existing)
+    @Published var quoteAuthor = ""
+    @Published var quoteAttribution: String?
+    @Published var quoteDate: String?
+    
+    // Modal states (keep existing)
     @Published var showWinMessage = false
     @Published var showLoseMessage = false
+    @Published var winModalIsDaily = false
+    @Published var loseModalIsDaily = false
+    @Published var isInfiniteMode = false
     
-    // Store last completed game stats for re-display
-    @Published var lastDailyGameStats: CompletedGameStats? = nil
-    @Published var lastCustomGameStats: CompletedGameStats? = nil
     
-    // Structure to hold completed game info
+    // Game display states (keep existing)
+    @Published var selectedEncryptedLetter: Character?
+    @Published var selectedGuessLetter: Character?
+    @Published var userGuessedLetter: Character?
+    @Published var showMessage = false
+    @Published var messageTitle = ""
+    @Published var messageText = ""
+    
+    // Store completed game stats (keep existing)
+    public var lastDailyGameStats: CompletedGameStats?
+    public var lastCustomGameStats: CompletedGameStats?
+    
+    // For completed games (keep existing)
     struct CompletedGameStats {
         let solution: String
         let author: String
@@ -31,45 +48,187 @@ class GameState: ObservableObject {
         let maxMistakes: Int
         let timeElapsed: Int
         let hasWon: Bool
-        let currentDisplay: String  // For showing their attempt in loss modal
+        let currentDisplay: String
     }
     
-    // Game metadata
-    @Published var quoteAuthor: String = ""
-    @Published var quoteAttribution: String? = nil
-    @Published var quoteDate: String? = nil
-    
-    // Configuration
-    @Published var isDailyChallenge = false
-    @Published var defaultDifficulty = "medium"
-    
-    // Private properties
-    private var dailyQuote: DailyQuoteModel?
-    private let userManager = SimpleUserManager.shared
-    
-    // Core Data access
+    // MARK: - Private Properties
     private let coreData = CoreDataStack.shared
-    
-    // Add flag to prevent multiple encryption setups
+    private var cancellables = Set<AnyCancellable>()
     private var isSettingUpGame = false
     
-    // Singleton instance
-    static let shared = GameState()
+    private init() {}
     
-    private init() {
-        setupDefaultGame()
+    // MARK: - NEW: Simplified Game Loading with isActive
+    
+    /// Load or create game based on tab selection
+    func loadOrCreateGame(isDaily: Bool) {
+        if isDaily {
+            loadOrCreateDailyGame()
+        } else {
+            loadOrCreateRandomGame()
+        }
     }
     
-    /// Get max mistakes based on difficulty settings
+    /// Load active daily or create new one
+    private func loadOrCreateDailyGame() {
+        let context = coreData.mainContext
+        let todayString = DateFormatter.yyyyMMdd.string(from: Date())
+        let dailyUUID = dailyStringToUUID("daily-\(todayString)")
+        
+        // Check if today's daily exists
+        let fetchRequest: NSFetchRequest<GameCD> = GameCD.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "gameId == %@", dailyUUID as CVarArg)
+        fetchRequest.fetchLimit = 1
+        
+        do {
+            if let dailyGame = try context.fetch(fetchRequest).first {
+                // Daily exists
+                if dailyGame.hasWon || dailyGame.hasLost {
+                    // Completed - just load for display
+                    loadGameFromEntity(dailyGame)
+                    if dailyGame.hasWon {
+                        showWinMessage = true
+                        winModalIsDaily = true
+                    } else {
+                        showLoseMessage = true
+                        loseModalIsDaily = true
+                    }
+                } else {
+                    // In progress - make active and load
+                    deactivateOtherGames(ofType: true)
+                    dailyGame.isActive = true
+                    try? context.save()
+                    loadGameFromEntity(dailyGame)
+                }
+            } else {
+                // No daily exists - create new
+                createNewDailyGame()
+            }
+        } catch {
+            errorMessage = "Failed to load daily: \(error.localizedDescription)"
+        }
+    }
+    
+    /// Load active random or create new one
+    private func loadOrCreateRandomGame() {
+        let context = coreData.mainContext
+        
+        // Look for active random game
+        let fetchRequest: NSFetchRequest<GameCD> = GameCD.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "isActive == YES AND isDaily == NO")
+        fetchRequest.fetchLimit = 1
+        
+        do {
+            if let activeGame = try context.fetch(fetchRequest).first {
+                if activeGame.hasWon || activeGame.hasLost {
+                    // Completed but still active - deactivate and create new
+                    activeGame.isActive = false
+                    try? context.save()
+                    createNewRandomGame()
+                } else {
+                    // Resume active game
+                    loadGameFromEntity(activeGame)
+                }
+            } else {
+                // No active game - create new
+                createNewRandomGame()
+            }
+        } catch {
+            errorMessage = "Failed to load game: \(error.localizedDescription)"
+        }
+    }
+    
+    // MARK: - Game Creation (Updated with isActive)
+    
+    private func createNewDailyGame() {
+        guard let quote = DailyChallengeManager.shared.getTodaysDailyQuote() else {
+            errorMessage = "No daily quote available"
+            return
+        }
+        
+        let context = coreData.mainContext
+        let todayString = DateFormatter.yyyyMMdd.string(from: Date())
+        let gameId = "daily-\(todayString)"
+        
+        // Deactivate other dailies
+        deactivateOtherGames(ofType: true)
+        
+        // Create new game
+        let gameEntity = GameCD(context: context)
+        gameEntity.gameId = dailyStringToUUID(gameId)
+        gameEntity.isDaily = true
+        gameEntity.isActive = true
+        
+        // Setup game from quote
+        let localQuote = LocalQuoteModel(
+            text: quote.text,
+            author: quote.author,
+            attribution: quote.attribution,
+            difficulty: quote.difficulty,
+            category: quote.category
+        )
+        setupGameEntity(gameEntity, from: localQuote)
+        
+        do {
+            try context.save()
+            loadGameFromEntity(gameEntity)
+            isDailyChallenge = true
+        } catch {
+            errorMessage = "Failed to create daily: \(error.localizedDescription)"
+        }
+    }
+    
+    private func createNewRandomGame() {
+        let context = coreData.mainContext
+        
+        // Get random quote
+        let quoteFetch: NSFetchRequest<QuoteCD> = QuoteCD.fetchRequest()
+        quoteFetch.predicate = NSPredicate(format: "isActive == YES")
+        
+        guard let quotes = try? context.fetch(quoteFetch),
+              let randomQuote = quotes.randomElement() else {
+            errorMessage = "No quotes available"
+            return
+        }
+        
+        // Deactivate other random games
+        deactivateOtherGames(ofType: false)
+        
+        // Create new game
+        let gameEntity = GameCD(context: context)
+        gameEntity.gameId = UUID()
+        gameEntity.isDaily = false
+        gameEntity.isActive = true
+        
+        let quote = LocalQuoteModel(
+            text: randomQuote.text ?? "",
+            author: randomQuote.author ?? "Unknown",
+            attribution: randomQuote.attribution,
+            difficulty: randomQuote.difficulty,
+        )
+        setupGameEntity(gameEntity, from: quote)
+        
+        do {
+            try context.save()
+            loadGameFromEntity(gameEntity)
+            isDailyChallenge = false
+        } catch {
+            errorMessage = "Failed to create game: \(error.localizedDescription)"
+        }
+    }
+    
+    // MARK: - Helper Methods (Keep Existing)
+    
+    /// Get max mistakes based on difficulty
     private func getMaxMistakesForDifficulty(_ difficulty: String) -> Int {
         switch difficulty.lowercased() {
         case "easy": return 8
         case "hard": return 3
-        default: return 5  // Medium difficulty
+        default: return 5  // Medium
         }
     }
     
-    /// Generate a simple substitution cipher
+    /// Generate cryptogram mapping (keep existing)
     private func generateCryptogramMapping(for text: String) -> [Character: Character] {
         let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         let shuffled = alphabet.shuffled()
@@ -81,241 +240,150 @@ class GameState: ObservableObject {
         return mapping
     }
     
-    /// Create encrypted version of text
+    /// Encrypt text (keep existing)
     private func encryptText(_ text: String, with mapping: [Character: Character]) -> String {
         let reversedMapping = Dictionary(uniqueKeysWithValues: mapping.map { ($1, $0) })
         
         return text.map { char in
             if char.isLetter {
-                // FIXED: Safely get the uppercase character
                 guard let upperChar = char.uppercased().first else {
-                    return String(char) // Return original if uppercase fails
+                    return String(char)
                 }
                 
-                // Return the mapped character or original if not in mapping
                 if let mappedChar = reversedMapping[upperChar] {
                     return String(mappedChar)
                 } else {
-                    return String(char) // Return original if not in mapping
+                    return String(char)
                 }
             } else {
-                // Non-letter characters pass through unchanged
                 return String(char)
             }
         }.joined()
     }
     
-    private func setupDefaultGame() {
-        guard !isSettingUpGame else { return }
-        isSettingUpGame = true
-        defer { isSettingUpGame = false }
+    /// Setup game entity with cryptogram
+    private func setupGameEntity(_ entity: GameCD, from quote: LocalQuoteModel) {
+        let text = quote.text.uppercased()
+        let correctMappings = generateCryptogramMapping(for: text)
+        let encrypted = encryptText(text, with: correctMappings)
         
-        // Don't use the terrible pangram! Load a real quote instead
-        if isDailyChallenge {
-            // For daily challenge, load today's quote
-            setupDailyChallenge()
-        } else {
-            // For random game, load a random quote
-            setupCustomGame()
-        }
-    }
-    
-    // MARK: - Game Setup
-    
-    /// Set up daily challenge
-    func setupDailyChallenge() {
-            guard !isSettingUpGame else { return }
-            
-            self.isDailyChallenge = true
-            
-            // Get today's daily quote
-            guard let dailyQuote = DailyChallengeManager.shared.getTodaysDailyQuote() else {
-                print("❌ Failed to get daily quote")
-                // Fallback to regular quote system
-                loadQuoteFromCoreData(isDaily: true)
-                return
-            }
-            
-            // Create game with daily quote
-            let dateString = DateFormatter.yyyyMMdd.string(from: Date())
-            createGameFromLocalQuote(dailyQuote, gameId: "daily-\(dateString)")
-            
-            // Set the quote date for display
-            self.quoteDate = dateString
-            
-            print("✅ Daily challenge loaded for \(dateString)")
-        }
-    
-    /// Set up a custom/random game
-    func setupCustomGame() {
-        guard !isSettingUpGame else { return }
+        entity.encrypted = encrypted
+        entity.solution = text
+        entity.currentDisplay = encrypted
+        entity.mistakes = 0
+        entity.maxMistakes = entity.isDaily ? 5 : Int16(getMaxMistakesForDifficulty(SettingsState.shared.gameDifficulty))
+        entity.hasWon = false
+        entity.hasLost = false
+        entity.difficulty = entity.isDaily ? "medium" : SettingsState.shared.gameDifficulty
+        entity.startTime = Date()
+        entity.lastUpdateTime = Date()
         
-        // Clear any daily game modals when switching to custom
-        if winModalIsDaily && showWinMessage {
-            showWinMessage = false
-        }
-        if loseModalIsDaily && showLoseMessage {
-            showLoseMessage = false
-        }
-        
-        self.isDailyChallenge = false
-        self.dailyQuote = nil
-        
-        // Check if we should show a stored custom game modal
-        if let customStats = lastCustomGameStats,
-           let currentGame = currentGame,
-           currentGame.hasWon || currentGame.hasLost {
-            // Restore the modal for the last custom game
-            quoteAuthor = customStats.author
-            quoteAttribution = customStats.attribution
-            
-            if customStats.hasWon {
-                winModalIsDaily = false
-                showWinMessage = true
-            } else {
-                loseModalIsDaily = false
-                showLoseMessage = true
-            }
-            return  // Don't setup a new game
-        }
-        
-        // Continue with normal custom setup...
-        isLoading = true
-        errorMessage = nil
-        
-        // Get random quote from LocalQuoteManager or Core Data
-        if let randomQuote = LocalQuoteManager.shared.getRandomQuote() {
-            createGameFromLocalQuote(randomQuote, gameId: UUID().uuidString)
-        } else {
-            // Fallback to Core Data
-            loadQuoteFromCoreData(isDaily: false)
-        }
-    }
-    
-    // MARK: - Game Creation
-    
-    /// Create game from local quote
-    private func createGameFromLocalQuote(_ quote: LocalQuoteModel, gameId: String) {
-        isSettingUpGame = true
-        defer { isSettingUpGame = false }
-        
-        let solutionText = quote.text.uppercased()
-        
-        // Generate mapping once - DO NOT call setupEncryption
-        let correctMappings = generateCryptogramMapping(for: solutionText)
-        let encrypted = encryptText(solutionText, with: correctMappings)
-        
-        let game = GameModel(
-            gameId: gameId,
-            encrypted: encrypted,
-            solution: solutionText,
-            currentDisplay: encrypted,
-            mapping: [:],
-            correctMappings: correctMappings,
-            guessedMappings: [:],
-            incorrectGuesses: [:],
-            mistakes: 0,
-            maxMistakes: getMaxMistakesForDifficulty(SettingsState.shared.gameDifficulty),
-            hasWon: false,
-            hasLost: false,
-            difficulty: SettingsState.shared.gameDifficulty,
-            startTime: Date(),
-            lastUpdateTime: Date()
-        )
-        
-        self.currentGame = game
+        // Store quote info
         self.quoteAuthor = quote.author
         self.quoteAttribution = quote.attribution
-        self.isLoading = false
         
-        // Save to Core Data
-        saveQuoteIfNeeded(quote)
-        saveGameState(game)
-        
-        print("✅ Created game from local quote: \(quote.text.prefix(30))...")
+        // Encode mappings
+        if let mappingData = try? JSONEncoder().encode(correctMappings.mapToStringDict()) {
+            entity.correctMappings = mappingData
+        }
+        entity.mapping = try? JSONEncoder().encode([String: String]())
+        entity.guessedMappings = try? JSONEncoder().encode([String: String]())
+        entity.incorrectGuesses = try? JSONEncoder().encode([String: [String]]())
     }
     
-    /// Load quote from Core Data
-    private func loadQuoteFromCoreData(isDaily: Bool) {
-        let context = coreData.mainContext
-        let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
+    /// Load game from entity
+    private func loadGameFromEntity(_ entity: GameCD) {
+        // Convert to game model
+        let gameIdString: String
+        if entity.isDaily {
+            let dateString = DateFormatter.yyyyMMdd.string(from: entity.startTime ?? Date())
+            gameIdString = "daily-\(dateString)"
+        } else {
+            gameIdString = entity.gameId?.uuidString ?? UUID().uuidString
+        }
         
-        do {
-            let quotes = try context.fetch(fetchRequest)
-            
-            guard !quotes.isEmpty else {
-                errorMessage = "No quotes available"
-                isLoading = false
-                return
+        // Decode mappings
+        var correctMappings: [Character: Character] = [:]
+        var guessedMappings: [Character: Character] = [:]
+        var mapping: [Character: Character] = [:]
+        var incorrectGuesses: [Character: Set<Character>] = [:]
+        
+        if let data = entity.correctMappings,
+           let decoded = try? JSONDecoder().decode([String: String].self, from: data) {
+            correctMappings = decoded.stringDictToCharDict()
+        }
+        
+        if let data = entity.guessedMappings,
+           let decoded = try? JSONDecoder().decode([String: String].self, from: data) {
+            guessedMappings = decoded.stringDictToCharDict()
+        }
+        
+        if let data = entity.mapping,
+           let decoded = try? JSONDecoder().decode([String: String].self, from: data) {
+            mapping = decoded.stringDictToCharDict()
+        }
+        
+        if let data = entity.incorrectGuesses,
+           let decoded = try? JSONDecoder().decode([String: [String]].self, from: data) {
+            for (key, values) in decoded {
+                if let keyChar = key.first {
+                    incorrectGuesses[keyChar] = Set(values.compactMap { $0.first })
+                }
             }
-            
-            let selectedQuote: QuoteCD
-            if isDaily {
-                // For daily, use date-based selection
-                let dayOfYear = Calendar.current.ordinality(of: .day, in: .year, for: Date()) ?? 1
-                let index = (dayOfYear - 1) % quotes.count
-                selectedQuote = quotes[index]
-            } else {
-                // For custom, random selection
-                selectedQuote = quotes.randomElement()!
-            }
-            
-            createGameFromCoreDataQuote(selectedQuote)
-            
-        } catch {
-            errorMessage = "Failed to load quotes: \(error.localizedDescription)"
-            isLoading = false
+        }
+        
+        self.currentGame = GameModel(
+            gameId: gameIdString,
+            encrypted: entity.encrypted ?? "",
+            solution: entity.solution ?? "",
+            currentDisplay: entity.currentDisplay ?? "",
+            mapping: mapping,
+            correctMappings: correctMappings,
+            guessedMappings: guessedMappings,
+            incorrectGuesses: incorrectGuesses,
+            mistakes: Int(entity.mistakes),
+            maxMistakes: Int(entity.maxMistakes),
+            hasWon: entity.hasWon,
+            hasLost: entity.hasLost,
+            difficulty: entity.difficulty ?? "medium",
+            startTime: entity.startTime ?? Date(),
+            lastUpdateTime: entity.lastUpdateTime ?? Date()
+        )
+        
+        self.isDailyChallenge = entity.isDaily
+        
+        // Load quote info if available
+        let quoteFetch: NSFetchRequest<QuoteCD> = QuoteCD.fetchRequest()
+        quoteFetch.predicate = NSPredicate(format: "text == %@", entity.solution ?? "")
+        quoteFetch.fetchLimit = 1
+        
+        if let quote = try? coreData.mainContext.fetch(quoteFetch).first {
+            self.quoteAuthor = quote.author ?? "Unknown"
+            self.quoteAttribution = quote.attribution
         }
     }
     
-    /// Create game from Core Data quote
-    private func createGameFromCoreDataQuote(_ quote: QuoteCD) {
-        guard let text = quote.text else { return }
+    /// Deactivate other games of same type
+    private func deactivateOtherGames(ofType isDaily: Bool) {
+        let context = coreData.mainContext
+        let fetchRequest: NSFetchRequest<GameCD> = GameCD.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "isActive == YES AND isDaily == %@", NSNumber(value: isDaily))
         
-        isSettingUpGame = true
-        defer { isSettingUpGame = false }
-        
-        let solutionText = text.uppercased()
-        
-        // Generate mapping once - DO NOT call setupEncryption
-        let correctMappings = generateCryptogramMapping(for: solutionText)
-        let encrypted = encryptText(solutionText, with: correctMappings)
-        
-        let gameId = isDailyChallenge ? "daily-\(Date())" : UUID().uuidString
-        
-        let game = GameModel(
-            gameId: gameId,
-            encrypted: encrypted,
-            solution: solutionText,
-            currentDisplay: encrypted,
-            mapping: [:],
-            correctMappings: correctMappings,
-            guessedMappings: [:],
-            incorrectGuesses: [:],
-            mistakes: 0,
-            maxMistakes: getMaxMistakesForDifficulty(SettingsState.shared.gameDifficulty),
-            hasWon: false,
-            hasLost: false,
-            difficulty: SettingsState.shared.gameDifficulty,
-            startTime: Date(),
-            lastUpdateTime: Date()
-        )
-        
-        self.currentGame = game
-        self.quoteAuthor = quote.author ?? "Unknown"
-        self.quoteAttribution = quote.attribution
-        self.isLoading = false
-        
-        // Save game state
-        saveGameState(game)
-        
-    
+        if let games = try? context.fetch(fetchRequest) {
+            games.forEach { $0.isActive = false }
+        }
     }
     
+    /// Convert daily string to UUID
+    private func dailyStringToUUID(_ dailyId: String) -> UUID {
+        let hash = abs(dailyId.hashValue)
+        let uuidString = String(format: "00000000-0000-0000-0000-%012d", hash % 1000000000000)
+        return UUID(uuidString: uuidString) ?? UUID()
+    }
     
-    // MARK: - Game Actions
+    // MARK: - Game Actions (Keep Existing)
     
-    /// Make a guess for the selected letter
+    /// Make a guess (keep existing implementation)
     func makeGuess(for encryptedLetter: Character, with guessedLetter: Character) {
         guard var game = currentGame else { return }
         
@@ -336,103 +404,24 @@ class GameState: ObservableObject {
         
         // Check game status
         if game.hasWon {
-            // Submit score BEFORE showing modal
             submitScore()
-            
-            // Store the completed game stats for display
             saveCompletedGameStats(game, won: true)
             winModalIsDaily = isDailyChallenge
             showWinMessage = true
-            
-            // Play win sound
             SoundManager.shared.play(.win)
         } else if game.hasLost {
-            // Submit score BEFORE showing modal
             submitScore()
-            
-            // Store the completed game stats for display
             saveCompletedGameStats(game, won: false)
             loseModalIsDaily = isDailyChallenge
             showLoseMessage = true
-            
-            // Play lose sound
             SoundManager.shared.play(.lose)
         }
     }
-    
-    /// Select a letter to decode
+    //select first letter
     func selectLetter(_ letter: Character) {
         guard var game = currentGame else { return }
         game.selectLetter(letter)
         self.currentGame = game
-    }
-    
-    /// Get a hint
-    func getHint() {
-        guard var game = currentGame else { return }
-        
-        // Only allow getting hints if we haven't reached the maximum mistakes
-        if game.mistakes < game.maxMistakes {
-            let _ = game.getHint()
-            self.currentGame = game
-            
-            // Play hint sound
-            SoundManager.shared.play(.hint)
-            
-            // Save game state
-            saveGameState(game)
-            
-            // Check game status after hint
-            if game.hasWon {
-                // Submit score BEFORE showing modal
-                submitScore()
-                
-                // Store the completed game stats for display
-                saveCompletedGameStats(game, won: true)
-                winModalIsDaily = isDailyChallenge
-                showWinMessage = true
-            } else if game.hasLost {
-                // Submit score BEFORE showing modal
-                submitScore()
-                
-                // Store the completed game stats for display
-                saveCompletedGameStats(game, won: false)
-                loseModalIsDaily = isDailyChallenge
-                showLoseMessage = true
-            }
-        }
-    }
-    
-    /// Reset game method
-    func resetGame() {
-        isInfiniteMode = false
-        
-        // Clear the appropriate saved stats
-        if isDailyChallenge {
-            lastDailyGameStats = nil
-        } else {
-            lastCustomGameStats = nil
-        }
-        
-        // If there was a saved game, mark it as abandoned
-        if let oldGameId = savedGame?.gameId {
-            markGameAsAbandoned(gameId: oldGameId)
-        }
-        
-        if isDailyChallenge {
-            // For daily challenge, restart with same quote
-            setupDailyChallenge()
-        } else {
-            // For random games, load a new random game
-            setupCustomGame()
-        }
-        
-        // Clear the saved game reference
-        self.savedGame = nil
-        
-        // Reset UI state
-        showWinMessage = false
-        showLoseMessage = false
     }
     
     /// Enable infinite mode
@@ -448,28 +437,66 @@ class GameState: ObservableObject {
         
         print("🎮 Infinite mode enabled - unlimited mistakes!")
     }
+    /// Save current game state to Core Data
+    func saveGameState(_ game: GameModel) {
+        guard let gameId = game.gameId else { return }
+        
+        let context = coreData.mainContext
+        let fetchRequest: NSFetchRequest<GameCD> = GameCD.fetchRequest()
+        
+        let gameUUID: UUID
+        if gameId.hasPrefix("daily-") {
+            gameUUID = dailyStringToUUID(gameId)
+        } else {
+            gameUUID = UUID(uuidString: gameId) ?? UUID()
+        }
+        
+        fetchRequest.predicate = NSPredicate(format: "gameId == %@", gameUUID as CVarArg)
+        fetchRequest.fetchLimit = 1
+        
+        guard let entity = try? context.fetch(fetchRequest).first else { return }
+        
+        // Update entity
+        entity.currentDisplay = game.currentDisplay
+        entity.mistakes = Int16(game.mistakes)
+        entity.hasWon = game.hasWon
+        entity.hasLost = game.hasLost
+        entity.lastUpdateTime = Date()
+        
+        // Deactivate if completed
+        if game.hasWon || game.hasLost {
+            entity.isActive = false
+        }
+        
+        // Update mappings
+        entity.mapping = try? JSONEncoder().encode(game.mapping.mapToStringDict())
+        entity.guessedMappings = try? JSONEncoder().encode(game.guessedMappings.mapToStringDict())
+        
+        var incorrectDict = [String: [String]]()
+        for (key, values) in game.incorrectGuesses {
+            incorrectDict[String(key)] = Array(values).map { String($0) }
+        }
+        entity.incorrectGuesses = try? JSONEncoder().encode(incorrectDict)
+        
+        try? context.save()
+    }
     
-    // MARK: - Score Submission & Stats
-    
-    /// Submit score for completed game
+    /// Submit score (keep existing implementation)
     func submitScore() {
         guard let game = currentGame, game.hasWon || game.hasLost else {
             print("⚠️ Cannot submit score - no valid completed game")
             return
         }
         
-        // Use UserIdentityManager if it exists, otherwise use the old approach
         let identityManager = UserIdentityManager.shared
         let context = coreData.mainContext
         
-        // Calculate the score once
         let finalScore = game.calculateScore()
         let timeTaken = Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
         
         print("📊 Submitting score - Score: \(finalScore), Time: \(timeTaken)s, Won: \(game.hasWon)")
-        print("   User: \(identityManager.displayName) [\(identityManager.primaryIdentifier)]")
         
-        // Update stats using UserIdentityManager
+        // Update stats
         identityManager.updateStatsAfterGame(
             won: game.hasWon,
             score: finalScore,
@@ -477,57 +504,35 @@ class GameState: ObservableObject {
             timeTaken: timeTaken
         )
         
-        // Also save the game record
+        // Save game record
         do {
             let user = identityManager.getCurrentUser()
             
             if let gameId = game.gameId {
                 let gameUUID: UUID
                 if gameId.hasPrefix("daily-") {
-                    let hash = abs(gameId.hashValue)
-                    let uuidString = String(format: "00000000-0000-0000-0000-%012d", hash % 1000000000000)
-                    gameUUID = UUID(uuidString: uuidString) ?? UUID()
+                    gameUUID = dailyStringToUUID(gameId)
                 } else {
                     gameUUID = UUID(uuidString: gameId) ?? UUID()
                 }
                 
-                let gameFetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
+                let gameFetchRequest: NSFetchRequest<GameCD> = GameCD.fetchRequest()
                 gameFetchRequest.predicate = NSPredicate(format: "gameId == %@", gameUUID as CVarArg)
                 
                 if let games = try? context.fetch(gameFetchRequest),
                    let gameEntity = games.first {
-                    // Update existing game
                     gameEntity.score = Int32(finalScore)
                     gameEntity.user = user
                     gameEntity.hasWon = game.hasWon
                     gameEntity.hasLost = game.hasLost
                     gameEntity.timeTaken = Int32(timeTaken)
-                    print("✅ Updated existing game record")
-                } else if let user = user {
-                    // Create new game record
-                    let gameEntity = GameCD(context: context)
-                    gameEntity.gameId = gameUUID
-                    gameEntity.encrypted = game.encrypted
-                    gameEntity.solution = game.solution
-                    gameEntity.currentDisplay = game.currentDisplay
-                    gameEntity.mistakes = Int16(game.mistakes)
-                    gameEntity.maxMistakes = Int16(game.maxMistakes)
-                    gameEntity.hasWon = game.hasWon
-                    gameEntity.hasLost = game.hasLost
-                    gameEntity.difficulty = game.difficulty
-                    gameEntity.startTime = game.startTime
-                    gameEntity.lastUpdateTime = game.lastUpdateTime
-                    gameEntity.score = Int32(finalScore)
-                    gameEntity.timeTaken = Int32(timeTaken)
-                    gameEntity.isDaily = isDailyChallenge
-                    gameEntity.user = user
-                    print("✅ Created new game record")
+                    gameEntity.isActive = false  // Ensure it's deactivated
                 }
                 
                 try context.save()
             }
             
-            // Submit to Game Center if available
+            // Submit to Game Center if won
             if game.hasWon {
                 Task {
                     if let stats = identityManager.getUserStats() {
@@ -535,15 +540,10 @@ class GameState: ObservableObject {
                     }
                 }
             }
-            
-            print("✅ Score submission complete")
-            
         } catch {
             print("❌ Error saving game record: \(error)")
         }
     }
-    
-    // MARK: - Private Helper Methods
     
     /// Save completed game stats for display
     private func saveCompletedGameStats(_ game: GameModel, won: Bool) {
@@ -567,165 +567,79 @@ class GameState: ObservableObject {
         }
     }
     
-    private func validateTextAlignment(_ game: GameModel) -> Bool {
-        // Ensure encrypted and currentDisplay have same length
-        guard game.encrypted.count == game.currentDisplay.count else {
-            print("⚠️ Text alignment error: encrypted(\(game.encrypted.count)) != display(\(game.currentDisplay.count))")
-            return false
-        }
-        
-        // Ensure non-letter characters are in the same positions
-        for (index, (e, d)) in zip(game.encrypted, game.currentDisplay).enumerated() {
-            if !e.isLetter && e != d {
-                print("⚠️ Alignment error at position \(index): '\(e)' != '\(d)'")
-                return false
-            }
-        }
-        
-        return true
-    }
-    /// Save quote if needed
-    private func saveQuoteIfNeeded(_ quote: LocalQuoteModel) {
-        let context = coreData.mainContext
-        let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
-        fetchRequest.predicate = NSPredicate(format: "text == %@", quote.text)
-        
-        do {
-            let existingQuotes = try context.fetch(fetchRequest)
-            if existingQuotes.isEmpty {
-                let quoteEntity = QuoteCD(context: context)
-                quoteEntity.text = quote.text
-                quoteEntity.author = quote.author
-                quoteEntity.attribution = quote.attribution
-                quoteEntity.difficulty = quote.difficulty
-                quoteEntity.uniqueLetters = Int16(Set(quote.text.filter { $0.isLetter }).count)
-                
-                try context.save()
-                print("✅ Saved new quote to Core Data")
-            }
-        } catch {
-            print("Error saving quote: \(error)")
-        }
-    }
+    // MARK: - Other Game Actions (Keep Existing)
     
-    /// Save game state to Core Data
-    private func saveGameState(_ game: GameModel) {
-        let context = coreData.mainContext
+    /// Use a hint
+    func getHint() {
+        guard var game = currentGame else { return }
         
-        // Convert gameId string to UUID
-        let gameUUID: UUID
+        if game.mistakes < game.maxMistakes {
+            let _ = game.getHint()  // This calls the GameModel's getHint
+            self.currentGame = game
+            
+            if game.hasWon {
+                submitScore()
+                saveCompletedGameStats(game, won: true)
+                winModalIsDaily = isDailyChallenge
+                showWinMessage = true
+                SoundManager.shared.play(.win)
+            }
+        }
+    }
+    /// Reset current game
+    func resetGame() {
+        guard let game = currentGame else { return }
+        
+        // Mark current game as abandoned
         if let gameId = game.gameId {
-            if gameId.hasPrefix("daily-") {
-                // Create deterministic UUID for daily challenges
-                let hash = abs(gameId.hashValue)
-                let uuidString = String(format: "00000000-0000-0000-0000-%012d", hash % 1000000000000)
-                gameUUID = UUID(uuidString: uuidString) ?? UUID()
-            } else {
-                gameUUID = UUID(uuidString: gameId) ?? UUID()
+            let context = coreData.mainContext
+            let fetchRequest: NSFetchRequest<GameCD> = GameCD.fetchRequest()
+            
+            let gameUUID = gameId.hasPrefix("daily-") ?
+                dailyStringToUUID(gameId) :
+                (UUID(uuidString: gameId) ?? UUID())
+            
+            fetchRequest.predicate = NSPredicate(format: "gameId == %@", gameUUID as CVarArg)
+            
+            if let entity = try? context.fetch(fetchRequest).first {
+                entity.isActive = false
+                entity.hasLost = true
+                try? context.save()
             }
+        }
+        
+        // Start new game of same type
+        if isDailyChallenge {
+            setupDailyChallenge()
         } else {
-            gameUUID = UUID()
-        }
-        
-        // Check if game already exists
-        let fetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
-        fetchRequest.predicate = NSPredicate(format: "gameId == %@", gameUUID as CVarArg)
-        
-        do {
-            let existingGames = try context.fetch(fetchRequest)
-            let gameEntity: GameCD
-            
-            if let existing = existingGames.first {
-                gameEntity = existing
-            } else {
-                gameEntity = GameCD(context: context)
-                gameEntity.gameId = gameUUID
-            }
-            
-            // Update game entity
-            updateGameEntity(gameEntity, from: game)
-            
-            try context.save()
-            
-        } catch {
-            print("Error saving game state: \(error)")
+            setupCustomGame()
         }
     }
     
-    /// Update game entity from model
-    private func updateGameEntity(_ entity: GameCD, from game: GameModel) {
-        entity.encrypted = game.encrypted
-        entity.solution = game.solution
-        entity.currentDisplay = game.currentDisplay
-        entity.mistakes = Int16(game.mistakes)
-        entity.maxMistakes = Int16(game.maxMistakes)
-        entity.hasWon = game.hasWon
-        entity.hasLost = game.hasLost
-        entity.difficulty = game.difficulty
-        entity.startTime = game.startTime
-        entity.lastUpdateTime = game.lastUpdateTime
-        entity.isDaily = isDailyChallenge
-        
-        // Encode mappings
-        do {
-            entity.mapping = try JSONEncoder().encode(characterDictionaryToStringDictionary(game.mapping))
-            entity.correctMappings = try JSONEncoder().encode(characterDictionaryToStringDictionary(game.correctMappings))
-            entity.guessedMappings = try JSONEncoder().encode(characterDictionaryToStringDictionary(game.guessedMappings))
-            
-            // Handle incorrect guesses
-            var incorrectGuessesDict = [String: [String]]()
-            for (key, value) in game.incorrectGuesses {
-                incorrectGuessesDict[String(key)] = Array(value).map { String($0) }
-            }
-            entity.incorrectGuesses = try JSONEncoder().encode(incorrectGuessesDict)
-        } catch {
-            print("Error encoding game mappings: \(error)")
-        }
+    // MARK: - Public Methods for Backwards Compatibility
+    
+    /// Setup daily challenge (for existing code)
+    func setupDailyChallenge() {
+        loadOrCreateGame(isDaily: true)
     }
     
-    /// Helper function for character dictionary conversions
-    private func characterDictionaryToStringDictionary(_ dict: [Character: Character]) -> [String: String] {
-        var result = [String: String]()
-        for (key, value) in dict {
-            result[String(key)] = String(value)
+    /// Setup custom game (for existing code)
+    func setupCustomGame() {
+        loadOrCreateGame(isDaily: false)
+    }
+}
+
+// MARK: - Helper Extensions
+extension Dictionary where Key == String, Value == String {
+    func stringDictToCharDict() -> [Character: Character] {
+        var result: [Character: Character] = [:]
+        for (key, value) in self {
+            if let keyChar = key.first, let valueChar = value.first {
+                result[keyChar] = valueChar
+            }
         }
         return result
     }
-    
-    /// Mark game as abandoned
-    private func markGameAsAbandoned(gameId: String) {
-        let context = coreData.mainContext
-        
-        let gameUUID: UUID
-        if gameId.hasPrefix("daily-") {
-            let hash = abs(gameId.hashValue)
-            let uuidString = String(format: "00000000-0000-0000-0000-%012d", hash % 1000000000000)
-            gameUUID = UUID(uuidString: uuidString) ?? UUID()
-        } else {
-            gameUUID = UUID(uuidString: gameId) ?? UUID()
-        }
-        
-        let fetchRequest = NSFetchRequest<GameCD>(entityName: "GameCD")
-        fetchRequest.predicate = NSPredicate(format: "gameId == %@", gameUUID as CVarArg)
-        
-        do {
-            let games = try context.fetch(fetchRequest)
-            if let game = games.first {
-                game.hasLost = true
-                try context.save()
-                print("✅ Marked game as abandoned")
-            }
-        } catch {
-            print("Error marking game as abandoned: \(error)")
-        }
-    }
-    
-    // MARK: - Utility Methods
-    
-    /// Format time for display
-    func formatTime(_ seconds: Int) -> String {
-        let minutes = seconds / 60
-        let seconds = seconds % 60
-        return String(format: "%d:%02d", minutes, seconds)
-    }
 }
+
+
