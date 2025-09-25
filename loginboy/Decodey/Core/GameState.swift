@@ -25,6 +25,8 @@ class GameState: ObservableObject {
     @Published var loseModalIsDaily = false
     @Published var isInfiniteMode = false
     
+    //Turorial
+    @Published var showTutorial = true
     
     // Game display states (keep existing)
     @Published var selectedEncryptedLetter: Character?

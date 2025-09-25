@@ -244,7 +244,7 @@ struct AnimatedGameHeader: View {
                 // Daily challenge header
                 VStack(spacing: 8) {
                     TypewriterTerminalTitle(
-                        text: "DAILY CHALLENGE",
+                        text: "decodey daily",
                         isTerminalMode: colorScheme == .dark
                     )
                     .frame(height: 44)

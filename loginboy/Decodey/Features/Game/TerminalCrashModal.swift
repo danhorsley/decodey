@@ -1,467 +1,259 @@
+// OptimizedTerminalCrashModal.swift
+// Decodey
+//
+// Performance-optimized version with same cool effects but less latency
+
 import SwiftUI
 
 struct TerminalCrashModal: View {
     @EnvironmentObject var gameState: GameState
     @State private var showSolutionOverlay = false
     
-    // Animation states
+    // Simplified animation states
+    @State private var animationPhase = 0
     @State private var glitchOffset: CGFloat = 0
-    @State private var showErrorText = false
-    @State private var errorMessages: [String] = []
-    @State private var showMainError = false
-    @State private var terminalOutput = ""
-    @State private var showButtons = false
-    @State private var scanlineOffset: CGFloat = -200
+    @State private var terminalText = ""
+    @State private var matrixOpacity = 0.0
     
     // Design system
     private let fonts = FontSystem.shared
     
-    // Error messages that cascade
-    private let cascadingErrors = [
-        "ERROR: Buffer overflow at 0x7FF8",
-        "CRITICAL: Cipher key corrupted",
-        "WARNING: Decryption timeout exceeded",
-        "FATAL: Security breach detected",
-        "PANIC: Invalid memory access at 0x0000",
-        "ERROR: Stack trace corrupted"
-    ]
-    
-    // Sarcastic terminal messages
-    private let terminalMessages = [
-        "> Permission denied: Try sudo decrypt",
-        "> Segmentation fault: Brain core dumped",
-        "> 404: Decryption skills not found",
-        "> Connection refused: Try turning your brain off and on again",
-        "> 418: I'm a teapot, not a code breaker",
-        "> Kernel panic: User incompetence detected",
-        "> /dev/null has rejected your output"
-    ]
+    // Pre-computed messages (avoid array lookups)
+    private let errorMessage = "CRITICAL: Decryption Failed"
+    private let terminalMessage = "> Permission denied: Try sudo decrypt"
     
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Dark background with scan lines
+                // Background with simple opacity animation
                 Color.black
                     .ignoresSafeArea()
-                    .overlay(
-                        // Scan line effect
-                        Rectangle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color.green.opacity(0.05),
-                                        Color.green.opacity(0.1),
-                                        Color.green.opacity(0.05)
-                                    ],
-                                    startPoint: .top,
-                                    endPoint: .bottom
-                                )
-                            )
-                            .frame(height: 100)
-                            .offset(y: scanlineOffset)
-                            .blur(radius: 20)
-                    )
-            
-            // Matrix rain effect in background
-            MatrixRainBackground()
-                .opacity(0.3)
-            
-            // Cascading error messages
-            VStack(alignment: .leading, spacing: 4) {
-                ForEach(Array(errorMessages.enumerated()), id: \.offset) { index, message in
-                    Text(message)
-                        .font(.system(size: 12, weight: .medium, design: .monospaced))
-                        .foregroundColor(Color.red.opacity(0.8))
-                        .transition(.asymmetric(
-                            insertion: .move(edge: .top).combined(with: .opacity),
-                            removal: .opacity
-                        ))
+                
+                // Simplified matrix effect (fewer columns)
+                if matrixOpacity > 0 {
+                    MatrixRainOptimized()
+                        .opacity(matrixOpacity)
                 }
-                Spacer()
+                
+                // Main content
+                VStack(spacing: 32) {
+                    // Error display with single animation
+                    if animationPhase >= 1 {
+                        errorDisplay
+                            .transition(.scale.combined(with: .opacity))
+                            .offset(x: glitchOffset)
+                    }
+                    
+                    // Terminal output
+                    if animationPhase >= 2 {
+                        terminalDisplay
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
+                    
+                    // Buttons
+                    if animationPhase >= 3 {
+                        actionButtons
+                            .transition(.scale.combined(with: .opacity))
+                    }
+                }
+                .padding(32)
+                .frame(maxWidth: 600)
             }
-            .padding()
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            
-            // Main content
-            VStack(spacing: 32) {
-                // SYSTEM FAILURE text with glitch
-                if showMainError {
-                    ZStack {
-                        // Glitch copies
-                        Text("DECRYPTION FAILED")
-                            .font(.system(size: 48, weight: .black, design: .monospaced))
-                            .foregroundColor(.red.opacity(0.5))
-                            .offset(x: glitchOffset, y: 2)
-                            .blur(radius: 1)
-                        
-                        Text("DECRYPTION FAILED")
-                            .font(.system(size: 48, weight: .black, design: .monospaced))
-                            .foregroundColor(.cyan.opacity(0.5))
-                            .offset(x: -glitchOffset, y: -2)
-                            .blur(radius: 1)
-                        
-                        Text("DECRYPTION FAILED")
-                            .font(.system(size: 48, weight: .black, design: .monospaced))
-                            .foregroundColor(.red)
-                    }
-                    .shadow(color: .red.opacity(0.8), radius: 20)
-                    .scaleEffect(showMainError ? 1.0 : 0.5)
-                    .animation(.spring(response: 0.5, dampingFraction: 0.6), value: showMainError)
-                }
-                
-                // Current game state with corruption
-                VStack(spacing: 16) {
-                    Text("LAST KNOWN STATE")
-                        .font(.system(size: 10, weight: .bold, design: .monospaced))
-                        .foregroundColor(.green.opacity(0.8))
-                        .tracking(2)
-                    
-                    // Game display with glitch effect
-                    ZStack {
-                        // Corruption layer
-                        Text(corruptedDisplay())
-                            .font(fonts.solutionDisplayText())
-                            .foregroundColor(.red.opacity(0.3))
-                            .blur(radius: 0.5)
-                        
-                        // Actual display
-                        Text(gameState.currentGame?.currentDisplay ?? "")
-                            .font(fonts.solutionDisplayText())
-                            .foregroundColor(.green)
-                            .shadow(color: .green.opacity(0.5), radius: 2)
-                    }
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(4)
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 16)
-                    .background(
-                        RoundedRectangle(cornerRadius: 4)
-                            .stroke(Color.green.opacity(0.3), lineWidth: 1)
-                    )
-                    .overlay(
-                        // Static noise overlay
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(
-                                LinearGradient(
-                                    colors: [
-                                        Color.white.opacity(0.05),
-                                        Color.clear,
-                                        Color.white.opacity(0.05)
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .allowsHitTesting(false)
-                    )
-                }
-                .offset(x: glitchOffset)
-                
-                // Terminal output
-                HStack {
-                    Text(terminalOutput)
-                        .font(.system(size: 14, weight: .medium, design: .monospaced))
-                        .foregroundColor(.green.opacity(0.9))
-                    
-                    // Blinking cursor
-                    Text("█")
-                        .font(.system(size: 14, weight: .medium, design: .monospaced))
-                        .foregroundColor(.green)
-                        .opacity(showButtons ? 0 : 1)
-                        .animation(.easeInOut(duration: 0.5).repeatForever(), value: showButtons)
-                    
-                    Spacer()
-                }
-                .frame(maxWidth: 500)
-                .padding(.horizontal)
-                
-                // Action buttons (terminal style)
-                if showButtons {
-                    HStack(spacing: 20) {
-                        // New cipher button
-                        TerminalButton(
-                            label: "[NEW CIPHER]",
-                            color: .cyan,
-                            action: {
-                                SoundManager.shared.play(.letterClick)
-                                showSolutionOverlay = true
-                            }
-                        )
-                        
-                        // Continue button
-                        TerminalButton(
-                            label: "[CONTINUE]",
-                            color: .green,
-                            isPrimary: true,
-                            action: {
-                                SoundManager.shared.play(.correctGuess)
-                                let state = gameState
-                                state.enableInfiniteMode()
-                                gameState.showLoseMessage = false
-                            }
-                        )
-                    }
-                    .transition(.scale.combined(with: .opacity))
-                }
+            .onAppear {
+                startOptimizedSequence()
             }
-            .padding(32)
-            .frame(maxWidth: 600)
-        }
-        .onAppear {
-            startCrashSequence(height: geometry.size.height)
-        }
-        .sheet(isPresented: $showSolutionOverlay) {
-            TerminalSolutionOverlay()
-                .environmentObject(gameState)
-        }
         }
     }
     
-    // MARK: - Animation Sequence
+    // MARK: - Optimized Animation Sequence
     
-    private func startCrashSequence(height: CGFloat) {
-        // Play crash sound
+    private func startOptimizedSequence() {
+        // Play sound once
         SoundManager.shared.play(.lose)
         
-        // Start scanline animation
-        withAnimation(.linear(duration: 3).repeatForever(autoreverses: false)) {
-            scanlineOffset = height + 200
+        // Single animation timeline using withAnimation
+        withAnimation(.easeOut(duration: 0.3)) {
+            matrixOpacity = 0.3
+            animationPhase = 1
         }
         
-        // Start glitch animation
-        startGlitchEffect()
-        
-        // Cascade error messages
-        for (index, error) in cascadingErrors.enumerated() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.1) {
-                withAnimation {
-                    errorMessages.append(error)
-                }
-            }
+        // Use fewer dispatch calls
+        withAnimation(.easeOut(duration: 0.3).delay(0.5)) {
+            animationPhase = 2
+            startGlitchEffect()
         }
         
-        // Show main error
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-            withAnimation {
-                showMainError = true
-            }
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.8).delay(1.0)) {
+            animationPhase = 3
         }
         
-        // Start terminal typing
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            startTerminalTyping()
-        }
-        
-        // Show buttons
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3.5) {
-            withAnimation {
-                showButtons = true
-            }
-        }
+        // Type terminal text with optimized approach
+        animateTerminalText()
     }
     
+    // Optimized glitch - use SwiftUI animation instead of Timer
     private func startGlitchEffect() {
-        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
-            withAnimation(.linear(duration: 0.1)) {
-                glitchOffset = CGFloat.random(in: -3...3)
-            }
-            
-            // Stop after 2 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-                timer.invalidate()
-                glitchOffset = 0
-            }
+        withAnimation(.easeInOut(duration: 0.1).repeatCount(5)) {
+            glitchOffset = 2
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            glitchOffset = 0
         }
     }
     
-    private func startTerminalTyping() {
-        let message = terminalMessages.randomElement() ?? terminalMessages[0]
-        terminalOutput = ""
+    // Optimized terminal typing - batch updates
+    private func animateTerminalText() {
+        let text = terminalMessage
+        var currentIndex = 0
         
-        for (index, character) in message.enumerated() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.05) {
-                terminalOutput.append(character)
+        // Use single timer with batch updates
+        Timer.scheduledTimer(withTimeInterval: 0.02, repeats: true) { timer in
+            if currentIndex < text.count {
+                // Batch update multiple characters at once
+                let batchSize = min(3, text.count - currentIndex)
+                let endIndex = text.index(text.startIndex, offsetBy: currentIndex + batchSize)
+                let startIndex = text.index(text.startIndex, offsetBy: currentIndex)
+                terminalText += String(text[startIndex..<endIndex])
+                currentIndex += batchSize
                 
-                // Terminal beep sounds
-                if character != " " && Bool.random() {
+                // Play sound less frequently (every 5th character)
+                if currentIndex % 5 == 0 {
                     SoundManager.shared.play(.letterClick)
                 }
+            } else {
+                timer.invalidate()
             }
         }
     }
     
-    private func corruptedDisplay() -> String {
-        // Create a corrupted version of the display
-        guard let display = gameState.currentGame?.currentDisplay else { return "" }
-        
-        var corrupted = ""
-        for char in display {
-            if char == "█" && Bool.random() {
-                // Randomly corrupt some blocks
-                corrupted.append(["▓", "▒", "░", "▪", "▫"].randomElement()!)
-            } else {
-                corrupted.append(char)
-            }
+    // MARK: - View Components
+    
+    private var errorDisplay: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 48))
+                .foregroundColor(.red)
+            
+            Text(errorMessage)
+                .font(.system(size: 20, weight: .bold, design: .monospaced))
+                .foregroundColor(.red)
         }
-        return corrupted
+    }
+    
+    private var terminalDisplay: some View {
+        HStack {
+            Text(terminalText)
+                .font(.system(size: 14, weight: .medium, design: .monospaced))
+                .foregroundColor(.green.opacity(0.9))
+            
+            // Simple blinking cursor
+            Text("█")
+                .font(.system(size: 14, weight: .medium, design: .monospaced))
+                .foregroundColor(.green)
+                .opacity(animationPhase >= 3 ? 0 : 1)
+                .animation(.easeInOut(duration: 0.5).repeatForever(), value: animationPhase)
+            
+            Spacer()
+        }
+        .frame(maxWidth: 500)
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 4)
+                .stroke(Color.green.opacity(0.3), lineWidth: 1)
+        )
+    }
+    
+    private var actionButtons: some View {
+        HStack(spacing: 20) {
+            Button(action: {
+                SoundManager.shared.play(.letterClick)
+                showSolutionOverlay = true
+            }) {
+                Text("[NEW CIPHER]")
+                    .font(.system(size: 16, weight: .bold, design: .monospaced))
+                    .foregroundColor(.cyan)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.black.opacity(0.8))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke(Color.cyan, lineWidth: 2)
+                            )
+                    )
+                    .shadow(color: .cyan.opacity(0.5), radius: 4)
+            }
+            .buttonStyle(.plain)  // This prevents the default gray tint!
+            
+            Button(action: {
+                SoundManager.shared.play(.correctGuess)
+                gameState.enableInfiniteMode()
+                gameState.showLoseMessage = false
+            }) {
+                Text("[CONTINUE]")
+                    .font(.system(size: 16, weight: .bold, design: .monospaced))
+                    .foregroundColor(.black)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.green.opacity(0.9))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 4)
+                                    .stroke(Color.green, lineWidth: 2)
+                            )
+                    )
+                    .shadow(color: .green.opacity(0.6), radius: 6)
+            }
+            .buttonStyle(.plain)  // This prevents the default gray tint!
+        }
     }
 }
 
-// MARK: - Terminal Button Component
+// MARK: - Optimized Matrix Rain
 
-struct TerminalButton: View {
-    let label: String
-    let color: Color
-    var isPrimary: Bool = false
-    let action: () -> Void
-    
-    @State private var isHovered = false
+struct MatrixRainOptimized: View {
+    // Use fewer columns for better performance
+    private let columns = 8 // Reduced from potentially 20+
     
     var body: some View {
-        Button(action: action) {
-            Text(label)
-                .font(.system(size: 16, weight: .bold, design: .monospaced))
-                .foregroundColor(color) // This should already be explicit
-                .padding(.horizontal, 24)
-                .padding(.vertical, 12)
-                .background(
-                    RoundedRectangle(cornerRadius: 4)
-                        .fill(isPrimary ? color.opacity(0.2) : Color.clear)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 4)
-                                .stroke(color, lineWidth: 2)
-                        )
-                )
-                .scaleEffect(isHovered ? 1.05 : 1.0)
-                .shadow(color: color.opacity(0.5), radius: isHovered ? 10 : 5)
-        }
-        .buttonStyle(PlainButtonStyle()) // Add explicit button style
-        .onHover { hovering in
-            withAnimation(.easeInOut(duration: 0.2)) {
-                isHovered = hovering
+        HStack(spacing: 0) {
+            ForEach(0..<columns, id: \.self) { column in
+                MatrixColumnOptimized(columnIndex: column)
             }
         }
     }
 }
 
-// MARK: - Matrix Rain Background
-
-struct MatrixRainBackground: View {
+// Replace UIScreen.main.bounds.height with GeometryReader approach
+struct MatrixColumnOptimized: View {
+    let columnIndex: Int
     @State private var offset: CGFloat = 0
+    
+    private let characters = "01"
+    private let characterCount = 15
     
     var body: some View {
         GeometryReader { geometry in
-            ZStack {
-                ForEach(0..<20) { column in
-                    MatrixColumnLoss(
-                        columnIndex: column,
-                        totalColumns: 20,
-                        height: geometry.size.height,
-                        width: geometry.size.width
-                    )
+            VStack(spacing: 2) {
+                ForEach(0..<characterCount, id: \.self) { index in
+                    Text(String(characters.randomElement()!))
+                        .font(.system(size: 12, design: .monospaced))
+                        .foregroundColor(Color.green.opacity(Double(characterCount - index) / Double(characterCount)))
                 }
             }
-        }
-    }
-}
-
-struct MatrixColumnLoss: View {
-    let columnIndex: Int
-    let totalColumns: Int
-    let height: CGFloat
-    let width: CGFloat
-    
-    @State private var offset: CGFloat = 0
-    
-    private let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>?"
-    
-    var body: some View {
-        VStack(spacing: 0) {
-            ForEach(0..<30) { row in
-                Text(String(characters.randomElement()!))
-                    .font(.system(size: 14, weight: .medium, design: .monospaced))
-                    .foregroundColor(Color.green.opacity(Double(30 - row) / 30.0))
-            }
-        }
-        .offset(y: offset)
-        .onAppear {
-            withAnimation(.linear(duration: Double.random(in: 5...10)).repeatForever(autoreverses: false)) {
-                offset = height
-            }
-        }
-        .position(
-            x: CGFloat(columnIndex) * (width / CGFloat(totalColumns)),
-            y: -height / 2
-        )
-    }
-}
-
-// MARK: - Terminal Solution Overlay
-
-struct TerminalSolutionOverlay: View {
-    @EnvironmentObject var gameState: GameState
-    @Environment(\.dismiss) var dismiss
-    
-    var body: some View {
-        ZStack {
-            // Terminal background
-            Color.black
-                .ignoresSafeArea()
-            
-            VStack(spacing: 24) {
-                // Terminal header
-                HStack {
-                    Circle().fill(Color.red).frame(width: 12, height: 12)
-                    Circle().fill(Color.yellow).frame(width: 12, height: 12)
-                    Circle().fill(Color.green).frame(width: 12, height: 12)
-                    Spacer()
-                    Text("SOLUTION.txt")
-                        .font(.system(size: 14, weight: .medium, design: .monospaced))
-                        .foregroundColor(.green.opacity(0.8))
-                    Spacer()
+            .offset(y: offset)
+            .onAppear {
+                withAnimation(
+                    .linear(duration: Double.random(in: 8...12))
+                    .repeatForever(autoreverses: false)
+                    .delay(Double(columnIndex) * 0.2)
+                ) {
+                    offset = geometry.size.height + 100
                 }
-                .padding(.horizontal)
-                
-                // Solution display
-                VStack(alignment: .leading, spacing: 16) {
-                    Text("$ cat solution.txt")
-                        .font(.system(size: 14, weight: .medium, design: .monospaced))
-                        .foregroundColor(.green.opacity(0.7))
-                    
-                    Text(gameState.currentGame?.solution ?? "")
-                        .font(.system(size: 20, weight: .medium, design: .monospaced))
-                        .foregroundColor(.green)
-                        .multilineTextAlignment(.center)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                    
-                    if !gameState.quoteAuthor.isEmpty {
-                        Text("# Author: \(gameState.quoteAuthor)")
-                            .font(.system(size: 16, weight: .medium, design: .monospaced))
-                            .foregroundColor(.green.opacity(0.7))
-                    }
-                }
-                .padding(24)
-                .background(
-                    RoundedRectangle(cornerRadius: 4)
-                        .stroke(Color.green.opacity(0.3), lineWidth: 1)
-                )
-                
-                // Action
-                TerminalButton(
-                    label: "[EXECUTE NEW_GAME]",
-                    color: .green,
-                    isPrimary: true,
-                    action: {
-                        SoundManager.shared.play(.letterClick)
-                        dismiss()
-                        gameState.showLoseMessage = false
-                        gameState.resetGame()
-                    }
-                )
             }
-            .padding(32)
-            .frame(maxWidth: 600)
         }
     }
 }
