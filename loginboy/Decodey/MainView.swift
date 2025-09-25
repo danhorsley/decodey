@@ -31,24 +31,30 @@ struct MainView: View {
                     TabView(selection: $selectedTab) {
                         // Daily Challenge Tab
                         GameView()
-                           .tabItem {
-                               Label("Daily", systemImage: "calendar")
-                           }
-                           .tag(0)
-                           .onAppear {
-                               // Always check/load when tab appears
-                               gameState.loadOrCreateGame(isDaily: true)
-                           }
-                       
-                       GameView()
-                           .tabItem {
-                               Label("Random", systemImage: "shuffle")
-                           }
-                           .tag(1)
-                           .onAppear {
-                               // Always check/load when tab appears
-                               gameState.loadOrCreateGame(isDaily: false)
-                           }
+                            .tabItem {
+                                Label("Daily", systemImage: "calendar")
+                            }
+                            .tag(0)
+                            .onAppear {
+                                gameState.loadOrCreateGame(isDaily: true)
+                                gameState.startTrackingTime()
+                            }
+                            .onDisappear {
+                                gameState.stopTrackingTime()
+                            }
+                        
+                        GameView()
+                            .tabItem {
+                                Label("Random", systemImage: "shuffle")
+                            }
+                            .tag(1)
+                            .onAppear {
+                                gameState.loadOrCreateGame(isDaily: false)
+                                gameState.startTrackingTime()
+                            }
+                            .onDisappear {
+                                gameState.stopTrackingTime()   
+                            }
                         // Stats Tab
                         UserStatsView()
                             .tabItem {

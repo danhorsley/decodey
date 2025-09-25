@@ -88,6 +88,7 @@ struct GameModel {
     
     // Timestamp tracking
     var startTime: Date = Date()
+    var activeSeconds: Int = 0
     var lastUpdateTime: Date = Date()
     
     // Difficulty level

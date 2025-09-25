@@ -55,6 +55,7 @@ class GameState: ObservableObject {
     private let coreData = CoreDataStack.shared
     private var cancellables = Set<AnyCancellable>()
     private var isSettingUpGame = false
+    private var playTimer: Timer?
     
     private init() {}
     
@@ -142,6 +143,26 @@ class GameState: ObservableObject {
             }
         } catch {
             errorMessage = "Failed to load game: \(error.localizedDescription)"
+        }
+    }
+    
+    // MARK: Time recording
+    func startTrackingTime() {
+            playTimer?.invalidate()
+            playTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+                if var game = self.currentGame, !game.hasWon && !game.hasLost {
+                    game.activeSeconds += 1
+                    game.lastUpdateTime = Date()  // Already exists!
+                    self.currentGame = game
+                }
+            }
+        }
+        
+    func stopTrackingTime() {
+        playTimer?.invalidate()
+        playTimer = nil
+        if let game = currentGame {
+            saveGameState(game)  // Save accumulated time
         }
     }
     
