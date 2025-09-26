@@ -12,11 +12,7 @@ struct GameGridsView: View {
     
     @State private var isHintInProgress = false
     
-    // Design system references
-    private let design = DesignSystem.shared
-    private let colors = ColorSystem.shared
-    private let fonts = FontSystem.shared
-    
+    // Keep colorScheme for HintButtonView compatibility
     @Environment(\.colorScheme) var colorScheme
     
     // Fixed grid columns with consistent spacing
@@ -134,13 +130,14 @@ struct GameGridsView: View {
                             isUsed: game.guessedMappings.values.contains(letter),
                             isIncorrectForSelected: isIncorrect,
                             action: {
-                                if game.selectedLetter != nil && !isIncorrect {
+                                // FIXED: Use if-let to safely unwrap selectedLetter
+                                if let selected = game.selectedLetter, !isIncorrect {
                                     withAnimation(.easeInOut(duration: 0.15)) {
                                         // Check if this will be a correct guess
-                                        let willBeCorrect = game.correctMappings[game.selectedLetter!] == letter
+                                        let willBeCorrect = game.correctMappings[selected] == letter
                                         
-                                        // Call with proper parameters: for (encrypted) and with (guessed)
-                                        gameState.makeGuess(for: game.selectedLetter!, with: letter)
+                                        // Call makeGuess with proper parameters
+                                        gameState.makeGuess(for: selected, with: letter)
                                         
                                         // Play appropriate sound after the guess
                                         if willBeCorrect {
@@ -154,25 +151,25 @@ struct GameGridsView: View {
                         )
                     } else {
                         GuessLetterCell(
-                                                letter: letter,
-                                                isUsed: game.guessedMappings.values.contains(letter),
-                                                isIncorrectForSelected: isIncorrect,
-                                                action: {
-                                                    // FIXED: Use if-let to safely unwrap selectedLetter
-                                                    if let selected = game.selectedLetter, !isIncorrect {
-                                                        withAnimation(.easeInOut(duration: 0.15)) {
-                                                            // Check if this will be a correct guess
-                                                            let willBeCorrect = game.correctMappings[selected] == letter
-                                                            
-                                                            // Call makeGuess with proper parameters
-                                                            gameState.makeGuess(for: selected, with: letter)
-                                                            
-                                                            // Play appropriate sound after the guess
-                                                            if willBeCorrect {
-                                                                SoundManager.shared.play(.correctGuess)
-                                                            } else if gameState.currentGame?.hasLost == false && gameState.currentGame?.hasWon == false {
-                                                                SoundManager.shared.play(.incorrectGuess)
-                                                            }
+                            letter: letter,
+                            isUsed: game.guessedMappings.values.contains(letter),
+                            isIncorrectForSelected: isIncorrect,
+                            action: {
+                                // FIXED: Use if-let to safely unwrap selectedLetter
+                                if let selected = game.selectedLetter, !isIncorrect {
+                                    withAnimation(.easeInOut(duration: 0.15)) {
+                                        // Check if this will be a correct guess
+                                        let willBeCorrect = game.correctMappings[selected] == letter
+                                        
+                                        // Call makeGuess with proper parameters
+                                        gameState.makeGuess(for: selected, with: letter)
+                                        
+                                        // Play appropriate sound after the guess
+                                        if willBeCorrect {
+                                            SoundManager.shared.play(.correctGuess)
+                                        } else if gameState.currentGame?.hasLost == false && gameState.currentGame?.hasWon == false {
+                                            SoundManager.shared.play(.incorrectGuess)
+                                        }
                                     }
                                 }
                             }
