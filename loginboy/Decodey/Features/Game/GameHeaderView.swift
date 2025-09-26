@@ -30,7 +30,7 @@ struct GameHeaderView: View {
                     // Daily challenge header
                     Text("decodey daily")
                         .font(.gameTitle)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.gameTitle)
                     
                     if let dateString = dateString {
                         Text(dateString.uppercased())
@@ -42,12 +42,12 @@ struct GameHeaderView: View {
                     // Custom game header
                     Text("decodey")
                         .font(.gameTitle)
-                        .foregroundColor(.primary)
+                        .foregroundColor(.gameTitle)
                     
                     Text("CLASSIC MODE")
                         .font(.gameCaption)
                         .tracking(1.5)
-                        .foregroundColor(.secondary.opacity(0.7))
+                        .foregroundColor(.primary.opacity(0.7))
                 }
             }
             
