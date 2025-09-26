@@ -1,10 +1,9 @@
 import SwiftUI
 
 struct HintButtonView: View {
-    private var colors: ColorSystem { ColorSystem.shared }
     let remainingHints: Int
     let isLoading: Bool
-    let isDarkMode: Bool
+    let isDarkMode: Bool  // Can probably remove this
     let onHintRequested: () -> Void
     
     @Environment(\.colorScheme) var colorScheme
@@ -27,7 +26,7 @@ struct HintButtonView: View {
             VStack(spacing: 2) {
                 // Crossword-style display
                 Text(hintTexts[remainingHints] ?? "█████")
-                    .font(.system(size: 28, weight: .bold, design: .monospaced))
+                    .font(.hintValue)
                     .foregroundColor(textColor)
                     .tracking(2)
                     .frame(height: 40)
@@ -40,16 +39,16 @@ struct HintButtonView: View {
                 
                 // Label
                 Text("HINT TOKENS")
-                    .font(.system(size: 10, weight: .medium, design: .rounded))
+                    .font(.hintLabel)
                     .foregroundColor(textColor.opacity(0.7))
                     .tracking(1)
             }
             .frame(width: 140, height: 80)
-            .background(backgroundGradient)
-            .cornerRadius(12)
+            .background(.gameBackground)  // Use system semantic color
+            .cornerRadius(GameLayout.cornerRadius)
             .overlay(
-                RoundedRectangle(cornerRadius: 12)
-                    .strokeBorder(borderColor, lineWidth: 1)
+                RoundedRectangle(cornerRadius: GameLayout.cornerRadius)
+                    .strokeBorder(Color.cellBorder, lineWidth: 1)
             )
             .shadow(color: shadowColor, radius: isPressed ? 2 : 8, x: 0, y: isPressed ? 1 : 4)
             .scaleEffect(isPressed ? 0.95 : 1.0)
@@ -63,49 +62,20 @@ struct HintButtonView: View {
         }, perform: {})
     }
     
-    private var backgroundGradient: some View {
-        Group {
-            if colorScheme == .light {
-                // Use the existing ColorSystem
-                LinearGradient(
-                    colors: [
-                        colors.primaryBackground(for: colorScheme),
-                        colors.secondaryBackground(for: colorScheme)
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            } else {
-                // Dark mode gradient using hex colors
-                LinearGradient(
-                    colors: [
-                        Color(hex: "1C1C1E"),
-                        Color(hex: "2C2C2E")
-                    ],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            }
-        }
-    }
+    // MARK: - Computed Color Properties
     
     private var textColor: Color {
         switch remainingHints {
-        case 0...1: return .red
-        case 2...3: return .orange
-        default: return colorScheme == .light ? .black : Color(hex: "4cc9f0")
+        case 0...1:
+            return .hintDanger  // Uses HintDanger.colorset from Assets
+        case 2...3:
+            return .hintWarning  // Uses HintWarning.colorset from Assets
+        default:
+            return .hintSafe  // Uses HintSafe.colorset from Assets
         }
     }
     
-    private var borderColor: Color {
-        colorScheme == .light ?
-            Color.gray.opacity(0.2) :  // Simple cross-platform solution
-            Color.white.opacity(0.1)
-    }
-    
     private var shadowColor: Color {
-        colorScheme == .light ?
-            Color.black.opacity(0.1) :
-            Color.clear
+        colorScheme == .dark ? .clear : Color.black.opacity(0.1)
     }
 }

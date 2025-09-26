@@ -107,8 +107,8 @@ extension Font {
     static let gameScore = Font.custom("Courier New", size: 40).weight(.bold)
     
     /// Hint button
-    static let hintValue = Font.custom("Courier New", size: 24).weight(.bold)
-    static let hintLabel = Font.custom("Courier New", size: 10)
+    static let hintValue = Font.custom("Courier New", size: 26).weight(.bold)
+    static let hintLabel = Font.custom("Courier New", size: 12)
     
     // MARK: - Responsive Sizing
     // Only implement if you really need different sizes for iPad vs iPhone
