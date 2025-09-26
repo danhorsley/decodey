@@ -89,7 +89,7 @@ extension Font {
     static let gameCellSmall = Font.custom("Courier New", size: 20).weight(.semibold)
     
     /// Display text (encrypted/solution)
-    static let gameDisplay = Font.custom("Courier New", size: 18)
+    static let gameDisplay = Font.custom("Courier New", size: 22)
     
     /// Buttons
     static let gameButton = Font.custom("Courier New", size: 18).weight(.semibold)

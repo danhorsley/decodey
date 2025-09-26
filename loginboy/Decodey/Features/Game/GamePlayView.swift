@@ -8,10 +8,9 @@ import SwiftUI
 struct GamePlayView: View {
     @EnvironmentObject var gameState: GameState
     @EnvironmentObject var settingsState: SettingsState
-    @Environment(\.colorScheme) var colorScheme
     
-    private let fonts = FontSystem.shared
-    private let colors = ColorSystem.shared
+    // No more ColorSystem/FontSystem needed!
+    // Just keep what's necessary
     private let maxContentWidth: CGFloat = 600
     private let sectionSpacing: CGFloat = 32
     
@@ -19,22 +18,22 @@ struct GamePlayView: View {
         VStack(spacing: 0) {
             // Header with game controls
             GameHeaderView()
-                .padding(.top, 8)
-                .padding(.horizontal, 16)
+                .padding(.top, GameLayout.paddingSmall)
+                .padding(.horizontal, GameLayout.padding)
             
             ScrollView {
                 VStack(spacing: sectionSpacing) {
                     // Current game display
                     gameDisplaySection
-                        .padding(.top, 24)
+                        .padding(.top, GameLayout.paddingLarge)
                     
                     // Letter grids and controls
                     GameGridsView(showTextHelpers: settingsState.showTextHelpers)
                         .environmentObject(gameState)
                         .environmentObject(settingsState)
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 32)
+                .padding(.horizontal, GameLayout.padding)
+                .padding(.bottom, GameLayout.paddingLarge + 8)
                 .frame(maxWidth: maxContentWidth)
                 .frame(maxWidth: .infinity)
             }
@@ -44,7 +43,7 @@ struct GamePlayView: View {
     // MARK: - Game Display Section
     
     private var gameDisplaySection: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: GameLayout.padding) {
             // Encrypted text display
             encryptedTextView
             
@@ -54,21 +53,21 @@ struct GamePlayView: View {
     }
     
     private var encryptedTextView: some View {
-        VStack(alignment: .center, spacing: 8) {
+        VStack(alignment: .center, spacing: GameLayout.paddingSmall) {
             if settingsState.showTextHelpers {
                 Text("ENCRYPTED")
-                    .font(.custom("Courier New", size: 10).weight(.medium))
+                    .font(.gameCaption)  // Use GameTheme font
                     .tracking(1.5)
                     .foregroundColor(.secondary.opacity(0.7))
             }
             
             Text(displayedEncryptedText)
-                .font(fonts.encryptedDisplayText())
-                .foregroundColor(colors.encryptedColor(for: colorScheme))
+                .font(.gameDisplay)  // Updated from fonts.encryptedDisplayText()
+                .foregroundColor(.gameEncrypted)  // Updated from colors.encryptedColor(for: colorScheme)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
+                .padding(.horizontal, GameLayout.padding + 4)
+                .padding(.vertical, GameLayout.padding)
         }
     }
     
@@ -82,8 +81,8 @@ struct GamePlayView: View {
             }
             
             Text(displayedSolutionText)
-                .font(fonts.solutionDisplayText())
-                .foregroundColor(colors.guessColor(for: colorScheme))
+                .font(.gameDisplay)  // Updated from fonts.solutionDisplayText()
+                .foregroundColor(.gameGuess)  // Updated from colors.guessColor(for: colorScheme)
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
                 .padding(.horizontal, 20)
@@ -124,5 +123,15 @@ struct GamePlayView: View {
             
             return "█"
         }.joined()
+    }
+}
+
+// MARK: - Preview
+
+struct GamePlayView_Previews: PreviewProvider {
+    static var previews: some View {
+        GamePlayView()
+            .environmentObject(GameState.shared)
+            .environmentObject(SettingsState.shared)
     }
 }
