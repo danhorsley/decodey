@@ -107,14 +107,14 @@ class SettingsState: ObservableObject {
         }
         
         // Load saved settings or set defaults
-        isDarkMode = UserDefaults.standard.object(forKey: Keys.isDarkMode) as? Bool ?? true
-        showTextHelpers = UserDefaults.standard.object(forKey: Keys.showTextHelpers) as? Bool ?? true
+        isDarkMode = UserDefaults.standard.object(forKey: Keys.isDarkMode) as? Bool ?? false
+        showTextHelpers = UserDefaults.standard.object(forKey: Keys.showTextHelpers) as? Bool ?? false
         useAccessibilityTextSize = UserDefaults.standard.object(forKey: Keys.useAccessibilityTextSize) as? Bool ?? false
-        gameDifficulty = UserDefaults.standard.object(forKey: Keys.gameDifficulty) as? String ?? "medium"
+        gameDifficulty = UserDefaults.standard.object(forKey: Keys.gameDifficulty) as? String ?? "easy"
         soundEnabled = UserDefaults.standard.object(forKey: Keys.soundEnabled) as? Bool ?? true
         soundVolume = UserDefaults.standard.object(forKey: Keys.soundVolume) as? Float ?? 0.5
         hapticEnabled = UserDefaults.standard.object(forKey: Keys.hapticEnabled) as? Bool ?? true  // NEW
-        useEnhancedLetterCells = UserDefaults.standard.object(forKey: Keys.useEnhancedLetterCells) as? Bool ?? false
+        useEnhancedLetterCells = UserDefaults.standard.object(forKey: Keys.useEnhancedLetterCells) as? Bool ?? true
         
         // Check biometric availability for default
         useBiometricAuth = UserDefaults.standard.object(forKey: Keys.useBiometricAuth) as? Bool ?? BiometricAuthHelper.shared.biometricAuthAvailable().0
