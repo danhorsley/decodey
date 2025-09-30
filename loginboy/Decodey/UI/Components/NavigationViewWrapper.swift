@@ -1,3 +1,8 @@
+// NavigationViewWrapper.swift
+// Decodey
+//
+// Cross-platform navigation wrapper for iOS and macOS compatibility
+
 import SwiftUI
 
 struct NavigationViewWrapper<Content: View>: View {
@@ -21,11 +26,3 @@ struct NavigationViewWrapper<Content: View>: View {
         #endif
     }
 }
-
-//
-//  NavigationViewWrapper.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 13/05/2025.
-//
-
