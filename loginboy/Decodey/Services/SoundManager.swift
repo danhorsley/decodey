@@ -137,9 +137,6 @@ class SoundManager: ObservableObject {
             try AVAudioSession.sharedInstance().setActive(true)
         } catch {
             // Silent failure in production
-            #if DEBUG
-            print("Audio session setup failed: \(error)")
-            #endif
         }
         #endif
     }
@@ -164,24 +161,20 @@ class SoundManager: ObservableObject {
                         _ = try await asset.load(.duration, .tracks)
                     } catch {
                         // Silent failure in production
-                        #if DEBUG
-                        print("Failed to preload \(soundType.rawValue): \(error)")
-                        #endif
                     }
                 }
                 
                 audioPlayers[soundType] = player
+                isPlaying[soundType] = false
             }
         }
-        
         soundsLoaded = true
     }
     
-    // MARK: - Haptic Setup
+    // MARK: - Haptic Generator Preparation
     
     private func prepareHapticGenerators() {
         #if canImport(UIKit)
-        // Prepare all generators for immediate use
         selectionGenerator.prepare()
         notificationGenerator.prepare()
         lightImpactGenerator.prepare()
@@ -190,92 +183,75 @@ class SoundManager: ObservableObject {
         #endif
     }
     
-    // MARK: - Playback with Debouncing and Rate Limiting
+    // MARK: - Public Play Methods
     
     func play(_ type: SoundType) {
-        // Check debouncing
-        let now = Date().timeIntervalSince1970
-        if let lastTime = lastPlayTime[type] {
-            let timeSinceLastPlay = now - lastTime
-            if timeSinceLastPlay < type.minimumDelay {
-                return
-            }
+        guard isSoundEnabled else { return }
+        
+        // Debouncing: Check minimum delay
+        let currentTime = Date().timeIntervalSince1970
+        if let lastTime = lastPlayTime[type],
+           currentTime - lastTime < type.minimumDelay {
+            return
         }
         
         // Special rate limiting for letter clicks
         if type == .letterClick {
             letterClickCount += 1
-            
-            // Reset counter after 1 second
-            letterClickResetTimer?.invalidate()
-            letterClickResetTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
-                self?.letterClickCount = 0
-            }
-            
-            // Skip if we've hit the rate limit
             if letterClickCount > maxLetterClicksPerSecond {
                 return
             }
+            
+            // Reset counter after 1 second
+            letterClickResetTimer?.invalidate()
+            letterClickResetTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
+                self.letterClickCount = 0
+            }
         }
         
-        // Update last play time
-        lastPlayTime[type] = now
+        lastPlayTime[type] = currentTime
         
-        // Trigger haptic feedback first (even if sound is disabled)
-        if isHapticEnabled {
-            triggerHaptic(for: type)
-        }
+        // Play the actual sound
+        playSoundWithAVPlayer(type)
         
-        guard isSoundEnabled else { return }
-        
-        // Don't play the same sound if it's already playing (except letterClick)
-        if isPlaying[type] == true && type != .letterClick {
-            return
-        }
-        
-        // Play the sound using AVPlayer
-        playWithAVPlayer(type)
+        // Trigger haptic feedback
+        triggerHaptic(for: type)
     }
     
-    private func playWithAVPlayer(_ type: SoundType) {
-        guard let player = audioPlayers[type],
-              let asset = audioAssets[type] else {
-            return
+    // MARK: - AVPlayer Playback
+    
+    private func playSoundWithAVPlayer(_ type: SoundType) {
+        guard let player = audioPlayers[type] else { return }
+        
+        // Create a new player item for concurrent plays
+        if let asset = audioAssets[type] {
+            let newItem = AVPlayerItem(asset: asset)
+            player.replaceCurrentItem(with: newItem)
         }
         
-        isPlaying[type] = true
-        
-        // Create new player item and replace current one
-        let playerItem = AVPlayerItem(asset: asset)
-        player.replaceCurrentItem(with: playerItem)
-        player.volume = volume
-        
-        // Seek to beginning and play
         player.seek(to: .zero) { [weak self] _ in
             player.play()
+            self?.isPlaying[type] = true
             
-            // Mark as not playing after expected duration
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            // Auto-stop tracking after estimated duration
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
                 self?.isPlaying[type] = false
             }
         }
     }
     
+    // MARK: - Haptic Feedback
+    
     private func triggerHaptic(for type: SoundType) {
-        // iOS 17+ SwiftUI approach
-        if #available(iOS 17.0, *) {
-            // Update published properties to trigger SwiftUI sensoryFeedback
-            DispatchQueue.main.async { [weak self] in
-                self?.lastTriggeredSound = type
-                self?.hapticTriggerID = UUID()
-            }
-        }
+        guard isHapticEnabled else { return }
         
-        // iOS 16 and below - direct UIKit approach
+        // SwiftUI sensory feedback trigger (iOS 17+)
+        lastTriggeredSound = type
+        hapticTriggerID = UUID()
+        
+        // UIKit haptic feedback (legacy support)
         #if canImport(UIKit)
         DispatchQueue.main.async { [weak self] in
-            guard self?.isHapticEnabled == true else { return }
-            
             switch type {
             case .letterClick:
                 self?.selectionGenerator.selectionChanged()
