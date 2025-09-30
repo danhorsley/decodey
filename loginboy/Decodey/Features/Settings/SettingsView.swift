@@ -122,9 +122,24 @@ struct SettingsView: View {
                         .toggleStyle(SwitchToggleStyle(tint: ColorSystem.shared.accent))
                         .scaleEffect(0.9)
                 }
+                
+                Divider()
+                    .background(ColorSystem.shared.border(for: colorScheme))
+                
+                // Alternating Text Display - NEW!
+                SettingRow(
+                    title: "Alternating Text Display",
+                    subtitle: "Show encrypted/solution line by line",
+                    icon: "text.alignleft"
+                ) {
+                    Toggle("", isOn: $settings.useAlternatingTextDisplay)
+                        .toggleStyle(SwitchToggleStyle(tint: ColorSystem.shared.accent))
+                        .scaleEffect(0.9)
+                }
             }
         }
     }
+
     
     private var tutorialSection: some View {
           SettingsSection(title: "Help & Tutorial", icon: "questionmark.circle.fill") {
@@ -246,6 +261,7 @@ struct SettingsView: View {
             }
         }
     }
+    
     
     private var audioSettingsSection: some View {
         SettingsSection(title: "Sound & Haptics", icon: "speaker.wave.2.fill") {
@@ -428,6 +444,7 @@ struct SettingsSection<Content: View>: View {
         }
     }
 }
+
 
 struct SettingRow<Accessory: View>: View {
     let title: String

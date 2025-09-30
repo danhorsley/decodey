@@ -43,12 +43,20 @@ struct GamePlayView: View {
     // MARK: - Game Display Section
     
     private var gameDisplaySection: some View {
-        VStack(spacing: GameLayout.padding) {
-            // Encrypted text display
-            encryptedTextView
-            
-            // Solution text display
-            solutionTextView
+        Group {
+            if settingsState.useAlternatingTextDisplay {
+                // Use the new alternating display
+                AlternatingTextDisplayView()
+            } else {
+                // Use the existing stacked display
+                VStack(spacing: GameLayout.padding) {
+                    // Encrypted text display
+                    encryptedTextView
+                    
+                    // Solution text display
+                    solutionTextView
+                }
+            }
         }
     }
     

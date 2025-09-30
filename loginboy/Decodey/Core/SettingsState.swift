@@ -43,6 +43,13 @@ class SettingsState: ObservableObject {
         }
     }
     
+    // alternating text
+    @Published var useAlternatingTextDisplay: Bool {
+        didSet {
+            UserDefaults.standard.set(useAlternatingTextDisplay, forKey: Keys.useAlternatingTextDisplay)
+        }
+    }
+
     // Sound settings
     @Published var soundEnabled: Bool {
         didSet {
@@ -91,6 +98,8 @@ class SettingsState: ObservableObject {
         static let hapticEnabled = "hapticEnabled"  // NEW
         static let useBiometricAuth = "useBiometricAuth"
         static let useEnhancedLetterCells = "useEnhancedLetterCells"
+        static let useAlternatingTextDisplay = "useAlternatingTextDisplay"
+        
     }
     
     // Singleton instance
@@ -116,6 +125,9 @@ class SettingsState: ObservableObject {
         hapticEnabled = UserDefaults.standard.object(forKey: Keys.hapticEnabled) as? Bool ?? true  // NEW
         useEnhancedLetterCells = UserDefaults.standard.object(forKey: Keys.useEnhancedLetterCells) as? Bool ?? true
         
+        // new for alternating text
+        useAlternatingTextDisplay = UserDefaults.standard.object(forKey: Keys.useAlternatingTextDisplay) as? Bool ?? false
+        
         // Check biometric availability for default
         useBiometricAuth = UserDefaults.standard.object(forKey: Keys.useBiometricAuth) as? Bool ?? BiometricAuthHelper.shared.biometricAuthAvailable().0
         
@@ -138,7 +150,8 @@ class SettingsState: ObservableObject {
         soundEnabled: Bool? = nil,
         soundVolume: Float? = nil,
         hapticEnabled: Bool? = nil,  // NEW
-        useBiometricAuth: Bool? = nil
+        useBiometricAuth: Bool? = nil,
+        useAlternatingDisplay: Bool? = nil,
     ) {
         if let darkMode = darkMode {
             self.isDarkMode = darkMode
@@ -168,6 +181,9 @@ class SettingsState: ObservableObject {
         
         if let useBiometricAuth = useBiometricAuth {
             self.useBiometricAuth = useBiometricAuth
+        }
+        if let useAlternatingDisplay = useAlternatingDisplay {
+            self.useAlternatingTextDisplay = useAlternatingDisplay
         }
     }
     
