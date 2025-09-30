@@ -2,6 +2,7 @@
 // Decodey
 //
 // Main game playing interface with header, display, and controls
+// FULLY MIGRATED TO GAMETHEME - NO MORE COLORSYSTEM/FONTSYSTEM
 
 import SwiftUI
 
@@ -9,8 +10,7 @@ struct GamePlayView: View {
     @EnvironmentObject var gameState: GameState
     @EnvironmentObject var settingsState: SettingsState
     
-    // No more ColorSystem/FontSystem needed!
-    // Just keep what's necessary
+    // Layout constants
     private let maxContentWidth: CGFloat = 600
     private let sectionSpacing: CGFloat = 32
     
@@ -56,37 +56,49 @@ struct GamePlayView: View {
         VStack(alignment: .center, spacing: GameLayout.paddingSmall) {
             if settingsState.showTextHelpers {
                 Text("ENCRYPTED")
-                    .font(.gameCaption)  // Use GameTheme font
+                    .font(.gameSection)  // Fixed: Use GameTheme font
                     .tracking(1.5)
                     .foregroundColor(.secondary.opacity(0.7))
             }
             
             Text(displayedEncryptedText)
-                .font(.gameDisplay)  // Updated from fonts.encryptedDisplayText()
-                .foregroundColor(.gameEncrypted)  // Updated from colors.encryptedColor(for: colorScheme)
+                .font(.gameDisplay)
+                .foregroundColor(Color("GameEncrypted"))
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
                 .padding(.horizontal, GameLayout.padding + 4)
                 .padding(.vertical, GameLayout.padding)
+                .background(Color("GameBackground"))
+                .cornerRadius(GameLayout.cornerRadius)
+//                .overlay(
+//                    RoundedRectangle(cornerRadius: GameLayout.cornerRadius)
+//                        .stroke(Color("GameBorder"), lineWidth: 1)
+//                )
         }
     }
     
     private var solutionTextView: some View {
-        VStack(alignment: .center, spacing: 8) {
+        VStack(alignment: .center, spacing: GameLayout.paddingSmall) {
             if settingsState.showTextHelpers {
                 Text("YOUR SOLUTION")
-                    .font(.custom("Courier New", size: 10).weight(.medium))
+                    .font(.gameSection)  // Fixed: Use GameTheme font instead of custom
                     .tracking(1.5)
                     .foregroundColor(.secondary.opacity(0.7))
             }
             
             Text(displayedSolutionText)
-                .font(.gameDisplay)  // Updated from fonts.solutionDisplayText()
-                .foregroundColor(.gameGuess)  // Updated from colors.guessColor(for: colorScheme)
+                .font(.gameDisplay)
+                .foregroundColor(Color("GameGuess"))
                 .multilineTextAlignment(.center)
                 .lineSpacing(4)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 16)
+                .padding(.horizontal, GameLayout.padding + 4)
+                .padding(.vertical, GameLayout.padding)
+                .background(Color("GameBackground"))
+                .cornerRadius(GameLayout.cornerRadius)
+//                .overlay(
+//                    RoundedRectangle(cornerRadius: GameLayout.cornerRadius)
+//                        .stroke(Color("GameBorder"), lineWidth: 1)
+//                )
         }
     }
     
@@ -125,6 +137,7 @@ struct GamePlayView: View {
         }.joined()
     }
 }
+
 
 // MARK: - Preview
 

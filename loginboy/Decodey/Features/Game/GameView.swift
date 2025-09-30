@@ -9,14 +9,13 @@ struct GameView: View {
     @EnvironmentObject var gameState: GameState
     @EnvironmentObject var userState: UserState
     @EnvironmentObject var settingsState: SettingsState
-    @Environment(\.colorScheme) var colorScheme
-    
-    private let colors = ColorSystem.shared
+    // REMOVED: @Environment(\.colorScheme) var colorScheme
+    // REMOVED: private let colors = ColorSystem.shared
     
     var body: some View {
         ZStack {
-            // Background
-            colors.primaryBackground(for: colorScheme)
+            // Background - CHANGED to use color asset
+            Color("GameBackground")
                 .ignoresSafeArea()
             
             // Main content

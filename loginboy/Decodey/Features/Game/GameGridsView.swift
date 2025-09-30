@@ -51,7 +51,7 @@ struct GameGridsView: View {
             // Guess letters grid
             VStack(alignment: .center, spacing: 8) {
                 if showTextHelpers {
-                    Text("YOUR LETTERS")
+                    Text("SOLUTION LETTERS")
                         .font(.custom("Courier New", size: 10).weight(.medium))
                         .tracking(1.5)
                         .foregroundColor(.secondary.opacity(0.7))

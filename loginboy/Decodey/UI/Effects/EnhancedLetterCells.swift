@@ -62,11 +62,11 @@ struct EnhancedEncryptedLetterCell: View {
                 if isSelected {
                     RoundedRectangle(cornerRadius: GameLayout.cornerRadius)
                         .stroke(
-                            Color.accentColor,
+                            Color("GameEncrypted"),  // Use GameEncrypted color for encrypted cell borders
                             lineWidth: colorScheme == .dark ? 1.5 : 2
                         )
                         .shadow(
-                            color: Color.accentColor.opacity(colorScheme == .dark ? 0.8 : 0.3),
+                            color: Color("GameEncrypted").opacity(colorScheme == .dark ? 0.8 : 0.3),
                             radius: colorScheme == .dark ? 10 : 4
                         )
                 }
@@ -127,7 +127,18 @@ struct EnhancedGuessLetterCell: View {
                     AppleKeyShape(isPressed: isPressed)
                         .opacity(isUsed || isIncorrectForSelected ? 0.5 : 1.0)
                 }
-                
+                // border
+                if !isUsed && !isIncorrectForSelected {
+                    RoundedRectangle(cornerRadius: GameLayout.cornerRadius)
+                        .stroke(
+                            Color("GameGuess").opacity(0.3),  // Use GameGuess color for guess cell borders
+                            lineWidth: 1
+                        )
+                        .shadow(
+                                    color: Color("GameGuess").opacity(colorScheme == .dark ? 0.8 : 0.3),
+                                    radius: colorScheme == .dark ? 10 : 4
+                                )
+                }
                 // Letter
                 Text(String(letter))
                     .font(.gameCell)
