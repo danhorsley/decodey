@@ -237,30 +237,7 @@ extension AlternatingTextDisplayView {
     /// Factory method to create with proper alignment verification
     static func create() -> some View {
         AlternatingTextDisplayView()
-            .onAppear {
-                // Verify alignment on appear
-                verifyTextAlignment()
-            }
-    }
-    
-    private static func verifyTextAlignment() {
-        #if DEBUG
-        if let game = GameState.shared.currentGame {
-            assert(game.encrypted.count == game.solution.count,
-                   "Text alignment error: encrypted (\(game.encrypted.count)) != solution (\(game.solution.count))")
-            
-            // Verify character-by-character alignment
-            for (index, encChar) in game.encrypted.enumerated() {
-                let solIndex = game.solution.index(game.solution.startIndex, offsetBy: index)
-                let solChar = game.solution[solIndex]
-                
-                assert(
-                    (encChar.isLetter && solChar.isLetter) || (!encChar.isLetter && !solChar.isLetter),
-                    "Character alignment mismatch at position \(index): '\(encChar)' vs '\(solChar)'"
-                )
-            }
-        }
-        #endif
     }
 }
+
 

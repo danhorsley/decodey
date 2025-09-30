@@ -2,23 +2,30 @@ import SwiftUI
 import CoreData
 
 struct MainView: View {
+    // Critical state objects only
     @StateObject private var gameState = GameState.shared
     @StateObject private var userState = UserState.shared
-    @StateObject private var settingsState = SettingsState.shared
-    @StateObject private var soundManager = SoundManager.shared
-    @StateObject private var tutorialManager = TutorialManager.shared
     
+    // Environment
     @EnvironmentObject var authManager: AuthenticationManager
     @EnvironmentObject var gameCenterManager: GameCenterManager
     
+    // View state
     @State private var showingHomeScreen = true
     @State private var selectedTab = 0
+    
+    // Track loaded states
+    @State private var dailyLoaded = false
+    @State private var randomLoaded = false
+    
+    // Lazy load non-critical managers
+    @State private var managersLoaded = false
     
     var body: some View {
         ZStack {
             if showingHomeScreen {
-                HomeScreen {
-                    withAnimation(.easeInOut(duration: 0.5)) {
+                OptimizedHomeScreen {  // Use optimized version!
+                    withAnimation(.easeInOut(duration: 0.3)) {  // Faster animation
                         showingHomeScreen = false
                     }
                 }
@@ -26,94 +33,89 @@ struct MainView: View {
                 .environmentObject(gameCenterManager)
                 .transition(.opacity)
             } else {
-                // Main game interface
-                VStack(spacing: 0) {
-                    TabView(selection: $selectedTab) {
-                        // Daily Challenge Tab
-                        GameView()
-                            .tabItem {
-                                Label("Daily", systemImage: "calendar")
-                            }
-                            .tag(0)
-                            .onAppear {
-                                gameState.loadOrCreateGame(isDaily: true)
-                                gameState.startTrackingTime()
-                            }
-                            .onDisappear {
-                                gameState.stopTrackingTime()
-                            }
-                        
-                        GameView()
-                            .tabItem {
-                                Label("Random", systemImage: "shuffle")
-                            }
-                            .tag(1)
-                            .onAppear {
-                                gameState.loadOrCreateGame(isDaily: false)
-                                gameState.startTrackingTime()
-                            }
-                            .onDisappear {
-                                gameState.stopTrackingTime()   
-                            }
-                        // Stats Tab
-                        UserStatsView()
-                            .tabItem {
-                                Image(systemName: "chart.bar")
-                                Text("Stats")
-                            }
-                            .tag(2)
-                        
-                        // Game Center Leaderboard tab
-                        LeaderboardView()
-                            .tabItem {
-                                Label("Leaderboard", systemImage: "trophy.fill")
-                            }
-                            .tag(3)
-                        
-                        // Settings Tab
-                        SettingsView()
-                            .tabItem {
-                                Image(systemName: "gear")
-                                Text("Settings")
-                            }
-                            .tag(4)
-                    }
-                    .tutorialTarget(.tabBar)
-                }
-                .transition(.slide)
-                .withTutorialOverlay()
+                mainGameInterface
             }
+        }
+        .task {
+            // Load non-critical managers after UI renders
+            if !managersLoaded {
+                _ = SettingsState.shared
+                _ = SoundManager.shared
+                _ = TutorialManager.shared
+                managersLoaded = true
+            }
+        }
+    }
+    
+    private var mainGameInterface: some View {
+        TabView(selection: $selectedTab) {
+            // Daily Challenge
+            GameView()
+                .tabItem {
+                    Label("Daily", systemImage: "calendar")
+                }
+                .tag(0)
+                .onAppear {
+                    handleDailyTab()
+                }
+                .onDisappear {
+                    gameState.stopTrackingTime()
+                }
+            
+            // Random Game
+            GameView()
+                .tabItem {
+                    Label("Random", systemImage: "shuffle")
+                }
+                .tag(1)
+                .onAppear {
+                    handleRandomTab()
+                }
+                .onDisappear {
+                    gameState.stopTrackingTime()
+                }
+            
+            // Stats - Lazy loaded
+            UserStatsView()
+                .tabItem {
+                    Label("Stats", systemImage: "chart.bar")
+                }
+                .tag(2)
+            
+            // Leaderboard - Lazy loaded
+            LeaderboardView()
+                .tabItem {
+                    Label("Leaders", systemImage: "trophy")
+                }
+                .tag(3)
+            
+            // Settings
+            SettingsView()
+                .tabItem {
+                    Label("Settings", systemImage: "gearshape")
+                }
+                .tag(4)
         }
         .environmentObject(gameState)
         .environmentObject(userState)
-        .environmentObject(settingsState)
-        .environmentObject(soundManager)
-        .environmentObject(tutorialManager)
+        .environmentObject(authManager)
+        .environmentObject(gameCenterManager)
     }
     
-    // Simple check - just query the DB
-    private func isDailyCompleted() -> Bool {
-        let context = CoreDataStack.shared.mainContext
-        let request: NSFetchRequest<GameCD> = GameCD.fetchRequest()
-        
-        let todayString = DateFormatter.yyyyMMdd.string(from: Date())
-        let dailyId = "daily-\(todayString)"
-        let dailyUUID = dailyStringToUUID(dailyId)
-        
-        request.predicate = NSPredicate(
-            format: "gameId == %@ AND hasWon == YES",
-            dailyUUID as CVarArg
-        )
-        request.fetchLimit = 1
-        
-        return (try? context.fetch(request).first) != nil
+    private func handleDailyTab() {
+        if !dailyLoaded {
+            gameState.loadOrCreateGame(isDaily: true)
+            dailyLoaded = true
+        }
+        gameState.startTrackingTime()
     }
     
-    // Helper to convert daily ID to UUID consistently
-    private func dailyStringToUUID(_ dailyId: String) -> UUID {
-        let hash = abs(dailyId.hashValue)
-        let uuidString = String(format: "00000000-0000-0000-0000-%012d", hash % 1000000000000)
-        return UUID(uuidString: uuidString) ?? UUID()
+    private func handleRandomTab() {
+        if !randomLoaded {
+            gameState.loadOrCreateGame(isDaily: false)
+            randomLoaded = true
+        }
+        gameState.startTrackingTime()
     }
 }
 
