@@ -128,16 +128,16 @@ struct EnhancedGuessLetterCell: View {
                         .opacity(isUsed || isIncorrectForSelected ? 0.5 : 1.0)
                 }
                 // border
-                if !isUsed && !isIncorrectForSelected {
+                if !isUsed && !isIncorrectForSelected && colorScheme == .dark {
                     RoundedRectangle(cornerRadius: GameLayout.cornerRadius)
                         .stroke(
-                            Color("GameGuess").opacity(0.3),  // Use GameGuess color for guess cell borders
+                            Color("GameGuess").opacity(0.3),
                             lineWidth: 1
                         )
                         .shadow(
-                                    color: Color("GameGuess").opacity(colorScheme == .dark ? 0.8 : 0.3),
-                                    radius: colorScheme == .dark ? 10 : 4
-                                )
+                            color: Color("GameGuess").opacity(0.8),
+                            radius: 10
+                        )
                 }
                 // Letter
                 Text(String(letter))

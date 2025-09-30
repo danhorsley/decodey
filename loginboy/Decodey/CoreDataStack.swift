@@ -1,13 +1,13 @@
 // CoreDataStack.swift
 // Decodey
 //
-// Modern Core Data stack with graceful error handling and recovery
+// Production-ready Core Data stack with comprehensive error handling
 
 import CoreData
 import Foundation
 import os.log
 
-/// Core Data stack with production-ready error handling
+/// Core Data stack with production-ready error handling and recovery
 final class CoreDataStack {
     // MARK: - Singleton
     static let shared = CoreDataStack()
@@ -46,6 +46,15 @@ final class CoreDataStack {
             
             // Optimize for performance
             storeDescription.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+            
+            #if DEBUG
+            // Keep verbose logging in debug
+            storeDescription.setOption(true as NSNumber, forKey: NSPersistentStoreRemoteChangeNotificationPostOptionKey)
+            #else
+            // Disable verbose logging in production
+            storeDescription.shouldInferMappingModelAutomatically = true
+            storeDescription.shouldMigrateStoreAutomatically = true
+            #endif
         }
         
         // Load persistent stores with comprehensive error handling
@@ -65,16 +74,23 @@ final class CoreDataStack {
             
             if let error = error as NSError? {
                 self.storeError = error
+                
+                #if DEBUG
                 self.logger.error("Failed to load persistent store: \(error), \(error.userInfo)")
+                #else
+                self.logger.error("Failed to load persistent store with error code: \(error.code)")
+                #endif
                 
                 // Attempt recovery strategies
                 self.handlePersistentStoreError(error, container: container)
             } else {
                 self.isStoreLoaded = true
-                self.logger.info("Core Data stack successfully initialized")
                 
                 #if DEBUG
-                self.logger.debug("Store URL: \(storeDescription.url?.absoluteString ?? "unknown")")
+                self.logger.info("Core Data stack successfully initialized")
+                if let url = storeDescription.url {
+                    self.logger.debug("Store URL: \(url.absoluteString)")
+                }
                 #endif
             }
         }
@@ -87,20 +103,28 @@ final class CoreDataStack {
         if error.domain == NSCocoaErrorDomain {
             switch error.code {
             case 134110: // NSPersistentStoreIncompatibleVersionHashError
+                #if DEBUG
                 logger.warning("Incompatible version hash, attempting recovery...")
+                #endif
                 attemptStoreRecovery(container: container)
                 
             case 134100: // NSPersistentStoreIncompatibleSchemaError
+                #if DEBUG
                 logger.warning("Schema incompatibility, attempting recovery...")
+                #endif
                 attemptStoreRecovery(container: container)
                 
             case 134130, 134140: // Migration errors
+                #if DEBUG
                 logger.warning("Migration error detected, attempting recovery...")
+                #endif
                 attemptStoreRecovery(container: container)
                 
             case 260: // NSFileReadNoSuchFileError
                 // File doesn't exist - this is actually OK for first launch
+                #if DEBUG
                 logger.info("Store file doesn't exist yet, will be created on first save")
+                #endif
                 isStoreLoaded = true
                 
             default:
@@ -109,7 +133,9 @@ final class CoreDataStack {
                     handleSQLiteError(underlyingError, container: container)
                 } else {
                     // Unknown error - try to delete and recreate
+                    #if DEBUG
                     logger.warning("Unknown Core Data error (code: \(error.code)), attempting to rebuild...")
+                    #endif
                     deleteAndRecreateStore(container: container)
                 }
             }
@@ -123,15 +149,21 @@ final class CoreDataStack {
         // SQLite error codes
         switch error.code {
         case 11: // SQLITE_CORRUPT
+            #if DEBUG
             logger.warning("SQLite corruption detected, rebuilding store...")
+            #endif
             deleteAndRecreateStore(container: container)
             
         case 26: // SQLITE_NOTADB
+            #if DEBUG
             logger.warning("File is not a database, rebuilding...")
+            #endif
             deleteAndRecreateStore(container: container)
             
         default:
+            #if DEBUG
             logger.warning("SQLite error \(error.code), falling back to in-memory store")
+            #endif
             fallbackToInMemoryStore(container: container)
         }
     }
@@ -169,10 +201,15 @@ final class CoreDataStack {
             )
             
             isStoreLoaded = true
+            
+            #if DEBUG
             logger.info("Store recovery successful")
+            #endif
             
         } catch {
+            #if DEBUG
             logger.error("Store recovery failed: \(error)")
+            #endif
             deleteAndRecreateStore(container: container)
         }
     }
@@ -218,10 +255,15 @@ final class CoreDataStack {
             )
             
             isStoreLoaded = true
+            
+            #if DEBUG
             logger.info("Store successfully recreated")
+            #endif
             
         } catch {
+            #if DEBUG
             logger.error("Failed to delete and recreate store: \(error)")
+            #endif
             fallbackToInMemoryStore(container: container)
         }
     }
@@ -246,7 +288,9 @@ final class CoreDataStack {
             isStoreLoaded = true
             isUsingInMemoryStore = true
             
+            #if DEBUG
             logger.warning("Using in-memory store - data will not persist between app launches")
+            #endif
             
             // Notify user if needed
             NotificationCenter.default.post(
@@ -255,9 +299,12 @@ final class CoreDataStack {
             )
             
         } catch {
+            // This is critical - app cannot function
+            #if DEBUG
             logger.critical("Failed to create in-memory store: \(error)")
-            // At this point, the app cannot function properly
-            // You might want to show an alert to the user
+            #endif
+            
+            // Notify app to show error UI
             NotificationCenter.default.post(
                 name: .coreDataDidFailCompletely,
                 object: error
@@ -278,10 +325,16 @@ final class CoreDataStack {
             // Create backup
             if fileManager.fileExists(atPath: url.path) {
                 try fileManager.copyItem(at: url, to: backupURL)
+                
+                #if DEBUG
                 logger.info("Store backed up to: \(backupURL.lastPathComponent)")
+                #endif
             }
         } catch {
+            // Non-critical error - continue without backup
+            #if DEBUG
             logger.error("Failed to backup store: \(error)")
+            #endif
         }
     }
     
@@ -290,7 +343,9 @@ final class CoreDataStack {
     /// Save context with proper error handling
     func save() {
         guard isStoreLoaded else {
+            #if DEBUG
             logger.warning("Attempted to save but store is not loaded")
+            #endif
             return
         }
         
@@ -300,9 +355,14 @@ final class CoreDataStack {
         
         do {
             try context.save()
+            
+            #if DEBUG
             logger.debug("Context saved successfully")
+            #endif
         } catch {
+            #if DEBUG
             logger.error("Failed to save context: \(error)")
+            #endif
             
             // Handle specific save errors
             handleSaveError(error)
@@ -316,28 +376,39 @@ final class CoreDataStack {
         if nsError.domain == NSCocoaErrorDomain {
             switch nsError.code {
             case 1560: // NSValidationMultipleErrorsError
+                #if DEBUG
                 logger.error("Multiple validation errors occurred")
                 if let errors = nsError.userInfo[NSDetailedErrorsKey] as? [NSError] {
                     for detailedError in errors {
                         logger.error("Validation error: \(detailedError)")
                     }
                 }
+                #endif
                 
             case 1570: // NSValidationMissingMandatoryPropertyError
+                #if DEBUG
                 let propertyName = nsError.userInfo["NSValidationKeyErrorKey"] as? String ?? "unknown"
                 logger.error("Missing required property: \(propertyName)")
+                #endif
                 
             case 1550: // NSManagedObjectConstraintValidationError
+                #if DEBUG
                 logger.error("Constraint violation: \(nsError.userInfo)")
+                #endif
                 
             default:
+                #if DEBUG
                 logger.error("Save error code: \(nsError.code)")
+                #endif
             }
         }
         
         // Attempt to rollback
         persistentContainer.viewContext.rollback()
+        
+        #if DEBUG
         logger.info("Context rolled back after save error")
+        #endif
     }
     
     // MARK: - Batch Operations
@@ -366,47 +437,38 @@ final class CoreDataStack {
     func fetch<T: NSManagedObject>(_ type: T.Type,
                                    predicate: NSPredicate? = nil,
                                    sortDescriptors: [NSSortDescriptor]? = nil,
-                                   fetchLimit: Int? = nil) -> [T] {
+                                   fetchLimit: Int? = nil,
+                                   context: NSManagedObjectContext? = nil) throws -> [T] {
         guard isStoreLoaded else {
-            logger.warning("Attempted to fetch but store is not loaded")
-            return []
+            throw CoreDataError.storeNotLoaded
         }
         
         let request = NSFetchRequest<T>(entityName: String(describing: type))
         request.predicate = predicate
         request.sortDescriptors = sortDescriptors
-        
         if let limit = fetchLimit {
             request.fetchLimit = limit
         }
         
-        do {
-            return try persistentContainer.viewContext.fetch(request)
-        } catch {
-            logger.error("Fetch error for \(type): \(error)")
-            return []
-        }
+        let contextToUse = context ?? persistentContainer.viewContext
+        return try contextToUse.fetch(request)
     }
     
-    // MARK: - Delete Helpers
-    
-    func delete(_ object: NSManagedObject) {
-        guard isStoreLoaded else { return }
-        
-        persistentContainer.viewContext.delete(object)
-        save()
-    }
-    
-    func deleteAll<T: NSManagedObject>(_ type: T.Type) async throws {
+    /// Batch delete with proper error handling
+    func batchDelete<T: NSManagedObject>(_ type: T.Type, predicate: NSPredicate? = nil) throws {
         guard isStoreLoaded else {
             throw CoreDataError.storeNotLoaded
         }
         
         let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: String(describing: type))
+        fetchRequest.predicate = predicate
+        
         let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
         deleteRequest.resultType = .resultTypeObjectIDs
         
-        try await performBatchOperation { context in
+        let context = persistentContainer.viewContext
+        
+        do {
             let result = try context.execute(deleteRequest) as? NSBatchDeleteResult
             
             // Merge changes to view context
@@ -417,6 +479,11 @@ final class CoreDataStack {
                     into: [self.persistentContainer.viewContext]
                 )
             }
+        } catch {
+            #if DEBUG
+            logger.error("Batch delete failed: \(error)")
+            #endif
+            throw error
         }
     }
     
@@ -468,6 +535,17 @@ enum CoreDataError: LocalizedError {
             return "Failed to migrate data to new format"
         case .dataCorruption:
             return "Data corruption detected"
+        }
+    }
+    
+    var recoverySuggestion: String? {
+        switch self {
+        case .storeNotLoaded:
+            return "Please restart the app"
+        case .migrationFailed:
+            return "Try updating to the latest version"
+        case .dataCorruption:
+            return "You may need to reset your data"
         }
     }
 }

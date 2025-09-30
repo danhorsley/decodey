@@ -1,3 +1,6 @@
+// MainView.swift
+// Fixed version with proper tab switching between Daily and Random games
+
 import SwiftUI
 import CoreData
 
@@ -13,10 +16,11 @@ struct MainView: View {
     // View state
     @State private var showingHomeScreen = true
     @State private var selectedTab = 0
+    @State private var previousTab = 0  // Track previous tab to detect changes
     
-    // Track loaded states
-    @State private var dailyLoaded = false
-    @State private var randomLoaded = false
+    // Track initial load states
+    @State private var dailyInitialized = false
+    @State private var randomInitialized = false
     
     // Lazy load non-critical managers
     @State private var managersLoaded = false
@@ -24,8 +28,8 @@ struct MainView: View {
     var body: some View {
         ZStack {
             if showingHomeScreen {
-                OptimizedHomeScreen {  // Use optimized version!
-                    withAnimation(.easeInOut(duration: 0.3)) {  // Faster animation
+                OptimizedHomeScreen {
+                    withAnimation(.easeInOut(duration: 0.3)) {
                         showingHomeScreen = false
                     }
                 }
@@ -34,6 +38,12 @@ struct MainView: View {
                 .transition(.opacity)
             } else {
                 mainGameInterface
+                    .onAppear {
+                        // Load the initial tab (Daily) when first showing the game interface
+                        if selectedTab == 0 && !dailyInitialized {
+                            loadDailyGame()
+                        }
+                    }
             }
         }
         .task {
@@ -45,44 +55,37 @@ struct MainView: View {
                 managersLoaded = true
             }
         }
+        .onChange(of: selectedTab) { newTab in
+            // Handle tab changes
+            handleTabChange(from: previousTab, to: newTab)
+            previousTab = newTab
+        }
     }
     
     private var mainGameInterface: some View {
         TabView(selection: $selectedTab) {
             // Daily Challenge
-            GameView()
+            DailyGameWrapper()
                 .tabItem {
                     Label("Daily", systemImage: "calendar")
                 }
                 .tag(0)
-                .onAppear {
-                    handleDailyTab()
-                }
-                .onDisappear {
-                    gameState.stopTrackingTime()
-                }
             
             // Random Game
-            GameView()
+            RandomGameWrapper()
                 .tabItem {
                     Label("Random", systemImage: "shuffle")
                 }
                 .tag(1)
-                .onAppear {
-                    handleRandomTab()
-                }
-                .onDisappear {
-                    gameState.stopTrackingTime()
-                }
             
-            // Stats - Lazy loaded
+            // Stats
             UserStatsView()
                 .tabItem {
                     Label("Stats", systemImage: "chart.bar")
                 }
                 .tag(2)
             
-            // Leaderboard - Lazy loaded
+            // Leaderboard
             LeaderboardView()
                 .tabItem {
                     Label("Leaders", systemImage: "trophy")
@@ -102,242 +105,82 @@ struct MainView: View {
         .environmentObject(gameCenterManager)
     }
     
-    private func handleDailyTab() {
-        if !dailyLoaded {
-            gameState.loadOrCreateGame(isDaily: true)
-            dailyLoaded = true
+    private func handleTabChange(from oldTab: Int, to newTab: Int) {
+        // Stop tracking time when leaving game tabs
+        if (oldTab == 0 || oldTab == 1) && newTab > 1 {
+            gameState.stopTrackingTime()
         }
-        gameState.startTrackingTime()
+        
+        // Load appropriate game when switching to game tabs
+        if newTab == 0 {
+            // Switching to Daily
+            loadDailyGame()
+        } else if newTab == 1 {
+            // Switching to Random
+            loadRandomGame()
+        }
     }
     
-    private func handleRandomTab() {
-        if !randomLoaded {
-            gameState.loadOrCreateGame(isDaily: false)
-            randomLoaded = true
-        }
+    private func loadDailyGame() {
+        // Simply call the GameState method - it handles everything
+        gameState.loadOrCreateGame(isDaily: true)
         gameState.startTrackingTime()
+        dailyInitialized = true
+    }
+    
+    private func loadRandomGame() {
+        // Simply call the GameState method - it handles everything
+        gameState.loadOrCreateGame(isDaily: false)
+        gameState.startTrackingTime()
+        randomInitialized = true
     }
 }
 
-// MARK: - Simplified Daily Game View
-struct DailyGameView: View {
+// MARK: - Daily Game Wrapper
+struct DailyGameWrapper: View {
     @EnvironmentObject var gameState: GameState
-    @State private var dailyStatus: DailyStatus = .loading
-    @State private var showDailyInfo = false
-    
-    enum DailyStatus {
-        case loading
-        case playing(GameModel)
-        case completed(solution: String, author: String, score: Int)
-        case notStarted
-    }
     
     var body: some View {
-        ZStack {
-            switch dailyStatus {
-            case .loading:
-                ProgressView("Loading daily challenge...")
-                    .onAppear { loadDailyStatus() }
-                
-            case .playing(let game):
-                GameView()
-                    .onAppear {
-                        // Load the game into GameState
-                        gameState.loadFromGameModel(game)
-                        gameState.isDailyChallenge = true
+        Group {
+            // Check if we have completed daily stats
+            if let stats = gameState.lastDailyGameStats, stats.hasWon {
+                // Show completed view using the saved stats
+                DailyCompletedView(
+                    solution: stats.solution,
+                    author: stats.author,
+                    score: stats.score,
+                    onPlayRandom: {
+                        // Switch to random tab would be handled by parent
                     }
-                
-            case .completed(let solution, let author, let score):
-                DailyCompletedSimpleView(
-                    solution: solution,
-                    author: author,
-                    score: score,
-                    onPlayRandom: { switchToRandomTab() }
-                )
-                
-            case .notStarted:
-                DailyStartView(onStart: { startNewDaily() })
-            }
-        }
-        .sheet(isPresented: $showDailyInfo) {
-            DailyInfoSheet()
-        }
-        .toolbar {
-            #if os(iOS)
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button(action: { showDailyInfo = true }) {
-                    Image(systemName: "info.circle")
-                }
-            }
-            #else
-            ToolbarItem(placement: .automatic) {
-                Button(action: { showDailyInfo = true }) {
-                    Image(systemName: "info.circle")
-                }
-            }
-            #endif
-        }
-    }
-    
-    // Direct DB query - no complex state management
-    private func loadDailyStatus() {
-        let context = CoreDataStack.shared.mainContext
-        let todayString = DateFormatter.yyyyMMdd.string(from: Date())
-        let dailyId = "daily-\(todayString)"
-        let dailyUUID = dailyStringToUUID(dailyId)
-        
-        // Check if there's a game for today
-        let request: NSFetchRequest<GameCD> = GameCD.fetchRequest()
-        request.predicate = NSPredicate(format: "gameId == %@", dailyUUID as CVarArg)
-        request.fetchLimit = 1
-        
-        if let gameEntity = try? context.fetch(request).first {
-            if gameEntity.hasWon {
-                // Completed
-                dailyStatus = .completed(
-                    solution: gameEntity.solution ?? "",
-                    author: "Unknown", // You'd fetch this from quote
-                    score: Int(gameEntity.score)
-                )
-            } else if gameEntity.hasLost {
-                // Lost - show as completed
-                dailyStatus = .completed(
-                    solution: gameEntity.solution ?? "",
-                    author: "Unknown",
-                    score: 0
                 )
             } else {
-                // In progress
-                if let model = gameEntity.toModel() {
-                    dailyStatus = .playing(model)
-                }
-            }
-        } else {
-            // No game started yet
-            dailyStatus = .notStarted
-        }
-    }
-    
-    private func startNewDaily() {
-        // Create new daily game
-        guard let quote = DailyChallengeManager.shared.getTodaysDailyQuote() else { return }
-        
-        let todayString = DateFormatter.yyyyMMdd.string(from: Date())
-        let gameModel = createDailyGame(quote: quote, dateString: todayString)
-        
-        // Save to DB
-        saveDailyGame(gameModel)
-        
-        // Start playing
-        dailyStatus = .playing(gameModel)
-    }
-    
-    private func createDailyGame(quote: LocalQuoteModel, dateString: String) -> GameModel {
-        let gameId = "daily-\(dateString)"
-        let text = quote.text.uppercased()
-        
-        // Simple cryptogram generation
-        let alphabet = Array("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-        var shuffled = alphabet.shuffled()
-        var correctMappings: [Character: Character] = [:]
-        
-        for (original, encrypted) in zip(alphabet, shuffled) {
-            correctMappings[original] = encrypted
-        }
-        
-        var encrypted = ""
-        for char in text {
-            if char.isLetter {
-                encrypted.append(correctMappings[char] ?? char)
-            } else {
-                encrypted.append(char)
+                // Show game
+                GameView()
             }
         }
-        
-        return GameModel(
-            gameId: gameId,
-            encrypted: encrypted,
-            solution: text,
-            currentDisplay: encrypted,
-            mapping: [:],
-            correctMappings: correctMappings,
-            guessedMappings: [:],
-            incorrectGuesses: [:],
-            mistakes: 0,
-            maxMistakes: 5,
-            hasWon: false,
-            hasLost: false,
-            difficulty: "medium",
-            startTime: Date(),
-            lastUpdateTime: Date()
-        )
     }
     
-    private func saveDailyGame(_ game: GameModel) {
-        let context = CoreDataStack.shared.mainContext
-        let gameEntity = GameCD(context: context)
-        
-        gameEntity.gameId = dailyStringToUUID(game.gameId ?? "")
-        gameEntity.encrypted = game.encrypted
-        gameEntity.solution = game.solution
-        gameEntity.currentDisplay = game.currentDisplay
-        gameEntity.mistakes = Int16(game.mistakes)
-        gameEntity.maxMistakes = Int16(game.maxMistakes)
-        gameEntity.hasWon = game.hasWon
-        gameEntity.hasLost = game.hasLost
-        gameEntity.difficulty = game.difficulty
-        gameEntity.startTime = game.startTime
-        gameEntity.lastUpdateTime = game.lastUpdateTime
-        gameEntity.isDaily = true
-        
-        try? context.save()
-    }
-    
-    private func switchToRandomTab() {
-        // Would need to access parent's selectedTab binding
-    }
-    
-    private func dailyStringToUUID(_ dailyId: String) -> UUID {
-        let hash = abs(dailyId.hashValue)
-        let uuidString = String(format: "00000000-0000-0000-0000-%012d", hash % 1000000000000)
-        return UUID(uuidString: uuidString) ?? UUID()
+    private func ensureDailyLoaded() {
+        // Make sure we're in daily mode and have the right game loaded
+        if !gameState.isDailyChallenge || gameState.currentGame == nil {
+            gameState.isDailyChallenge = true
+            gameState.loadOrCreateGame(isDaily: true)
+            gameState.startTrackingTime()
+        }
     }
 }
 
-// MARK: - Simple Views
-struct DailyStartView: View {
-    let onStart: () -> Void
+// MARK: - Random Game Wrapper
+struct RandomGameWrapper: View {
+    @EnvironmentObject var gameState: GameState
     
     var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "calendar")
-                .font(.system(size: 60))
-                .foregroundColor(.blue)
-            
-            Text("Daily Challenge")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-            
-            Text("A new puzzle every day at midnight")
-                .font(.subheadline)
-                .foregroundColor(.secondary)
-            
-            Button(action: onStart) {
-                Label("Start Today's Challenge", systemImage: "play.fill")
-                    .font(.headline)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(12)
-            }
-            .padding(.horizontal, 40)
-        }
-        .padding()
+        GameView()
     }
 }
 
-struct DailyCompletedSimpleView: View {
+// MARK: - Daily Completed View
+struct DailyCompletedView: View {
     let solution: String
     let author: String
     let score: Int
@@ -346,99 +189,133 @@ struct DailyCompletedSimpleView: View {
     @Environment(\.colorScheme) var colorScheme
     
     var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "checkmark.circle.fill")
-                .font(.system(size: 80))
-                .foregroundColor(.green)
-            
-            Text("Daily Complete!")
-                .font(.largeTitle)
-                .fontWeight(.bold)
-            
-            VStack(alignment: .leading, spacing: 8) {
-                Text(solution)
-                    .font(.system(.body, design: .serif))
-                    .italic()
-                Text("— \(author)")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-            }
-            .padding()
-            .frame(maxWidth: .infinity)
-            .background(Color.gray.opacity(0.1))
-            .cornerRadius(10)
-            
-            Text("Score: \(score)")
-                .font(.title2)
-                .fontWeight(.semibold)
-            
-            TimeUntilNextDaily()
-            
-            Button(action: onPlayRandom) {
-                Text("Play Random Game")
+        ScrollView {
+            VStack(spacing: 30) {
+                // Success icon
+                Image(systemName: "checkmark.seal.fill")
+                    .font(.system(size: 80))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [.green, .green.opacity(0.7)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .padding(.top, 40)
+                
+                // Title
+                VStack(spacing: 8) {
+                    Text("Daily Complete!")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                    
+                    Text("You've solved today's challenge")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                
+                // Solution display
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Today's Quote:")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .textCase(.uppercase)
+                    
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("\"\(solution)\"")
+                            .font(.system(.body, design: .serif))
+                            .italic()
+                            .multilineTextAlignment(.leading)
+                        
+                        Text("— \(author)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .trailing)
+                    }
+                }
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.primary.opacity(0.05))
+                )
+                .padding(.horizontal)
+                
+                // Score
+                VStack(spacing: 8) {
+                    Text("YOUR SCORE")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                        .tracking(1.5)
+                    
+                    Text("\(score)")
+                        .font(.system(size: 48, weight: .bold, design: .rounded))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.blue, .purple],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                }
+                
+                // Time until next
+                TimeUntilNextDaily()
                     .padding()
-                    .background(Color.blue)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.primary.opacity(0.05))
+                    )
+                    .padding(.horizontal)
+                
+                // Action buttons
+                VStack(spacing: 12) {
+                    Text("Want to keep playing?")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                    
+                    Button(action: onPlayRandom) {
+                        Label("Play Random Game", systemImage: "shuffle")
+                            .font(.headline)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(12)
+                    }
+                    .padding(.horizontal)
+                    
+                    Button(action: shareScore) {
+                        Label("Share Score", systemImage: "square.and.arrow.up")
+                            .font(.subheadline)
+                            .foregroundColor(.primary)
+                    }
+                }
+                .padding(.bottom, 30)
             }
         }
-        .padding()
+        .navigationTitle("Daily Challenge")
     }
-}
-
-// MARK: - Random Game View (Super Simple)
-struct RandomGameView: View {
-    @EnvironmentObject var gameState: GameState
     
-    var body: some View {
-        GameView()
-            .onAppear {
-                // Just start a random game
-                gameState.isDailyChallenge = false
-                gameState.setupCustomGame()
-            }
-    }
-}
-
-// MARK: - Helper Extensions
-extension GameCD {
-    func toModel() -> GameModel? {
-        let gameIdString: String
-        if self.isDaily {
-            let dateString = DateFormatter.yyyyMMdd.string(from: self.startTime ?? Date())
-            gameIdString = "daily-\(dateString)"
-        } else {
-            gameIdString = self.gameId?.uuidString ?? UUID().uuidString
-        }
+    private func shareScore() {
+        // Implement sharing functionality
+        let shareText = "I scored \(score) on today's Decodey daily challenge! 🎯"
         
-        return GameModel(
-            gameId: gameIdString,
-            encrypted: self.encrypted ?? "",
-            solution: self.solution ?? "",
-            currentDisplay: self.currentDisplay ?? "",
-            mapping: [:],
-            correctMappings: [:],
-            guessedMappings: [:],
-            incorrectGuesses: [:],
-            mistakes: Int(self.mistakes),
-            maxMistakes: Int(self.maxMistakes),
-            hasWon: self.hasWon,
-            hasLost: self.hasLost,
-            difficulty: self.difficulty ?? "medium",
-            startTime: self.startTime ?? Date(),
-            lastUpdateTime: self.lastUpdateTime ?? Date()
+        #if os(iOS)
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first else { return }
+        
+        let activityController = UIActivityViewController(
+            activityItems: [shareText],
+            applicationActivities: nil
         )
+        
+        window.rootViewController?.present(activityController, animated: true)
+        #endif
     }
 }
 
-extension GameState {
-    func loadFromGameModel(_ model: GameModel) {
-        self.currentGame = model
-        self.isDailyChallenge = model.gameId?.hasPrefix("daily-") ?? false
-    }
-}
-
-// Keep existing helper views
+// MARK: - Time Until Next Daily
 struct TimeUntilNextDaily: View {
     @State private var timeRemaining = ""
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -477,36 +354,88 @@ struct TimeUntilNextDaily: View {
     }
 }
 
-struct DailyInfoSheet: View {
-    @Environment(\.dismiss) var dismiss
-    
-    var body: some View {
-        NavigationViewWrapper {
-            VStack(spacing: 20) {
-                Text("Daily Challenge")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .padding()
-                
-                VStack(alignment: .leading, spacing: 16) {
-                    Label("New puzzle every day at midnight", systemImage: "calendar")
-                    Label("Everyone gets the same puzzle", systemImage: "globe")
-                    Label("Build your streak!", systemImage: "flame")
-                    Label("Compare scores on the leaderboard", systemImage: "trophy")
-                }
-                .font(.body)
-                .padding()
-                
-                Spacer()
-                
-                Button("Done") { dismiss() }
-                    .buttonStyle(.borderedProminent)
-                    .padding()
+// Add this extension to GameState if it doesn't exist
+extension GameState {
+    func getTodaysDailyGame() -> GameModel? {
+        // Check if current game is today's daily
+        if isDailyChallenge,
+           let game = currentGame,
+           let gameId = game.gameId {
+            let todayString = DateFormatter.yyyyMMdd.string(from: Date())
+            if gameId.contains(todayString) {
+                return game
             }
-            .navigationTitle("About Daily")
-            #if os(iOS)
-            .navigationBarTitleDisplayMode(.inline)
-            #endif
         }
+        
+        // Otherwise fetch from CoreData
+        let context = CoreDataStack.shared.mainContext
+        let todayString = DateFormatter.yyyyMMdd.string(from: Date())
+        let dailyUUID = dailyStringToUUID("daily-\(todayString)")
+        
+        let fetchRequest: NSFetchRequest<GameCD> = GameCD.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "gameId == %@ AND isDaily == YES", dailyUUID as CVarArg)
+        fetchRequest.fetchLimit = 1
+        
+        do {
+            if let entity = try context.fetch(fetchRequest).first {
+                // Decode mappings
+                var mapping: [Character: Character] = [:]
+                var correctMappings: [Character: Character] = [:]
+                var guessedMappings: [Character: Character] = [:]
+                var incorrectGuesses: [Character: Set<Character>] = [:]
+                
+                if let data = entity.correctMappings,
+                   let decoded = try? JSONDecoder().decode([String: String].self, from: data) {
+                    correctMappings = decoded.stringDictToCharDict()
+                }
+                
+                if let data = entity.guessedMappings,
+                   let decoded = try? JSONDecoder().decode([String: String].self, from: data) {
+                    guessedMappings = decoded.stringDictToCharDict()
+                }
+                
+                if let data = entity.mapping,
+                   let decoded = try? JSONDecoder().decode([String: String].self, from: data) {
+                    mapping = decoded.stringDictToCharDict()
+                }
+                
+                if let data = entity.incorrectGuesses,
+                   let decoded = try? JSONDecoder().decode([String: [String]].self, from: data) {
+                    for (key, values) in decoded {
+                        if let keyChar = key.first {
+                            incorrectGuesses[keyChar] = Set(values.compactMap { $0.first })
+                        }
+                    }
+                }
+                
+                return GameModel(
+                    gameId: "daily-\(todayString)",
+                    encrypted: entity.encrypted ?? "",
+                    solution: entity.solution ?? "",
+                    currentDisplay: entity.currentDisplay ?? "",
+                    mapping: mapping,
+                    correctMappings: correctMappings,
+                    guessedMappings: guessedMappings,
+                    incorrectGuesses: incorrectGuesses,
+                    mistakes: Int(entity.mistakes),
+                    maxMistakes: Int(entity.maxMistakes),
+                    hasWon: entity.hasWon,
+                    hasLost: entity.hasLost,
+                    difficulty: entity.difficulty ?? "medium",
+                    startTime: entity.startTime ?? Date(),
+                    lastUpdateTime: entity.lastUpdateTime ?? Date()
+                )
+            }
+        } catch {
+            print("Error fetching daily game: \(error)")
+        }
+        
+        return nil
+    }
+    
+    private func dailyStringToUUID(_ dailyId: String) -> UUID {
+        let hash = abs(dailyId.hashValue)
+        let uuidString = String(format: "00000000-0000-0000-0000-%012d", hash % 1000000000000)
+        return UUID(uuidString: uuidString) ?? UUID()
     }
 }
