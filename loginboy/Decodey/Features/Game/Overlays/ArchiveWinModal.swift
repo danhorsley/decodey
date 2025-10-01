@@ -15,9 +15,9 @@ struct ArchiveWinModal: View {
     @State private var typewriterIndex = 0
     @State private var glitchOpacity = 1.0
     
-    // Design system
-    private let colors = ColorSystem.shared
-    private let fonts = FontSystem.shared
+    // REMOVED: Design system
+    // private let colors = ColorSystem.shared
+    // private let fonts = FontSystem.shared
     
     // Archive text samples (for background)
     private let archiveTexts = [
@@ -197,6 +197,7 @@ struct ArchiveWinModal: View {
         )
         .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
         .scaleEffect(showDecrypted ? 1.0 : 0.9)
+        .opacity(showDecrypted ? 1.0 : 0)
     }
     
     // MARK: - Classification Stamp
@@ -224,26 +225,31 @@ struct ArchiveWinModal: View {
     // MARK: - Score Section
     private var scoreSection: some View {
         VStack(spacing: 8) {
-            Text("EVALUATION")
-                .font(.system(size: 10, weight: .medium, design: .rounded))
-                .tracking(2)
+            Text("SCORE")
+                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                .tracking(1.5)
                 .foregroundColor(Color(red: 0.55, green: 0.50, blue: 0.45))
             
             Text("\(score)")
-                .font(.system(size: 48, weight: .bold, design: .serif))
-                .foregroundColor(Color(red: 0.35, green: 0.30, blue: 0.25))
+                .font(.gameScore)  // CHANGED: Using GameTheme font
+                .foregroundColor(Color(red: 0.25, green: 0.22, blue: 0.20))
             
-            Text("POINTS AWARDED")
-                .font(.system(size: 9, weight: .medium, design: .rounded))
-                .tracking(1.5)
-                .foregroundColor(Color(red: 0.55, green: 0.50, blue: 0.45))
+            // Bonus indicators
+            HStack(spacing: 12) {
+                if mistakes == 0 {
+                    BonusIndicator(text: "PERFECT", color: Color(red: 0.20, green: 0.40, blue: 0.25))
+                }
+                
+                if timeElapsed < 60 {
+                    BonusIndicator(text: "SPEED", color: Color(red: 0.65, green: 0.50, blue: 0.30))
+                }
+            }
         }
-        .padding(.vertical, 16)
     }
     
     // MARK: - Stats Section
     private var statsSection: some View {
-        HStack(spacing: 40) {
+        HStack(spacing: 32) {
             StatItem(
                 label: "Mistakes",
                 value: "\(mistakes)/\(maxMistakes)",
@@ -282,14 +288,15 @@ struct ArchiveWinModal: View {
             Text("NEW GAME")
                 .font(.system(size: 12, weight: .semibold, design: .rounded))
                 .tracking(1.0)
+                .foregroundColor(Color(red: 0.98, green: 0.96, blue: 0.92))
                 .padding(.horizontal, 32)
                 .padding(.vertical, 14)
                 .background(
                     RoundedRectangle(cornerRadius: 4)
                         .fill(Color(red: 0.35, green: 0.30, blue: 0.25))
                 )
-                .foregroundColor(Color(red: 0.98, green: 0.96, blue: 0.92))
         }
+        .buttonStyle(PlainButtonStyle())
     }
     
     // MARK: - Animation Sequence
@@ -371,5 +378,24 @@ struct StatItem: View {
                     Color(red: 0.35, green: 0.30, blue: 0.25)
                 )
         }
+    }
+}
+
+// MARK: - Bonus Indicator Component
+struct BonusIndicator: View {
+    let text: String
+    let color: Color
+    
+    var body: some View {
+        Text(text)
+            .font(.system(size: 9, weight: .bold, design: .rounded))
+            .tracking(1.0)
+            .foregroundColor(color)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(
+                RoundedRectangle(cornerRadius: 2)
+                    .stroke(color, lineWidth: 1)
+            )
     }
 }

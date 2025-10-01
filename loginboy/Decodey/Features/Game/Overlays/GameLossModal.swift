@@ -12,9 +12,9 @@ struct GameLossModal: View {
     @State private var showButtons = false
     @State private var inkDrops: [InkDrop] = []
     
-    // Design system
-    private let colors = ColorSystem.shared
-    private let fonts = FontSystem.shared
+    // REMOVED: Design system
+    // private let colors = ColorSystem.shared
+    // private let fonts = FontSystem.shared
     
     // Editorial comments
     private let editorialComments = [
@@ -46,8 +46,8 @@ struct GameLossModal: View {
                             .foregroundColor(.secondary)
                         
                         Text(gameState.currentGame?.currentDisplay ?? "")
-                            .font(fonts.solutionDisplayText())
-                            .foregroundColor(colors.guessColor(for: colorScheme))
+                            .font(.gameDisplay)  // CHANGED: Using GameTheme font
+                            .foregroundColor(Color("GameGuess"))  // CHANGED: Using color asset
                             .multilineTextAlignment(.center)
                             .lineSpacing(4)
                             .padding(.horizontal, 20)
@@ -70,36 +70,44 @@ struct GameLossModal: View {
                             .foregroundColor(stampColor)
                             .rotationEffect(.degrees(-15))
                             .opacity(0.8)
-                            .scaleEffect(showStamp ? 1.0 : 3.0)
-                            .animation(.spring(response: 0.4, dampingFraction: 0.6), value: showStamp)
-                    }
-                    
-                    // Ink splatters
-                    ForEach(inkDrops) { drop in
-                        InkSplatterView(drop: drop)
+                            .scaleEffect(showStamp ? 1.0 : 0.1)
+                            .animation(.spring(response: 0.3, dampingFraction: 0.5).delay(0.3), value: showStamp)
                     }
                 }
-                .frame(maxWidth: 500)
                 
-                // Editorial comment with typewriter effect
-                Text(typewriterText)
-                    .font(.system(size: 16, weight: .medium, design: .serif))
-                    .foregroundColor(editorialTextColor)
-                    .italic()
-                    .frame(height: 24)
-                    .padding(.top, 8)
+                // Ink splatters
+                if showInkSplatters {
+                    ZStack {
+                        ForEach(inkDrops) { drop in
+                            InkSplatterView(drop: drop)
+                                .animation(.spring(response: 0.4, dampingFraction: 0.6).delay(drop.delay), value: showInkSplatters)
+                        }
+                    }
+                    .frame(width: 300, height: 100)
+                }
+                
+                // Editorial comment
+                if !typewriterText.isEmpty {
+                    Text(typewriterText)
+                        .font(.system(size: 16, weight: .medium, design: .serif))
+                        .italic()
+                        .foregroundColor(editorialTextColor)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 40)
+                        .transition(.opacity)
+                }
                 
                 // Action buttons
                 if showButtons {
                     HStack(spacing: 16) {
-                        // Secondary button - Show Solution
+                        // See Solution button
                         Button(action: {
                             SoundManager.shared.play(.letterClick)
                             showSolutionOverlay = true
                         }) {
-                            Text("Show Solution")
+                            Text("See Solution")
                                 .font(.system(size: 14, weight: .medium, design: .rounded))
-                                .foregroundColor(.black) // Force explicit color
+                                .foregroundColor(secondaryButtonTextColor)
                                 .padding(.horizontal, 24)
                                 .padding(.vertical, 12)
                                 .background(
@@ -113,10 +121,9 @@ struct GameLossModal: View {
                         }
                         .buttonStyle(PlainButtonStyle()) // Add explicit button style
                         
-                        // Primary button - Keep Trying
+                        // Keep Trying button (primary)
                         Button(action: {
-                            SoundManager.shared.play(.correctGuess)
-                            gameState.enableInfiniteMode()
+                            SoundManager.shared.play(.letterClick)
                             gameState.showLoseMessage = false
                         }) {
                             Text("Keep Trying")
@@ -141,86 +148,71 @@ struct GameLossModal: View {
                     .fill(modalBackground)
                     .shadow(radius: 20)
             )
-            .scaleEffect(showStamp ? 1.0 : 0.9)
-            .animation(.spring(response: 0.5, dampingFraction: 0.7), value: showStamp)
+            .scaleEffect(showStamp ? 1.02 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: showStamp)
         }
         .onAppear {
-            startAnimationSequence()
+            animateReveal()
         }
         .sheet(isPresented: $showSolutionOverlay) {
             SolutionOverlay()
-                .environmentObject(gameState)
         }
     }
     
-    // MARK: - Animation Sequence
+    // MARK: - Animation Functions
     
-    private func startAnimationSequence() {
-        // Play lose sound
-        SoundManager.shared.play(.lose)
+    private func animateReveal() {
+        // Generate ink drops
+        for i in 0..<8 {
+            inkDrops.append(InkDrop(
+                id: i,
+                x: CGFloat.random(in: -150...150),
+                y: CGFloat.random(in: -50...50),
+                size: CGFloat.random(in: 8...24),
+                opacity: Double.random(in: 0.3...0.7),
+                delay: Double(i) * 0.05
+            ))
+        }
         
-        // Show stamp after delay
+        // Stamp animation
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
             withAnimation {
                 showStamp = true
-            }
-            
-            // Generate ink splatters
-            generateInkSplatters()
-            
-            // Start typewriter effect
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                startTypewriterEffect()
-            }
-            
-            // Show buttons
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
-                withAnimation {
-                    showButtons = true
-                }
+                SoundManager.shared.play(.letterClick) // Stamp sound
             }
         }
-    }
-    
-    private func generateInkSplatters() {
-        // Create 5-8 random ink drops around the stamp
-        let dropCount = Int.random(in: 5...8)
         
-        for i in 0..<dropCount {
-            let drop = InkDrop(
-                id: i,
-                x: CGFloat.random(in: -100...100),
-                y: CGFloat.random(in: -80...80),
-                size: CGFloat.random(in: 8...24),
-                opacity: Double.random(in: 0.6...0.9),
-                delay: Double.random(in: 0...0.3)
-            )
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + drop.delay) {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                    inkDrops.append(drop)
-                }
-            }
+        // Ink splatter
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            showInkSplatters = true
         }
-    }
-    
-    private func startTypewriterEffect() {
+        
+        // Typewriter effect for editorial comment
         let comment = editorialComments.randomElement() ?? editorialComments[0]
-        typewriterText = ""
-        
-        for (index, character) in comment.enumerated() {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.05) {
-                typewriterText.append(character)
+        var charIndex = 0
+        Timer.scheduledTimer(withTimeInterval: 0.03, repeats: true) { timer in
+            if charIndex < comment.count {
+                typewriterText.append(comment[comment.index(comment.startIndex, offsetBy: charIndex)])
+                charIndex += 1
                 
-                // Play subtle typewriter sound for each character
-                if character != " " {
+                // Typewriter sound on every 3rd character
+                if charIndex % 3 == 0 {
                     SoundManager.shared.play(.letterClick)
                 }
+            } else {
+                timer.invalidate()
+            }
+        }
+        
+        // Show buttons
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+                showButtons = true
             }
         }
     }
     
-    // MARK: - Color Helpers
+    // MARK: - Color Computed Properties
     
     private var backgroundColor: Color {
         colorScheme == .dark ?
@@ -322,8 +314,9 @@ struct SolutionOverlay: View {
     @EnvironmentObject var gameState: GameState
     @Environment(\.colorScheme) var colorScheme
     
-    private let colors = ColorSystem.shared
-    private let fonts = FontSystem.shared
+    // REMOVED: Design system
+    // private let colors = ColorSystem.shared
+    // private let fonts = FontSystem.shared
     
     var body: some View {
         ZStack {
@@ -360,7 +353,6 @@ struct SolutionOverlay: View {
                 
                 Button(action: {
                     SoundManager.shared.play(.letterClick)
-//                    showSolutionOverlay = false
                     gameState.showLoseMessage = false
                     gameState.resetGame()
                 }) {
@@ -380,7 +372,8 @@ struct SolutionOverlay: View {
     }
     
     private var textColor: Color {
-        colorScheme == .dark ? .white : .black
+        colorScheme == .dark ?
+            Color.white : Color.black
     }
     
     private var cardBackground: Color {
@@ -396,10 +389,4 @@ struct SolutionOverlay: View {
     }
 }
 
-//
-//  GameLossModal.swift
-//  loginboy
-//
-//  Created by Daniel Horsley on 06/06/2025.
-//
 

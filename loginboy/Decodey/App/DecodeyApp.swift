@@ -29,8 +29,6 @@ struct decodeyApp: App {
     }
     
     private func initializeApp() async {
-        print("🚀 Starting app...")
-        
         // Load quotes
         await LocalQuoteManager.shared.loadQuotesIfNeeded()
         
@@ -42,25 +40,19 @@ struct decodeyApp: App {
             gameCenterManager.setupAuthentication()
         }
         
-        // Debug what happened
-        LocalQuoteManager.shared.debugPrint()
-        
-        // Wait a second so you can see the loading screen
-        try? await Task.sleep(nanoseconds: 1_000_000_000)
+        // Brief delay for smooth transition
+        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
         
         await MainActor.run {
             isInitializing = false
         }
-        
-        print("✅ App ready")
-        print("📱 Apple Sign In: \(authManager.isAuthenticated ? "Yes" : "No")")
-        print("🎮 Game Center Available: \(gameCenterManager.isGameCenterAvailable ? "Yes" : "No")")
     }
 }
 
 struct LoadingView: View {
     @StateObject private var quoteManager = LocalQuoteManager.shared
-    @Environment(\.colorScheme) private var colorScheme
+    // REMOVED: ColorSystem reference
+    // @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         VStack(spacing: 20) {
@@ -83,6 +75,6 @@ struct LoadingView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(ColorSystem.shared.primaryBackground(for: colorScheme))
+        .background(Color("GameBackground"))  // CHANGED: Using color asset instead of ColorSystem
     }
 }

@@ -1,10 +1,11 @@
-// LeaderboardView.swift - Fixed with pure SwiftUI and matching your style
+// LeaderboardView.swift - Migrated to GameTheme
 import SwiftUI
 import GameKit
 
 struct LeaderboardView: View {
     @StateObject private var gameCenterManager = GameCenterManager.shared
-    private let colors = ColorSystem.shared
+    // REMOVED: ColorSystem reference
+    // private let colors = ColorSystem.shared
     @Environment(\.colorScheme) private var colorScheme
     
     @State private var selectedScope: GKLeaderboard.PlayerScope = .global
@@ -18,7 +19,7 @@ struct LeaderboardView: View {
     
     var body: some View {
         ZStack {
-            colors.primaryBackground(for: colorScheme)
+            Color("GameBackground")  // CHANGED: Using color asset
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
@@ -65,7 +66,7 @@ struct LeaderboardView: View {
             }
         }
         .padding()
-        .background(colors.secondaryBackground(for: colorScheme))
+        .background(Color("GameSurface"))  // CHANGED: Using color asset
         .overlay(
             Rectangle()
                 .fill(Color.primary.opacity(0.1))
@@ -81,84 +82,27 @@ struct LeaderboardView: View {
             scopeSelector
                 .padding()
             
-            // Leaderboard list
+            // Leaderboard content
             if isLoading {
-                Spacer()
-                ProgressView("Loading leaderboard...")
-                Spacer()
+                loadingView
             } else if leaderboardEntries.isEmpty {
-                emptyStateView
+                emptyLeaderboardView
             } else {
                 leaderboardList
             }
         }
     }
     
-    // MARK: - Not Authenticated View
-    private var notAuthenticatedView: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            
-            Image(systemName: "gamecontroller.fill")
-                .font(.system(size: 60))
-                .foregroundColor(.secondary)
-            
-            Text("Game Center Required")
-                .font(.title2)
-                .fontWeight(.bold)
-            
-            Text("Sign in to Game Center to view leaderboards and compete with other players")
-                .multilineTextAlignment(.center)
-                .foregroundColor(.secondary)
-                .padding(.horizontal, 40)
-            
-            Button(action: {
-                Task {
-                    await gameCenterManager.authenticateLocalPlayer()
-                }
-            }) {
-                HStack {
-                    Image(systemName: "person.circle")
-                    Text("Sign In to Game Center")
-                }
-                .font(.headline)
-                .foregroundColor(colorScheme == .dark ? .black : .white)
-                .padding(.horizontal, 24)
-                .padding(.vertical, 12)
-                .background(Color.accentColor)
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-            }
-            
-            Spacer()
-        }
-    }
-    
     // MARK: - Scope Selector
     private var scopeSelector: some View {
-        VStack(spacing: 12) {
-            // Player Scope
-            Picker("Scope", selection: $selectedScope) {
-                Text("Global").tag(GKLeaderboard.PlayerScope.global)
-                Text("Friends").tag(GKLeaderboard.PlayerScope.friendsOnly)
-            }
-            .pickerStyle(SegmentedPickerStyle())
-            .onChange(of: selectedScope) { _ in
-                Task {
-                    await loadLeaderboard()
-                }
-            }
-            
-            // Time Scope
-            Picker("Time", selection: $selectedTime) {
-                Text("Today").tag(GKLeaderboard.TimeScope.today)
-                Text("Week").tag(GKLeaderboard.TimeScope.week)
-                Text("All Time").tag(GKLeaderboard.TimeScope.allTime)
-            }
-            .pickerStyle(SegmentedPickerStyle())
-            .onChange(of: selectedTime) { _ in
-                Task {
-                    await loadLeaderboard()
-                }
+        Picker("Scope", selection: $selectedScope) {
+            Text("Global").tag(GKLeaderboard.PlayerScope.global)
+            Text("Friends").tag(GKLeaderboard.PlayerScope.friendsOnly)
+        }
+        .pickerStyle(SegmentedPickerStyle())
+        .onChange(of: selectedScope) { _ in
+            Task {
+                await loadLeaderboard()
             }
         }
     }
@@ -170,30 +114,88 @@ struct LeaderboardView: View {
                 ForEach(Array(leaderboardEntries.enumerated()), id: \.element.id) { index, entry in
                     LeaderboardRow(
                         entry: entry,
-                        rank: entry.rank,
+                        rank: index + 1,
                         isCurrentPlayer: entry.isLocalPlayer
                     )
-                    .padding(.horizontal)
                 }
             }
-            .padding(.vertical)
+            .padding()
         }
     }
     
-    // MARK: - Empty State
-    private var emptyStateView: some View {
-        VStack(spacing: 16) {
-            Spacer()
-            
-            Image(systemName: "trophy.fill")
-                .font(.system(size: 50))
+    // MARK: - Loading View
+    private var loadingView: some View {
+        VStack(spacing: 20) {
+            ProgressView()
+                .scaleEffect(1.5)
+            Text("Loading leaderboard...")
+                .font(.headline)
                 .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    // MARK: - Empty Leaderboard View
+    private var emptyLeaderboardView: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "trophy.fill")
+                .font(.system(size: 60))
+                .foregroundColor(.secondary.opacity(0.5))
             
             Text("No Scores Yet")
-                .font(.headline)
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundColor(.primary)
             
             Text("Be the first to set a score!")
-                .font(.subheadline)
+                .font(.body)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
+    }
+    
+    // MARK: - Not Authenticated View
+    private var notAuthenticatedView: some View {
+        VStack(spacing: 30) {
+            Spacer()
+            
+            Image(systemName: "gamecontroller.fill")
+                .font(.system(size: 80))
+                .foregroundColor(.accentColor)
+            
+            Text("Game Center Required")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.primary)
+            
+            Text("Sign in to Game Center to view leaderboards and compete with friends")
+                .font(.body)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+            
+            Button(action: {
+                Task {
+                    await gameCenterManager.authenticateLocalPlayer()
+                    if gameCenterManager.isAuthenticated {
+                        await loadLeaderboard()
+                    }
+                }
+            }) {
+                Text("Sign In")
+                    .font(.headline)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 40)
+                    .padding(.vertical, 12)
+                    .background(Color.accentColor)
+                    .cornerRadius(10)
+            }
+            
+            Spacer()
+            
+            Text("Game Center authentication is handled by iOS")
+                .font(.caption)
                 .foregroundColor(.secondary)
             
             Spacer()
@@ -235,7 +237,8 @@ struct LeaderboardRow: View {
     let rank: Int
     let isCurrentPlayer: Bool
     
-    private let colors = ColorSystem.shared
+    // REMOVED: ColorSystem reference
+    // private let colors = ColorSystem.shared
     @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
@@ -283,7 +286,7 @@ struct LeaderboardRow: View {
             RoundedRectangle(cornerRadius: 12)
                 .fill(isCurrentPlayer ?
                     Color.accentColor.opacity(0.1) :
-                    colors.secondaryBackground(for: colorScheme))
+                    Color("GameSurface"))  // CHANGED: Using color asset
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12)

@@ -2,6 +2,7 @@
 // Decodey
 //
 // Performance-optimized version with same cool effects but less latency
+// MIGRATED to GameTheme - no more FontSystem
 
 import SwiftUI
 
@@ -15,8 +16,8 @@ struct TerminalCrashModal: View {
     @State private var terminalText = ""
     @State private var matrixOpacity = 0.0
     
-    // Design system
-    private let fonts = FontSystem.shared
+    // REMOVED: Design system
+    // private let fonts = FontSystem.shared
     
     // Pre-computed messages (avoid array lookups)
     private let errorMessage = "CRITICAL: Decryption Failed"
