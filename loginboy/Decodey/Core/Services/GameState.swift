@@ -603,17 +603,28 @@ class GameState: ObservableObject {
     func getHint() {
         guard var game = currentGame else { return }
         
-        if game.mistakes < game.maxMistakes {
-            let _ = game.getHint()  // This calls the GameModel's getHint
+        // CHANGED: Only allow hint if we have hints remaining
+        let remainingHints = game.maxMistakes - game.mistakes
+        guard remainingHints > 0 else { return }
+        
+        let _ = game.getHint()  // This calls the GameModel's getHint which increments mistakes
+        self.currentGame = game
+        
+        // ADDED: Check if game is lost after using hint
+        if game.mistakes >= game.maxMistakes {
+            game.hasLost = true
             self.currentGame = game
-            
-            if game.hasWon {
-                submitScore()
-                saveCompletedGameStats(game, won: true)
-                winModalIsDaily = isDailyChallenge
-                showWinMessage = true
-                SoundManager.shared.play(.win)
-            }
+            submitScore()
+            saveCompletedGameStats(game, won: false)
+            loseModalIsDaily = isDailyChallenge
+            showLoseMessage = true
+            SoundManager.shared.play(.lose)
+        } else if game.hasWon {
+            submitScore()
+            saveCompletedGameStats(game, won: true)
+            winModalIsDaily = isDailyChallenge
+            showWinMessage = true
+            SoundManager.shared.play(.win)
         }
     }
     /// Reset current game

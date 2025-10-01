@@ -219,23 +219,19 @@ struct GameModel {
         
         if let hintLetter = unguessedLetters.randomElement(),
            let originalLetter = correctMappings[hintLetter] {
-            // Add hint to guessed mappings
             guessedMappings[hintLetter] = originalLetter
-            
-            // Update display and check win condition
             updateCurrentDisplay()
-            checkWinCondition()
-            
-            // This counts as a mistake (hints have a cost)
             mistakes += 1
+            
+            // ADDED: Check if lost after using hint
             if mistakes >= maxMistakes {
                 hasLost = true
             }
             
+            checkWinCondition()
             lastUpdateTime = Date()
             return true
         }
-        
         return false
     }
     

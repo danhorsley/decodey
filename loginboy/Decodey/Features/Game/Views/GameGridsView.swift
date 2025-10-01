@@ -44,7 +44,7 @@ struct GameGridsView: View {
                 isDarkMode: colorScheme == .dark,
                 onHintRequested: handleHintRequest
             )
-            .tutorialTarget(.hintButton)  // <-- ADD THIS
+            .tutorialTarget(.hintButton)
             .frame(width: 140, height: 80)
             .padding(.vertical, 8)
             
@@ -185,7 +185,11 @@ struct GameGridsView: View {
     
     private func handleHintRequest() {
         guard !isHintInProgress else { return }
-        guard let game = gameState.currentGame, game.mistakes < game.maxMistakes else { return }
+        
+        // CHANGED: Check if we have hints remaining (when mistakes == maxMistakes, no hints left)
+        guard let game = gameState.currentGame else { return }
+        let remainingHints = game.maxMistakes - game.mistakes
+        guard remainingHints > 0 else { return }  // CHANGED: Block at 0 hints
         
         isHintInProgress = true
         SoundManager.shared.play(.hint)
