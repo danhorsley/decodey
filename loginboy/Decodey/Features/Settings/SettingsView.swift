@@ -1,58 +1,37 @@
+// SettingsView.swift
+// Decodey
 //
-//  SettingsView.swift
-//  loginboy
-//
-//  Modern Apple-compliant Settings UI following project guidelines
-//
+// Settings screen with game preferences - Migrated to use GameTheme
 
 import SwiftUI
 
 struct SettingsView: View {
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
-    @Environment(\.horizontalSizeClass) private var sizeClass
-    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
-    
-    // Settings state - adjust based on your actual settings manager
     @StateObject private var settings = SettingsState.shared
-    @StateObject private var tutorialManager = TutorialManager.shared  // <-- ADD THIS
-    
-    // Local state for UI
     @State private var showingDifficultyPicker = false
     @State private var showingAbout = false
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         VStack(spacing: 0) {
-            // Custom header (following your guidelines - avoid NavigationView)
+            // Header
             headerView
             
-            // Main settings content
+            // Content
             ScrollView {
-                LazyVStack(spacing: 24) {
-                    // Appearance Section
+                VStack(spacing: 24) {
                     appearanceSection
-                    
-                    // Game Settings Section
-                    gameSettingsSection
-                    
-                    // Audio Settings Section
-                    audioSettingsSection
-                    
-                    //tutorial section
-                    tutorialSection
-                    
-                    // Accessibility Section
-                    accessibilitySection
-                    
-                    // About Section
+                    gameplaySection
+                    audioSection
                     aboutSection
                 }
                 .padding(.horizontal, 20)
                 .padding(.top, 24)
                 .padding(.bottom, 40)
             }
+            .background(Color.gameBackground)
         }
-        .background(ColorSystem.shared.primaryBackground(for: colorScheme))
+        .background(Color.gameBackground)
         .preferredColorScheme(settings.isDarkMode ? .dark : .light)
         .sheet(isPresented: $showingDifficultyPicker) {
             DifficultyPickerSheet(selectedDifficulty: $settings.gameDifficulty)
@@ -68,7 +47,7 @@ struct SettingsView: View {
         HStack {
             Text("Settings")
                 .font(.title.bold())
-                .foregroundStyle(ColorSystem.shared.primaryText(for: colorScheme))
+                .foregroundStyle(Color.primary)
             
             Spacer()
             
@@ -76,17 +55,17 @@ struct SettingsView: View {
                 dismiss()
             }
             .font(.body.weight(.medium))
-            .foregroundStyle(ColorSystem.shared.accent)
+            .foregroundStyle(Color.accentColor)
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
         .background(
-            ColorSystem.shared.primaryBackground(for: colorScheme)
+            Color.gameBackground
                 .shadow(color: .black.opacity(0.05), radius: 1, y: 1)
         )
         .overlay(
             Rectangle()
-                .fill(ColorSystem.shared.border(for: colorScheme))
+                .fill(Color.gameBorder)
                 .frame(height: 0.5)
                 .opacity(0.6),
             alignment: .bottom
@@ -105,12 +84,12 @@ struct SettingsView: View {
                     icon: "moon.fill"
                 ) {
                     Toggle("", isOn: $settings.isDarkMode)
-                        .toggleStyle(SwitchToggleStyle(tint: ColorSystem.shared.accent))
+                        .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
                         .scaleEffect(0.9)
                 }
                 
                 Divider()
-                    .background(ColorSystem.shared.border(for: colorScheme))
+                    .background(Color.gameBorder)
                 
                 // Enhanced Letter Cells
                 SettingRow(
@@ -119,134 +98,50 @@ struct SettingsView: View {
                     icon: "sparkles"
                 ) {
                     Toggle("", isOn: $settings.useEnhancedLetterCells)
-                        .toggleStyle(SwitchToggleStyle(tint: ColorSystem.shared.accent))
+                        .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
                         .scaleEffect(0.9)
                 }
                 
                 Divider()
-                    .background(ColorSystem.shared.border(for: colorScheme))
+                    .background(Color.gameBorder)
                 
-                // Alternating Text Display - NEW!
+                // Alternating Text Display
                 SettingRow(
-                    title: "Alternating Text Display",
-                    subtitle: "Show encrypted/solution line by line",
-                    icon: "text.alignleft"
+                    title: "Alternating Display",
+                    subtitle: "Toggle between views while solving",
+                    icon: "text.below.photo"
                 ) {
                     Toggle("", isOn: $settings.useAlternatingTextDisplay)
-                        .toggleStyle(SwitchToggleStyle(tint: ColorSystem.shared.accent))
+                        .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
                         .scaleEffect(0.9)
                 }
             }
         }
     }
-
     
-    private var tutorialSection: some View {
-          SettingsSection(title: "Help & Tutorial", icon: "questionmark.circle.fill") {
-              VStack(spacing: 12) {
-                  // Show Tutorial Button
-                  SettingRow(
-                      title: "Show Tutorial",
-                      subtitle: "Learn how to play Decodey",
-                      icon: "book.fill"
-                  ) {
-                      Button(action: {
-                          // Dismiss settings first
-                          dismiss()
-                          
-                          // Set a flag that tutorial should start when the game view appears
-                          tutorialManager.resetTutorial()
-                          UserDefaults.standard.set(true, forKey: "tutorial-pending")
-                          
-                          // Don't start immediately - let MainView handle it when game view is ready
-                          // Remove this line: tutorialManager.startTutorial()
-                      }) {
-                          HStack(spacing: 4) {
-                              Image(systemName: "play.fill")
-                              Text("Start")
-                          }
-                          .font(.subheadline.weight(.medium))
-                          .foregroundStyle(ColorSystem.shared.accent)
-                      }
-                  }
-                  
-                  Divider()
-                      .background(ColorSystem.shared.border(for: colorScheme))
-                  
-                  // Tutorial Status
-                  SettingRow(
-                      title: "Tutorial Status",
-                      subtitle: tutorialManager.hasCompletedTutorial ? "Completed" : "Not completed",
-                      icon: "checkmark.circle.fill"
-                  ) {
-                      if tutorialManager.hasCompletedTutorial {
-                          Image(systemName: "checkmark.circle.fill")
-                              .foregroundStyle(ColorSystem.shared.success)
-                              .font(.body)
-                      } else {
-                          Image(systemName: "circle")
-                              .foregroundStyle(ColorSystem.shared.secondaryText(for: colorScheme))
-                              .font(.body)
-                      }
-                  }
-                  
-                  if tutorialManager.hasCompletedTutorial {
-                      Divider()
-                          .background(ColorSystem.shared.border(for: colorScheme))
-                      
-                      // Reset Tutorial Button
-                      SettingRow(
-                          title: "Reset Tutorial",
-                          subtitle: "Show tutorial on next app launch",
-                          icon: "arrow.counterclockwise"
-                      ) {
-                          Button(action: {
-                              tutorialManager.resetTutorial()
-                              // Tutorial will show on next app launch
-                          }) {
-                              Text("Reset")
-                                  .font(.subheadline.weight(.medium))
-                                  .foregroundStyle(ColorSystem.shared.accent)
-                                  .padding(.horizontal, 12)
-                                  .padding(.vertical, 6)
-                                  .background(
-                                      Capsule()
-                                          .stroke(ColorSystem.shared.accent, lineWidth: 1)
-                                  )
-                          }
-                      }
-                  }
-              }
-          }
-      }
-    
-    
-    private var gameSettingsSection: some View {
-        SettingsSection(title: "Game Settings", icon: "gamecontroller.fill") {
+    private var gameplaySection: some View {
+        SettingsSection(title: "Gameplay", icon: "gamecontroller.fill") {
             VStack(spacing: 12) {
-                // Difficulty Setting
+                // Difficulty Picker
                 SettingRow(
                     title: "Difficulty",
-                    subtitle: difficultySubtitle,
-                    icon: "target"
+                    subtitle: "Number of mistakes allowed",
+                    icon: "dial.medium"
                 ) {
-                    Button(action: {
-                        showingDifficultyPicker = true
-                    }) {
-                        HStack(spacing: 8) {
+                    Button(action: { showingDifficultyPicker = true }) {
+                        HStack(spacing: 4) {
                             Text(settings.gameDifficulty.capitalized)
-                                .foregroundStyle(ColorSystem.shared.primaryText(for: colorScheme))
-                            
+                                .font(.body)
+                                .foregroundStyle(Color.accentColor)
                             Image(systemName: "chevron.right")
-                                .foregroundStyle(ColorSystem.shared.secondaryText(for: colorScheme))
-                                .font(.caption.weight(.semibold))
+                                .font(.caption)
+                                .foregroundStyle(Color.accentColor.opacity(0.6))
                         }
                     }
-                    .buttonStyle(PlainButtonStyle())
                 }
                 
                 Divider()
-                    .background(ColorSystem.shared.border(for: colorScheme))
+                    .background(Color.gameBorder)
                 
                 // Text Helpers
                 SettingRow(
@@ -255,67 +150,21 @@ struct SettingsView: View {
                     icon: "questionmark.circle.fill"
                 ) {
                     Toggle("", isOn: $settings.showTextHelpers)
-                        .toggleStyle(SwitchToggleStyle(tint: ColorSystem.shared.accent))
+                        .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
                         .scaleEffect(0.9)
-                }
-            }
-        }
-    }
-    
-    
-    private var audioSettingsSection: some View {
-        SettingsSection(title: "Sound & Haptics", icon: "speaker.wave.2.fill") {
-            VStack(spacing: 12) {
-                // Sound Enabled
-                SettingRow(
-                    title: "Sound Effects",
-                    subtitle: "Play audio feedback",
-                    icon: "speaker.fill"
-                ) {
-                    Toggle("", isOn: $settings.soundEnabled)
-                        .toggleStyle(SwitchToggleStyle(tint: ColorSystem.shared.accent))
-                        .scaleEffect(0.9)
-                }
-                
-                if settings.soundEnabled {
-                    Divider()
-                        .background(ColorSystem.shared.border(for: colorScheme))
-                    
-                    // Volume Slider
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            Image(systemName: "speaker.wave.1.fill")
-                                .font(.subheadline)
-                                .foregroundStyle(ColorSystem.shared.secondaryText(for: colorScheme))
-                            
-                            Text("Volume")
-                                .font(.subheadline)
-                                .foregroundStyle(ColorSystem.shared.primaryText(for: colorScheme))
-                            
-                            Spacer()
-                            
-                            Text("\(Int(settings.soundVolume * 100))%")
-                                .font(.subheadline.monospacedDigit())
-                                .foregroundStyle(ColorSystem.shared.secondaryText(for: colorScheme))
-                        }
-                        
-                        Slider(value: $settings.soundVolume, in: 0...1)
-                            .tint(ColorSystem.shared.accent)
-                    }
-                    .padding(.horizontal, 4)
                 }
                 
                 Divider()
-                    .background(ColorSystem.shared.border(for: colorScheme))
+                    .background(Color.gameBorder)
                 
-                // NEW: Haptic Feedback Toggle
+                // Haptic Feedback
                 SettingRow(
                     title: "Haptic Feedback",
                     subtitle: "Vibration feedback for actions",
                     icon: "iphone.radiowaves.left.and.right"
                 ) {
                     Toggle("", isOn: $settings.hapticEnabled)
-                        .toggleStyle(SwitchToggleStyle(tint: ColorSystem.shared.accent))
+                        .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
                         .scaleEffect(0.9)
                         .onChange(of: settings.hapticEnabled) { isEnabled in
                             if isEnabled {
@@ -328,32 +177,44 @@ struct SettingsView: View {
         }
     }
     
-    private var accessibilitySection: some View {
-        SettingsSection(title: "Accessibility", icon: "accessibility") {
+    private var audioSection: some View {
+        SettingsSection(title: "Audio", icon: "speaker.wave.2.fill") {
             VStack(spacing: 12) {
-                // Accessibility Text Size
+                // Sound Effects
                 SettingRow(
-                    title: "Use Accessibility Text Size",
-                    subtitle: "Respect system text size settings",
-                    icon: "textformat.size"
+                    title: "Sound Effects",
+                    subtitle: "Play sounds during gameplay",
+                    icon: "speaker.wave.1"
                 ) {
-                    Toggle("", isOn: $settings.useAccessibilityTextSize)
-                        .toggleStyle(SwitchToggleStyle(tint: ColorSystem.shared.accent))
+                    Toggle("", isOn: $settings.soundEnabled)
+                        .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
                         .scaleEffect(0.9)
                 }
                 
-                // Biometric Authentication
-                Divider()
-                    .background(ColorSystem.shared.border(for: colorScheme))
-                
-                SettingRow(
-                    title: "Biometric Authentication",
-                    subtitle: "Use Face ID or Touch ID",
-                    icon: "faceid"
-                ) {
-                    Toggle("", isOn: $settings.useBiometricAuth)
-                        .toggleStyle(SwitchToggleStyle(tint: ColorSystem.shared.accent))
-                        .scaleEffect(0.9)
+                // Volume Slider
+                if settings.soundEnabled {
+                    Divider()
+                        .background(Color.gameBorder)
+                    
+                    SettingRow(
+                        title: "Volume",
+                        subtitle: "Adjust sound effect volume",
+                        icon: "speaker.wave.2"
+                    ) {
+                        HStack(spacing: 12) {
+                            Image(systemName: "speaker.fill")
+                                .font(.caption)
+                                .foregroundStyle(Color.secondary)
+                            
+                            Slider(value: $settings.soundVolume, in: 0...1)
+                                .frame(width: 100)
+                                .tint(Color.accentColor)
+                            
+                            Image(systemName: "speaker.wave.3.fill")
+                                .font(.caption)
+                                .foregroundStyle(Color.secondary)
+                        }
+                    }
                 }
             }
         }
@@ -361,50 +222,60 @@ struct SettingsView: View {
     
     private var aboutSection: some View {
         SettingsSection(title: "About", icon: "info.circle.fill") {
-            VStack(spacing: 12) {
-                // App Version
-                SettingRow(
-                    title: "Version",
-                    subtitle: settings.appVersion,
-                    icon: "app.badge"
-                ) {
-                    EmptyView()
-                }
-                
-                Divider()
-                    .background(ColorSystem.shared.border(for: colorScheme))
-                
-                // More Info Button
-                Button(action: {
-                    showingAbout = true
-                }) {
+            VStack(spacing: 0) {
+                // About Button
+                Button(action: { showingAbout = true }) {
                     SettingRow(
-                        title: "About LoginBoy",
-                        subtitle: "App information and credits",
-                        icon: "heart.fill"
+                        title: "About Decodey",
+                        subtitle: "Version 1.0",
+                        icon: "questionmark.circle"
                     ) {
                         Image(systemName: "chevron.right")
-                            .foregroundStyle(ColorSystem.shared.secondaryText(for: colorScheme))
-                            .font(.caption.weight(.semibold))
+                            .font(.body)
+                            .foregroundStyle(Color.secondary)
+                    }
+                }
+                .buttonStyle(PlainButtonStyle())
+                
+                Divider()
+                    .background(Color.gameBorder)
+                
+                // Rate App
+                Button(action: { /* Rate app action */ }) {
+                    SettingRow(
+                        title: "Rate Decodey",
+                        subtitle: "Share your feedback",
+                        icon: "star"
+                    ) {
+                        Image(systemName: "arrow.up.forward.app")
+                            .font(.body)
+                            .foregroundStyle(Color.secondary)
+                    }
+                }
+                .buttonStyle(PlainButtonStyle())
+                
+                Divider()
+                    .background(Color.gameBorder)
+                
+                // Share App
+                Button(action: { /* Share app action */ }) {
+                    SettingRow(
+                        title: "Share Decodey",
+                        subtitle: "Tell your friends",
+                        icon: "square.and.arrow.up"
+                    ) {
+                        Image(systemName: "arrow.up.forward.app")
+                            .font(.body)
+                            .foregroundStyle(Color.secondary)
                     }
                 }
                 .buttonStyle(PlainButtonStyle())
             }
         }
     }
-    
-    // MARK: - Computed Properties
-    
-    private var difficultySubtitle: String {
-        switch settings.gameDifficulty.lowercased() {
-        case "easy": return "8 mistakes allowed"
-        case "hard": return "3 mistakes allowed"
-        default: return "5 mistakes allowed"
-        }
-    }
 }
 
-// MARK: - Supporting Views
+// MARK: - Section Container
 
 struct SettingsSection<Content: View>: View {
     let title: String
@@ -418,12 +289,12 @@ struct SettingsSection<Content: View>: View {
             // Section Header
             HStack(spacing: 8) {
                 Image(systemName: icon)
-                    .foregroundStyle(ColorSystem.shared.accent)
+                    .foregroundStyle(Color.accentColor)
                     .font(.body.weight(.medium))
                 
                 Text(title)
                     .font(.title3.weight(.semibold))
-                    .foregroundStyle(ColorSystem.shared.primaryText(for: colorScheme))
+                    .foregroundStyle(Color.primary)
             }
             .padding(.horizontal, 4)
             
@@ -435,11 +306,11 @@ struct SettingsSection<Content: View>: View {
             .padding(.vertical, 16)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(ColorSystem.shared.secondaryBackground(for: colorScheme))
+                    .fill(Color.gameSurface)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(ColorSystem.shared.border(for: colorScheme), lineWidth: 0.5)
+                    .stroke(Color.gameBorder, lineWidth: 0.5)
             )
         }
     }
@@ -458,7 +329,7 @@ struct SettingRow<Accessory: View>: View {
         HStack(spacing: 12) {
             // Icon
             Image(systemName: icon)
-                .foregroundStyle(ColorSystem.shared.accent)
+                .foregroundStyle(Color.accentColor)
                 .font(.body)
                 .frame(width: 24, height: 24)
             
@@ -466,12 +337,12 @@ struct SettingRow<Accessory: View>: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.body.weight(.medium))
-                    .foregroundStyle(ColorSystem.shared.primaryText(for: colorScheme))
+                    .foregroundStyle(Color.primary)
                 
                 if !subtitle.isEmpty {
                     Text(subtitle)
                         .font(.caption)
-                        .foregroundStyle(ColorSystem.shared.secondaryText(for: colorScheme))
+                        .foregroundStyle(Color.secondary)
                 }
             }
             
@@ -500,57 +371,58 @@ struct DifficultyPickerSheet: View {
                 Button("Cancel") {
                     dismiss()
                 }
-                .foregroundStyle(ColorSystem.shared.accent)
+                .foregroundStyle(Color.accentColor)
                 
                 Spacer()
                 
                 Text("Difficulty")
                     .font(.headline.weight(.semibold))
-                    .foregroundStyle(ColorSystem.shared.primaryText(for: colorScheme))
+                    .foregroundStyle(Color.primary)
                 
                 Spacer()
                 
                 Button("Done") {
                     dismiss()
                 }
-                .foregroundStyle(ColorSystem.shared.accent)
+                .foregroundStyle(Color.accentColor)
                 .fontWeight(.semibold)
             }
             .padding()
             
             Divider()
-                .background(ColorSystem.shared.border(for: colorScheme))
+                .background(Color.gameBorder)
             
-            // Difficulty Options
+            // Options
             VStack(spacing: 0) {
                 ForEach(difficulties, id: \.self) { difficulty in
                     Button(action: {
                         selectedDifficulty = difficulty
+                        dismiss()
                     }) {
                         HStack {
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(difficulty.capitalized)
                                     .font(.body.weight(.medium))
-                                    .foregroundStyle(ColorSystem.shared.primaryText(for: colorScheme))
+                                    .foregroundStyle(Color.primary)
                                 
                                 Text(difficultyDescription(difficulty))
                                     .font(.caption)
-                                    .foregroundStyle(ColorSystem.shared.secondaryText(for: colorScheme))
+                                    .foregroundStyle(Color.secondary)
                             }
                             
                             Spacer()
                             
                             if selectedDifficulty == difficulty {
                                 Image(systemName: "checkmark")
-                                    .foregroundStyle(ColorSystem.shared.accent)
                                     .font(.body.weight(.semibold))
+                                    .foregroundStyle(Color.accentColor)
                             }
                         }
                         .padding(.horizontal, 20)
-                        .padding(.vertical, 16)
+                        .padding(.vertical, 12)
                         .background(
                             selectedDifficulty == difficulty ?
-                            ColorSystem.shared.accent.opacity(0.1) :
+                            Color.accentColor.opacity(0.1) :
                             Color.clear
                         )
                     }
@@ -558,16 +430,16 @@ struct DifficultyPickerSheet: View {
                     
                     if difficulty != difficulties.last {
                         Divider()
-                            .background(ColorSystem.shared.border(for: colorScheme))
+                            .background(Color.gameBorder)
                             .padding(.leading, 20)
                     }
                 }
             }
-            .background(ColorSystem.shared.secondaryBackground(for: colorScheme))
+            .background(Color.gameSurface)
             
             Spacer()
         }
-        .background(ColorSystem.shared.primaryBackground(for: colorScheme))
+        .background(Color.gameBackground)
     }
     
     private func difficultyDescription(_ difficulty: String) -> String {
@@ -590,14 +462,14 @@ struct AboutSheet: View {
                 Button("Done") {
                     dismiss()
                 }
-                .foregroundStyle(ColorSystem.shared.accent)
+                .foregroundStyle(Color.accentColor)
                 .fontWeight(.semibold)
                 
                 Spacer()
                 
                 Text("About")
                     .font(.headline.weight(.semibold))
-                    .foregroundStyle(ColorSystem.shared.primaryText(for: colorScheme))
+                    .foregroundStyle(Color.primary)
                 
                 Spacer()
                 
@@ -609,29 +481,29 @@ struct AboutSheet: View {
             .padding()
             
             Divider()
-                .background(ColorSystem.shared.border(for: colorScheme))
+                .background(Color.gameBorder)
             
             ScrollView {
                 VStack(spacing: 32) {
                     // App Icon and Info
                     VStack(spacing: 16) {
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(ColorSystem.shared.accent.gradient)
+                            .fill(Color.accentColor.gradient)
                             .frame(width: 80, height: 80)
                             .overlay(
-                                Text("LB")
+                                Text("D")
                                     .font(.title.bold())
                                     .foregroundStyle(.white)
                             )
                         
                         VStack(spacing: 8) {
-                            Text("LoginBoy")
+                            Text("Decodey")
                                 .font(.title2.bold())
-                                .foregroundStyle(ColorSystem.shared.primaryText(for: colorScheme))
+                                .foregroundStyle(Color.primary)
                             
                             Text("A word puzzle game")
                                 .font(.body)
-                                .foregroundStyle(ColorSystem.shared.secondaryText(for: colorScheme))
+                                .foregroundStyle(Color.secondary)
                         }
                     }
                     
@@ -639,7 +511,7 @@ struct AboutSheet: View {
                     VStack(alignment: .leading, spacing: 16) {
                         Text("Features")
                             .font(.headline.weight(.semibold))
-                            .foregroundStyle(ColorSystem.shared.primaryText(for: colorScheme))
+                            .foregroundStyle(Color.primary)
                         
                         VStack(spacing: 12) {
                             FeatureRow(icon: "quote.bubble.fill", title: "Classic Quotes", description: "Solve puzzles from famous quotes")
@@ -655,7 +527,7 @@ struct AboutSheet: View {
                 .padding(.top, 32)
             }
         }
-        .background(ColorSystem.shared.primaryBackground(for: colorScheme))
+        .background(Color.gameBackground)
     }
 }
 
@@ -669,18 +541,18 @@ struct FeatureRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .foregroundStyle(ColorSystem.shared.accent)
+                .foregroundStyle(Color.accentColor)
                 .font(.title3)
                 .frame(width: 32, height: 32)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(title)
                     .font(.body.weight(.medium))
-                    .foregroundStyle(ColorSystem.shared.primaryText(for: colorScheme))
+                    .foregroundStyle(Color.primary)
                 
                 Text(description)
                     .font(.caption)
-                    .foregroundStyle(ColorSystem.shared.secondaryText(for: colorScheme))
+                    .foregroundStyle(Color.secondary)
             }
             
             Spacer()
