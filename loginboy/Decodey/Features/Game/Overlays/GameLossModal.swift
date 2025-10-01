@@ -12,10 +12,6 @@ struct GameLossModal: View {
     @State private var showButtons = false
     @State private var inkDrops: [InkDrop] = []
     
-    // REMOVED: Design system
-    // private let colors = ColorSystem.shared
-    // private let fonts = FontSystem.shared
-    
     // Editorial comments
     private let editorialComments = [
         "Not quite ready for publication...",
@@ -46,8 +42,8 @@ struct GameLossModal: View {
                             .foregroundColor(.secondary)
                         
                         Text(gameState.currentGame?.currentDisplay ?? "")
-                            .font(.gameDisplay)  // CHANGED: Using GameTheme font
-                            .foregroundColor(Color("GameGuess"))  // CHANGED: Using color asset
+                            .font(.gameDisplay)
+                            .foregroundColor(Color("GameGuess"))
                             .multilineTextAlignment(.center)
                             .lineSpacing(4)
                             .padding(.horizontal, 20)
@@ -97,7 +93,7 @@ struct GameLossModal: View {
                         .transition(.opacity)
                 }
                 
-                // Action buttons
+                // Action buttons - FIXED to enable infinite mode
                 if showButtons {
                     HStack(spacing: 16) {
                         // See Solution button
@@ -119,16 +115,17 @@ struct GameLossModal: View {
                                         )
                                 )
                         }
-                        .buttonStyle(PlainButtonStyle()) // Add explicit button style
+                        .buttonStyle(PlainButtonStyle())
                         
-                        // Keep Trying button (primary)
+                        // FIXED: Keep Trying button now enables infinite mode
                         Button(action: {
                             SoundManager.shared.play(.letterClick)
-                            gameState.showLoseMessage = false
+                            gameState.enableInfiniteMode()  // Enable infinite mode!
+                            gameState.showLoseMessage = false  // Dismiss modal
                         }) {
                             Text("Keep Trying")
                                 .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                .foregroundColor(.black) // Force explicit color
+                                .foregroundColor(.black)
                                 .padding(.horizontal, 32)
                                 .padding(.vertical, 12)
                                 .background(
@@ -136,7 +133,7 @@ struct GameLossModal: View {
                                         .fill(primaryButtonColor)
                                 )
                         }
-                        .buttonStyle(PlainButtonStyle()) // Add explicit button style
+                        .buttonStyle(PlainButtonStyle())
                     }
                     .transition(.scale.combined(with: .opacity))
                 }
@@ -156,6 +153,7 @@ struct GameLossModal: View {
         }
         .sheet(isPresented: $showSolutionOverlay) {
             SolutionOverlay()
+                .environmentObject(gameState)  // Pass gameState to solution overlay
         }
     }
     
@@ -188,25 +186,19 @@ struct GameLossModal: View {
         }
         
         // Typewriter effect for editorial comment
-        let comment = editorialComments.randomElement() ?? editorialComments[0]
-        var charIndex = 0
-        Timer.scheduledTimer(withTimeInterval: 0.03, repeats: true) { timer in
-            if charIndex < comment.count {
-                typewriterText.append(comment[comment.index(comment.startIndex, offsetBy: charIndex)])
-                charIndex += 1
-                
-                // Typewriter sound on every 3rd character
-                if charIndex % 3 == 0 {
+        let comment = editorialComments.randomElement() ?? "Try again, junior."
+        for (index, char) in comment.enumerated() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2 + Double(index) * 0.05) {
+                typewriterText.append(char)
+                if index % 5 == 0 {
                     SoundManager.shared.play(.letterClick)
                 }
-            } else {
-                timer.invalidate()
             }
         }
         
         // Show buttons
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            withAnimation(.spring(response: 0.4, dampingFraction: 0.7)) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                 showButtons = true
             }
         }
@@ -217,13 +209,7 @@ struct GameLossModal: View {
     private var backgroundColor: Color {
         colorScheme == .dark ?
             Color(hex: "1C1C1E") :
-            Color(hex: "F5F2E8") // Cream paper color
-    }
-    
-    private var modalBackground: Color {
-        colorScheme == .dark ?
-            Color.black.opacity(0.9) :
-            Color.white
+            Color(hex: "F2F2F7")
     }
     
     private var borderColor: Color {
@@ -234,20 +220,20 @@ struct GameLossModal: View {
     
     private var stampColor: Color {
         colorScheme == .dark ?
-            Color(hex: "FF453A") : // Bright red for dark mode
-            Color(hex: "C41E3A")   // Deep red for light mode
+            Color(hex: "FF453A") :
+            Color(hex: "FF3B30")
+    }
+    
+    private var modalBackground: Color {
+        colorScheme == .dark ?
+            Color(hex: "2C2C2E") :
+            Color.white
     }
     
     private var editorialTextColor: Color {
         colorScheme == .dark ?
-            Color.white.opacity(0.7) :
-            Color.black.opacity(0.7)
-    }
-    
-    private var primaryButtonColor: Color {
-        colorScheme == .dark ?
-            Color(hex: "4cc9f0") :
-            Color.blue
+            Color.white.opacity(0.6) :
+            Color.black.opacity(0.5)
     }
     
     private var secondaryButtonBackground: Color {
@@ -259,13 +245,19 @@ struct GameLossModal: View {
     private var secondaryButtonBorder: Color {
         colorScheme == .dark ?
             Color.white.opacity(0.2) :
-            Color.black.opacity(0.2)
+            Color.black.opacity(0.1)
     }
     
     private var secondaryButtonTextColor: Color {
         colorScheme == .dark ?
-            Color.white.opacity(0.8) :
-            Color.black.opacity(0.7)
+            Color.white.opacity(0.9) :
+            Color.black.opacity(0.6)
+    }
+    
+    private var primaryButtonColor: Color {
+        colorScheme == .dark ?
+            Color(hex: "0A84FF") :
+            Color(hex: "007AFF")
     }
 }
 
@@ -312,11 +304,8 @@ struct InkSplatterView: View {
 
 struct SolutionOverlay: View {
     @EnvironmentObject var gameState: GameState
+    @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
-    
-    // REMOVED: Design system
-    // private let colors = ColorSystem.shared
-    // private let fonts = FontSystem.shared
     
     var body: some View {
         ZStack {
@@ -333,59 +322,140 @@ struct SolutionOverlay: View {
                 // Solution text
                 VStack(spacing: 16) {
                     Text(gameState.currentGame?.solution ?? "")
-                        .font(.system(size: 20, weight: .medium, design: .serif))
-                        .foregroundColor(textColor)
+                        .font(.gameDisplay)
+                        .foregroundColor(.primary)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal, 24)
+                        .lineSpacing(8)
+                        .padding(24)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(backgroundColor)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .stroke(borderColor, lineWidth: 1)
+                                )
+                        )
                     
-                    if !gameState.quoteAuthor.isEmpty {
+                    // Author attribution
+                    VStack(spacing: 8) {
                         Text("— \(gameState.quoteAuthor)")
-                            .font(.system(size: 16, weight: .medium, design: .serif))
-                            .foregroundColor(.secondary)
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.primary)
+                        
+                        if let attribution = gameState.quoteAttribution, !attribution.isEmpty {
+                            Text(attribution)
+                                .font(.system(size: 14))
+                                .foregroundColor(.secondary)
+                                .italic()
+                        }
                     }
                 }
-                .padding(24)
-                .frame(maxWidth: 500)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(cardBackground)
-                )
                 
-                Button(action: {
-                    SoundManager.shared.play(.letterClick)
-                    gameState.showLoseMessage = false
-                    gameState.resetGame()
-                }) {
-                    Text("New Game")
-                        .font(.system(size: 16, weight: .semibold, design: .rounded))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 40)
-                        .padding(.vertical, 14)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(buttonColor)
-                        )
+                // Action buttons
+                VStack(spacing: 16) {
+                    // Primary: Start New Game
+                    Button(action: {
+                        SoundManager.shared.play(.letterClick)
+                        dismiss()
+                        gameState.showLoseMessage = false
+                        
+                        // Start new game after small delay
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            if gameState.isDailyChallenge {
+                                gameState.setupCustomGame()  // Switch to random after daily
+                            } else {
+                                gameState.setupCustomGame()  // New random game
+                            }
+                        }
+                    }) {
+                        Text("Start New Game")
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 32)
+                            .padding(.vertical, 14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(primaryButtonColor)
+                            )
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    // Secondary: Enable Infinite Mode
+                    Button(action: {
+                        SoundManager.shared.play(.correctGuess)
+                        dismiss()
+                        gameState.enableInfiniteMode()  // Enable infinite mode
+                        gameState.showLoseMessage = false
+                    }) {
+                        Text("Enable Infinite Mode")
+                            .font(.system(size: 14, weight: .medium, design: .rounded))
+                            .foregroundColor(infiniteButtonTextColor)
+                            .padding(.horizontal, 24)
+                            .padding(.vertical, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .fill(secondaryButtonBackground)
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(infiniteButtonBorder, lineWidth: 1)
+                                    )
+                            )
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
             }
-            .padding(32)
+            .padding(40)
+            .frame(maxWidth: 600)
+            .background(
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(modalBackground)
+                    .shadow(radius: 30)
+            )
         }
     }
     
-    private var textColor: Color {
+    // MARK: - Computed Color Properties
+    
+    private var backgroundColor: Color {
         colorScheme == .dark ?
-            Color.white : Color.black
+            Color(hex: "2C2C2E") :
+            Color(hex: "F2F2F7")
     }
     
-    private var cardBackground: Color {
+    private var borderColor: Color {
+        colorScheme == .dark ?
+            Color.white.opacity(0.15) :
+            Color.black.opacity(0.1)
+    }
+    
+    private var modalBackground: Color {
         colorScheme == .dark ?
             Color(hex: "1C1C1E") :
-            Color(hex: "F5F2E8")
+            Color.white
     }
     
-    private var buttonColor: Color {
+    private var primaryButtonColor: Color {
         colorScheme == .dark ?
-            Color(hex: "4cc9f0") :
-            Color.blue
+            Color(hex: "0A84FF") :
+            Color(hex: "007AFF")
+    }
+    
+    private var secondaryButtonBackground: Color {
+        colorScheme == .dark ?
+            Color.yellow.opacity(0.1) :
+            Color.yellow.opacity(0.08)
+    }
+    
+    private var infiniteButtonBorder: Color {
+        colorScheme == .dark ?
+            Color.yellow.opacity(0.4) :
+            Color.orange.opacity(0.3)
+    }
+    
+    private var infiniteButtonTextColor: Color {
+        colorScheme == .dark ?
+            Color.yellow :
+            Color.orange
     }
 }
 

@@ -1,11 +1,13 @@
+// HintButtonView.swift - Fixed version with correct hint counting
 import SwiftUI
 
 struct HintButtonView: View {
-    let remainingHints: Int
+    let remainingHints: Int  // This is actually remaining mistakes (maxMistakes - mistakes)
     let isLoading: Bool
-    let isDarkMode: Bool  // Can probably remove this
+    let isDarkMode: Bool
     let onHintRequested: () -> Void
     
+    @EnvironmentObject var gameState: GameState  // ADD THIS
     @Environment(\.colorScheme) var colorScheme
     @State private var isPressed = false
     
@@ -16,23 +18,38 @@ struct HintButtonView: View {
         4: "FOUR█",
         3: "THREE",
         2: "█TWO█",
-        1: "█ONE█"
+        1: "█ONE█",
+        0: "EMPTY"
     ]
     
-    // CHANGED: Button is disabled when remainingHints <= 0 (not <= 1)
-    // When remainingHints = 1, you can still use that last hint
+    // Special text for infinite mode
+    private let infiniteText = "█∞█∞█"
+    
+    // FIXED: Calculate actual hints available
+    private var actualHintsAvailable: Int {
+        // In infinite mode, always show infinite
+        if gameState.isInfiniteMode {
+            return 999  // Special value for infinite
+        }
+        // Normal mode - keep 1 mistake in reserve
+        return max(0, remainingHints - 1)
+    }
+    
+    // Button is disabled logic
     private var isDisabled: Bool {
-        isLoading || remainingHints <= 0
+        // Never disabled in infinite mode
+        if gameState.isInfiniteMode {
+            return isLoading
+        }
+        // Normal mode - disabled when no hints available
+        return isLoading || actualHintsAvailable <= 0
     }
     
     var body: some View {
-        // CHANGED: Wrap in a Group and conditionally apply button vs non-interactive view
         Group {
             if isDisabled {
-                // Non-interactive view when disabled
                 disabledView
             } else {
-                // Interactive button when enabled
                 Button(action: onHintRequested) {
                     buttonContent
                 }
@@ -46,60 +63,76 @@ struct HintButtonView: View {
         }
     }
     
-    // MARK: - Button Content (extracted for reuse)
-    
     private var buttonContent: some View {
         VStack(spacing: 2) {
-            // Crossword-style display
-            Text(hintTexts[remainingHints] ?? "█ONE█")  // CHANGED: Default to "ONE" for safety
-                .font(.hintValue)
-                .foregroundColor(textColor)
-                .tracking(2)
-                .frame(height: 40)
-                .overlay(
-                    isLoading ?
-                    ProgressView()
-                        .progressViewStyle(CircularProgressViewStyle(tint: textColor))
-                        .scaleEffect(0.8) : nil
-                )
+            // Display text based on mode
+            if gameState.isInfiniteMode {
+                Text(infiniteText)  // Show infinity symbol in infinite mode
+                    .font(.hintValue)
+                    .foregroundColor(.green)  // Green for infinite mode
+                    .tracking(2)
+                    .frame(height: 40)
+            } else {
+                Text(hintTexts[actualHintsAvailable] ?? "EMPTY")
+                    .font(.hintValue)
+                    .foregroundColor(textColor)
+                    .tracking(2)
+                    .frame(height: 40)
+            }
+            
+            // Loading overlay
+            if isLoading {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: textColor))
+                    .scaleEffect(0.8)
+            }
             
             // Label
-            Text("HINT TOKENS")
+            Text(gameState.isInfiniteMode ? "INFINITE MODE" : "HINT TOKENS")
                 .font(.hintLabel)
-                .foregroundColor(textColor.opacity(0.7))
+                .foregroundColor(gameState.isInfiniteMode ?
+                    Color.green.opacity(0.7) : textColor.opacity(0.7))
                 .tracking(1)
         }
         .frame(width: 140, height: 80)
-        .background(.gameBackground)  // Use system semantic color
+        .background(.gameBackground)
         .cornerRadius(GameLayout.cornerRadius)
         .overlay(
             RoundedRectangle(cornerRadius: GameLayout.cornerRadius)
-                .strokeBorder(Color.cellBorder, lineWidth: 1)
+                .strokeBorder(
+                    gameState.isInfiniteMode ? Color.green : Color.cellBorder,
+                    lineWidth: 1
+                )
         )
-        .shadow(color: shadowColor, radius: isPressed ? 2 : 8, x: 0, y: isPressed ? 1 : 4)
+        .shadow(
+            color: gameState.isInfiniteMode ?
+                Color.green.opacity(0.3) : shadowColor,
+            radius: isPressed ? 2 : 8,
+            x: 0,
+            y: isPressed ? 1 : 4
+        )
         .scaleEffect(isPressed ? 0.95 : 1.0)
     }
-    
-    // MARK: - Disabled View (non-interactive)
+    // MARK: - Disabled View
     
     private var disabledView: some View {
         buttonContent
-            .opacity(0.6) // Visual indication it's disabled
-            .allowsHitTesting(false) // Completely prevent interaction
+            .opacity(0.6)
+            .allowsHitTesting(false)
     }
     
     // MARK: - Computed Color Properties
     
     private var textColor: Color {
-        switch remainingHints {
+        switch actualHintsAvailable {
         case 0:
-            return .hintDanger  // Should never be clickable at 0
+            return .hintDanger  // No hints available
         case 1:
-            return .hintDanger  // Last usable hint - red/danger
+            return .hintDanger  // Last hint available
         case 2...3:
-            return .hintWarning  // Getting low - orange/warning
+            return .hintWarning  // Getting low
         default:
-            return .hintSafe  // Plenty left - blue/safe
+            return .hintSafe  // Plenty left
         }
     }
     

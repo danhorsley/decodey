@@ -186,10 +186,23 @@ struct GameGridsView: View {
     private func handleHintRequest() {
         guard !isHintInProgress else { return }
         
-        // CHANGED: Check if we have hints remaining (when mistakes == maxMistakes, no hints left)
         guard let game = gameState.currentGame else { return }
+        
+        // FIXED: In infinite mode, always allow hints
+        if gameState.isInfiniteMode {
+            isHintInProgress = true
+            SoundManager.shared.play(.hint)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                gameState.getHint()
+                isHintInProgress = false
+            }
+            return
+        }
+        
+        // Normal mode - check if we have hints remaining
         let remainingHints = game.maxMistakes - game.mistakes
-        guard remainingHints > 0 else { return }  // CHANGED: Block at 0 hints
+        guard remainingHints > 1 else { return }  // Keep 1 mistake in reserve
         
         isHintInProgress = true
         SoundManager.shared.play(.hint)
@@ -200,7 +213,6 @@ struct GameGridsView: View {
         }
     }
 }
-
 // MARK: - Preview
 
 struct GameGridsView_Previews: PreviewProvider {

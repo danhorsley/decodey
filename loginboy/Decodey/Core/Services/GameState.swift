@@ -432,14 +432,15 @@ class GameState: ObservableObject {
         // Save game state
         saveGameState(game)
         
-        // Check game status
+        // Check game status - FIXED: Don't show loss modal in infinite mode
         if game.hasWon {
             submitScore()
             saveCompletedGameStats(game, won: true)
             winModalIsDaily = isDailyChallenge
             showWinMessage = true
             SoundManager.shared.play(.win)
-        } else if game.hasLost {
+            isInfiniteMode = false  // Reset infinite mode on win
+        } else if game.hasLost && !isInfiniteMode {  // FIXED: Only show loss if NOT in infinite mode
             submitScore()
             saveCompletedGameStats(game, won: false)
             loseModalIsDaily = isDailyChallenge
@@ -447,7 +448,7 @@ class GameState: ObservableObject {
             SoundManager.shared.play(.lose)
         }
     }
-    //select first letter
+        //select first letter
     func selectLetter(_ letter: Character) {
         guard var game = currentGame else { return }
         game.selectLetter(letter)
@@ -603,14 +604,14 @@ class GameState: ObservableObject {
     func getHint() {
         guard var game = currentGame else { return }
         
-        // CHANGED: Only allow hint if we have hints remaining
+        // Only allow hint if we have more than 1 mistake remaining
         let remainingHints = game.maxMistakes - game.mistakes
-        guard remainingHints > 0 else { return }
+        guard remainingHints > 1 else { return }
         
-        let _ = game.getHint()  // This calls the GameModel's getHint which increments mistakes
+        let _ = game.getHint()  // This increments mistakes
         self.currentGame = game
         
-        // ADDED: Check if game is lost after using hint
+        // Check if game is lost after using hint
         if game.mistakes >= game.maxMistakes {
             game.hasLost = true
             self.currentGame = game
@@ -627,6 +628,7 @@ class GameState: ObservableObject {
             SoundManager.shared.play(.win)
         }
     }
+    
     /// Reset current game
     func resetGame() {
         guard let game = currentGame else { return }
@@ -651,24 +653,23 @@ class GameState: ObservableObject {
         
         // Start new game of same type
         if isDailyChallenge {
-            setupDailyChallenge()
-        } else {
-            setupCustomGame()
+                    setupDailyChallenge()
+                } else {
+                    setupCustomGame()
+                }
+            }
+            
+            // FIXED: Setup new game should reset infinite mode
+            func setupCustomGame() {
+                isInfiniteMode = false  // Reset infinite mode
+                loadOrCreateGame(isDaily: false)
+            }
+            
+            func setupDailyChallenge() {
+                isInfiniteMode = false  // Reset infinite mode
+                loadOrCreateGame(isDaily: true)
+            }
         }
-    }
-    
-    // MARK: - Public Methods for Backwards Compatibility
-    
-    /// Setup daily challenge (for existing code)
-    func setupDailyChallenge() {
-        loadOrCreateGame(isDaily: true)
-    }
-    
-    /// Setup custom game (for existing code)
-    func setupCustomGame() {
-        loadOrCreateGame(isDaily: false)
-    }
-}
 
 // MARK: - Helper Extensions
 extension Dictionary where Key == String, Value == String {
