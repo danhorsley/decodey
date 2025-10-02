@@ -8,6 +8,8 @@ struct EnhancedEncryptedLetterCell: View {
     let isGuessed: Bool
     let frequency: Int
     let action: () -> Void
+    let highlightState: HighlightState
+    
     
     @Environment(\.colorScheme) var colorScheme
     @State private var isPressed = false
@@ -112,13 +114,20 @@ struct EnhancedGuessLetterCell: View {
     let isUsed: Bool
     let isIncorrectForSelected: Bool
     let action: () -> Void
+    let highlightState: HighlightState  // ADD THIS
     
     @Environment(\.colorScheme) var colorScheme
     @State private var isPressed = false
     @State private var showRipple = false
     
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            action()
+            // Optionally trigger highlight for guess letters too
+            if !isUsed && !isIncorrectForSelected {
+                highlightState.highlightLetter(letter)
+            }
+        }) {
             ZStack {
                 if colorScheme == .dark {
                     LaserKeyShape(isPressed: isPressed)
@@ -127,6 +136,7 @@ struct EnhancedGuessLetterCell: View {
                     AppleKeyShape(isPressed: isPressed)
                         .opacity(isUsed || isIncorrectForSelected ? 0.5 : 1.0)
                 }
+                
                 // border
                 if !isUsed && !isIncorrectForSelected && colorScheme == .dark {
                     RoundedRectangle(cornerRadius: GameLayout.cornerRadius)
@@ -139,30 +149,30 @@ struct EnhancedGuessLetterCell: View {
                             radius: 10
                         )
                 }
+                
                 // Letter
                 Text(String(letter))
                     .font(.gameCell)
                     .foregroundColor(letterColor)
                     .offset(y: isPressed ? 0 : -1)
                 
-                // Holographic ripple
+                // Holographic ripple effect for dark mode
                 if colorScheme == .dark && showRipple {
                     LaserRippleEffect()
                 }
-                
-                // Red X for incorrect
-                if isIncorrectForSelected {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundColor(.red.opacity(0.8))
-                }
             }
-            .frame(width: 56, height: 44)
+            .frame(width: 56, height: 44) // Keyboard key proportions
             .scaleEffect(isPressed ? 0.95 : 1.0)
             .animation(.easeOut(duration: 0.1), value: isPressed)
         }
         .buttonStyle(PlainButtonStyle())
         .disabled(isUsed || isIncorrectForSelected)
+        .opacity(isUsed || isIncorrectForSelected ? 0.7 : 1.0)
+        .highlightable(  // ADD THIS if using the modifier approach
+            for: letter,
+            state: highlightState,
+            style: .cell
+        )
         .onLongPressGesture(
             minimumDuration: 0,
             maximumDistance: .infinity,
@@ -180,10 +190,12 @@ struct EnhancedGuessLetterCell: View {
     }
     
     private var letterColor: Color {
-        if isUsed || isIncorrectForSelected {
+        if isUsed {
             return Color.secondary
+        } else if isIncorrectForSelected {
+            return Color.red.opacity(0.8)
         } else {
-            // Match the guess text color from the display
+            // Match the solution text color
             return .gameGuess
         }
     }
@@ -323,44 +335,44 @@ extension Color {
     }
 }
 
-// MARK: - Preview Provider
-struct EnhancedLetterCells_Previews: PreviewProvider {
-    static var previews: some View {
-        Group {
-            // Light mode
-            VStack(spacing: 20) {
-                HStack(spacing: 10) {
-                    EnhancedEncryptedLetterCell(letter: "A", isSelected: false, isGuessed: false, frequency: 3, action: {})
-                    EnhancedEncryptedLetterCell(letter: "B", isSelected: true, isGuessed: false, frequency: 1, action: {})
-                    EnhancedEncryptedLetterCell(letter: "C", isSelected: false, isGuessed: true, frequency: 0, action: {})
-                }
-                
-                HStack(spacing: 10) {
-                    EnhancedGuessLetterCell(letter: "X", isUsed: false, isIncorrectForSelected: false, action: {})
-                    EnhancedGuessLetterCell(letter: "Y", isUsed: true, isIncorrectForSelected: false, action: {})
-                    EnhancedGuessLetterCell(letter: "Z", isUsed: false, isIncorrectForSelected: true, action: {})
-                }
-            }
-            .padding()
-            .preferredColorScheme(.light)
-            
-            // Dark mode
-            VStack(spacing: 20) {
-                HStack(spacing: 10) {
-                    EnhancedEncryptedLetterCell(letter: "A", isSelected: false, isGuessed: false, frequency: 3, action: {})
-                    EnhancedEncryptedLetterCell(letter: "B", isSelected: true, isGuessed: false, frequency: 1, action: {})
-                    EnhancedEncryptedLetterCell(letter: "C", isSelected: false, isGuessed: true, frequency: 0, action: {})
-                }
-                
-                HStack(spacing: 10) {
-                    EnhancedGuessLetterCell(letter: "X", isUsed: false, isIncorrectForSelected: false, action: {})
-                    EnhancedGuessLetterCell(letter: "Y", isUsed: true, isIncorrectForSelected: false, action: {})
-                    EnhancedGuessLetterCell(letter: "Z", isUsed: false, isIncorrectForSelected: true, action: {})
-                }
-            }
-            .padding()
-            .background(Color.black)
-            .preferredColorScheme(.dark)
-        }
-    }
-}
+//// MARK: - Preview Provider
+//struct EnhancedLetterCells_Previews: PreviewProvider {
+//    static var previews: some View {
+//        Group {
+//            // Light mode
+//            VStack(spacing: 20) {
+//                HStack(spacing: 10) {
+//                    EnhancedEncryptedLetterCell(letter: "A", isSelected: false, isGuessed: false, frequency: 3, action: {})
+//                    EnhancedEncryptedLetterCell(letter: "B", isSelected: true, isGuessed: false, frequency: 1, action: {})
+//                    EnhancedEncryptedLetterCell(letter: "C", isSelected: false, isGuessed: true, frequency: 0, action: {})
+//                }
+//                
+//                HStack(spacing: 10) {
+//                    EnhancedGuessLetterCell(letter: "X", isUsed: false, isIncorrectForSelected: false, action: {})
+//                    EnhancedGuessLetterCell(letter: "Y", isUsed: true, isIncorrectForSelected: false, action: {})
+//                    EnhancedGuessLetterCell(letter: "Z", isUsed: false, isIncorrectForSelected: true, action: {})
+//                }
+//            }
+//            .padding()
+//            .preferredColorScheme(.light)
+//            
+//            // Dark mode
+//            VStack(spacing: 20) {
+//                HStack(spacing: 10) {
+//                    EnhancedEncryptedLetterCell(letter: "A", isSelected: false, isGuessed: false, frequency: 3, action: {})
+//                    EnhancedEncryptedLetterCell(letter: "B", isSelected: true, isGuessed: false, frequency: 1, action: {})
+//                    EnhancedEncryptedLetterCell(letter: "C", isSelected: false, isGuessed: true, frequency: 0, action: {})
+//                }
+//                
+//                HStack(spacing: 10) {
+//                    EnhancedGuessLetterCell(letter: "X", isUsed: false, isIncorrectForSelected: false, action: {})
+//                    EnhancedGuessLetterCell(letter: "Y", isUsed: true, isIncorrectForSelected: false, action: {})
+//                    EnhancedGuessLetterCell(letter: "Z", isUsed: false, isIncorrectForSelected: true, action: {})
+//                }
+//            }
+//            .padding()
+//            .background(Color.black)
+//            .preferredColorScheme(.dark)
+//        }
+//    }
+//}

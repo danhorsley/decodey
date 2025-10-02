@@ -9,6 +9,7 @@ import SwiftUI
 struct GamePlayView: View {
     @EnvironmentObject var gameState: GameState
     @EnvironmentObject var settingsState: SettingsState
+    @StateObject private var highlightState = HighlightState()
     
     // Layout constants
     private let maxContentWidth: CGFloat = 600
