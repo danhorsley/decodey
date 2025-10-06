@@ -6,29 +6,29 @@ import Combine
 class GameState: ObservableObject {
     static let shared = GameState()
     
-    // MARK: - Published Properties (keep existing ones)
+    // MARK: - Published Properties
     @Published var currentGame: GameModel?
     @Published var isDailyChallenge = false
     @Published var isLoading = false
     @Published var errorMessage: String?
     @Published var defaultDifficulty = "medium"
     
-    // Quote information (keep existing)
+    // Quote information
     @Published var quoteAuthor = ""
     @Published var quoteAttribution: String?
     @Published var quoteDate: String?
     
-    // Modal states (keep existing)
+    // Modal states
     @Published var showWinMessage = false
     @Published var showLoseMessage = false
     @Published var winModalIsDaily = false
     @Published var loseModalIsDaily = false
     @Published var isInfiniteMode = false
     
-    //Turorial
+    //Tutorial
     @Published var showTutorial = true
     
-    // Game display states (keep existing)
+    // Game display states
     @Published var selectedEncryptedLetter: Character?
     @Published var selectedGuessLetter: Character?
     @Published var userGuessedLetter: Character?
@@ -36,11 +36,11 @@ class GameState: ObservableObject {
     @Published var messageTitle = ""
     @Published var messageText = ""
     
-    // Store completed game stats (keep existing)
+    // Store completed game stats
     public var lastDailyGameStats: CompletedGameStats?
     public var lastCustomGameStats: CompletedGameStats?
     
-    // For completed games (keep existing)
+    // For completed games
     struct CompletedGameStats {
         let solution: String
         let author: String
@@ -78,6 +78,8 @@ class GameState: ObservableObject {
         let todayString = DateFormatter.yyyyMMdd.string(from: Date())
         let dailyUUID = dailyStringToUUID("daily-\(todayString)")
         
+        print("🔍 Loading daily for date: \(todayString), UUID: \(dailyUUID)")
+        
         // Check if today's daily exists
         let fetchRequest: NSFetchRequest<GameCD> = GameCD.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "gameId == %@", dailyUUID as CVarArg)
@@ -85,9 +87,13 @@ class GameState: ObservableObject {
         
         do {
             if let dailyGame = try context.fetch(fetchRequest).first {
-                // Daily exists
+                print("📦 Found daily - isActive: \(dailyGame.isActive), mistakes: \(dailyGame.mistakes), hasWon: \(dailyGame.hasWon), hasLost: \(dailyGame.hasLost)")
+                print("   Guessed mappings data size: \(dailyGame.guessedMappings?.count ?? 0) bytes")
+                
+                // Daily exists - check completion status
                 if dailyGame.hasWon || dailyGame.hasLost {
                     // Completed - just load for display
+                    print("✅ Daily is completed, loading for display")
                     loadGameFromEntity(dailyGame)
                     if dailyGame.hasWon {
                         showWinMessage = true
@@ -97,17 +103,21 @@ class GameState: ObservableObject {
                         loseModalIsDaily = true
                     }
                 } else {
-                    // In progress - make active and load
+                    // In progress - ensure it's active and load
+                    print("🎮 Daily in progress, marking as active and loading")
                     deactivateOtherGames(ofType: true)
                     dailyGame.isActive = true
-                    try? context.save()
+                    try? context.save()  // Changed back to try? to not throw
                     loadGameFromEntity(dailyGame)
+                    print("   Loaded game has \(currentGame?.guessedMappings.count ?? 0) guessed letters, \(currentGame?.mistakes ?? 0) mistakes")
                 }
             } else {
                 // No daily exists - create new
+                print("🆕 No daily found, creating new one")
                 createNewDailyGame()
             }
         } catch {
+            print("❌ Error loading daily: \(error)")
             errorMessage = "Failed to load daily: \(error.localizedDescription)"
         }
     }
@@ -150,25 +160,25 @@ class GameState: ObservableObject {
     
     // MARK: Time recording
     func startTrackingTime() {
-            playTimer?.invalidate()
-            playTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-                if var game = self.currentGame, !game.hasWon && !game.hasLost {
-                    game.activeSeconds += 1
-                    game.lastUpdateTime = Date()  // Already exists!
-                    self.currentGame = game
-                }
+        playTimer?.invalidate()
+        playTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            if var game = self.currentGame, !game.hasWon && !game.hasLost {
+                game.activeSeconds += 1
+                game.lastUpdateTime = Date()
+                self.currentGame = game
             }
         }
-        
+    }
+    
     func stopTrackingTime() {
         playTimer?.invalidate()
         playTimer = nil
         if let game = currentGame {
-            saveGameState(game)  // Save accumulated time
+            saveGameState(game)
         }
     }
     
-    // MARK: - Game Creation (Updated with isActive)
+    // MARK: - Game Creation
     
     private func createNewDailyGame() {
         guard let quote = DailyChallengeManager.shared.getTodaysDailyQuote() else {
@@ -234,7 +244,7 @@ class GameState: ObservableObject {
             text: randomQuote.text ?? "",
             author: randomQuote.author ?? "Unknown",
             attribution: randomQuote.attribution,
-            difficulty: randomQuote.difficulty,
+            difficulty: randomQuote.difficulty
         )
         setupGameEntity(gameEntity, from: quote)
         
@@ -247,7 +257,7 @@ class GameState: ObservableObject {
         }
     }
     
-    // MARK: - Helper Methods (Keep Existing)
+    // MARK: - Helper Methods
     
     /// Get max mistakes based on difficulty
     private func getMaxMistakesForDifficulty(_ difficulty: String) -> Int {
@@ -258,7 +268,7 @@ class GameState: ObservableObject {
         }
     }
     
-    /// Generate cryptogram mapping (keep existing)
+    /// Generate cryptogram mapping
     private func generateCryptogramMapping(for text: String) -> [Character: Character] {
         let alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
         let shuffled = alphabet.shuffled()
@@ -270,7 +280,7 @@ class GameState: ObservableObject {
         return mapping
     }
     
-    /// Encrypt text (keep existing)
+    /// Encrypt text
     private func encryptText(_ text: String, with mapping: [Character: Character]) -> String {
         let reversedMapping = Dictionary(uniqueKeysWithValues: mapping.map { ($1, $0) })
         
@@ -362,7 +372,7 @@ class GameState: ObservableObject {
             }
         }
         
-        self.currentGame = GameModel(
+        var loadedGame = GameModel(
             gameId: gameIdString,
             encrypted: entity.encrypted ?? "",
             solution: entity.solution ?? "",
@@ -379,6 +389,11 @@ class GameState: ObservableObject {
             startTime: entity.startTime ?? Date(),
             lastUpdateTime: entity.lastUpdateTime ?? Date()
         )
+        
+        // Load activeSeconds
+        loadedGame.activeSeconds = Int(entity.activeSeconds)
+        
+        self.currentGame = loadedGame
         
         self.isDailyChallenge = entity.isDaily
         
@@ -411,9 +426,9 @@ class GameState: ObservableObject {
         return UUID(uuidString: uuidString) ?? UUID()
     }
     
-    // MARK: - Game Actions (Keep Existing)
+    // MARK: - Game Actions
     
-    /// Make a guess (keep existing implementation)
+    /// Make a guess
     func makeGuess(for encryptedLetter: Character, with guessedLetter: Character) {
         guard var game = currentGame else { return }
         
@@ -432,15 +447,15 @@ class GameState: ObservableObject {
         // Save game state
         saveGameState(game)
         
-        // Check game status - FIXED: Don't show loss modal in infinite mode
+        // Check game status - Don't show loss modal in infinite mode
         if game.hasWon {
             submitScore()
             saveCompletedGameStats(game, won: true)
             winModalIsDaily = isDailyChallenge
             showWinMessage = true
             SoundManager.shared.play(.win)
-            isInfiniteMode = false  // Reset infinite mode on win
-        } else if game.hasLost && !isInfiniteMode {  // FIXED: Only show loss if NOT in infinite mode
+            isInfiniteMode = false
+        } else if game.hasLost && !isInfiniteMode {
             submitScore()
             saveCompletedGameStats(game, won: false)
             loseModalIsDaily = isDailyChallenge
@@ -448,7 +463,8 @@ class GameState: ObservableObject {
             SoundManager.shared.play(.lose)
         }
     }
-        //select first letter
+    
+    // Select first letter
     func selectLetter(_ letter: Character) {
         guard var game = currentGame else { return }
         game.selectLetter(letter)
@@ -462,12 +478,11 @@ class GameState: ObservableObject {
         // Remove the loss state but keep the game going
         if var game = currentGame {
             game.hasLost = false
-            game.maxMistakes = 999  // Effectively unlimited
+            game.maxMistakes = 999
             self.currentGame = game
         }
-        
-        print("🎮 Infinite mode enabled - unlimited mistakes!")
     }
+    
     /// Save current game state to Core Data
     func saveGameState(_ game: GameModel) {
         guard let gameId = game.gameId else { return }
@@ -485,37 +500,43 @@ class GameState: ObservableObject {
         fetchRequest.predicate = NSPredicate(format: "gameId == %@", gameUUID as CVarArg)
         fetchRequest.fetchLimit = 1
         
-        guard let entity = try? context.fetch(fetchRequest).first else { return }
-        
-        // Update entity
-        entity.currentDisplay = game.currentDisplay
-        entity.mistakes = Int16(game.mistakes)
-        entity.hasWon = game.hasWon
-        entity.hasLost = game.hasLost
-        entity.lastUpdateTime = Date()
-        
-        // Deactivate if completed
-        if game.hasWon || game.hasLost {
-            entity.isActive = false
+        do {
+            guard let entity = try context.fetch(fetchRequest).first else {
+                return
+            }
+            
+            // Update entity
+            entity.currentDisplay = game.currentDisplay
+            entity.mistakes = Int16(game.mistakes)
+            entity.hasWon = game.hasWon
+            entity.hasLost = game.hasLost
+            entity.lastUpdateTime = Date()
+            entity.activeSeconds = Int32(game.activeSeconds)
+            
+            // Deactivate if completed
+            if game.hasWon || game.hasLost {
+                entity.isActive = false
+            }
+            
+            // Update mappings
+            entity.mapping = try? JSONEncoder().encode(game.mapping.mapToStringDict())
+            entity.guessedMappings = try? JSONEncoder().encode(game.guessedMappings.mapToStringDict())
+            
+            var incorrectDict = [String: [String]]()
+            for (key, values) in game.incorrectGuesses {
+                incorrectDict[String(key)] = Array(values).map { String($0) }
+            }
+            entity.incorrectGuesses = try? JSONEncoder().encode(incorrectDict)
+            
+            try context.save()
+        } catch {
+            // Silently fail
         }
-        
-        // Update mappings
-        entity.mapping = try? JSONEncoder().encode(game.mapping.mapToStringDict())
-        entity.guessedMappings = try? JSONEncoder().encode(game.guessedMappings.mapToStringDict())
-        
-        var incorrectDict = [String: [String]]()
-        for (key, values) in game.incorrectGuesses {
-            incorrectDict[String(key)] = Array(values).map { String($0) }
-        }
-        entity.incorrectGuesses = try? JSONEncoder().encode(incorrectDict)
-        
-        try? context.save()
     }
     
-    /// Submit score (keep existing implementation)
+    /// Submit score
     func submitScore() {
         guard let game = currentGame, game.hasWon || game.hasLost else {
-            print("⚠️ Cannot submit score - no valid completed game")
             return
         }
         
@@ -524,8 +545,6 @@ class GameState: ObservableObject {
         
         let finalScore = game.calculateScore()
         let timeTaken = Int(game.lastUpdateTime.timeIntervalSince(game.startTime))
-        
-        print("📊 Submitting score - Score: \(finalScore), Time: \(timeTaken)s, Won: \(game.hasWon)")
         
         // Update stats
         identityManager.updateStatsAfterGame(
@@ -557,7 +576,7 @@ class GameState: ObservableObject {
                     gameEntity.hasWon = game.hasWon
                     gameEntity.hasLost = game.hasLost
                     gameEntity.timeTaken = Int32(timeTaken)
-                    gameEntity.isActive = false  // Ensure it's deactivated
+                    gameEntity.isActive = false
                 }
                 
                 try context.save()
@@ -572,7 +591,7 @@ class GameState: ObservableObject {
                 }
             }
         } catch {
-            print("❌ Error saving game record: \(error)")
+            // Error saving game record
         }
     }
     
@@ -598,7 +617,7 @@ class GameState: ObservableObject {
         }
     }
     
-    // MARK: - Other Game Actions (Keep Existing)
+    // MARK: - Other Game Actions
     
     /// Use a hint
     func getHint() {
@@ -608,8 +627,11 @@ class GameState: ObservableObject {
         let remainingHints = game.maxMistakes - game.mistakes
         guard remainingHints > 1 else { return }
         
-        let _ = game.getHint()  // This increments mistakes
+        let _ = game.getHint()
         self.currentGame = game
+        
+        // CRITICAL: Save the game state after using hint
+        saveGameState(game)
         
         // Check if game is lost after using hint
         if game.mistakes >= game.maxMistakes {
@@ -653,23 +675,22 @@ class GameState: ObservableObject {
         
         // Start new game of same type
         if isDailyChallenge {
-                    setupDailyChallenge()
-                } else {
-                    setupCustomGame()
-                }
-            }
-            
-            // FIXED: Setup new game should reset infinite mode
-            func setupCustomGame() {
-                isInfiniteMode = false  // Reset infinite mode
-                loadOrCreateGame(isDaily: false)
-            }
-            
-            func setupDailyChallenge() {
-                isInfiniteMode = false  // Reset infinite mode
-                loadOrCreateGame(isDaily: true)
-            }
+            setupDailyChallenge()
+        } else {
+            setupCustomGame()
         }
+    }
+    
+    func setupCustomGame() {
+        isInfiniteMode = false
+        loadOrCreateGame(isDaily: false)
+    }
+    
+    func setupDailyChallenge() {
+        isInfiniteMode = false
+        loadOrCreateGame(isDaily: true)
+    }
+}
 
 // MARK: - Helper Extensions
 extension Dictionary where Key == String, Value == String {

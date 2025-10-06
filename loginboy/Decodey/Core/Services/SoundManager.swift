@@ -14,7 +14,7 @@ class SoundManager: ObservableObject {
     // Singleton
     static let shared = SoundManager()
     
-    // Sound types matching your M4A file names (with underscores)
+    // Sound types matching M4A file names
     enum SoundType: String, CaseIterable {
         case letterClick = "letter_click"
         case correctGuess = "correct_guess"
@@ -57,7 +57,8 @@ class SoundManager: ObservableObject {
         }
     }
     
-    // Properties
+    // MARK: - Properties
+    
     @Published var isSoundEnabled: Bool = true {
         didSet {
             UserDefaults.standard.set(isSoundEnabled, forKey: "soundEnabled")
@@ -102,12 +103,7 @@ class SoundManager: ObservableObject {
     private let selectionGenerator = UISelectionFeedbackGenerator()
     private let notificationGenerator = UINotificationFeedbackGenerator()
     private let lightImpactGenerator = UIImpactFeedbackGenerator(style: .light)
-    private let mediumImpactGenerator = UIImpactFeedbackGenerator(style: .medium)
-    private let heavyImpactGenerator = UIImpactFeedbackGenerator(style: .heavy)
     #endif
-    
-    // Track if sounds have been loaded
-    private var soundsLoaded = false
     
     // MARK: - Initialization
     
@@ -136,7 +132,7 @@ class SoundManager: ObservableObject {
             )
             try AVAudioSession.sharedInstance().setActive(true)
         } catch {
-            // Silent failure in production
+            // Audio session setup failed - sounds will still work but may not respect silent switch
         }
         #endif
     }
@@ -145,30 +141,31 @@ class SoundManager: ObservableObject {
     
     private func loadSounds() {
         for soundType in SoundType.allCases {
-            if let soundURL = Bundle.main.url(forResource: soundType.rawValue, withExtension: "m4a") {
-                // Create AVAsset for loading
-                let asset = AVAsset(url: soundURL)
-                audioAssets[soundType] = asset
-                
-                // Create AVPlayer for each sound
-                let playerItem = AVPlayerItem(asset: asset)
-                let player = AVPlayer(playerItem: playerItem)
-                player.volume = volume
-                
-                // Pre-load the asset
-                Task {
-                    do {
-                        _ = try await asset.load(.duration, .tracks)
-                    } catch {
-                        // Silent failure in production
-                    }
-                }
-                
-                audioPlayers[soundType] = player
-                isPlaying[soundType] = false
+            guard let soundURL = Bundle.main.url(forResource: soundType.rawValue, withExtension: "m4a") else {
+                continue
             }
+            
+            // Create AVAsset for loading
+            let asset = AVAsset(url: soundURL)
+            audioAssets[soundType] = asset
+            
+            // Create AVPlayer for each sound
+            let playerItem = AVPlayerItem(asset: asset)
+            let player = AVPlayer(playerItem: playerItem)
+            player.volume = volume
+            
+            // Pre-load the asset asynchronously
+            Task {
+                do {
+                    _ = try await asset.load(.duration, .tracks)
+                } catch {
+                    // Asset loading failed but player will still attempt playback
+                }
+            }
+            
+            audioPlayers[soundType] = player
+            isPlaying[soundType] = false
         }
-        soundsLoaded = true
     }
     
     // MARK: - Haptic Generator Preparation
@@ -178,8 +175,6 @@ class SoundManager: ObservableObject {
         selectionGenerator.prepare()
         notificationGenerator.prepare()
         lightImpactGenerator.prepare()
-        mediumImpactGenerator.prepare()
-        heavyImpactGenerator.prepare()
         #endif
     }
     
@@ -204,8 +199,8 @@ class SoundManager: ObservableObject {
             
             // Reset counter after 1 second
             letterClickResetTimer?.invalidate()
-            letterClickResetTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { _ in
-                self.letterClickCount = 0
+            letterClickResetTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: false) { [weak self] _ in
+                self?.letterClickCount = 0
             }
         }
         
@@ -252,29 +247,31 @@ class SoundManager: ObservableObject {
         // UIKit haptic feedback (legacy support)
         #if canImport(UIKit)
         DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
             switch type {
             case .letterClick:
-                self?.selectionGenerator.selectionChanged()
+                self.selectionGenerator.selectionChanged()
             case .correctGuess:
-                self?.notificationGenerator.notificationOccurred(.success)
+                self.notificationGenerator.notificationOccurred(.success)
             case .incorrectGuess:
-                self?.notificationGenerator.notificationOccurred(.warning)
+                self.notificationGenerator.notificationOccurred(.warning)
             case .win:
-                self?.notificationGenerator.notificationOccurred(.success)
+                self.notificationGenerator.notificationOccurred(.success)
             case .lose:
-                self?.notificationGenerator.notificationOccurred(.error)
+                self.notificationGenerator.notificationOccurred(.error)
             case .hint:
-                self?.lightImpactGenerator.impactOccurred(intensity: 0.7)
+                self.lightImpactGenerator.impactOccurred(intensity: 0.7)
             }
             
             // Re-prepare for next use
             switch type {
             case .letterClick:
-                self?.selectionGenerator.prepare()
+                self.selectionGenerator.prepare()
             case .correctGuess, .incorrectGuess, .win, .lose:
-                self?.notificationGenerator.prepare()
+                self.notificationGenerator.prepare()
             case .hint:
-                self?.lightImpactGenerator.prepare()
+                self.lightImpactGenerator.prepare()
             }
         }
         #endif
@@ -283,7 +280,6 @@ class SoundManager: ObservableObject {
     // MARK: - Volume Control
     
     func updateVolume() {
-        // Update all AVPlayer volumes
         for (_, player) in audioPlayers {
             player.volume = volume
         }
@@ -292,13 +288,11 @@ class SoundManager: ObservableObject {
     // MARK: - Stop Functions
     
     func stopAllSounds() {
-        // Pause all AVPlayers
         for (_, player) in audioPlayers {
             player.pause()
             player.seek(to: .zero)
         }
         
-        // Clear playing states
         for key in isPlaying.keys {
             isPlaying[key] = false
         }
