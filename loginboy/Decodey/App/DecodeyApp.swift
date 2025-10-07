@@ -6,6 +6,7 @@ struct decodeyApp: App {
     let coreData = CoreDataStack.shared
     
     @State private var isInitializing = true
+    @State private var showLaunchScreen = true  // Added for launch screen
     @StateObject private var settingsState = SettingsState.shared
     @StateObject private var authManager = AuthenticationManager.shared
     @StateObject private var gameCenterManager = GameCenterManager.shared
@@ -13,18 +14,41 @@ struct decodeyApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if isInitializing {
-                LoadingView()
-                    .task {
-                        await initializeApp()
+            ZStack {
+                // Main app content
+                Group {
+                    if isInitializing {
+                        LoadingView()
+                            .task {
+                                await initializeApp()
+                            }
+                    } else {
+                        MainView()
+                            .environment(\.managedObjectContext, coreData.mainContext)
+                            .environmentObject(settingsState)
+                            .environmentObject(authManager)
+                            .environmentObject(gameCenterManager)
+                            .preferredColorScheme(settingsState.isDarkMode ? .dark : .light)
                     }
-            } else {
-                MainView()
-                    .environment(\.managedObjectContext, coreData.mainContext)
-                    .environmentObject(settingsState)
-                    .environmentObject(authManager)
-                    .environmentObject(gameCenterManager)
-                    .preferredColorScheme(settingsState.isDarkMode ? .dark : .light)
+                }
+                .opacity(showLaunchScreen ? 0 : 1)
+                .scaleEffect(showLaunchScreen ? 0.95 : 1.0)
+                .animation(.easeInOut(duration: 0.5), value: showLaunchScreen)
+                
+                // Launch screen overlay
+                if showLaunchScreen {
+                    LaunchScreen()
+                        .transition(.opacity.combined(with: .scale))
+                        .zIndex(1)
+                }
+            }
+            .onAppear {
+                // Dismiss launch screen after delay
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2.5) {
+                    withAnimation {
+                        showLaunchScreen = false
+                    }
+                }
             }
         }
     }
@@ -60,7 +84,7 @@ struct LoadingView: View {
             Text("🧩")
                 .font(.system(size: 60))
             
-            Text("Decodey")
+            Text("decodey")
                 .font(.largeTitle.bold())
             
             if let error = quoteManager.loadingError {
@@ -79,3 +103,4 @@ struct LoadingView: View {
         .background(Color("GameBackground"))  // CHANGED: Using color asset instead of ColorSystem
     }
 }
+
