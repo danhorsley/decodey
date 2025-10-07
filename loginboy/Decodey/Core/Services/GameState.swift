@@ -58,6 +58,7 @@ class GameState: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
     private var isSettingUpGame = false
     private var playTimer: Timer?
+    private var isLoadingDaily = false  // Prevent re-entrant calls
     
     private init() {}
     
@@ -74,11 +75,15 @@ class GameState: ObservableObject {
     
     /// Load active daily or create new one
     private func loadOrCreateDailyGame() {
+        // Prevent re-entrant calls
+        guard !isLoadingDaily else { return }
+        
+        isLoadingDaily = true
+        defer { isLoadingDaily = false }
+        
         let context = coreData.mainContext
         let todayString = DateFormatter.yyyyMMdd.string(from: Date())
         let dailyUUID = dailyStringToUUID("daily-\(todayString)")
-        
-        print("🔍 Loading daily for date: \(todayString), UUID: \(dailyUUID)")
         
         // Check if today's daily exists
         let fetchRequest: NSFetchRequest<GameCD> = GameCD.fetchRequest()
@@ -87,13 +92,9 @@ class GameState: ObservableObject {
         
         do {
             if let dailyGame = try context.fetch(fetchRequest).first {
-                print("📦 Found daily - isActive: \(dailyGame.isActive), mistakes: \(dailyGame.mistakes), hasWon: \(dailyGame.hasWon), hasLost: \(dailyGame.hasLost)")
-                print("   Guessed mappings data size: \(dailyGame.guessedMappings?.count ?? 0) bytes")
-                
                 // Daily exists - check completion status
                 if dailyGame.hasWon || dailyGame.hasLost {
                     // Completed - just load for display
-                    print("✅ Daily is completed, loading for display")
                     loadGameFromEntity(dailyGame)
                     if dailyGame.hasWon {
                         showWinMessage = true
@@ -104,20 +105,16 @@ class GameState: ObservableObject {
                     }
                 } else {
                     // In progress - ensure it's active and load
-                    print("🎮 Daily in progress, marking as active and loading")
                     deactivateOtherGames(ofType: true)
                     dailyGame.isActive = true
-                    try? context.save()  // Changed back to try? to not throw
+                    try? context.save()
                     loadGameFromEntity(dailyGame)
-                    print("   Loaded game has \(currentGame?.guessedMappings.count ?? 0) guessed letters, \(currentGame?.mistakes ?? 0) mistakes")
                 }
             } else {
                 // No daily exists - create new
-                print("🆕 No daily found, creating new one")
                 createNewDailyGame()
             }
         } catch {
-            print("❌ Error loading daily: \(error)")
             errorMessage = "Failed to load daily: \(error.localizedDescription)"
         }
     }
@@ -189,13 +186,14 @@ class GameState: ObservableObject {
         let context = coreData.mainContext
         let todayString = DateFormatter.yyyyMMdd.string(from: Date())
         let gameId = "daily-\(todayString)"
+        let uuid = dailyStringToUUID(gameId)
         
         // Deactivate other dailies
         deactivateOtherGames(ofType: true)
         
         // Create new game
         let gameEntity = GameCD(context: context)
-        gameEntity.gameId = dailyStringToUUID(gameId)
+        gameEntity.gameId = uuid
         gameEntity.isDaily = true
         gameEntity.isActive = true
         
@@ -419,10 +417,26 @@ class GameState: ObservableObject {
         }
     }
     
-    /// Convert daily string to UUID
+    /// Convert daily string to UUID (DETERMINISTIC)
     private func dailyStringToUUID(_ dailyId: String) -> UUID {
-        let hash = abs(dailyId.hashValue)
-        let uuidString = String(format: "00000000-0000-0000-0000-%012d", hash % 1000000000000)
+        // Use MD5-style hashing to create deterministic UUID from date string
+        // This ensures the same date always produces the same UUID
+        let data = Data(dailyId.utf8)
+        var hash: UInt64 = 5381
+        
+        for byte in data {
+            hash = ((hash << 5) &+ hash) &+ UInt64(byte)
+        }
+        
+        // Create a deterministic UUID string from the hash
+        let part1 = String(format: "%08x", UInt32((hash >> 32) & 0xFFFFFFFF))
+        let part2 = String(format: "%04x", UInt16((hash >> 16) & 0xFFFF))
+        let part3 = String(format: "%04x", UInt16(hash & 0xFFFF))
+        let part4 = String(format: "%04x", UInt16((hash >> 48) & 0xFFFF))
+        let part5 = String(format: "%012x", hash & 0xFFFFFFFFFFFF)
+        
+        let uuidString = "\(part1)-\(part2)-\(part3)-\(part4)-\(part5)"
+        
         return UUID(uuidString: uuidString) ?? UUID()
     }
     
@@ -704,5 +718,6 @@ extension Dictionary where Key == String, Value == String {
         return result
     }
 }
+
 
 

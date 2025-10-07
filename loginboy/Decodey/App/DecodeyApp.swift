@@ -9,6 +9,7 @@ struct decodeyApp: App {
     @StateObject private var settingsState = SettingsState.shared
     @StateObject private var authManager = AuthenticationManager.shared
     @StateObject private var gameCenterManager = GameCenterManager.shared
+    @Environment(\.scenePhase) private var scenePhase //save games on quit
     
     var body: some Scene {
         WindowGroup {
@@ -21,8 +22,8 @@ struct decodeyApp: App {
                 MainView()
                     .environment(\.managedObjectContext, coreData.mainContext)
                     .environmentObject(settingsState)
-                    .environmentObject(authManager)  // Add this
-                    .environmentObject(gameCenterManager)  // Add this
+                    .environmentObject(authManager)
+                    .environmentObject(gameCenterManager)
                     .preferredColorScheme(settingsState.isDarkMode ? .dark : .light)
             }
         }
