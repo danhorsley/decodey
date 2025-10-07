@@ -579,7 +579,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_TARGET_NAME = loginboy;
+				TEST_TARGET_NAME = Decodey;
 				XROS_DEPLOYMENT_TARGET = 2.4;
 			};
 			name = Debug;
@@ -600,7 +600,7 @@
 				SWIFT_EMIT_LOC_STRINGS = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2,7";
-				TEST_TARGET_NAME = loginboy;
+				TEST_TARGET_NAME = Decodey;
 				XROS_DEPLOYMENT_TARGET = 2.4;
 			};
 			name = Release;
