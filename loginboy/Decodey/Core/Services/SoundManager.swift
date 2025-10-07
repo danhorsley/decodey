@@ -37,7 +37,7 @@ class SoundManager: ObservableObject {
             }
         }
         
-        // Map to sensory feedback for iOS 17+
+        #if os(iOS)
         @available(iOS 17.0, *)
         var sensoryFeedback: SensoryFeedback {
             switch self {
@@ -55,6 +55,7 @@ class SoundManager: ObservableObject {
                 return .impact(weight: .light, intensity: 0.7)
             }
         }
+        #endif
     }
     
     // MARK: - Properties

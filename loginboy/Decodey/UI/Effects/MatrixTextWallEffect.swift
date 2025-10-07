@@ -95,7 +95,7 @@ struct MatrixTextWallEffect: View {
                     startAnimation()
                 }
             }
-            .onChange(of: active) { _, newValue in
+            .onChange(of: active) { newValue in
                 if newValue {
                     initializeMatrix(size: geometry.size)
                     startAnimation()
@@ -103,7 +103,7 @@ struct MatrixTextWallEffect: View {
                     stopAnimation()
                 }
             }
-            .onChange(of: geometry.size) { _, newSize in
+            .onChange(of: geometry.size) { newSize in
                 if active {
                     initializeMatrix(size: newSize)
                 }

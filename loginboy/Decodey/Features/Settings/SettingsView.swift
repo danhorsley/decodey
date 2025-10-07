@@ -385,7 +385,7 @@ struct DifficultyPickerSheet: View {
                     dismiss()
                 }
                 .foregroundStyle(Color.accentColor)
-                .fontWeight(.semibold)
+                .font(.body.weight(.semibold))
             }
             .padding()
             
@@ -463,7 +463,7 @@ struct AboutSheet: View {
                     dismiss()
                 }
                 .foregroundStyle(Color.accentColor)
-                .fontWeight(.semibold)
+                .font(.body.weight(.semibold))
                 
                 Spacer()
                 
@@ -488,7 +488,13 @@ struct AboutSheet: View {
                     // App Icon and Info
                     VStack(spacing: 16) {
                         RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.accentColor.gradient)
+                            .fill(
+                                LinearGradient(
+                                    colors: [Color.accentColor, Color.accentColor.opacity(0.7)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
                             .frame(width: 80, height: 80)
                             .overlay(
                                 Text("D")

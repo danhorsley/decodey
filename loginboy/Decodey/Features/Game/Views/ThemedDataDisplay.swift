@@ -662,11 +662,11 @@ struct TypewriterEmptyState: View {
     let icon: String
     
     var body: some View {
-        VStack(spacing: 16) {
+        VStack(spacing: 16) {  // ← Keep this as 16!
             // Blank crossword grid
-            Grid(horizontalSpacing: 2, verticalSpacing: 2) {
+            VStack(spacing: 2) {  // ← This is the Grid replacement with spacing 2
                 ForEach(0..<3) { row in
-                    GridRow {
+                    HStack(spacing: 2) {  // ← This matches the Grid's horizontalSpacing: 2
                         ForEach(0..<3) { col in
                             Rectangle()
                                 .fill(row == 1 && col == 1 ? Color.black : Color.white)

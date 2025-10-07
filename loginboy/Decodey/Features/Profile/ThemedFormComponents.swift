@@ -5,13 +5,22 @@ struct ThemedFormStyle: ViewModifier {
     @Environment(\.colorScheme) var colorScheme
     
     func body(content: Content) -> some View {
-        content
-            .scrollContentBackground(.hidden)
-            .background(
-                colorScheme == .dark ?
-                    Color.black.opacity(0.95) :
-                    Color(hex: "FAFAF8") // Subtle cream tint
-            )
+        if #available(iOS 16.0, macOS 13.0, *) {
+            content
+                .scrollContentBackground(.hidden)
+                .background(
+                    colorScheme == .dark ?
+                        Color.black.opacity(0.95) :
+                        Color(hex: "FAFAF8")
+                )
+        } else {
+            content
+                .background(
+                    colorScheme == .dark ?
+                        Color.black.opacity(0.95) :
+                        Color(hex: "FAFAF8")
+                )
+        }
     }
 }
 
@@ -83,9 +92,15 @@ struct ThemedListRow<Content: View>: View {
     }
     
     var body: some View {
+        #if os(iOS)
         content
             .listRowBackground(rowBackground)
             .listRowSeparatorTint(separatorColor)
+        #else
+        content
+            .listRowBackground(rowBackground)
+            // No separator tint on older macOS
+        #endif
     }
     
     private var rowBackground: some View {

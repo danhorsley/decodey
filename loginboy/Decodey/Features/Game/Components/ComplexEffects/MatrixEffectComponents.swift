@@ -102,7 +102,7 @@ private struct SimpleMatrixEffectView: View {
         .onDisappear {
             timer?.invalidate()
         }
-        .onChange(of: isPaused) { _, newValue in
+        .onChange(of: isPaused) { newValue in
             if newValue {
                 timer?.invalidate()
             } else {
@@ -201,7 +201,7 @@ private struct FullMatrixEffectView: View {
         .onDisappear {
             timer?.invalidate()
         }
-        .onChange(of: isPaused) { _, newValue in
+        .onChange(of: isPaused) { newValue in
             if newValue {
                 timer?.invalidate()
             } else {

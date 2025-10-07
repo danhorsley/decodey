@@ -76,7 +76,7 @@ struct LetterHighlightModifier: ViewModifier {
                 }
             )
             .scaleEffect(style == .cell && isHighlighted ? pulseScale : 1.0)
-            .onChange(of: isHighlighted) { _, newValue in
+            .onChange(of: isHighlighted) { newValue in
                 if newValue {
                     triggerAnimations()
                 }
@@ -297,7 +297,7 @@ struct CharacterHighlightView: View {
                     }
                 }
             )
-            .onChange(of: isFlashing) { _, newValue in
+            .onChange(of: isFlashing) { newValue in
                 if newValue {
                     flashIntensity = 0.6
                     withAnimation(.easeOut(duration: 0.5)) {
