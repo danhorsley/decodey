@@ -5,7 +5,7 @@ import SwiftUI
 struct GameGridsView: View {
     @EnvironmentObject var gameState: GameState
     @EnvironmentObject var settingsState: SettingsState
-    @StateObject private var highlightState = HighlightState()
+//    @StateObject private var highlightState = HighlightState()
     let showTextHelpers: Bool
     
     @State private var isHintInProgress = false
