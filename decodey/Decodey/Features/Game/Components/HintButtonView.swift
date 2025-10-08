@@ -100,13 +100,14 @@ struct HintButtonView: View {
         .overlay(
             RoundedRectangle(cornerRadius: GameLayout.cornerRadius)
                 .strokeBorder(
-                    gameState.isInfiniteMode ? Color.green : Color.cellBorder,
-                    lineWidth: 1
+                    gameState.isInfiniteMode ? Color.green :
+                    colorScheme == .dark ? Color("GameEncrypted") : Color.cellBorder,
+                    lineWidth: colorScheme == .dark ? 1.5 : 1
                 )
         )
         .shadow(
-            color: gameState.isInfiniteMode ?
-                Color.green.opacity(0.3) : shadowColor,
+            color: gameState.isInfiniteMode ? Color.green.opacity(0.3) :
+                   colorScheme == .dark ? Color("GameEncrypted").opacity(0.3) : shadowColor,
             radius: isPressed ? 2 : 8,
             x: 0,
             y: isPressed ? 1 : 4
