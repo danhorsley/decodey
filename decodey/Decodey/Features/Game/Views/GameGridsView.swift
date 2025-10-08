@@ -83,7 +83,7 @@ struct GameGridsView: View {
                                     SoundManager.shared.play(.letterClick)
                                 }
                             },
-                            highlightState: highlightState  // ADD THIS
+//                            highlightState: highlightState  // ADD THIS
                         )
                     } else {
                         EncryptedLetterCell(
@@ -142,7 +142,7 @@ struct GameGridsView: View {
                                     }
                                 }
                             },
-                            highlightState: highlightState
+//                            highlightState: highlightState
                         )
                     } else {
                         GuessLetterCell(

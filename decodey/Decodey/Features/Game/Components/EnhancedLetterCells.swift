@@ -8,7 +8,7 @@ struct EnhancedEncryptedLetterCell: View {
     let isGuessed: Bool
     let frequency: Int
     let action: () -> Void
-    let highlightState: HighlightState
+//    let highlightState: HighlightState
     
     
     @Environment(\.colorScheme) var colorScheme
@@ -114,7 +114,7 @@ struct EnhancedGuessLetterCell: View {
     let isUsed: Bool
     let isIncorrectForSelected: Bool
     let action: () -> Void
-    let highlightState: HighlightState  // ADD THIS
+//    let highlightState: HighlightState  // ADD THIS
     
     @Environment(\.colorScheme) var colorScheme
     @State private var isPressed = false
@@ -124,9 +124,9 @@ struct EnhancedGuessLetterCell: View {
         Button(action: {
             action()
             // Optionally trigger highlight for guess letters too
-            if !isUsed && !isIncorrectForSelected {
-                highlightState.highlightLetter(letter)
-            }
+//            if !isUsed && !isIncorrectForSelected {
+//                highlightState.highlightLetter(letter)
+//            }
         }) {
             ZStack {
                 if colorScheme == .dark {
@@ -168,11 +168,11 @@ struct EnhancedGuessLetterCell: View {
         .buttonStyle(PlainButtonStyle())
         .disabled(isUsed || isIncorrectForSelected)
         .opacity(isUsed || isIncorrectForSelected ? 0.7 : 1.0)
-        .highlightable(  // ADD THIS if using the modifier approach
-            for: letter,
-            state: highlightState,
-            style: .cell
-        )
+//        .highlightable(  // ADD THIS if using the modifier approach
+//            for: letter,
+////            state: highlightState,
+//            style: .cell
+//        )
         .onLongPressGesture(
             minimumDuration: 0,
             maximumDistance: .infinity,

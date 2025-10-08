@@ -2,14 +2,13 @@
 // Decodey
 //
 // Main game playing interface with header, display, and controls
-// FULLY MIGRATED TO GAMETHEME - NO MORE COLORSYSTEM/FONTSYSTEM
+// WITH LETTER HIGHLIGHTING SYSTEM
 
 import SwiftUI
 
 struct GamePlayView: View {
     @EnvironmentObject var gameState: GameState
     @EnvironmentObject var settingsState: SettingsState
-    @StateObject private var highlightState = HighlightState()
     
     // Layout constants
     private let maxContentWidth: CGFloat = 600
@@ -49,7 +48,7 @@ struct GamePlayView: View {
                 // Use the new alternating display
                 AlternatingTextDisplayView()
             } else {
-                // Use the existing stacked display
+                // Use the existing stacked display WITH HIGHLIGHTING
                 VStack(spacing: GameLayout.padding) {
                     // Encrypted text display
                     encryptedTextView
@@ -65,52 +64,110 @@ struct GamePlayView: View {
         VStack(alignment: .center, spacing: GameLayout.paddingSmall) {
             if settingsState.showTextHelpers {
                 Text("ENCRYPTED")
-                    .font(.gameSection)  // Fixed: Use GameTheme font
+                    .font(.gameSection)
                     .tracking(1.5)
                     .foregroundColor(.secondary.opacity(0.7))
             }
             
-            Text(displayedEncryptedText)
-                .font(.gameDisplay)
-                .foregroundColor(Color("GameEncrypted"))
-                .multilineTextAlignment(.center)
-                .lineSpacing(4)
+            // Use the highlightable text instead of plain Text
+            highlightableEncryptedText
                 .padding(.horizontal, GameLayout.padding + 4)
                 .padding(.vertical, GameLayout.padding)
                 .background(Color("GameBackground"))
                 .cornerRadius(GameLayout.cornerRadius)
-//                .overlay(
-//                    RoundedRectangle(cornerRadius: GameLayout.cornerRadius)
-//                        .stroke(Color("GameBorder"), lineWidth: 1)
-//                )
         }
+    }
+    
+    // NEW: Character-by-character display with highlighting
+    private var highlightableEncryptedText: some View {
+        let text = displayedEncryptedText
+        
+        return HStack(spacing: 0) {
+            ForEach(Array(text.enumerated()), id: \.offset) { index, char in
+                Text(String(char))
+                    .font(.gameDisplay)
+                    .foregroundColor(Color("GameEncrypted"))
+                    .background(
+                        // Check if this character matches the selected letter and this position should be highlighted
+                        shouldHighlight(char: char, at: index) ?
+                        Color("HighlightColor").opacity(0.4) : Color.clear
+                    )
+                    .animation(.easeInOut(duration: 0.3), value: gameState.highlightedEncryptedLetter)
+            }
+        }
+        .multilineTextAlignment(.center)
+        .lineSpacing(4)
+    }
+    
+    // Helper function to determine if a character should be highlighted
+    private func shouldHighlight(char: Character, at index: Int) -> Bool {
+        guard let highlightedLetter = gameState.highlightedEncryptedLetter else { return false }
+        return char == highlightedLetter && gameState.highlightPositions.contains(index)
     }
     
     private var solutionTextView: some View {
         VStack(alignment: .center, spacing: GameLayout.paddingSmall) {
             if settingsState.showTextHelpers {
                 Text("YOUR SOLUTION")
-                    .font(.gameSection)  // Fixed: Use GameTheme font instead of custom
+                    .font(.gameSection)
                     .tracking(1.5)
                     .foregroundColor(.secondary.opacity(0.7))
             }
             
-            Text(displayedSolutionText)
-                .font(.gameDisplay)
-                .foregroundColor(Color("GameGuess"))
-                .multilineTextAlignment(.center)
-                .lineSpacing(4)
+            // Use character-by-character display for solution too
+            highlightableSolutionText
                 .padding(.horizontal, GameLayout.padding + 4)
                 .padding(.vertical, GameLayout.padding)
                 .background(Color("GameBackground"))
                 .cornerRadius(GameLayout.cornerRadius)
-//                .overlay(
-//                    RoundedRectangle(cornerRadius: GameLayout.cornerRadius)
-//                        .stroke(Color("GameBorder"), lineWidth: 1)
-//                )
         }
     }
     
+    //highlight helper for solution text view
+    @ViewBuilder
+    private var highlightableSolutionText: some View {
+        if let game = gameState.currentGame {
+            let solution = game.solution
+            
+            HStack(spacing: 0) {
+                ForEach(Array(solution.enumerated()), id: \.offset) { index, char in
+                    let encryptedChar = game.encrypted[game.encrypted.index(game.encrypted.startIndex, offsetBy: index)]
+                    let isHighlighted = gameState.highlightedEncryptedLetter == encryptedChar && encryptedChar.isLetter
+                    
+                    if !char.isLetter {
+                        // Punctuation and spaces
+                        Text(String(char))
+                            .font(.gameDisplay)
+                            .foregroundColor(Color("GameGuess"))
+                    } else if let guessedChar = game.guessedMappings[encryptedChar] {
+                        // Already guessed letters
+                        Text(String(guessedChar))
+                            .font(.gameDisplay)
+                            .foregroundColor(Color("GameGuess"))
+                    } else {
+                        // Unguessed blocks - highlight when corresponding encrypted letter is selected
+                        Text("█")
+                            .font(.gameDisplay)
+                            .foregroundColor(
+                                isHighlighted ?
+                                Color("HighlightColor") : Color("GameGuess")
+                            )
+                            .background(
+                                RoundedRectangle(cornerRadius: 2)
+                                    .fill(isHighlighted ?
+                                         Color("HighlightColor").opacity(0.2) : Color.clear)
+                            )
+                            .animation(.easeInOut(duration: 0.3), value: gameState.highlightedEncryptedLetter)
+                    }
+                }
+            }
+            .multilineTextAlignment(.center)
+            .lineSpacing(4)
+        } else {
+            Text("")
+                .font(.gameDisplay)
+        }
+    }
     // MARK: - Display Text Logic
     
     private var displayedEncryptedText: String {
@@ -146,7 +203,6 @@ struct GamePlayView: View {
         }.joined()
     }
 }
-
 
 // MARK: - Preview
 

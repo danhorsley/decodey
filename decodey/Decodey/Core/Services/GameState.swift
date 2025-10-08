@@ -40,6 +40,10 @@ class GameState: ObservableObject {
     public var lastDailyGameStats: CompletedGameStats?
     public var lastCustomGameStats: CompletedGameStats?
     
+    // Letter highlight system
+    @Published var highlightedEncryptedLetter: Character?
+    @Published var highlightPositions: Set<Int> = []
+    
     // For completed games
     struct CompletedGameStats {
         let solution: String
@@ -451,6 +455,10 @@ class GameState: ObservableObject {
         let wasCorrect = game.makeGuess(guessedLetter)
         self.currentGame = game
         
+        // Clear highlights after making a guess
+        highlightedEncryptedLetter = nil
+        highlightPositions.removeAll()
+        
         // Play appropriate sound
         if wasCorrect {
             SoundManager.shared.play(.correctGuess)
@@ -478,11 +486,39 @@ class GameState: ObservableObject {
         }
     }
     
-    // Select first letter
+    // select letter with hihglight
     func selectLetter(_ letter: Character) {
         guard var game = currentGame else { return }
+        
+        // Clear previous highlights if selecting a different letter
+        if game.selectedLetter != letter {
+            highlightedEncryptedLetter = nil
+            highlightPositions.removeAll()
+        }
+        
         game.selectLetter(letter)
         self.currentGame = game
+        
+        // If a letter is now selected (not nil), highlight it
+        if game.selectedLetter != nil {
+            highlightedEncryptedLetter = letter
+            highlightPositions = findLetterPositions(letter, in: game.encrypted)
+        } else {
+            // Letter was deselected (clicked again), clear highlights
+            highlightedEncryptedLetter = nil
+            highlightPositions.removeAll()
+        }
+    }
+
+    // Add this helper function right after selectLetter:
+    private func findLetterPositions(_ letter: Character, in text: String) -> Set<Int> {
+        var positions = Set<Int>()
+        for (index, char) in text.enumerated() {
+            if char == letter {
+                positions.insert(index)
+            }
+        }
+        return positions
     }
     
     /// Enable infinite mode

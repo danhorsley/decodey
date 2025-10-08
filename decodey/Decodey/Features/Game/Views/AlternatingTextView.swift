@@ -150,39 +150,78 @@ struct AlternatingLineView: View {
     let guessedMappings: [Character: Character]
     let characterSpacing: CGFloat
     let lineSpacing: CGFloat
+    @EnvironmentObject var gameState: GameState  // Add this
     
     var body: some View {
         VStack(alignment: .center, spacing: lineSpacing) {
-            // Encrypted line
+            // Encrypted line with highlighting
             HStack(spacing: characterSpacing) {
-                ForEach(Array(encryptedLine.enumerated()), id: \.offset) { _, char in
-                    CharacterView(
-                        character: char,
-                        color: Color("GameEncrypted"),
-                        isLetter: char.isLetter
-                    )
+                ForEach(Array(encryptedLine.enumerated()), id: \.offset) { offset, char in
+                    let isHighlighted = gameState.highlightedEncryptedLetter == char && char.isLetter
+                    
+                    Text(String(char))
+                        .font(.gameDisplay)
+                        .foregroundColor(char.isLetter ? Color("GameEncrypted") : Color("GameEncrypted").opacity(0.6))
+                        .frame(width: 12, alignment: .center)
+                        .background(
+                            isHighlighted ?
+                            Color("HighlightColor").opacity(0.4) : Color.clear
+                        )
+                        .animation(.easeInOut(duration: 0.3), value: gameState.highlightedEncryptedLetter)
                 }
             }
             
-            // Solution line
+            // Solution line with block highlighting
             HStack(spacing: characterSpacing) {
                 ForEach(Array(solutionLine.enumerated()), id: \.offset) { index, char in
                     let encryptedChar = encryptedLine[encryptedLine.index(encryptedLine.startIndex, offsetBy: index)]
-                    let displayChar = getDisplayCharacter(
-                        solutionChar: char,
-                        encryptedChar: encryptedChar,
-                        guessedMappings: guessedMappings
-                    )
+                    let isHighlighted = gameState.highlightedEncryptedLetter == encryptedChar && encryptedChar.isLetter
                     
-                    CharacterView(
-                        character: displayChar,
-                        color: Color("GameGuess"),
-                        isLetter: char.isLetter
-                    )
+                    if !char.isLetter {
+                        // Punctuation/spaces
+                        Text(String(char))
+                            .font(.gameDisplay)
+                            .foregroundColor(Color("GameGuess").opacity(0.6))
+                            .frame(width: 12, alignment: .center)
+                    } else if let guessedChar = guessedMappings[encryptedChar] {
+                        // Already guessed letter
+                        Text(String(guessedChar))
+                            .font(.gameDisplay)
+                            .foregroundColor(Color("GameGuess"))
+                            .frame(width: 12, alignment: .center)
+                    } else {
+                        // Unguessed block - highlight if selected
+                        Text("█")
+                            .font(.gameDisplay)
+                            .foregroundColor(
+                                isHighlighted ?
+                                Color("HighlightColor") : Color("GameGuess")
+                            )
+                            .frame(width: 12, alignment: .center)
+                            .background(
+                                isHighlighted ?
+                                Color("HighlightColor").opacity(0.2) : Color.clear
+                            )
+                            .animation(.easeInOut(duration: 0.3), value: gameState.highlightedEncryptedLetter)
+                    }
                 }
             }
         }
         .padding(.vertical, lineSpacing)
+    }
+
+    
+    @ViewBuilder
+    private func highlightBackground(for char: Character, at index: Int) -> some View {
+        if let game = gameState.currentGame,
+           let highlightedLetter = gameState.highlightedEncryptedLetter,
+           char == highlightedLetter && char.isLetter {
+            Color("HighlightColor")
+                .opacity(0.4)
+                .animation(.easeInOut(duration: 0.3), value: gameState.highlightedEncryptedLetter)
+        } else {
+            Color.clear
+        }
     }
     
     private func getDisplayCharacter(
@@ -208,12 +247,25 @@ struct CharacterView: View {
     let character: Character
     let color: Color
     let isLetter: Bool
+    let index: Int? = nil  // Add index parameter
+    @EnvironmentObject var gameState: GameState  // Add environment object
     
     var body: some View {
         Text(String(character))
             .font(.gameDisplay)
             .foregroundColor(isLetter ? color : color.opacity(0.6))
             .frame(width: 12, alignment: .center)
+            .background(
+                shouldHighlight() ?
+                Color("HighlightColor").opacity(0.4) : Color.clear
+            )
+            .animation(.easeInOut(duration: 0.3), value: gameState.highlightedEncryptedLetter)
+    }
+    
+    private func shouldHighlight() -> Bool {
+        guard let highlightedLetter = gameState.highlightedEncryptedLetter,
+              let index = index else { return false }
+        return character == highlightedLetter && gameState.highlightPositions.contains(index)
     }
 }
 
