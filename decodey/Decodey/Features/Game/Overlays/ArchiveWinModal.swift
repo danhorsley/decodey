@@ -142,22 +142,23 @@ struct ArchiveWinModal: View {
             classificationStamp
             
             // Decoded quote with typewriter effect
-            VStack(spacing: 16) {
-                let displayText = String(solution.prefix(typewriterIndex))
-                
-                Text(displayText)
-                    .font(.system(size: 22, weight: .regular, design: .serif))
-                    .foregroundColor(Color(red: 0.25, green: 0.22, blue: 0.20))
-                    .multilineTextAlignment(.center)
-                    .lineSpacing(6)
-                    .padding(.horizontal, 24)
-                
-                if !author.isEmpty && typewriterIndex >= solution.count {
+            if !author.isEmpty && typewriterIndex >= solution.count {
+                VStack(spacing: 4) {
                     Text("— \(author)")
                         .font(.system(size: 16, weight: .light, design: .serif))
                         .italic()
                         .foregroundColor(Color(red: 0.45, green: 0.40, blue: 0.35))
                         .transition(.opacity)
+                    
+                    // Add attribution if available
+                    if let attribution = displayStats?.attribution ?? gameState.quoteAttribution,
+                       !attribution.isEmpty {
+                        Text(attribution)
+                            .font(.system(size: 14, weight: .light, design: .serif))
+                            .foregroundColor(Color(red: 0.55, green: 0.50, blue: 0.45))
+                            .italic()
+                            .transition(.opacity)
+                    }
                 }
             }
             

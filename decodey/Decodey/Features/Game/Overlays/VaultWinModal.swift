@@ -187,6 +187,16 @@ struct VaultWinModal: View {
                 Text("ORIGIN: \(author.uppercased())")
                     .font(.system(size: 14, weight: .regular, design: .monospaced))
                     .foregroundColor(.green.opacity(0.7))
+                
+                // Add attribution if available
+                if let attribution = displayStats?.attribution ?? gameState.quoteAttribution,
+                   !attribution.isEmpty {
+                    Text("[\(attribution)]")
+                        .font(.system(size: 12, weight: .regular, design: .monospaced))
+                        .foregroundColor(.green.opacity(0.5))
+                        .italic()
+                        .padding(.top, 2)
+                }
             }
         }
         .padding(.vertical, 16)
@@ -298,9 +308,10 @@ struct VaultWinModal: View {
             .padding(.vertical, 12)
             .background(
                 RoundedRectangle(cornerRadius: 0)
-                    .fill(.green)
+                    .fill(Color.green)
             )
         }
+        .buttonStyle(PlainButtonStyle())  
     }
     
     // MARK: - Animation Setup
