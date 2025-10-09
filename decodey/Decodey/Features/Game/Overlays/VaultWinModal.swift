@@ -208,6 +208,12 @@ struct VaultWinModal: View {
         )
     }
     
+    // streak boost text for modal
+    private var streakBoostText: String? {
+        guard gameState.isDailyChallenge else { return nil }
+        return StreakBoost.shared.getBoostDisplayText()
+    }
+    
     // MARK: - Score Section
     private var scoreSection: some View {
         HStack(spacing: 24) {
@@ -220,8 +226,16 @@ struct VaultWinModal: View {
                     .font(.system(size: 36, weight: .bold, design: .monospaced))
                     .foregroundColor(.green)
                     .shadow(color: .green.opacity(0.5), radius: 5)
+                
+                // Add streak boost display
+                if let boostText = streakBoostText {
+                    Text(boostText)
+                        .font(.system(size: 10, weight: .medium, design: .monospaced))
+                        .foregroundColor(.cyan.opacity(0.8))
+                }
             }
             
+            // Rest of the section remains the same...
             Rectangle()
                 .fill(Color.green.opacity(0.3))
                 .frame(width: 1)
@@ -311,7 +325,7 @@ struct VaultWinModal: View {
                     .fill(Color.green)
             )
         }
-        .buttonStyle(PlainButtonStyle())  
+        .buttonStyle(PlainButtonStyle())
     }
     
     // MARK: - Animation Setup

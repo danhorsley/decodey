@@ -52,7 +52,18 @@ struct ArchiveWinModal: View {
     }
     
     private var score: Int {
-        displayStats?.score ?? gameState.currentGame?.calculateScore() ?? 0
+        let baseScore = displayStats?.score ?? gameState.currentGame?.calculateScore() ?? 0
+        // Apply streak boost only for daily challenges
+        if gameState.isDailyChallenge {
+            return StreakBoost.shared.applyBoost(to: baseScore)
+        }
+        return baseScore
+    }
+
+    // 2. text in modal for win boost details
+    private var streakBoostText: String? {
+        guard gameState.isDailyChallenge else { return nil }
+        return StreakBoost.shared.getBoostDisplayText()
     }
     
     private var mistakes: Int {
@@ -232,10 +243,19 @@ struct ArchiveWinModal: View {
                 .foregroundColor(Color(red: 0.55, green: 0.50, blue: 0.45))
             
             Text("\(score)")
-                .font(.gameScore)  // CHANGED: Using GameTheme font
+                .font(.gameScore)
                 .foregroundColor(Color(red: 0.25, green: 0.22, blue: 0.20))
             
-            // Bonus indicators
+            // Add streak boost display
+            if let boostText = streakBoostText {
+                Text(boostText)
+                    .font(.system(size: 9, weight: .medium, design: .rounded))
+                    .tracking(0.5)
+                    .foregroundColor(Color(red: 0.20, green: 0.40, blue: 0.60))
+                    .opacity(0.8)
+            }
+            
+            // Existing bonus indicators
             HStack(spacing: 12) {
                 if mistakes == 0 {
                     BonusIndicator(text: "PERFECT", color: Color(red: 0.20, green: 0.40, blue: 0.25))
