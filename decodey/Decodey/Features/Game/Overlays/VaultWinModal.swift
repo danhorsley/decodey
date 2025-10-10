@@ -30,8 +30,10 @@ struct VaultWinModal: View {
     }
     
     private var score: Int {
-        displayStats?.score ?? gameState.currentGame?.calculateScore() ?? 0
-    }
+            let baseScore = displayStats?.score ?? gameState.currentGame?.calculateScore() ?? 0
+            // Apply streak boost to all games (streak is calculated from daily wins)
+            return StreakBoost.shared.applyBoost(to: baseScore)
+        }
     
     private var mistakes: Int {
         displayStats?.mistakes ?? gameState.currentGame?.mistakes ?? 0
@@ -210,9 +212,9 @@ struct VaultWinModal: View {
     
     // streak boost text for modal
     private var streakBoostText: String? {
-        guard gameState.isDailyChallenge else { return nil }
-        return StreakBoost.shared.getBoostDisplayText()
-    }
+            guard gameState.isDailyChallenge else { return nil }
+            return StreakBoost.shared.getBoostDisplayText()
+        }
     
     // MARK: - Score Section
     private var scoreSection: some View {

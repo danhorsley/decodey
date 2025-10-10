@@ -52,19 +52,16 @@ struct ArchiveWinModal: View {
     }
     
     private var score: Int {
-        let baseScore = displayStats?.score ?? gameState.currentGame?.calculateScore() ?? 0
-        // Apply streak boost only for daily challenges
-        if gameState.isDailyChallenge {
+            let baseScore = displayStats?.score ?? gameState.currentGame?.calculateScore() ?? 0
+            // Apply streak boost to all games (streak is calculated from daily wins)
             return StreakBoost.shared.applyBoost(to: baseScore)
         }
-        return baseScore
-    }
 
     // 2. text in modal for win boost details
     private var streakBoostText: String? {
-        guard gameState.isDailyChallenge else { return nil }
-        return StreakBoost.shared.getBoostDisplayText()
-    }
+            // Show streak boost text for all games (streak is based on daily wins)
+            return StreakBoost.shared.getBoostDisplayText()
+        }
     
     private var mistakes: Int {
         displayStats?.mistakes ?? gameState.currentGame?.mistakes ?? 0
