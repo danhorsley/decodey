@@ -80,6 +80,20 @@ struct ArchiveWinModal: View {
         return 0
     }
     
+    // Comuted properties for streak boost
+    private var baseScore: Int {
+        displayStats?.score ?? gameState.currentGame?.calculateScore() ?? 0
+    }
+    
+    private var streakBoostPercentage: Int {
+        return StreakBoost.shared.getCurrentBoostPercentage()
+    }
+    
+    private var streakBoostAmount: Int {
+        return score - baseScore
+    }
+    
+    
     var body: some View {
         ZStack {
             // Background - faded sepia overlay
@@ -233,23 +247,68 @@ struct ArchiveWinModal: View {
     
     // MARK: - Score Section
     private var scoreSection: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 12) {
             Text("SCORE")
                 .font(.system(size: 10, weight: .semibold, design: .rounded))
                 .tracking(1.5)
                 .foregroundColor(Color(red: 0.55, green: 0.50, blue: 0.45))
             
-            Text("\(score)")
-                .font(.gameScore)
-                .foregroundColor(Color(red: 0.25, green: 0.22, blue: 0.20))
+            // Score breakdown
+            VStack(spacing: 8) {
+                // Base score
+                HStack(spacing: 12) {
+                    Text("Base Score:")
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundColor(Color(red: 0.45, green: 0.40, blue: 0.35))
+                    Text("\(baseScore)")
+                        .font(.system(size: 16, weight: .bold, design: .rounded))
+                        .foregroundColor(Color(red: 0.35, green: 0.30, blue: 0.25))
+                }
+                
+                // Streak boost if applicable
+                if streakBoostPercentage > 0 {
+                    HStack(spacing: 12) {
+                        Text("Streak Bonus:")
+                            .font(.system(size: 12, weight: .medium, design: .rounded))
+                            .foregroundColor(Color(red: 0.20, green: 0.40, blue: 0.60).opacity(0.8))
+                        HStack(spacing: 6) {
+                            Text("+\(streakBoostPercentage)%")
+                                .font(.system(size: 16, weight: .bold, design: .rounded))
+                                .foregroundColor(Color(red: 0.20, green: 0.40, blue: 0.60))
+                            Text("(+\(streakBoostAmount))")
+                                .font(.system(size: 14, weight: .medium, design: .rounded))
+                                .foregroundColor(Color(red: 0.20, green: 0.40, blue: 0.60).opacity(0.7))
+                        }
+                    }
+                }
+                
+                // Divider
+                Rectangle()
+                    .fill(Color(red: 0.45, green: 0.40, blue: 0.35).opacity(0.3))
+                    .frame(height: 1)
+                    .frame(maxWidth: 150)
+                
+                // Total score
+                VStack(spacing: 4) {
+                    Text("TOTAL")
+                        .font(.system(size: 10, weight: .semibold, design: .rounded))
+                        .tracking(1.2)
+                        .foregroundColor(Color(red: 0.55, green: 0.50, blue: 0.45))
+                    
+                    Text("\(score)")
+                        .font(.gameScore)
+                        .foregroundColor(Color(red: 0.25, green: 0.22, blue: 0.20))
+                }
+            }
             
-            // Add streak boost display
+            // Streak info text
             if let boostText = streakBoostText {
                 Text(boostText)
                     .font(.system(size: 9, weight: .medium, design: .rounded))
                     .tracking(0.5)
                     .foregroundColor(Color(red: 0.20, green: 0.40, blue: 0.60))
                     .opacity(0.8)
+                    .padding(.top, 4)
             }
             
             // Existing bonus indicators
@@ -262,6 +321,7 @@ struct ArchiveWinModal: View {
                     BonusIndicator(text: "SPEED", color: Color(red: 0.65, green: 0.50, blue: 0.30))
                 }
             }
+            .padding(.top, 4)
         }
     }
     

@@ -29,12 +29,6 @@ struct VaultWinModal: View {
         displayStats?.author ?? gameState.quoteAuthor
     }
     
-    private var score: Int {
-            let baseScore = displayStats?.score ?? gameState.currentGame?.calculateScore() ?? 0
-            // Apply streak boost to all games (streak is calculated from daily wins)
-            return StreakBoost.shared.applyBoost(to: baseScore)
-        }
-    
     private var mistakes: Int {
         displayStats?.mistakes ?? gameState.currentGame?.mistakes ?? 0
     }
@@ -210,30 +204,88 @@ struct VaultWinModal: View {
         )
     }
     
-    // streak boost text for modal
-    private var streakBoostText: String? {
-            guard gameState.isDailyChallenge else { return nil }
+    //computed properties for streak boost
+    private var baseScore: Int {
+            displayStats?.score ?? gameState.currentGame?.calculateScore() ?? 0
+        }
+        
+        private var score: Int {
+            // Apply streak boost to all games (streak is calculated from daily wins)
+            return StreakBoost.shared.applyBoost(to: baseScore)
+        }
+        
+        private var streakBoostText: String? {
+            // Show streak boost text for all games (streak is based on daily wins)
             return StreakBoost.shared.getBoostDisplayText()
+        }
+        
+        private var streakBoostPercentage: Int {
+            return StreakBoost.shared.getCurrentBoostPercentage()
+        }
+        
+        private var streakBoostAmount: Int {
+            return score - baseScore
         }
     
     // MARK: - Score Section
     private var scoreSection: some View {
         HStack(spacing: 24) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 12) {
                 Text("HACK_SCORE")
                     .font(.system(size: 10, weight: .medium, design: .monospaced))
                     .foregroundColor(.green.opacity(0.6))
                 
-                Text("\(score)")
-                    .font(.system(size: 36, weight: .bold, design: .monospaced))
-                    .foregroundColor(.green)
-                    .shadow(color: .green.opacity(0.5), radius: 5)
+                // Score breakdown
+                VStack(alignment: .leading, spacing: 6) {
+                    // Base score
+                    HStack(spacing: 8) {
+                        Text("BASE:")
+                            .font(.system(size: 11, weight: .medium, design: .monospaced))
+                            .foregroundColor(.green.opacity(0.5))
+                        Text("\(baseScore)")
+                            .font(.system(size: 14, weight: .bold, design: .monospaced))
+                            .foregroundColor(.green.opacity(0.7))
+                    }
+                    
+                    // Streak boost if applicable
+                    if streakBoostPercentage > 0 {
+                        HStack(spacing: 8) {
+                            Text("STREAK:")
+                                .font(.system(size: 11, weight: .medium, design: .monospaced))
+                                .foregroundColor(.cyan.opacity(0.5))
+                            Text("+\(streakBoostPercentage)%")
+                                .font(.system(size: 14, weight: .bold, design: .monospaced))
+                                .foregroundColor(.cyan.opacity(0.7))
+                            Text("(+\(streakBoostAmount))")
+                                .font(.system(size: 12, weight: .medium, design: .monospaced))
+                                .foregroundColor(.cyan.opacity(0.6))
+                        }
+                    }
+                    
+                    // Divider line
+                    Rectangle()
+                        .fill(Color.green.opacity(0.3))
+                        .frame(height: 1)
+                        .frame(maxWidth: 120)
+                    
+                    // Total score
+                    HStack(spacing: 8) {
+                        Text("TOTAL:")
+                            .font(.system(size: 11, weight: .medium, design: .monospaced))
+                            .foregroundColor(.green.opacity(0.6))
+                        Text("\(score)")
+                            .font(.system(size: 24, weight: .bold, design: .monospaced))
+                            .foregroundColor(.green)
+                            .shadow(color: .green.opacity(0.5), radius: 5)
+                    }
+                }
                 
-                // Add streak boost display
+                // Streak info text
                 if let boostText = streakBoostText {
                     Text(boostText)
-                        .font(.system(size: 10, weight: .medium, design: .monospaced))
-                        .foregroundColor(.cyan.opacity(0.8))
+                        .font(.system(size: 9, weight: .medium, design: .monospaced))
+                        .foregroundColor(.cyan.opacity(0.6))
+                        .padding(.top, 4)
                 }
             }
             
