@@ -157,71 +157,100 @@ struct ArchiveWinModal: View {
         }
     }
     
-    // MARK: - Central Content Layer
-    private var centralContentLayer: some View {
-        VStack(spacing: 32) {
-            // Classification stamp
-            classificationStamp
-            
-            // Decoded quote with typewriter effect
-            if !author.isEmpty && typewriterIndex >= solution.count {
-                VStack(spacing: 4) {
-                    Text("— \(author)")
-                        .font(.system(size: 16, weight: .light, design: .serif))
-                        .italic()
-                        .foregroundColor(Color(red: 0.45, green: 0.40, blue: 0.35))
-                        .transition(.opacity)
+
+        // MARK: - Central Content Layer
+        private var centralContentLayer: some View {
+            ScrollView {
+                VStack(spacing: 20) { // Reduced spacing from 32 to 20
+                    // Classification stamp
+                    classificationStamp
                     
-                    // Add attribution if available
-                    if let attribution = displayStats?.attribution ?? gameState.quoteAttribution,
-                       !attribution.isEmpty {
-                        Text(attribution)
-                            .font(.system(size: 14, weight: .light, design: .serif))
-                            .foregroundColor(Color(red: 0.55, green: 0.50, blue: 0.45))
-                            .italic()
+                    // ADD THIS: Quote display with typewriter effect
+                    if typewriterIndex > 0 {
+                        VStack(spacing: 8) { // Reduced spacing from 12 to 8
+                            // Quote text with typewriter effect
+                            let displayText = String(solution.prefix(typewriterIndex))
+                            
+                            Text(displayText)
+                                .font(.system(size: 16, weight: .medium, design: .serif)) // Reduced from 18
+                                .foregroundColor(Color(red: 0.25, green: 0.22, blue: 0.20))
+                                .multilineTextAlignment(.center)
+                                .lineSpacing(6) // Reduced from 8
+                                .padding(.horizontal, 16) // Reduced from 20
+                                .fixedSize(horizontal: false, vertical: true)
+                            
+                            // Author and attribution (only show after typewriter completes)
+                            if !author.isEmpty && typewriterIndex >= solution.count {
+                                VStack(spacing: 2) { // Reduced from 4
+                                    Text("— \(author)")
+                                        .font(.system(size: 14, weight: .light, design: .serif)) // Reduced from 16
+                                        .italic()
+                                        .foregroundColor(Color(red: 0.45, green: 0.40, blue: 0.35))
+                                        .transition(.opacity)
+                                    
+                                    // Add attribution if available
+                                    if let attribution = displayStats?.attribution ?? gameState.quoteAttribution,
+                                       !attribution.isEmpty {
+                                        Text(attribution)
+                                            .font(.system(size: 12, weight: .light, design: .serif)) // Reduced from 14
+                                            .foregroundColor(Color(red: 0.55, green: 0.50, blue: 0.45))
+                                            .italic()
+                                            .transition(.opacity)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.vertical, 12) // Reduced from 16
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            RoundedRectangle(cornerRadius: 2)
+                                .fill(Color(red: 0.98, green: 0.96, blue: 0.92).opacity(0.5))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .stroke(Color(red: 0.75, green: 0.70, blue: 0.65).opacity(0.2), lineWidth: 1)
+                                )
+                        )
+                    }
+                    
+                    // Score section
+                    if showScore {
+                        scoreSection
+                            .transition(.asymmetric(
+                                insertion: .scale.combined(with: .opacity),
+                                removal: .opacity
+                            ))
+                    }
+                    
+                    // Stats section
+                    if showStats {
+                        statsSection
                             .transition(.opacity)
                     }
+                    
+                    // Action buttons
+                    if showButtons {
+                        buttonSection
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
+                    }
                 }
+                .padding(30) // Reduced from 40
             }
-            
-            // Score section
-            if showScore {
-                scoreSection
-                    .transition(.asymmetric(
-                        insertion: .scale.combined(with: .opacity),
-                        removal: .opacity
-                    ))
-            }
-            
-            // Stats section
-            if showStats {
-                statsSection
-                    .transition(.opacity)
-            }
-            
-            // Action buttons
-            if showButtons {
-                buttonSection
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
+            .frame(maxWidth: 600, maxHeight: .infinity)
+            .background(
+                ZStack {
+                    // Aged paper background
+                    RoundedRectangle(cornerRadius: 4)
+                        .fill(Color(red: 0.98, green: 0.96, blue: 0.92))
+                    
+                    // Subtle border
+                    RoundedRectangle(cornerRadius: 4)
+                        .stroke(Color(red: 0.75, green: 0.70, blue: 0.65).opacity(0.3), lineWidth: 1)
+                }
+            )
+            .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
+            .scaleEffect(showDecrypted ? 1.0 : 0.9)
+            .opacity(showDecrypted ? 1.0 : 0)
         }
-        .padding(40)
-        .frame(maxWidth: 600)
-        .background(
-            ZStack {
-                // Aged paper background
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(Color(red: 0.98, green: 0.96, blue: 0.92))
-                
-                // Subtle border
-                RoundedRectangle(cornerRadius: 4)
-                    .stroke(Color(red: 0.75, green: 0.70, blue: 0.65).opacity(0.3), lineWidth: 1)
-            }
-        )
-        .shadow(color: Color.black.opacity(0.1), radius: 20, x: 0, y: 10)
-        .scaleEffect(showDecrypted ? 1.0 : 0.9)
-        .opacity(showDecrypted ? 1.0 : 0)
-    }
     
     // MARK: - Classification Stamp
     private var classificationStamp: some View {

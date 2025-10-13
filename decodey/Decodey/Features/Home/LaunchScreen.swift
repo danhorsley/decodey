@@ -1,8 +1,4 @@
-//
-//  LaunchScreen.swift
-//  Decodey
-//
-
+// LaunchScreen.swift
 
 import SwiftUI
 
@@ -11,15 +7,15 @@ struct LaunchScreen: View {
     @State private var showLogo = false
     @State private var letterAnimations = Array(repeating: false, count: 7) // DECODEY has 7 letters
     
-    // Use your app's color scheme
-    @Environment(\.colorScheme) var colorScheme
+    // REMOVED: @Environment(\.colorScheme) var colorScheme
+    // We're forcing dark mode for consistency
     
     // The title split into characters for animation
     private let titleLetters = Array("decodey")
     
     var body: some View {
         ZStack {
-            // Background gradient matching your app theme
+            // Background gradient - ALWAYS DARK
             backgroundGradient
                 .ignoresSafeArea()
             
@@ -60,7 +56,7 @@ struct LaunchScreen: View {
                                     .opacity(letterAnimations[index] ? 0.3 : 0)
                                     .blur(radius: 8)
                                     .animation(
-                                        .easeIn(duration: 0.6)
+                                        .easeInOut(duration: 0.6)
                                         .delay(Double(index) * 0.05),
                                         value: letterAnimations[index]
                                     )
@@ -68,66 +64,59 @@ struct LaunchScreen: View {
                         }
                     )
                     
-                    // Tagline
+                    // Tagline or subtitle
                     Text("CRACK THE CODE")
                         .font(.system(size: 14, weight: .medium, design: .monospaced))
-                        .tracking(6)
-                        .foregroundColor(.gray.opacity(0.8))
+                        .foregroundColor(.cyan.opacity(0.7))
+                        .tracking(3)
                         .opacity(isAnimating ? 1.0 : 0)
-                        .animation(.easeIn(duration: 0.8).delay(0.8), value: isAnimating)
+                        .animation(.easeInOut(duration: 0.8).delay(0.5), value: isAnimating)
                 }
                 
                 Spacer()
                 
-                // Loading indicator (subtle)
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: .cyan.opacity(0.8)))
-                    .scaleEffect(0.8)
-                    .opacity(isAnimating ? 1.0 : 0)
-                    .animation(.easeIn(duration: 0.5).delay(1.0), value: isAnimating)
+                // Loading indicator or version info at bottom
+                VStack(spacing: 8) {
+                    // Subtle loading dots animation
+                    HStack(spacing: 8) {
+                        ForEach(0..<3) { index in
+                            Circle()
+                                .fill(Color.cyan.opacity(0.6))
+                                .frame(width: 6, height: 6)
+                                .scaleEffect(isAnimating ? 1.2 : 0.8)
+                                .animation(
+                                    .easeInOut(duration: 0.6)
+                                    .repeatForever(autoreverses: true)
+                                    .delay(Double(index) * 0.2),
+                                    value: isAnimating
+                                )
+                        }
+                    }
                     .padding(.bottom, 50)
+                }
             }
         }
+        .preferredColorScheme(.dark) // FORCE DARK MODE
         .onAppear {
             startAnimations()
         }
     }
     
-    // MARK: - Components
-    
-    @ViewBuilder
+    // MARK: - Icon Section
     private var iconSection: some View {
         ZStack {
-            // Outer cipher ring effect
+            // Background circle with animated rotation
             Circle()
                 .stroke(
                     LinearGradient(
-                        colors: [.cyan.opacity(0.3), .blue.opacity(0.1)],
+                        colors: [.cyan.opacity(0.3), .blue.opacity(0.1), .clear],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ),
                     lineWidth: 2
                 )
-                .frame(width: 120, height: 120)
+                .frame(width: 80, height: 80)
                 .rotationEffect(.degrees(isAnimating ? 360 : 0))
-                .animation(
-                    .linear(duration: 20)
-                    .repeatForever(autoreverses: false),
-                    value: isAnimating
-                )
-            
-            // Inner cipher ring
-            Circle()
-                .stroke(
-                    LinearGradient(
-                        colors: [.blue.opacity(0.2), .cyan.opacity(0.3)],
-                        startPoint: .bottomTrailing,
-                        endPoint: .topLeading
-                    ),
-                    lineWidth: 1.5
-                )
-                .frame(width: 90, height: 90)
-                .rotationEffect(.degrees(isAnimating ? -360 : 0))
                 .animation(
                     .linear(duration: 15)
                     .repeatForever(autoreverses: false),
@@ -148,11 +137,10 @@ struct LaunchScreen: View {
         }
     }
     
+    // UPDATED: Always use dark mode gradient
     private var backgroundGradient: some View {
         LinearGradient(
-            colors: colorScheme == .dark ?
-                [Color.black, Color.black.opacity(0.95), Color.blue.opacity(0.1)] :
-                [Color.white, Color.gray.opacity(0.1), Color.blue.opacity(0.05)],
+            colors: [Color.black, Color.black.opacity(0.95), Color.blue.opacity(0.1)],
             startPoint: .top,
             endPoint: .bottom
         )
