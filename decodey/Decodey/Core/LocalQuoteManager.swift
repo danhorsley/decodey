@@ -3,6 +3,7 @@
 import Foundation
 import CoreData
 import SwiftUI
+import StoreKit
 
 class LocalQuoteManager: ObservableObject {
     static let shared = LocalQuoteManager()
@@ -38,6 +39,9 @@ class LocalQuoteManager: ObservableObject {
         
         print("📚 Loading quotes from bundle...")
         await loadQuotesFromBundle()
+        Task {
+            await loadPurchasedQuotes()
+        }
     }
     
     // Alternative: Add a force reload function for debugging
@@ -125,8 +129,64 @@ class LocalQuoteManager: ObservableObject {
                 continuation.resume()
             }
         }
+        
     }
     
+    func loadPurchasedQuotes() async {
+            for productID in StoreManager.ProductID.allCases {
+                if await StoreManager.shared.isPackPurchased(productID) && !isPackLoaded(productID) {
+                    await loadQuotePack(productID)
+                }
+            }
+        }
+        
+        // Check if a pack has already been loaded (synchronous - no await needed)
+        private func isPackLoaded(_ productID: StoreManager.ProductID) -> Bool {
+            let key = "pack_loaded_\(productID.rawValue)"
+            return UserDefaults.standard.bool(forKey: key)
+        }
+        
+        // Load a specific quote pack into Core Data
+        private func loadQuotePack(_ productID: StoreManager.ProductID) async {
+            guard let package = QuotePackage.loadPackage(productID) else { return }
+            
+            await withCheckedContinuation { continuation in
+                let context = coreData.newBackgroundContext()
+                
+                context.perform {
+                    for quote in package.quotes {
+                        let entity = QuoteCD(context: context)
+                        entity.id = UUID()
+                        entity.text = quote.text.uppercased()
+                        entity.author = quote.author
+                        entity.attribution = quote.category // Use category as attribution
+                        entity.difficulty = 0.0
+                        entity.timesUsed = 0
+                        entity.uniqueLetters = Int16(Set(quote.text.filter { $0.isLetter }).count)
+                        entity.isActive = true
+                        entity.isDaily = false
+                        entity.serverId = 0
+                        entity.dailyDate = nil
+                    }
+                    
+                    do {
+                        try context.save()
+                        let key = "pack_loaded_\(productID.rawValue)"
+                        UserDefaults.standard.set(true, forKey: key)
+                        print("✅ Loaded \(productID.displayName) pack with \(package.quotes.count) quotes")
+                    } catch {
+                        print("❌ Failed to load pack \(productID.displayName): \(error)")
+                    }
+                    
+                    continuation.resume()
+                }
+            }
+        }
+        
+        // Call this after any purchase to refresh
+        func refreshAfterPurchase() async {
+            await loadPurchasedQuotes()
+        }
     // MARK: - Quote Access
     
     func getRandomQuote() -> LocalQuoteModel? {

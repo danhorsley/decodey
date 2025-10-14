@@ -1,5 +1,6 @@
 import SwiftUI
 import GameKit
+import StoreKit
 
 @main
 struct decodeyApp: App {
@@ -49,6 +50,8 @@ struct decodeyApp: App {
                         showLaunchScreen = false
                     }
                 }
+                _ = StoreManager.shared
+                _ = QuotePackageManager.shared
             }
         }
     }

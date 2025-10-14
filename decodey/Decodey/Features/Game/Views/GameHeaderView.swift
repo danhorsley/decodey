@@ -7,7 +7,7 @@ import SwiftUI
 
 struct GameHeaderView: View {
     @EnvironmentObject var gameState: GameState
-    @Environment(\.dismiss) var dismiss
+    @State private var showingPurchaseView = false  // Add this state
     
     // Use the published variable from GameState
     private var isDailyChallenge: Bool {
@@ -19,7 +19,7 @@ struct GameHeaderView: View {
         
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM d, yyyy"
-        return formatter.string(from: Date())  // Today's date for daily challenge
+        return formatter.string(from: Date())
     }
     
     var body: some View {
@@ -53,28 +53,16 @@ struct GameHeaderView: View {
             
             // Overlay buttons
             HStack {
-                // Back button (left side)
-                Button(action: {
-                    SoundManager.shared.play(.letterClick)
-                    dismiss()
-                }) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 20, weight: .semibold))
-                        .foregroundColor(.primary)
-                        .frame(width: 44, height: 44)
-                        .background(
-                            Circle()
-                                .fill(Color.primary.opacity(0.05))
-                        )
-                }
-                .buttonStyle(.plain)
+                // Store button (left side)
+                StoreButton(action: {
+                    showingPurchaseView = true
+                })
                 
                 Spacer()
                 
                 // Refresh button (right side, only for custom games)
                 if !isDailyChallenge {
                     RefreshButton(action: {
-                        // Start a new custom game
                         gameState.resetGame()
                     })
                 }
@@ -82,6 +70,87 @@ struct GameHeaderView: View {
         }
         .padding(.horizontal, GameLayout.paddingSmall)
         .padding(.vertical, GameLayout.padding)
+        .sheet(isPresented: $showingPurchaseView) {
+            PurchaseView()
+                .onDisappear {
+                    // Refresh quotes when store closes
+                    Task {
+                        await LocalQuoteManager.shared.refreshAfterPurchase()
+                    }
+                }
+        }
+    }
+}
+
+// MARK: - Store Button Component
+
+struct StoreButton: View {
+    let action: () -> Void
+    @State private var isPressed = false
+    @State private var showTooltip = false
+    
+    var body: some View {
+        Button(action: {
+            SoundManager.shared.play(.letterClick)
+            action()
+        }) {
+            ZStack {
+                // Main button
+                Image(systemName: "books.vertical")
+                    .font(.system(size: 18, weight: .medium))
+                    .foregroundColor(.primary)
+                    .scaleEffect(isPressed ? 0.85 : 1.0)
+                    .opacity(isPressed ? 0.8 : 1.0)
+                    .frame(width: 44, height: 44)
+                    .background(
+                        Circle()
+                            .fill(Color.primary.opacity(0.05))
+                            .overlay(
+                                Circle()
+                                    .stroke(Color.primary.opacity(0.2), lineWidth: 1)
+                            )
+                    )
+                
+                // Subtle sparkle indicator for new content
+                Image(systemName: "sparkle")
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundColor(.yellow)
+                    .offset(x: 12, y: -12)
+                    .opacity(0.8)
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
+        .onLongPressGesture(
+            minimumDuration: 0,
+            maximumDistance: .infinity,
+            pressing: { pressing in
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    isPressed = pressing
+                }
+            },
+            perform: {}
+        )
+        .onHover { hovering in
+            showTooltip = hovering
+        }
+        .overlay(
+            // Tooltip on hover (for macOS)
+            Group {
+                if showTooltip {
+                    Text("Get More Quotes")
+                        .font(.caption2)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.black.opacity(0.8))
+                        .foregroundColor(.white)
+                        .cornerRadius(4)
+                        .offset(y: -45)
+                        .transition(.opacity)
+                }
+            }
+        )
+        // iOS tooltip using help modifier
+        .help("Get More Quotes")
     }
 }
 
