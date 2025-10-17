@@ -287,31 +287,64 @@ struct GameModel {
     
     /// Calculate score
     func calculateScore() -> Int {
+        // Keep existing guard - but ensure minimum score if won
         guard hasWon else { return 0 }
         
         let timeInSeconds = getTimeSpentSeconds()
         
-        // Base score by difficulty
+        // Base score by difficulty (increased for better feel)
         let baseScore: Int
         switch difficulty.lowercased() {
-        case "easy": baseScore = 100
-        case "hard": baseScore = 300
-        default: baseScore = 200
+        case "easy": baseScore = 500
+        case "hard": baseScore = 1500
+        default: baseScore = 1000  // medium
         }
         
-        // Time bonus/penalty
-        let timeScore: Int
-        if timeInSeconds < 60 { timeScore = 50 }
-        else if timeInSeconds < 180 { timeScore = 30 }
-        else if timeInSeconds < 300 { timeScore = 10 }
-        else if timeInSeconds > 600 { timeScore = -20 }
-        else { timeScore = 0 }
+        // Time bonus (smoother progression)
+        let timeBonus: Double
+        switch timeInSeconds {
+        case 0..<30:
+            timeBonus = 1.5   // +50% for lightning speed
+        case 30..<60:
+            timeBonus = 1.3   // +30% for very fast
+        case 60..<120:
+            timeBonus = 1.2   // +20% for fast
+        case 120..<180:
+            timeBonus = 1.1   // +10% for good pace
+        case 180..<300:
+            timeBonus = 1.0   // Normal
+        case 300..<600:
+            timeBonus = 0.9   // -10% for slow
+        default:
+            timeBonus = 0.8   // -20% for very slow
+        }
         
-        // Mistake penalty
-        let mistakePenalty = mistakes * 20
+        // Mistake penalty (progressive)
+        let mistakeMultiplier: Double
+        switch mistakes {
+        case 0:
+            mistakeMultiplier = 1.2   // +20% for perfect
+        case 1:
+            mistakeMultiplier = 1.0   // No penalty
+        case 2:
+            mistakeMultiplier = 0.85  // -15%
+        case 3:
+            mistakeMultiplier = 0.7   // -30%
+        case 4:
+            mistakeMultiplier = 0.55  // -45%
+        default:
+            // Heavy penalty for many mistakes
+            mistakeMultiplier = max(0.4 - Double(mistakes - 5) * 0.1, 0.2)
+        }
         
-        // Total (never negative)
-        return max(0, baseScore - mistakePenalty + timeScore)
+        // Calculate final score
+        let finalScore = Double(baseScore) * timeBonus * mistakeMultiplier
+        
+        // Round to nearest 10 for cleaner display
+        let rounded = Int(finalScore / 10) * 10
+        
+        // Minimum 100 points for completing the puzzle
+        return max(100, rounded)
     }
 }
 

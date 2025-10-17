@@ -12,6 +12,7 @@ struct VaultWinModal: View {
     @State private var showStats = false
     @State private var showButtons = false
     @State private var typewriterIndex = 0
+    @State private var showScoreBreakdown = false
     
     // Vault code columns
     @State private var columns: [VaultCodeColumn] = []
