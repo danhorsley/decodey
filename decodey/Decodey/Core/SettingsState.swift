@@ -190,7 +190,7 @@ class SettingsState: ObservableObject {
         gameDifficulty = "medium"
         soundEnabled = true
         soundVolume = 0.5
-        useEnhancedLetterCells = false
+        useEnhancedLetterCells = true
         useBiometricAuth = BiometricAuthHelper.shared.biometricAuthAvailable().0
     }
     

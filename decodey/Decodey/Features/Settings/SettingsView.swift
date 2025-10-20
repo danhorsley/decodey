@@ -88,19 +88,19 @@ struct SettingsView: View {
                         .scaleEffect(0.9)
                 }
                 
-                Divider()
-                    .background(Color.gameBorder)
-                
-                // Enhanced Letter Cells
-                SettingRow(
-                    title: "Enhanced Letter Cells",
-                    subtitle: "Visual improvements for game cells",
-                    icon: "sparkles"
-                ) {
-                    Toggle("", isOn: $settings.useEnhancedLetterCells)
-                        .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
-                        .scaleEffect(0.9)
-                }
+//                Divider()
+//                    .background(Color.gameBorder)
+//                
+//                // Enhanced Letter Cells
+//                SettingRow(
+//                    title: "Enhanced Letter Cells",
+//                    subtitle: "Visual improvements for game cells",
+//                    icon: "sparkles"
+//                ) {
+//                    Toggle("", isOn: $settings.useEnhancedLetterCells)
+//                        .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
+//                        .scaleEffect(0.9)
+//                }
                 
                 Divider()
                     .background(Color.gameBorder)
