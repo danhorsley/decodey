@@ -9,6 +9,8 @@ struct SettingsView: View {
     @StateObject private var settings = SettingsState.shared
     @State private var showingDifficultyPicker = false
     @State private var showingAbout = false
+    @State private var showingQuoteDisclaimer = false
+    @State private var showingPrivacyPolicy = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     
@@ -38,6 +40,12 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showingAbout) {
             AboutSheet()
+        }
+        .sheet(isPresented: $showingQuoteDisclaimer) {
+            QuoteDisclaimerView()
+        }
+        .sheet(isPresented: $showingPrivacyPolicy) {
+            PrivacyPolicyView()
         }
     }
     
@@ -87,20 +95,6 @@ struct SettingsView: View {
                         .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
                         .scaleEffect(0.9)
                 }
-                
-//                Divider()
-//                    .background(Color.gameBorder)
-//                
-//                // Enhanced Letter Cells
-//                SettingRow(
-//                    title: "Enhanced Letter Cells",
-//                    subtitle: "Visual improvements for game cells",
-//                    icon: "sparkles"
-//                ) {
-//                    Toggle("", isOn: $settings.useEnhancedLetterCells)
-//                        .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
-//                        .scaleEffect(0.9)
-//                }
                 
                 Divider()
                     .background(Color.gameBorder)
@@ -223,6 +217,40 @@ struct SettingsView: View {
     private var aboutSection: some View {
         SettingsSection(title: "About", icon: "info.circle.fill") {
             VStack(spacing: 0) {
+                // Quote Information Button
+                Button(action: { showingQuoteDisclaimer = true }) {
+                    SettingRow(
+                        title: "Quote Information",
+                        subtitle: "Usage and removal requests",
+                        icon: "quote.bubble"
+                    ) {
+                        Image(systemName: "chevron.right")
+                            .font(.body)
+                            .foregroundStyle(Color.secondary)
+                    }
+                }
+                .buttonStyle(PlainButtonStyle())
+                
+                Divider()
+                    .background(Color.gameBorder)
+                
+                // Privacy Policy Button
+                Button(action: { showingPrivacyPolicy = true }) {
+                    SettingRow(
+                        title: "Privacy Policy",
+                        subtitle: "Your data stays on device",
+                        icon: "lock.shield"
+                    ) {
+                        Image(systemName: "chevron.right")
+                            .font(.body)
+                            .foregroundStyle(Color.secondary)
+                    }
+                }
+                .buttonStyle(PlainButtonStyle())
+                
+                Divider()
+                    .background(Color.gameBorder)
+                
                 // About Button
                 Button(action: { showingAbout = true }) {
                     SettingRow(
@@ -237,11 +265,12 @@ struct SettingsView: View {
                 }
                 .buttonStyle(PlainButtonStyle())
                 
+                /* Commented out until App Store ID is available
                 Divider()
                     .background(Color.gameBorder)
                 
                 // Rate App
-                Button(action: { /* Rate app action */ }) {
+                Button(action: openAppStore) {
                     SettingRow(
                         title: "Rate Decodey",
                         subtitle: "Share your feedback",
@@ -253,24 +282,20 @@ struct SettingsView: View {
                     }
                 }
                 .buttonStyle(PlainButtonStyle())
-                
-                Divider()
-                    .background(Color.gameBorder)
-                
-                // Share App
-                Button(action: { /* Share app action */ }) {
-                    SettingRow(
-                        title: "Share Decodey",
-                        subtitle: "Tell your friends",
-                        icon: "square.and.arrow.up"
-                    ) {
-                        Image(systemName: "arrow.up.forward.app")
-                            .font(.body)
-                            .foregroundStyle(Color.secondary)
-                    }
-                }
-                .buttonStyle(PlainButtonStyle())
+                */
             }
+        }
+    }
+    
+    // MARK: - Actions
+    private func openAppStore() {
+        // TODO: Replace YOUR_APP_ID with your actual App Store ID when available
+        if let url = URL(string: "https://apps.apple.com/app/id_YOUR_APP_ID") {
+            #if os(iOS)
+            UIApplication.shared.open(url)
+            #elseif os(macOS)
+            NSWorkspace.shared.open(url)
+            #endif
         }
     }
 }
@@ -315,7 +340,6 @@ struct SettingsSection<Content: View>: View {
         }
     }
 }
-
 
 struct SettingRow<Accessory: View>: View {
     let title: String
@@ -483,41 +507,49 @@ struct AboutSheet: View {
             Divider()
                 .background(Color.gameBorder)
             
+            // Content
             ScrollView {
-                VStack(spacing: 32) {
-                    // App Icon and Info
-                    VStack(spacing: 16) {
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(
-                                LinearGradient(
-                                    colors: [Color.accentColor, Color.accentColor.opacity(0.7)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
+                VStack(alignment: .center, spacing: 24) {
+                    // App Icon
+                    Image(systemName: "square.text.square.fill")
+                        .font(.system(size: 80))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [Color.accentColor, Color.accentColor.opacity(0.7)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
                             )
-                            .frame(width: 80, height: 80)
-                            .overlay(
-                                Text("D")
-                                    .font(.title.bold())
-                                    .foregroundStyle(.white)
-                            )
+                        )
+                        .padding(.top, 32)
+                    
+                    // App Name & Version
+                    VStack(spacing: 4) {
+                        Text("Decodey")
+                            .font(.title.weight(.bold))
+                            .foregroundStyle(Color.primary)
                         
-                        VStack(spacing: 8) {
-                            Text("Decodey")
-                                .font(.title2.bold())
-                                .foregroundStyle(Color.primary)
-                            
-                            Text("A word puzzle game")
-                                .font(.body)
-                                .foregroundStyle(Color.secondary)
-                        }
+                        Text("Version 1.0 (Build 1)")
+                            .font(.caption)
+                            .foregroundStyle(Color.secondary)
+                    }
+                    
+                    // Developer Info
+                    VStack(spacing: 8) {
+                        Text("Developed with ❤️")
+                            .font(.body)
+                            .foregroundStyle(Color.secondary)
+                        
+                        Text("© 2024 Decodey")
+                            .font(.caption)
+                            .foregroundStyle(Color.secondary)
                     }
                     
                     // Features
                     VStack(alignment: .leading, spacing: 16) {
                         Text("Features")
-                            .font(.headline.weight(.semibold))
+                            .font(.headline)
                             .foregroundStyle(Color.primary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
                         
                         VStack(spacing: 12) {
                             FeatureRow(icon: "quote.bubble.fill", title: "Classic Quotes", description: "Solve puzzles from famous quotes")
