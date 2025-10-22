@@ -61,9 +61,9 @@ class LocalQuoteManager: ObservableObject {
     // Keep the rest of the implementation the same...
     private func loadQuotesFromBundle() async {
         // Find the file
-        guard let url = Bundle.main.url(forResource: "quotes_classic", withExtension: "json") else {
+        guard let url = Bundle.main.url(forResource: "quotes_starter", withExtension: "json") else {
             await MainActor.run {
-                self.loadingError = "quotes_classic.json not found in bundle"
+                self.loadingError = "quotes_starter.json not found in bundle"
             }
             print("❌ File not found")
             return

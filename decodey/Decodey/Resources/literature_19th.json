@@ -1,0 +1,4332 @@
+{
+  "quotes": [
+    {
+      "text": "The illusion which exalts us is dearer to us than ten thousand truths.",
+      "author": "Alexander Pushkin",
+      "attribution": "Attributed,  ~1830s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Don't be sad, don't be angry, if life deceives you! ",
+      "author": "Alexander Pushkin",
+      "attribution": "Attributed,  ~1830s. Continues: \"Submit to your grief - your time for joy will come, believe me.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "My whole life has been a pledge to this meeting with you.",
+      "author": "Alexander Pushkin",
+      "attribution": "Eugene Onegin, 1833",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "I loved you, and I probably still do, And for a while the feeling may remain",
+      "author": "Alexander Pushkin",
+      "attribution": "I Loved You, 1829. Continues: \"... But let my love no longer trouble you, I do not wish to cause you any pain.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "All generalizations are dangerous, even this one.",
+      "author": "Alexandre Dumas",
+      "attribution": "Attributed, ~1840s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "In business, sir, one has no friends, only correspondents.",
+      "author": "Alexandre Dumas",
+      "attribution": "The Count of Monte Cristo, 1844.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Moral wounds may be hidden, but they never close.",
+      "author": "Alexandre Dumas",
+      "attribution": "The Count of Monte Cristo, 1844.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Philosophy is the application of the sciences to truth.",
+      "author": "Alexandre Dumas",
+      "attribution": "The Count of Monte Cristo, 1844.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Wait and hope.",
+      "author": "Alexandre Dumas",
+      "attribution": "The Count of Monte Cristo, 1844.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 10
+    },
+    {
+      "text": "There is neither happiness nor misery in the world.",
+      "author": "Alexandre Dumas",
+      "attribution": "The Count of Monte Cristo, 1844. Continues: \" there is only the comparison of one state with another.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Life is a storm, my young friend.",
+      "author": "Alexandre Dumas",
+      "attribution": "The Count of Monte Cristo, 1844. Continues: \" You will bask in the sunlight one moment, be shattered on the rocks the next.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "All for one, one for all, that is our device.",
+      "author": "Alexandre Dumas",
+      "attribution": "The Three Musketeers, 1844.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Never fear quarrels, but seek hazardous adventures.",
+      "author": "Alexandre Dumas",
+      "attribution": "The Three Musketeers, 1844.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Pure love and suspicion cannot dwell together.",
+      "author": "Alexandre Dumas",
+      "attribution": "The Three Musketeers, 1844.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "The merit of all things lies in their difficulty.",
+      "author": "Alexandre Dumas",
+      "attribution": "The Three Musketeers, 1844.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "'Tis better to have loved and lost than never to have loved at all.",
+      "author": "Alfred Lord Tennyson",
+      "attribution": "In Memoriam, 1850.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Theirs not to reason why, theirs but to do and die.",
+      "author": "Alfred Lord Tennyson",
+      "attribution": "The Charge of the Light Brigade, 1854.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "It is not only in Barchester that a new man is carrying out new measures.",
+      "author": "Anthony Trollope",
+      "attribution": "Barchester Towers, 1857.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Morning parties, as a rule, are failures.",
+      "author": "Anthony Trollope",
+      "attribution": "Barchester Towers, 1857.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "Never think that you're not good enough yourself.",
+      "author": "Anthony Trollope",
+      "attribution": "Barchester Towers, 1857.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "No virtue could charm him, no vice shock him.",
+      "author": "Anthony Trollope",
+      "attribution": "Barchester Towers, 1857.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "The habit of reading is the only enjoyment in which there is no alloy.",
+      "author": "Anthony Trollope",
+      "attribution": "Barchester Towers, 1857.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "A man will give his life for a goat's horn.",
+      "author": "Anthony Trollope",
+      "attribution": "The Way We Live Now, 1875.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "If one wants to keep one's self straight, one has to work hard at it.",
+      "author": "Anthony Trollope",
+      "attribution": "The Way We Live Now, 1875.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Love is like any other luxury. You have no right to it unless you can afford it.",
+      "author": "Anthony Trollope",
+      "attribution": "The Way We Live Now, 1875.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "There is nothing perhaps so generally consoling to a man as a well-established grievance.",
+      "author": "Anthony Trollope",
+      "attribution": "The Way We Live Now, 1875.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "Any idiot can face a crisis; it's this day-to-day living that wears you out.",
+      "author": "Anton Chekhov",
+      "attribution": "Attributed, ~1890s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Don't tell me the moon is shining; show me the glint of light on broken glass.",
+      "author": "Anton Chekhov",
+      "attribution": "Letter, 1886.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Life is infinitely stranger than anything the mind could invent.",
+      "author": "Arthur Conan Doyle",
+      "attribution": "A Case of Identity, 1891.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "It is a capital mistake to theorize before one has data.",
+      "author": "Arthur Conan Doyle",
+      "attribution": "A Study in Scarlet, 1887.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Violence does, in truth, recoil upon the violent.",
+      "author": "Arthur Conan Doyle",
+      "attribution": "A Study in Scarlet, 1887.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "London, that great cesspool.",
+      "author": "Arthur Conan Doyle",
+      "attribution": "A Study in Scarlet, 1887. Continues: \" into which all the loungers and idlers of the Empire are irresistibly drained.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Nothing clears up a case so much as stating it to another person.",
+      "author": "Arthur Conan Doyle",
+      "attribution": "Silver Blaze, 1892.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "The game is afoot!",
+      "author": "Arthur Conan Doyle",
+      "attribution": "The Adventure of the Abbey Grange, 1904.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 10
+    },
+    {
+      "text": "The smallest trace is often the way to the greatest truth.",
+      "author": "Arthur Conan Doyle",
+      "attribution": "The Adventure of the Cardboard Box, 1893.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Crime is common. Logic is rare.",
+      "author": "Arthur Conan Doyle",
+      "attribution": "The Adventure of the Copper Beeches, 1892.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 11
+    },
+    {
+      "text": "There is nothing more deceptive than an obvious fact.",
+      "author": "Arthur Conan Doyle",
+      "attribution": "The Boscombe Valley Mystery, 1891.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "The world is full of obvious things which nobody by any chance ever observes.",
+      "author": "Arthur Conan Doyle",
+      "attribution": "The Hound of the Baskervilles, 1902.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "You know my methods, Watson.",
+      "author": "Arthur Conan Doyle",
+      "attribution": "The Hound of the Baskervilles, 1902.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "I never guess. It is a shocking habit—destructive to the logical faculty.",
+      "author": "Arthur Conan Doyle",
+      "attribution": "The Sign of Four, 1890.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "My mind rebels at stagnation. Give me problems, give me work.",
+      "author": "Arthur Conan Doyle",
+      "attribution": "The Sign of Four, 1890.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "When you have eliminated the impossible, whatever remains, however improbable, must be the truth.",
+      "author": "Arthur Conan Doyle",
+      "attribution": "The Sign of Four, 1890.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Mediocrity knows nothing higher than itself; but talent instantly recognizes genius.",
+      "author": "Arthur Conan Doyle",
+      "attribution": "The Valley of Fear, 1915.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "The sea is as deep in history as it is in water.",
+      "author": "Benito Pérez Galdós",
+      "attribution": "Fortunata and Jacinta, 1887.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "To live is to see everything change.",
+      "author": "Benito Pérez Galdós",
+      "attribution": "Fortunata and Jacinta, 1887.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "Love is a great master. It teaches us to be what we never were.",
+      "author": "Benito Pérez Galdós",
+      "attribution": "Nazarín, 1895.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "The devil is not so black as he is painted.",
+      "author": "Benito Pérez Galdós",
+      "attribution": "Nazarín, 1895.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "I have always thought that a wild animal never looks so well as when some obstacle of pronounced durability is between us.",
+      "author": "Bram Stoker",
+      "attribution": "Dracula, 1897.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 22
+    },
+    {
+      "text": "I sometimes think we must be all mad and that we shall wake to sanity in strait-waistcoats.",
+      "author": "Bram Stoker",
+      "attribution": "Dracula, 1897.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "I want you to believe... to believe in things that you cannot.",
+      "author": "Bram Stoker",
+      "attribution": "Dracula, 1897.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Listen to them—the children of the night. What music they make!",
+      "author": "Bram Stoker",
+      "attribution": "Dracula, 1897.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "No man knows till he has suffered from the night how sweet and dear to him is the morning light.",
+      "author": "Bram Stoker",
+      "attribution": "Dracula, 1897.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "She has man's brain—a brain that a man should have were he much gifted—and woman's heart.",
+      "author": "Bram Stoker",
+      "attribution": "Dracula, 1897.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "The world seems full of good men—even if there are monsters in it.",
+      "author": "Bram Stoker",
+      "attribution": "Dracula, 1897.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "There is a reason why all things are as they are.",
+      "author": "Bram Stoker",
+      "attribution": "Dracula, 1897.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "We learn from failure, not from success!",
+      "author": "Bram Stoker",
+      "attribution": "Dracula, 1897.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "Remember, my friend, that knowledge is stronger than memory.",
+      "author": "Bram Stoker",
+      "attribution": "Dracula, 1897. Continues: \" and we should not trust the weaker.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "How blessed are some people, whose lives have no fears.",
+      "author": "Bram Stoker",
+      "attribution": "Dracula, 1897. Continues: \" no dreads.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "There are darknesses in life and there are lights.",
+      "author": "Bram Stoker",
+      "attribution": "Dracula, 1897. Continues: \" you are one of the lights.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Always be a poet, even in prose.",
+      "author": "Charles Baudelaire",
+      "attribution": "Les Fleurs du Mal, 1857.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "I am the wound and the knife! I am the slap and the cheek!",
+      "author": "Charles Baudelaire",
+      "attribution": "Les Fleurs du Mal, 1857.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Strangeness is a necessary ingredient in beauty.",
+      "author": "Charles Baudelaire",
+      "attribution": "Les Fleurs du Mal, 1857.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "The devil's finest trick is to persuade you that he does not exist.",
+      "author": "Charles Baudelaire",
+      "attribution": "Les Fleurs du Mal, 1857.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "What do I care that you are good? Be beautiful! and be sad!",
+      "author": "Charles Baudelaire",
+      "attribution": "Les Fleurs du Mal, 1857.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "One should always be drunk. That's all that matters.",
+      "author": "Charles Baudelaire",
+      "attribution": "Les Fleurs du Mal, 1857. Continues: \"But with what? With wine, with poetry, or with virtue, as you chose.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Life is a hospital in which every patient is possessed with the desire to change beds.",
+      "author": "Charles Baudelaire",
+      "attribution": "Paris Spleen, 1869.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "I forged the chain I wear in life.",
+      "author": "Charles Dickens",
+      "attribution": "A Christmas Carol, 1843. Continues: \"; you wear such a chain yourself, and are making it link by link.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "It was the best of times, it was the worst of times.",
+      "author": "Charles Dickens",
+      "attribution": "A Tale of Two Cities, 1859.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "This is a London particular... A fog, miss.",
+      "author": "Charles Dickens",
+      "attribution": "Bleak House, 1853.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Dead, your Majesty. Dead, my lords and gentlemen.",
+      "author": "Charles Dickens",
+      "attribution": "Bleak House, 1853. Continues: \"Dead, your honors, dead, your worships.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "The universe makes rather an indifferent parent.",
+      "author": "Charles Dickens",
+      "attribution": "Bleak House, 1853. Continues: \"I am afraid.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "I expect a judgment. Shortly.",
+      "author": "Charles Dickens",
+      "attribution": "Bleak House, 1853. Continues: \"On the day the world shall end.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "A loving heart is the truest wisdom.",
+      "author": "Charles Dickens",
+      "attribution": "David Copperfield, 1850.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Suffering has been stronger than all other teaching.",
+      "author": "Charles Dickens",
+      "attribution": "David Copperfield, 1850. Continues: \", and has taught me to understand what your heart used to be.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Heaven knows we need never be ashamed of tears.",
+      "author": "Charles Dickens",
+      "attribution": "Great Expectations, 1861. Continues: \", for they are rain upon the blinding dust of earth, overlying our hard hearts.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Facts alone are wanted in life.",
+      "author": "Charles Dickens",
+      "attribution": "Hard Times, 1854.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Plant nothing else, and root out everything else.",
+      "author": "Charles Dickens",
+      "attribution": "Hard Times, 1854.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "There is a wisdom of the head, and a wisdom of the heart.",
+      "author": "Charles Dickens",
+      "attribution": "Hard Times, 1854.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Do the wise thing and the kind thing too.",
+      "author": "Charles Dickens",
+      "attribution": "Hard Times, 1854. Continues: \", and make the best of us and not the worst.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "The only difference between us and the professors of virtue.",
+      "author": "Charles Dickens",
+      "attribution": "Hard Times, 1854. Continues: \"is, that we avow what we do, and they don't.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "Now, what I want is Facts.",
+      "author": "Charles Dickens",
+      "attribution": "Hard Times, 1854. Continues: \"Teach these boys and girls nothing but Facts.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 10
+    },
+    {
+      "text": "People mutht be amuthed.",
+      "author": "Charles Dickens",
+      "attribution": "Hard Times, 1854. Continues: \"They can't be alwayth a working, nor yet they can't be alwayth a learning.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 11
+    },
+    {
+      "text": "In our course through life we shall meet the people who are coming to meet us.",
+      "author": "Charles Dickens",
+      "attribution": "Little Dorrit, 1857.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "While the flowers, pale and unreal in the moonlight, floated away upon the river.",
+      "author": "Charles Dickens",
+      "attribution": "Little Dorrit, 1857.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "You will profit by the failure, and will avoid it another time.",
+      "author": "Charles Dickens",
+      "attribution": "Little Dorrit, 1857.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Every failure teaches a man something.",
+      "author": "Charles Dickens",
+      "attribution": "Little Dorrit, 1857. Continues: \", if he will learn.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Be guided only by the healer of the sick.",
+      "author": "Charles Dickens",
+      "attribution": "Little Dorrit, 1857. Continues: \", the raiser of the dead, the friend of all who were afflicted and forlorn.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "It was but a momentary faltering.",
+      "author": "Charles Dickens",
+      "attribution": "Little Dorrit, 1857. Continues: \"; and Little Dorrit,  seeing her shrunken figure in its ill-fitting dress,  immediately withdrew to her own room.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "I am self-contained and self-reliant.",
+      "author": "Charles Dickens",
+      "attribution": "Little Dorrit, 1857. Continues: \"; your opinion is nothing to me.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "A prison taint was on everything there.",
+      "author": "Charles Dickens",
+      "attribution": "Little Dorrit, 1857. Continues: \"The prisoners had crept along the rafters.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "Charity begins at home, and justice begins next door.",
+      "author": "Charles Dickens",
+      "attribution": "Martin Chuzzlewit, 1844.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "The pain of parting is nothing to the joy of meeting again.",
+      "author": "Charles Dickens",
+      "attribution": "Nicholas Nickleby, 1839.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Please, sir, I want some more.",
+      "author": "Charles Dickens",
+      "attribution": "Oliver Twist, 1838. Continues: \" The board were sitting in solemn conclave, when Mr. Bumble rushed into the room in great excitement.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "No one is useless in this world.",
+      "author": "Charles Dickens",
+      "attribution": "Our Mutual Friend, 1865. Continues: \" who lightens the burdens of another.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "Have a heart that never hardens.",
+      "author": "Charles Dickens",
+      "attribution": "Our Mutual Friend, 1865. Continues: \", and a temper that never tires, and a touch that never hurts.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 9
+    },
+    {
+      "text": "There are dark shadows on the earth.",
+      "author": "Charles Dickens",
+      "attribution": "The Pickwick Papers, 1837. Continues: \", but its lights are stronger in the contrast.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 11
+    },
+    {
+      "text": "I am no bird; and no net ensnares me.",
+      "author": "Charlotte Brontë",
+      "attribution": "Jane Eyre, 1847.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 11
+    },
+    {
+      "text": "I would always rather be happy than dignified.",
+      "author": "Charlotte Brontë",
+      "attribution": "Jane Eyre, 1847.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Life appears to me too short to be spent in nursing animosity or registering wrongs.",
+      "author": "Charlotte Brontë",
+      "attribution": "Jane Eyre, 1847.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Reader, I married him.",
+      "author": "Charlotte Brontë",
+      "attribution": "Jane Eyre, 1847.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 7
+    },
+    {
+      "text": "Come buy, come buy.",
+      "author": "Christina Rossetti",
+      "attribution": "Goblin Market, 1862.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 7
+    },
+    {
+      "text": "Goblin men with their fruits and their cries.",
+      "author": "Christina Rossetti",
+      "attribution": "Goblin Market, 1862.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "In the bleak midwinter, frosty wind made moan.",
+      "author": "Christina Rossetti",
+      "attribution": "In the Bleak Midwinter, 1872.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "What can I give Him, poor as I am?",
+      "author": "Christina Rossetti",
+      "attribution": "In the Bleak Midwinter, 1872.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "All that we see or seem is but a dream within a dream.",
+      "author": "Edgar Allan Poe",
+      "attribution": "A Dream Within a Dream, 1849.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "I was never really insane except upon occasions when my heart was touched.",
+      "author": "Edgar Allan Poe",
+      "attribution": "Eleonora, 1841.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "I became insane, with long intervals of horrible sanity.",
+      "author": "Edgar Allan Poe",
+      "attribution": "Letter to George W. Eveleth, 1848.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "I have great faith in fools—self-confidence my friends call it.",
+      "author": "Edgar Allan Poe",
+      "attribution": "Marginalia, 1844.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "To vilify a great man is the readiest way in which a little man can himself attain greatness.",
+      "author": "Edgar Allan Poe",
+      "attribution": "Marginalia, 1845.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Never to suffer would never to have been blessed.",
+      "author": "Edgar Allan Poe",
+      "attribution": "Mesmeric Revelation, 1844.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Words have no power to impress the mind without the exquisite horror of their reality.",
+      "author": "Edgar Allan Poe",
+      "attribution": "The Fall of the House of Usher, 1839.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "The boundaries which divide Life from Death are at best shadowy and vague.",
+      "author": "Edgar Allan Poe",
+      "attribution": "The Premature Burial, 1844.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "Deep into that darkness peering, long I stood there, wondering, fearing.",
+      "author": "Edgar Allan Poe",
+      "attribution": "The Raven, 1845.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Believe nothing you hear, and only one half that you see.",
+      "author": "Edgar Allan Poe",
+      "attribution": "The Spectacles, 1844.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Books succeed, and lives fail.",
+      "author": "Elizabeth Barrett Browning",
+      "attribution": "Aurora Leigh, 1856.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "Earth's crammed with heaven, and every common bush afire with God.",
+      "author": "Elizabeth Barrett Browning",
+      "attribution": "Aurora Leigh, 1856.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "Light tomorrow with today!",
+      "author": "Elizabeth Barrett Browning",
+      "attribution": "Aurora Leigh, 1856.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "The devil's most devilish when respectable.",
+      "author": "Elizabeth Barrett Browning",
+      "attribution": "Aurora Leigh, 1856.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Whoso loves believes the impossible.",
+      "author": "Elizabeth Barrett Browning",
+      "attribution": "Aurora Leigh, 1856.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "God's gifts put man's best dreams to shame.",
+      "author": "Elizabeth Barrett Browning",
+      "attribution": "Sonnets from the Portuguese, 1850.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "How do I love thee? Let me count the ways.",
+      "author": "Elizabeth Barrett Browning",
+      "attribution": "Sonnets from the Portuguese, 1850.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Come! Poor little heart! Be cheery and brave.",
+      "author": "Elizabeth Gaskell",
+      "attribution": "North and South, 1854.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "How different men were to women!",
+      "author": "Elizabeth Gaskell",
+      "attribution": "North and South, 1854.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 11
+    },
+    {
+      "text": "I have never loved any woman before: my life has been too busy.",
+      "author": "Elizabeth Gaskell",
+      "attribution": "North and South, 1854.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "I know you despise me; allow me to say, it is because you don't understand me.",
+      "author": "Elizabeth Gaskell",
+      "attribution": "North and South, 1854.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Waiting is far more difficult than doing.",
+      "author": "Elizabeth Gaskell",
+      "attribution": "North and South, 1854.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "One forges one's style on the terrible anvil of daily deadlines.",
+      "author": "Émile Zola",
+      "attribution": "Attributed, ~1880s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "The artist is nothing without the gift, but the gift is nothing without work.",
+      "author": "Émile Zola",
+      "attribution": "Attributed, ~1880s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Truth is on the march, and nothing will stop it.",
+      "author": "Émile Zola",
+      "attribution": "J'Accuse!, 1898.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "The past was but the cemetery of our illusions.",
+      "author": "Émile Zola",
+      "attribution": "The Earth, 1887.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "He's more myself than I am.",
+      "author": "Emily Brontë",
+      "attribution": "Wuthering Heights, 1847.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "If all else perished, and he remained, I should still continue to be.",
+      "author": "Emily Brontë",
+      "attribution": "Wuthering Heights, 1847.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Nelly, I am Heathcliff!",
+      "author": "Emily Brontë",
+      "attribution": "Wuthering Heights, 1847.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 11
+    },
+    {
+      "text": "Whatever our souls are made of, his and mine are the same.",
+      "author": "Emily Brontë",
+      "attribution": "Wuthering Heights, 1847.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "I have been bent and broken, but - I hope - into a better shape.",
+      "author": "Emily Dickinson",
+      "attribution": "Letter, 1862.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "If I read a book and it makes my whole body so cold no fire can warm me, I know that is poetry.",
+      "author": "Emily Dickinson",
+      "attribution": "Letter, 1870.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "Forever is composed of nows.",
+      "author": "Emily Dickinson",
+      "attribution": "Poem, ~1860s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Saying nothing sometimes says the most.",
+      "author": "Emily Dickinson",
+      "attribution": "Poem, ~1870s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 11
+    },
+    {
+      "text": "That it will never come again is what makes life so sweet.",
+      "author": "Emily Dickinson",
+      "attribution": "Poem, ~1870s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "I dwell in possibility.",
+      "author": "Emily Dickinson",
+      "attribution": "Poem, 1862.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "Parting is all we know of Heaven, and all we need of Hell.",
+      "author": "Emily Dickinson",
+      "attribution": "Poem, 1862.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "This is my letter to the world that never wrote to me.",
+      "author": "Emily Dickinson",
+      "attribution": "Poem, 1862.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "We are all bound up together in one great bundle of humanity, ",
+      "author": "Frances E.W. Harper",
+      "attribution": "We Are All Bound Up Together, 1866. Continues \"and society cannot trample on the weakest and feeblest of its members without receiving the curse in its own soul.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Apparent failure may hold in its rough shell the germs of a success that will blossom in time",
+      "author": "Frances E.W. Harper, ",
+      "attribution": "Attributed ~1880s. Continues \" and bear fruit throughout eternity.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "Once you learn to read, you will be forever free.",
+      "author": "Frederick Douglass",
+      "attribution": "Attributed, ~1840s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "The soul that is within me no man can degrade.",
+      "author": "Frederick Douglass",
+      "attribution": "Attributed, ~1840s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "It is easier to build strong children than to repair broken men.",
+      "author": "Frederick Douglass",
+      "attribution": "Attributed, ~1850s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "If there is no struggle, there is no progress.",
+      "author": "Frederick Douglass",
+      "attribution": "Attributed, 1857.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Power concedes nothing without a demand. It never did and it never will.",
+      "author": "Frederick Douglass",
+      "attribution": "Speech, 1857.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Taking a new step is what people fear most.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "Crime and Punishment, 1866.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "To go wrong in one's own way is better.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "Crime and Punishment, 1866. Continues: \" than to go right in someone else's.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "If you want to overcome the whole world, overcome yourself.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "Demons, 1872.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Man is a mystery. It needs to be unraveled.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "Letter, 1839. Continues: \" and if I spend my whole life unraveling it, I will not say I wasted my time.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Man only likes to count his troubles.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "Notes from Underground, 1864. Continues: \" but he does not count his joys.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Pain and suffering are always inevitable for a large intelligence.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "Poor Folk, 1846. Continues: \" and a deep heart.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "I am a poor, hungry, lonely man.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "Poor Folk, 1846. Continues: \" and I am afraid of the future.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "All my life I have been a dreamer.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "Poor Folk, 1846. Continues: \" and I have lived in dreams.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "I am a dreamer; I have so little real life.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "Poor Folk, 1846. Continues: \" that I feel moments of real life as something unnatural.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "I am a ridiculous man.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "Poor Folk, 1846. Continues: \" They call me a madman now.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 11
+    },
+    {
+      "text": "Much unhappiness comes from things left unsaid.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "The Brothers Karamazov, 1880.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "To love someone means to see them as God intended.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "The Brothers Karamazov, 1880.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "The mystery of human existence lies in just staying alive.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "The Brothers Karamazov, 1880. Continues: \" but in finding something to live for.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "Above all, don't lie to yourself.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "The Brothers Karamazov, 1880. Continues: \" The man who lies to himself and listens to his own lie comes to a point that he cannot distinguish the truth within him.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "I had a dream, and I wanted to live.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "The Gambler, 1866.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "I am a sick man... I am a spiteful man.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "Notes from Underground, 1864",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "I wanted to live for the sake of living.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "The Gambler, 1866. Continues: \" I wanted to feel life in all its intensity.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "The degree of civilization can be judged by entering its prisons.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "The House of the Dead, 1862.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "Beauty will save the world.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "The Idiot, 1869.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "The cleverest of all is the man who calls himself a fool once a month.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "The Idiot, 1869.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "The soul is healed by being with children.",
+      "author": "Fyodor Dostoevsky",
+      "attribution": "The Idiot, 1869.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "A woman dictates before marriage in order that she may have an appetite for submission afterwards.",
+      "author": "George Eliot",
+      "attribution": "Middlemarch, 1871.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "Anger and jealousy can no more bear to lose sight of their objects than love.",
+      "author": "George Eliot",
+      "attribution": "Middlemarch, 1871.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "Blessed is the man who, having nothing to say, abstains from giving us wordy evidence of the fact.",
+      "author": "George Eliot",
+      "attribution": "Middlemarch, 1871.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "If youth is the season of hope, it is often so only in the sense that our elders are hopeful about us.",
+      "author": "George Eliot",
+      "attribution": "Middlemarch, 1871.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "It is a narrow mind which cannot look at a subject from various points of view.",
+      "author": "George Eliot",
+      "attribution": "Middlemarch, 1871.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "It is always fatal to have music or poetry interrupted.",
+      "author": "George Eliot",
+      "attribution": "Middlemarch, 1871.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "Our deeds determine us, as much as we determine our deeds.",
+      "author": "George Eliot",
+      "attribution": "Middlemarch, 1871.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "People are almost always better than their neighbours think they are.",
+      "author": "George Eliot",
+      "attribution": "Middlemarch, 1871.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "The strongest principle of growth lies in human choice.",
+      "author": "George Eliot",
+      "attribution": "Middlemarch, 1871.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "We are all of us born in moral stupidity, taking the world as an udder to feed our supreme selves.",
+      "author": "George Eliot",
+      "attribution": "Middlemarch, 1871.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "We mortals, men and women, devour many a disappointment between breakfast and dinner-time.",
+      "author": "George Eliot",
+      "attribution": "Middlemarch, 1871.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "What loneliness is more lonely than distrust?",
+      "author": "George Eliot",
+      "attribution": "Middlemarch, 1871.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "The growing good of the world is partly dependent on unhistoric acts.",
+      "author": "George Eliot",
+      "attribution": "Middlemarch, 1871. Continues: \" and that things are not so ill with you and me as they might have been.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Animals are such agreeable friends—they ask no questions; they pass no criticisms.",
+      "author": "George Eliot",
+      "attribution": "The Mill on the Floss, 1860.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "Childhood has no forebodings; but then, it is soothed by no memories of outlived sorrow.",
+      "author": "George Eliot",
+      "attribution": "The Mill on the Floss, 1860.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "I should like to know what is the proper function of women, if it is not to make reasons for husbands to stay at home.",
+      "author": "George Eliot",
+      "attribution": "The Mill on the Floss, 1860.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "Life seems to go on without effort, when I am filled with music.",
+      "author": "George Eliot",
+      "attribution": "The Mill on the Floss, 1860.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "The happiest women, like the happiest nations, have no history.",
+      "author": "George Eliot",
+      "attribution": "The Mill on the Floss, 1860.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Guard well within yourself that treasure, kindness.",
+      "author": "George Sand",
+      "attribution": "Attributed, ~1840s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "The artist vocation is to send light into the human heart.",
+      "author": "George Sand",
+      "attribution": "Attributed, ~1840s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Life resembles a novel more often than novels resemble life.",
+      "author": "George Sand",
+      "attribution": "Attributed, ~1850s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "There is only one happiness in life, to love and be loved.",
+      "author": "George Sand",
+      "attribution": "Letter, 1862.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "We cannot tear out a single page of our life, but we can throw the whole book in the fire.",
+      "author": "George Sand",
+      "attribution": "Mauprat, 1837.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "There is no truth. There is only perception.",
+      "author": "Gustave Flaubert",
+      "attribution": "Attributed, ~1850s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Be regular and orderly in your life, so that you may be violent and original in your work.",
+      "author": "Gustave Flaubert",
+      "attribution": "Letter, 1876.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "Human speech is like a cracked kettle on which we tap crude rhythms for bears to dance to.",
+      "author": "Gustave Flaubert",
+      "attribution": "Madame Bovary, 1857. Continues: \" while we long to make music that will melt the stars.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "We breathe, sleep, drink, eat, work, and then die!",
+      "author": "Guy de Maupassant",
+      "attribution": "Bel-Ami, 1885.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "All depends on assurance, here.",
+      "author": "Guy de Maupassant",
+      "attribution": "Bel-Ami, 1885. Continues: \"A shrewd, observing man can sometimes become a minister.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "How strange and changeful is life!",
+      "author": "Guy de Maupassant",
+      "attribution": "Bel-Ami, 1885. Continues: \"How small a thing is needed to make or ruin us!\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "One can love a friend as much as a wife.",
+      "author": "Guy de Maupassant",
+      "attribution": "Bel-Ami, 1885. Continues: \"Passion has its own laws.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "You do not understand me now, but later on you will remember.",
+      "author": "Guy de Maupassant",
+      "attribution": "Pierre et Jean, 1888.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Men tire themselves in pursuits they believe are free.",
+      "author": "Guy de Maupassant",
+      "attribution": "Pierre et Jean, 1888. Continues: \" but are in truth no more so than sheep in a meadow.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "She danced madly, ecstatically, drunk with pleasure.",
+      "author": "Guy de Maupassant",
+      "attribution": "The Necklace, 1884.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "She suffered endlessly, feeling that she was meant for all the delicacies.",
+      "author": "Guy de Maupassant",
+      "attribution": "The Necklace, 1884.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "For women belong to no caste, no race.",
+      "author": "Guy de Maupassant",
+      "attribution": "The Necklace, 1884. Continues: \" their grace, their beauty and their charm serving them in place of birth and family.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "What would have happened if she had never lost those jewels?",
+      "author": "Guy de Maupassant",
+      "attribution": "The Necklace, 1884. Continues: \"Who knows? How strange life is, how fickle!\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Adapt or perish, now as ever, is nature's inexorable imperative.",
+      "author": "H.G. Wells",
+      "attribution": "A Short History of the World, 1922.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "If you fell down yesterday, stand up today.",
+      "author": "H.G. Wells",
+      "attribution": "Attributed, ~1890s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "The past is but the beginning of a beginning.",
+      "author": "H.G. Wells",
+      "attribution": "The Discovery of the Future, 1901.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Human history becomes more and more a race between education and catastrophe.",
+      "author": "H.G. Wells",
+      "attribution": "The Outline of History, 1920.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "We all have our time machines,  don't we",
+      "author": "H.G. Wells",
+      "attribution": "The Time Machine, 1895. Continues: \" Some take us back, they're called memories. Some take us forward, they're called dreams.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "He had been able to repress every disrespectful word; but the flashing eye, the gloomy and troubled brow, were part of a natural language.",
+      "author": "Harriet Beecher Stowe",
+      "attribution": "Dred: A Tale of the Great Dismal Swamp, 1856.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "The bitterest tears shed over graves are for words left unsaid and deeds left undone.",
+      "author": "Harriet Beecher Stowe",
+      "attribution": "Dred: A Tale of the Great Dismal Swamp, 1856.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "The truth is the kindest thing we can give folks in the end.",
+      "author": "Harriet Beecher Stowe",
+      "attribution": "Dred: A Tale of the Great Dismal Swamp, 1856.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "When you get into a tight place and everything goes against you... never give up then.",
+      "author": "Harriet Beecher Stowe",
+      "attribution": "Dred: A Tale of the Great Dismal Swamp, 1856.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Any mind that is capable of real sorrow is capable of good.",
+      "author": "Harriet Beecher Stowe",
+      "attribution": "Uncle Tom's Cabin, 1852.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "I am too high-born to be propertied, to be a secondary at control.",
+      "author": "Harriet Beecher Stowe",
+      "attribution": "Uncle Tom's Cabin, 1852.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Strange, what brings these past things so vividly back to us, sometimes!",
+      "author": "Harriet Beecher Stowe",
+      "attribution": "Uncle Tom's Cabin, 1852.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "The longest way must have its close—the gloomiest night will wear on to a morning.",
+      "author": "Harriet Beecher Stowe",
+      "attribution": "Uncle Tom's Cabin, 1852.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Treat 'em like dogs, and you'll have dogs' work and dogs' wages.",
+      "author": "Harriet Beecher Stowe",
+      "attribution": "Uncle Tom's Cabin, 1852.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "There can be no freedom or beauty about a home life that depends on borrowing and debt.",
+      "author": "Henrik Ibsen",
+      "attribution": "A Doll's House, 1879.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "You have never loved me. You have only thought it pleasant to be in love with me.",
+      "author": "Henrik Ibsen",
+      "attribution": "A Doll's House, 1879.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "I believe that before all else I am a human being.",
+      "author": "Henrik Ibsen",
+      "attribution": "A Doll's House, 1879. Continues: \" just as much as you are—or at least I shall try to become one.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "A marriage based on full confidence, based on complete and unqualified frankness on both sides.",
+      "author": "Henrik Ibsen",
+      "attribution": "A Doll's House, 1879. Continues: \" they are not keeping anything back.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "The strongest man in the world is he who stands most alone.",
+      "author": "Henrik Ibsen",
+      "attribution": "An Enemy of the People, 1882.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "To live is to war with trolls in heart and soul.",
+      "author": "Henrik Ibsen",
+      "attribution": "Ghosts, 1881. Continues: \" To write is to sit in judgment on oneself.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "I am afraid of the half-lived life.",
+      "author": "Henrik Ibsen",
+      "attribution": "Hedda Gabler, 1890.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "I have never had a home—only a cage.",
+      "author": "Henrik Ibsen",
+      "attribution": "Hedda Gabler, 1890.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "I must try to make something of my life.",
+      "author": "Henrik Ibsen",
+      "attribution": "Hedda Gabler, 1890. Continues: \" I must, I must!\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Money may be the husk of many things but not the kernel.",
+      "author": "Henrik Ibsen",
+      "attribution": "Hedda Gabler, 1890. Continues: \" It brings you food, but not appetite.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Any fool can make a rule, and any fool will mind it.",
+      "author": "Henry David Thoreau",
+      "attribution": "Civil Disobedience, 1849.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "I was not designed to be forced. I will breathe after my own fashion.",
+      "author": "Henry David Thoreau",
+      "attribution": "Civil Disobedience, 1849.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "It is never too late to give up our prejudices.",
+      "author": "Henry David Thoreau",
+      "attribution": "Civil Disobedience, 1849.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "The only obligation which I have a right to assume is to do at any time what I think right.",
+      "author": "Henry David Thoreau",
+      "attribution": "Civil Disobedience, 1849.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "Under a government which imprisons any unjustly, the true place for a just man is also a prison.",
+      "author": "Henry David Thoreau",
+      "attribution": "Civil Disobedience, 1849.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "I hear the wind among the trees playing celestial symphonies.",
+      "author": "Henry David Thoreau",
+      "attribution": "Walden, 1854.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "I went to the woods because I wished to live deliberately.",
+      "author": "Henry David Thoreau",
+      "attribution": "Walden, 1854.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "If a man does not keep pace with his companions, perhaps it is because he hears a different drummer.",
+      "author": "Henry David Thoreau",
+      "attribution": "Walden, 1854.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "The mass of men lead lives of quiet desperation.",
+      "author": "Henry David Thoreau",
+      "attribution": "Walden, 1854.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "There is no remedy for love but to love more.",
+      "author": "Henry David Thoreau",
+      "attribution": "Walden, 1854.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "The art of being wise is knowing what to overlook.",
+      "author": "Henry James",
+      "attribution": "Principles of Psychology, 1890.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Summer afternoon—summer afternoon; to me those have always been the two most beautiful words.",
+      "author": "Henry James",
+      "attribution": "Quoted by Edith Wharton, ~1900.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "It's time to start living the life you've imagined.",
+      "author": "Henry James",
+      "attribution": "The Ambassadors, 1903.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Live all you can; it's a mistake not to.",
+      "author": "Henry James",
+      "attribution": "The Ambassadors, 1903.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "The right time is any time that one is still so lucky as to have.",
+      "author": "Henry James",
+      "attribution": "The Ambassadors, 1903.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Experience is never limited.",
+      "author": "Henry James",
+      "attribution": "The Ambassadors, 1903. Continues: \" and it is never complete; it is an immense sensibility, a kind of huge spider-web of the finest silken threads suspended in the chamber of consciousness.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Ideas are the great warriors of the world.",
+      "author": "Henry James",
+      "attribution": "The American, 1877.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Be one of those on whom nothing is lost.",
+      "author": "Henry James",
+      "attribution": "The Art of Fiction, 1884.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "The only obligation to which we may hold a novel.",
+      "author": "Henry James",
+      "attribution": "The Art of Fiction, 1884. Continues: \" without a doubt, is that it be interesting.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "We work in the dark - we do what we can.",
+      "author": "Henry James",
+      "attribution": "The Middle Years, 1893. Continues: \" we give what we have. Our doubt is our passion, and our passion is our task.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "I don't want everyone to like me; I should think less of myself if some people did.",
+      "author": "Henry James",
+      "attribution": "The Portrait of a Lady, 1881.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "Do not mind anything that anyone tells you about anyone else.",
+      "author": "Henry James",
+      "attribution": "The Portrait of a Lady, 1881. Continues: \" Judge everyone and everything for yourself.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Be not afraid of life.",
+      "author": "Henry James",
+      "attribution": "The Will to Believe, 1897. Continues: \" Believe that life is worth living, and your belief will help create the fact.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 11
+    },
+    {
+      "text": "Her memory's your love. You want no other.",
+      "author": "Henry James",
+      "attribution": "The Wings of the Dove, 1902.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "A whale-ship was my Yale College and my Harvard.",
+      "author": "Herman Melville",
+      "attribution": "Moby-Dick, 1851.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "All my means are sane, my motive and my object mad.",
+      "author": "Herman Melville",
+      "attribution": "Moby-Dick, 1851.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Better to sleep with a sober cannibal than a drunk Christian.",
+      "author": "Herman Melville",
+      "attribution": "Moby-Dick, 1851.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Call me Ishmael.",
+      "author": "Herman Melville",
+      "attribution": "Moby-Dick, 1851.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 8
+    },
+    {
+      "text": "I know not all that may be coming, but be it what it will, I'll go to it laughing.",
+      "author": "Herman Melville",
+      "attribution": "Moby-Dick, 1851.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "I love to sail forbidden seas, and land on barbarous coasts.",
+      "author": "Herman Melville",
+      "attribution": "Moby-Dick, 1851.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "I try all things, I achieve what I can.",
+      "author": "Herman Melville",
+      "attribution": "Moby-Dick, 1851.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "Ignorance is the parent of fear.",
+      "author": "Herman Melville",
+      "attribution": "Moby-Dick, 1851.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Of all tools used in the shadow of the moon, men are most apt to get out of order.",
+      "author": "Herman Melville",
+      "attribution": "Moby-Dick, 1851.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Talk not to me of blasphemy, man; I'd strike the sun if it insulted me.",
+      "author": "Herman Melville",
+      "attribution": "Moby-Dick, 1851.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "There is a wisdom that is woe.",
+      "author": "Herman Melville",
+      "attribution": "Moby-Dick, 1851. Continues: \" but there is a woe that is madness.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 11
+    },
+    {
+      "text": "Behind every great fortune lies a great crime.",
+      "author": "Honoré de Balzac",
+      "attribution": "Attributed, ~1830s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "Laws are spider webs through which the big flies pass and the little ones get caught.",
+      "author": "Honoré de Balzac",
+      "attribution": "The House of Nucingen, 1838.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "If we wait for the moment when everything, absolutely everything is ready, we shall never begin.",
+      "author": "Ivan Turgenev",
+      "attribution": "Attributed, ~1860s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "Men will live like sheep when they have no wolves to fear.",
+      "author": "James Fenimore Cooper",
+      "attribution": "The Deerslayer, 1841.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "The woods are but the ears of the earth.",
+      "author": "James Fenimore Cooper",
+      "attribution": "The Deerslayer, 1841.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "History, like love, is so apt to surround her heroes with an atmosphere of imaginary brightness.",
+      "author": "James Fenimore Cooper",
+      "attribution": "The Last of the Mohicans, 1826.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "I am Chingachgook, the Great Serpent of the Delawares.",
+      "author": "James Fenimore Cooper",
+      "attribution": "The Last of the Mohicans, 1826.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "The air of the forest is the air of life.",
+      "author": "James Fenimore Cooper",
+      "attribution": "The Last of the Mohicans, 1826.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 10
+    },
+    {
+      "text": "There is nothing like staying at home for real comfort.",
+      "author": "Jane Austen",
+      "attribution": "Emma, 1815.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "What is right to be done cannot be done too soon.",
+      "author": "Jane Austen",
+      "attribution": "Emma, 1815.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "Silly things do cease to be silly.",
+      "author": "Jane Austen",
+      "attribution": "Emma, 1815. Continues: \" if they are done by sensible people in an impudent way.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "There is no charm equal to tenderness of heart.",
+      "author": "Jane Austen",
+      "attribution": "Emma, 1815. Continues: \"; there is nothing to be compared to it.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Selfishness must always be forgiven.",
+      "author": "Jane Austen",
+      "attribution": "Mansfield Park, 1814. Continues: \" you know, because there is no hope of a cure.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Life seems but a quick succession of busy nothings.",
+      "author": "Jane Austen",
+      "attribution": "Mansfield Park, 1814. Continues: \"; it was a quick succession of busy nothings till the carriage came to the door.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "There is nothing I would not do for those who are really my friends.",
+      "author": "Jane Austen",
+      "attribution": "Northanger Abbey, 1818.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Friendship is certainly the finest balm.",
+      "author": "Jane Austen",
+      "attribution": "Northanger Abbey, 1818. Continues: \" for the pangs of disappointed love.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "How quick come the reasons for approving what we like.",
+      "author": "Jane Austen",
+      "attribution": "Persuasion, 1817.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "Let us never underestimate the power of a well-written letter.",
+      "author": "Jane Austen",
+      "attribution": "Persuasion, 1817.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "One man's ways may be as good as another's, but we all like our own best.",
+      "author": "Jane Austen",
+      "attribution": "Persuasion, 1817.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Time will explain.",
+      "author": "Jane Austen",
+      "attribution": "Persuasion, 1817.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 10
+    },
+    {
+      "text": "When pain is over, the remembrance of it often becomes a pleasure.",
+      "author": "Jane Austen",
+      "attribution": "Persuasion, 1817.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "There could have been no two hearts so open, no tastes so similar.",
+      "author": "Jane Austen",
+      "attribution": "Persuasion, 1817. Continues: \", no feelings so in unison.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "My idea of good company is the company of clever, well-informed people.",
+      "author": "Jane Austen",
+      "attribution": "Persuasion, 1817. Continues: \", who have a great deal of conversation; that is what I call good company.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "She hoped to be wise and reasonable in time.",
+      "author": "Jane Austen",
+      "attribution": "Persuasion, 1817. Continues: \"; but alas! Alas! She must confess to herself that she was not wise yet.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "You pierce my soul. I am half agony, half hope.",
+      "author": "Jane Austen",
+      "attribution": "Persuasion, 1817. Continues: \"...I have loved none but you.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "A man does not recover from such devotion of the heart to such a woman!",
+      "author": "Jane Austen",
+      "attribution": "Persuasion, 1817. Continues: \"He ought not; he does not.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "I hate to hear you talk about all women as if they were fine ladies.",
+      "author": "Jane Austen",
+      "attribution": "Persuasion, 1817. Continues: \"instead of rational creatures.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "I could easily forgive his pride.",
+      "author": "Jane Austen",
+      "attribution": "Pride and Prejudice, 1813. Continues: \", if he had not mortified mine.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Vanity and pride are different things.",
+      "author": "Jane Austen",
+      "attribution": "Pride and Prejudice, 1813. Continues: \", though the words are often used synonymously.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "Angry people are not always wise.",
+      "author": "Jane Austen",
+      "attribution": "Pride and Prejudice, 1813. Continues: \"; and in seeing him at last look somewhat nettled, she had all the success she expected.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "A lady's imagination is very rapid.",
+      "author": "Jane Austen",
+      "attribution": "Pride and Prejudice, 1813. Continues: \"; it jumps from admiration to love, from love to matrimony in a moment.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "My good opinion once lost is lost forever.",
+      "author": "Jane Austen",
+      "attribution": "Pride and Prejudice, 1813. Continues: \". That is a failing indeed!\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "I declare after all there is no enjoyment like reading!",
+      "author": "Jane Austen",
+      "attribution": "Pride and Prejudice, 1813. Continues: \"How much sooner one tires of anything than of a book!\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Do not let the behavior of others destroy your inner peace.",
+      "author": "Jane Austen",
+      "attribution": "Sense and Sensibility, 1811.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Elinor agreed to it all, for she did not think he deserved the compliment of rational opposition.",
+      "author": "Jane Austen",
+      "attribution": "Sense and Sensibility, 1811.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "I will be calm. I will be mistress of myself.",
+      "author": "Jane Austen",
+      "attribution": "Sense and Sensibility, 1811.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "If a book is well written, I always find it too short.",
+      "author": "Jane Austen",
+      "attribution": "Sense and Sensibility, 1811.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "If I could but know his heart, everything would become easy.",
+      "author": "Jane Austen",
+      "attribution": "Sense and Sensibility, 1811.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "It is not everyone who has your passion for dead leaves.",
+      "author": "Jane Austen",
+      "attribution": "Sense and Sensibility, 1811.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "She was stronger alone.",
+      "author": "Jane Austen",
+      "attribution": "Sense and Sensibility, 1811.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 11
+    },
+    {
+      "text": "To wish was to hope, and to hope was to expect.",
+      "author": "Jane Austen",
+      "attribution": "Sense and Sensibility, 1811.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "I come here with no expectations, only to profess.",
+      "author": "Jane Austen",
+      "attribution": "Sense and Sensibility, 1811. Continues: \", now that I am at liberty to do so, that my heart is and always will be...yours.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "I wish, as well as everybody else, to be perfectly happy.",
+      "author": "Jane Austen",
+      "attribution": "Sense and Sensibility, 1811. Continues: \"; but, like everybody else, it must be in my own way.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "It is not time or opportunity that is to determine intimacy.",
+      "author": "Jane Austen",
+      "attribution": "Sense and Sensibility, 1811. Continues: \";—it is disposition alone.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "The more I know of the world, the more I am convinced that I shall never see a man whom I can really love.",
+      "author": "Jane Austen",
+      "attribution": "Sense and Sensibility, 1811. Continues: \"I require so much!\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Know your own happiness.",
+      "author": "Jane Austen",
+      "attribution": "Sense and Sensibility, 1811. Continues: \"You want nothing but patience—or give it a more fascinating name, call it hope.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "A thing of beauty is a joy forever.",
+      "author": "John Keats",
+      "attribution": "Endymion, 1818.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Beauty is truth, truth beauty.",
+      "author": "John Keats",
+      "attribution": "Ode on a Grecian Urn, 1819.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 10
+    },
+    {
+      "text": "The past is an illusion.",
+      "author": "José Maria Eça de Queirós",
+      "attribution": "The Maias, 1888.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 11
+    },
+    {
+      "text": "The world is a comedy to those that think, a tragedy to those who feel.",
+      "author": "José Maria Eça de Queirós",
+      "attribution": "The Maias, 1888.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "It is certain that inanimate objects have a direct action on the brain.",
+      "author": "Jules Verne",
+      "attribution": "Around the World in Eighty Days, 1873.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "The chance which now seems lost may present itself at the last moment.",
+      "author": "Jules Verne",
+      "attribution": "Around the World in Eighty Days, 1873.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Reality provides us with facts so romantic that imagination itself could add nothing.",
+      "author": "Jules Verne",
+      "attribution": "Attributed, ~1870s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "However, everything has an end, even the hunger of people who have not eaten.",
+      "author": "Jules Verne",
+      "attribution": "Five Weeks in a Balloon, 1863.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "What is there unreasonable in admitting the existence of worlds besides our own?",
+      "author": "Jules Verne",
+      "attribution": "From the Earth to the Moon, 1865.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "Solitude, isolation, are painful things and beyond human endurance.",
+      "author": "Jules Verne",
+      "attribution": "The Mysterious Island, 1874.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "Liberty is worth paying for.",
+      "author": "Jules Verne",
+      "attribution": "Twenty Thousand Leagues Under the Sea, 1870.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "The sea is the vast reservoir of Nature.",
+      "author": "Jules Verne",
+      "attribution": "Twenty Thousand Leagues Under the Sea, 1870.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "A feeling of exultation overtook her, as if some power of significant import had been given her to control the working of her body and soul.",
+      "author": "Kate Chopin",
+      "attribution": "The Awakening, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 23
+    },
+    {
+      "text": "He did not know; perhaps he would never know.",
+      "author": "Kate Chopin",
+      "attribution": "The Awakening, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "One of these days, she said, I’m going to pull myself together for a while and think—try to determine what character of a woman I am.",
+      "author": "Kate Chopin",
+      "attribution": "The Awakening, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "She felt like some new-born creature, opening its eyes in a familiar world that it had never known.",
+      "author": "Kate Chopin",
+      "attribution": "The Awakening, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 22
+    },
+    {
+      "text": "She wanted to swim far out, where no woman had swum before.",
+      "author": "Kate Chopin",
+      "attribution": "The Awakening, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "She was becoming herself and daily casting aside that fictitious self.",
+      "author": "Kate Chopin",
+      "attribution": "The Awakening, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "The bird that would soar above the level plain of tradition and prejudice must have strong wings.",
+      "author": "Kate Chopin",
+      "attribution": "The Awakening, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "The past was nothing to her; offered no lesson which she was willing to heed.",
+      "author": "Kate Chopin",
+      "attribution": "The Awakening, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "The sea is a lonely place, and the night is very long.",
+      "author": "Kate Chopin",
+      "attribution": "The Awakening, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "The touch of the sea is sensuous, enfolding the body in its soft, close embrace.",
+      "author": "Kate Chopin",
+      "attribution": "The Awakening, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "The voice of the sea speaks to the soul.",
+      "author": "Kate Chopin",
+      "attribution": "The Awakening, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "There were days when she was unhappy, she did not know why.",
+      "author": "Kate Chopin",
+      "attribution": "The Awakening, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "I would give up the unessential; I would give my money, I would give my life for my children.",
+      "author": "Kate Chopin",
+      "attribution": "The Awakening, 1899. Continues: \" but I wouldn’t give myself.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "If you look for perfection, you'll never be content.",
+      "author": "Leo Tolstoy",
+      "attribution": "Anna Karenina, 1877.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Respect was invented to cover the empty place where love should be.",
+      "author": "Leo Tolstoy",
+      "attribution": "Anna Karenina, 1877.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "Spring is the time of plans and projects.",
+      "author": "Leo Tolstoy",
+      "attribution": "Anna Karenina, 1877.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "All happy families are alike.",
+      "author": "Leo Tolstoy",
+      "attribution": "Anna Karenina, 1877. Continues: \" each unhappy family is unhappy in its own way.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "True life is lived when tiny changes occur.",
+      "author": "Leo Tolstoy",
+      "attribution": "Diary, 1897.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "The sole meaning of life is to serve humanity.",
+      "author": "Leo Tolstoy",
+      "attribution": "Letter, 1887.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "I am always with myself, and it is I who am my tormentor.",
+      "author": "Leo Tolstoy",
+      "attribution": "Resurrection, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "If a man does not love, he is not alive.",
+      "author": "Leo Tolstoy",
+      "attribution": "Resurrection, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Love is life. All, everything that I understand, I understand only because I love.",
+      "author": "Leo Tolstoy",
+      "attribution": "Resurrection, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "The body will die, but I feel that I am eternal.",
+      "author": "Leo Tolstoy",
+      "attribution": "Resurrection, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "I sit on a man's back, choking him and making him carry me.",
+      "author": "Leo Tolstoy",
+      "attribution": "Resurrection, 1899. Continues: \" and yet assure myself and others that I am very sorry for him.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "People are like rivers: the water is the same in all.",
+      "author": "Leo Tolstoy",
+      "attribution": "Resurrection, 1899. Continues: \" but every river is narrow here, rapid there, wide again.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "The most difficult and complicated thing in life is to love.",
+      "author": "Leo Tolstoy",
+      "attribution": "Resurrection, 1899. Continues: \"—to love one's enemies.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Death is finished, it is no more!",
+      "author": "Leo Tolstoy",
+      "attribution": "The Death of Ivan Ilyich, 1886.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "He sought his old habitual fear of death and could not find it.",
+      "author": "Leo Tolstoy",
+      "attribution": "The Death of Ivan Ilyich, 1886.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "In place of death there was light.",
+      "author": "Leo Tolstoy",
+      "attribution": "The Death of Ivan Ilyich, 1886.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Ivan Ilyich's life had been most simple and most ordinary and therefore most terrible.",
+      "author": "Leo Tolstoy",
+      "attribution": "The Death of Ivan Ilyich, 1886.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "What if my whole life has been wrong?",
+      "author": "Leo Tolstoy",
+      "attribution": "The Death of Ivan Ilyich, 1886.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Can it be that I have not lived as one ought?",
+      "author": "Leo Tolstoy",
+      "attribution": "The Death of Ivan Ilyich, 1886. Continues: \" he suddenly asked himself.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Maybe I did not live as I ought to have done.",
+      "author": "Leo Tolstoy",
+      "attribution": "The Death of Ivan Ilyich, 1886. Continues: \" he thought.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "It occurred to him that what had appeared perfectly impossible before...",
+      "author": "Leo Tolstoy",
+      "attribution": "The Death of Ivan Ilyich, 1886. Continues: \"—that he had not spent his life as he should have done—might after all be true.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Everyone thinks of changing the world.",
+      "author": "Leo Tolstoy",
+      "attribution": "The Kingdom of God Is Within You, 1894. Continues: \" but no one thinks of changing himself.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Everything comes in time to him who knows how to wait.",
+      "author": "Leo Tolstoy",
+      "attribution": "War and Peace, 1869.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "The two most powerful warriors are patience and time.",
+      "author": "Leo Tolstoy",
+      "attribution": "War and Peace, 1869.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "We can know only that we know nothing.",
+      "author": "Leo Tolstoy",
+      "attribution": "War and Peace, 1869. Continues: \" And that is the highest degree of human wisdom.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "In the name of God, stop a moment.",
+      "author": "Leo Tolstoy",
+      "attribution": "War and Peace, 1869. Continues: \" cease your work, look around you.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Seize the moments of happiness, love and be loved!",
+      "author": "Leo Tolstoy",
+      "attribution": "War and Peace, 1869. Continues: \" That is the only reality in the world, all else is folly.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Begin at the beginning, and go on till you come to the end: then stop.",
+      "author": "Lewis Carroll",
+      "attribution": "Alice's Adventures in Wonderland, 1865.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Everything's got a moral, if only you can find it.",
+      "author": "Lewis Carroll",
+      "attribution": "Alice's Adventures in Wonderland, 1865.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "I can't go back to yesterday because I was a different person then.",
+      "author": "Lewis Carroll",
+      "attribution": "Alice's Adventures in Wonderland, 1865.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "I give myself very good advice, but I very seldom follow it.",
+      "author": "Lewis Carroll",
+      "attribution": "Alice's Adventures in Wonderland, 1865.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "If everybody minded their own business, the world would go around a great deal faster.",
+      "author": "Lewis Carroll",
+      "attribution": "Alice's Adventures in Wonderland, 1865.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "Tut, tut, child! Everything's got a moral, if only you can find it.",
+      "author": "Lewis Carroll",
+      "attribution": "Alice's Adventures in Wonderland, 1865.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Who in the world am I? Ah, that's the great puzzle.",
+      "author": "Lewis Carroll",
+      "attribution": "Alice's Adventures in Wonderland, 1865.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "It takes all the running you can do, to keep in the same place.",
+      "author": "Lewis Carroll",
+      "attribution": "Through the Looking-Glass, 1871.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Speak in French when you can't think of the English for a thing.",
+      "author": "Lewis Carroll",
+      "attribution": "Through the Looking-Glass, 1871.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "The rule is, jam tomorrow and jam yesterday—but never jam today.",
+      "author": "Lewis Carroll",
+      "attribution": "Through the Looking-Glass, 1871.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Why, sometimes I've believed as many as six impossible things before breakfast.",
+      "author": "Lewis Carroll",
+      "attribution": "Through the Looking-Glass, 1871.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "When I use a word, it means just what I choose it to mean.",
+      "author": "Lewis Carroll",
+      "attribution": "Through the Looking-Glass, 1871. Continues: \"—neither more nor less.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "I like good strong words that mean something.",
+      "author": "Louisa  May Alcott",
+      "attribution": "Little Women, 1868.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Be worthy love, and love will come.",
+      "author": "Louisa May Alcott",
+      "attribution": "An Old-Fashioned Girl, 1869.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Stay is a charming word in a friend's vocabulary.",
+      "author": "Louisa May Alcott",
+      "attribution": "An Old-Fashioned Girl, 1869.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "Women have been called queens for a long time.",
+      "author": "Louisa May Alcott",
+      "attribution": "An Old-Fashioned Girl, 1869. Continues: \" but the kingdom given them isn't worth ruling.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "Far away there in the sunshine are my highest aspirations.",
+      "author": "Louisa May Alcott",
+      "attribution": "Attributed, ~1860s. Continues: \" I may not reach them, but I can look up and see their beauty.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Life is my college.",
+      "author": "Louisa May Alcott",
+      "attribution": "Good Wives, 1869. Continues: \" May I graduate well, and earn some honors!\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 10
+    },
+    {
+      "text": "Some books are so familiar reading them is like being home again.",
+      "author": "Louisa May Alcott",
+      "attribution": "Jo's Boys, 1886.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Let my name stand among those who are willing to bear ridicule.",
+      "author": "Louisa May Alcott",
+      "attribution": "Letter, 1862. Continues: \" for the sake of doing good.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "I like good strong words that mean something.",
+      "author": "Louisa May Alcott",
+      "attribution": "Little Women, 1868.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "I'd rather take coffee than compliments.",
+      "author": "Louisa May Alcott",
+      "attribution": "Little Women, 1868.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Love alone is a beautiful thing.",
+      "author": "Louisa May Alcott",
+      "attribution": "Little Women, 1868.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "She is too fond of books, and it has turned her brain.",
+      "author": "Louisa May Alcott",
+      "attribution": "Little Women, 1868.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "I've got the key to my castle in the air.",
+      "author": "Louisa May Alcott",
+      "attribution": "Little Women, 1868. Continues: \" but whether it will open the door remains to be seen.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Love will make small powers great.",
+      "author": "Louisa May Alcott",
+      "attribution": "Under the Lilacs, 1878.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "Nothing is impossible to a determined woman.",
+      "author": "Louisa May Alcott",
+      "attribution": "Work: A Story of Experience, 1873.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "I am the sum of my ancestors.",
+      "author": "Machado de Assis",
+      "attribution": "Dom Casmurro, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "To forgive is divine, not human.",
+      "author": "Machado de Assis",
+      "attribution": "Dom Casmurro, 1899.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Each person is a universe.",
+      "author": "Machado de Assis",
+      "attribution": "The Posthumous Memoirs of Brás Cubas, 1881.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "I am a book with a missing page.",
+      "author": "Machado de Assis",
+      "attribution": "The Posthumous Memoirs of Brás Cubas, 1881.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "I have always been a man of few words and many thoughts.",
+      "author": "Machado de Assis",
+      "attribution": "The Posthumous Memoirs of Brás Cubas, 1881.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "The best chess player is the one who thinks he is the worst.",
+      "author": "Machado de Assis",
+      "attribution": "The Posthumous Memoirs of Brás Cubas, 1881.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "I have never let my schooling interfere with my education.",
+      "author": "Mark Twain",
+      "attribution": "A Connecticut Yankee in King Arthur's Court, 1889.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "The very ink with which all history is written is merely fluid prejudice.",
+      "author": "Mark Twain",
+      "attribution": "A Connecticut Yankee in King Arthur's Court, 1889.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "Words are only painted fire; a look is the fire itself.",
+      "author": "Mark Twain",
+      "attribution": "A Connecticut Yankee in King Arthur's Court, 1889.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "You can’t depend on your eyes when your imagination is out of focus.",
+      "author": "Mark Twain",
+      "attribution": "A Connecticut Yankee in King Arthur's Court, 1889.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Human beings can be awful cruel to one another.",
+      "author": "Mark Twain",
+      "attribution": "Adventures of Huckleberry Finn, 1884.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "I felt so lonesome I most wished I was dead.",
+      "author": "Mark Twain",
+      "attribution": "Adventures of Huckleberry Finn, 1884.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "I reckon I got to light out for the Territory ahead of the rest.",
+      "author": "Mark Twain",
+      "attribution": "Adventures of Huckleberry Finn, 1884.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "You don’t know about me without you have read a book by the name of The Adventures of Tom Sawyer.",
+      "author": "Mark Twain",
+      "attribution": "Adventures of Huckleberry Finn, 1884. Continues: \" but that ain’t no matter.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "All right, then, I’ll go to hell.",
+      "author": "Mark Twain",
+      "attribution": "Adventures of Huckleberry Finn, 1884. Continues: \"—and tore it up.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 10
+    },
+    {
+      "text": "Don't go around saying the world owes you a living. The world owes you nothing.",
+      "author": "Mark Twain",
+      "attribution": "Attributed, ~1890s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Kindness is the language which the deaf can hear and the blind can see.",
+      "author": "Mark Twain",
+      "attribution": "Attributed, ~1890s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "The man who does not read has no advantage over the man who cannot read.",
+      "author": "Mark Twain",
+      "attribution": "Attributed, ~1890s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "Truth is stranger than fiction, but it is because fiction is obliged to stick to possibilities.",
+      "author": "Mark Twain",
+      "attribution": "Following the Equator, 1897.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Give every day the chance to become the most beautiful day of your life.",
+      "author": "Mark Twain",
+      "attribution": "Innocents Abroad, 1869.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "Never put off till tomorrow what may be done day after tomorrow just as well.",
+      "author": "Mark Twain",
+      "attribution": "Letter to Olivia Clemens, 1872.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "Always do right. This will gratify some people and astonish the rest.",
+      "author": "Mark Twain",
+      "attribution": "Note to Young People's Society, 1901.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "When in doubt, tell the truth.",
+      "author": "Mark Twain",
+      "attribution": "Notebook, 1894.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "The secret of getting ahead is getting started.",
+      "author": "Mark Twain",
+      "attribution": "Notebook, 1895.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Good friends, good books, and a sleepy conscience: this is the ideal life.",
+      "author": "Mark Twain",
+      "attribution": "Notebook, 1898.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "The lack of money is the root of all evil.",
+      "author": "Mark Twain",
+      "attribution": "Notebook, 1898.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "When you fish for love, bait with your heart, not your brain.",
+      "author": "Mark Twain",
+      "attribution": "Notebook, 1898.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Courage is resistance to fear, mastery of fear—not absence of fear.",
+      "author": "Mark Twain",
+      "attribution": "Pudd'nhead Wilson, 1894.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Tom and me found the money that the robbers hid in the cave.",
+      "author": "Mark Twain",
+      "attribution": "The Adventures of Tom Sawyer, 1876. Continues: \" and it made us rich.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "I ain’t doing my duty by that boy, and that’s the Lord’s truth.",
+      "author": "Mark Twain",
+      "attribution": "The Adventures of Tom Sawyer, 1876. Continues: \" goodness knows.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Work consists of whatever a body is obliged to do.",
+      "author": "Mark Twain",
+      "attribution": "The Adventures of Tom Sawyer, 1876. Continues: \" Play consists of whatever a body is not obliged to do.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "Beware; for I am fearless, and therefore powerful.",
+      "author": "Mary Shelley",
+      "attribution": "Frankenstein, 1818.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "I ought to be thy Adam, but I am rather the fallen angel.",
+      "author": "Mary Shelley",
+      "attribution": "Frankenstein, 1818.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "If I cannot inspire love, I will cause fear.",
+      "author": "Mary Shelley",
+      "attribution": "Frankenstein, 1818.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Nothing is so painful to the human mind as a great and sudden change.",
+      "author": "Mary Shelley",
+      "attribution": "Frankenstein, 1818.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "The world was to me a secret which I desired to divine.",
+      "author": "Mary Shelley",
+      "attribution": "Frankenstein, 1818.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Learn from me, if not by my precepts, at least by my example.",
+      "author": "Mary Shelley",
+      "attribution": "Frankenstein, 1818. Continues: \" how dangerous is the acquirement of knowledge.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Come to the window, sweet is the night-air!",
+      "author": "Matthew Arnold",
+      "attribution": "Dover Beach, 1867.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "The eternal note of sadness.",
+      "author": "Matthew Arnold",
+      "attribution": "Dover Beach, 1867.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 11
+    },
+    {
+      "text": "No man can wear one face to himself and another to the multitude without getting bewildered.",
+      "author": "Nathaniel Hawthorne",
+      "attribution": "The Scarlet Letter, 1850.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "The longer and more carefully we look at a funny story, the sadder it becomes.",
+      "author": "Nikolai Gogol",
+      "attribution": "Attributed, ~1840s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "I can resist everything except temptation.",
+      "author": "Oscar Wilde",
+      "attribution": "Lady Windermere's Fan, 1892.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "We are all in the gutter, but some of us are looking at the stars.",
+      "author": "Oscar Wilde",
+      "attribution": "Lady Windermere's Fan, 1892.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Education is an admirable thing, but nothing worth knowing can be taught.",
+      "author": "Oscar Wilde",
+      "attribution": "The Critic as Artist, 1891.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "I am so clever that sometimes I don't understand a single word of what I am saying.",
+      "author": "Oscar Wilde",
+      "attribution": "The Happy Prince and Other Stories, 1888.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "The truth is rarely pure and never simple.",
+      "author": "Oscar Wilde",
+      "attribution": "The Importance of Being Earnest, 1895.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Experience is merely the name men gave to their mistakes.",
+      "author": "Oscar Wilde",
+      "attribution": "The Picture of Dorian Gray, 1890.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "The only way to get rid of a temptation is to yield to it.",
+      "author": "Oscar Wilde",
+      "attribution": "The Picture of Dorian Gray, 1890.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "To live is the rarest thing in the world. Most people exist, that is all.",
+      "author": "Oscar Wilde",
+      "attribution": "The Soul of Man Under Socialism, 1891.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Look on my Works, ye Mighty, and despair!",
+      "author": "Percy Bysshe Shelley",
+      "attribution": "Ozymandias, 1818.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Do not go where the path may lead, go instead where there is no path and leave a trail.",
+      "author": "Ralph Waldo Emerson",
+      "attribution": "Attributed, ~1840s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "For every minute you are angry you lose sixty seconds of happiness.",
+      "author": "Ralph Waldo Emerson",
+      "attribution": "Attributed, ~1840s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "Life is a journey, not a destination.",
+      "author": "Ralph Waldo Emerson",
+      "attribution": "Attributed, ~1840s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "The only person you are destined to become is the person you decide to be.",
+      "author": "Ralph Waldo Emerson",
+      "attribution": "Attributed, ~1840s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment.",
+      "author": "Ralph Waldo Emerson",
+      "attribution": "Attributed, ~1840s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "Ah, but a man's reach should exceed his grasp, or what's a heaven for?",
+      "author": "Robert Browning",
+      "attribution": "Andrea del Sarto, 1855.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "Grow old along with me! The best is yet to be.",
+      "author": "Robert Browning",
+      "attribution": "Rabbi Ben Ezra, 1864.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "The world is so full of a number of things, I'm sure we should all be as happy as kings.",
+      "author": "Robert Louis Stevenson",
+      "attribution": "A Child's Garden of Verses, 1885.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "I am not afraid to die, but I am afraid to be forgotten.",
+      "author": "Robert Louis Stevenson",
+      "attribution": "Strange Case of Dr Jekyll and Mr Hyde, 1886.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "It is one thing to mortify curiosity, another to conquer it.",
+      "author": "Robert Louis Stevenson",
+      "attribution": "Strange Case of Dr Jekyll and Mr Hyde, 1886.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "I have seen wicked men and fools, a great many of both.",
+      "author": "Robert Louis Stevenson",
+      "attribution": "Treasure Island, 1883.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "If you keep on drinking rum, the world will soon be quit of a very dirty scoundrel!",
+      "author": "Robert Louis Stevenson",
+      "attribution": "Treasure Island, 1883.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 23
+    },
+    {
+      "text": "Many's the long night I've dreamed of cheese—toasted, mostly.",
+      "author": "Robert Louis Stevenson",
+      "attribution": "Treasure Island, 1883.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "The world belongs to the discontented.",
+      "author": "Robert Louis Stevenson",
+      "attribution": "Treasure Island, 1883.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "If you can keep your head when all about you are losing theirs.",
+      "author": "Rudyard Kipling",
+      "attribution": "If—, 1895.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "If you can meet with Triumph and Disaster and treat those two impostors just the same.",
+      "author": "Rudyard Kipling",
+      "attribution": "If—, 1895.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Yours is the Earth and everything that’s in it.",
+      "author": "Rudyard Kipling",
+      "attribution": "If—, 1895. Continues: \" And—which is more—you’ll be a Man, my son!\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "A man’s mind is wont to tell him more than seven watchmen posted on a high tower.",
+      "author": "Rudyard Kipling",
+      "attribution": "Kim, 1901.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Everyone is more or less mad on one point.",
+      "author": "Rudyard Kipling",
+      "attribution": "Kim, 1901.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "He who can keep alive a sense of humour in the face of disaster is more than half armed.",
+      "author": "Rudyard Kipling",
+      "attribution": "Kim, 1901.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "I am Kim. I am Kim. And what is Kim?",
+      "author": "Rudyard Kipling",
+      "attribution": "Kim, 1901.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 10
+    },
+    {
+      "text": "Of all the liars in the world, sometimes the worst are our own fears.",
+      "author": "Rudyard Kipling",
+      "attribution": "Kim, 1901.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "This is a great and terrible world. I never knew there were so many men alive in it.",
+      "author": "Rudyard Kipling",
+      "attribution": "Kim, 1901.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Words are, of course, the most powerful drug used by mankind.",
+      "author": "Rudyard Kipling",
+      "attribution": "Kim, 1901.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "The world is very lovely, and it’s very horrible.",
+      "author": "Rudyard Kipling",
+      "attribution": "Kim, 1901. Continues: \" and it doesn’t care about your life or mine or anything else.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "A brave heart and a courteous tongue.",
+      "author": "Rudyard Kipling",
+      "attribution": "Kim, 1901. Continues: \" They shall carry thee far through the jungle, manling.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "For the strength of the Pack is the Wolf, and the strength of the Wolf is the Pack.",
+      "author": "Rudyard Kipling",
+      "attribution": "The Jungle Book, 1894.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "If you can’t ride two horses at once, you shouldn’t be in the circus.",
+      "author": "Rudyard Kipling",
+      "attribution": "The Jungle Book, 1894.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "We be of one blood, ye and I.",
+      "author": "Rudyard Kipling",
+      "attribution": "The Jungle Book, 1894.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 11
+    },
+    {
+      "text": "Truth is powerful and it prevails.",
+      "author": "Sojourner Truth",
+      "attribution": "Attributed,  ~1850s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "I am not going to die,  I'm going home like a shooting star.",
+      "author": "Sojourner Truth",
+      "attribution": "Attributed,  ~1880s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "Religion without humanity is very poor human stuff.",
+      "author": "Sojourner Truth",
+      "attribution": "Speech, 1878",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "A novel is a mirror carried along a high road.",
+      "author": "Stendhal",
+      "attribution": "The Red and the Black, 1830. Continues: \" At one moment you see the sky, at another the mud.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "The world passes him by and beckons to life and beauty.",
+      "author": "Theodor Fontane",
+      "attribution": "Effi Briest, 1895.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "Nothing holds out these days, and next thing you know we'll be counting those who are famous by days.",
+      "author": "Theodor Fontane",
+      "attribution": "The Stechlin, 1898.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "We should love what is old, to the extent that it deserves it.",
+      "author": "Theodor Fontane",
+      "attribution": "The Stechlin, 1898. Continues: \" but we should really live for what is new.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Happiness, it seems to me, consists of two things.",
+      "author": "Theodor Fontane",
+      "attribution": "The Stechlin, 1898. Continues: \" first, in being where you belong, and second -- in comfortably going through everyday life.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "A man's silence is wonderful to listen to.",
+      "author": "Thomas Hardy",
+      "attribution": "Jude the Obscure, 1895.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "People go on marrying because they can't resist natural forces.",
+      "author": "Thomas Hardy",
+      "attribution": "Jude the Obscure, 1895.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "The letter killeth, but the spirit giveth life.",
+      "author": "Thomas Hardy",
+      "attribution": "Jude the Obscure, 1895.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "The only way to live is to forget.",
+      "author": "Thomas Hardy",
+      "attribution": "Jude the Obscure, 1895.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Somebody might have come along that way who would have asked him his trouble.",
+      "author": "Thomas Hardy",
+      "attribution": "Jude the Obscure, 1895. Continues: \" and he would have answered, 'I have none.'\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "It is a city of light, where the streets are paved with gold.",
+      "author": "Thomas Hardy",
+      "attribution": "Jude the Obscure, 1895. Continues: \" and the gates are of pearl.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "A strong woman who recklessly throws away her strength, she is worse than a weak woman who has never had any strength to throw away.",
+      "author": "Thomas Hardy",
+      "attribution": "Tess of the d'Urbervilles, 1891.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Beauty lay not in the thing, but in what the thing symbolized.",
+      "author": "Thomas Hardy",
+      "attribution": "Tess of the d'Urbervilles, 1891.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Ladies know what to guard against, because they read novels that tell them.",
+      "author": "Thomas Hardy",
+      "attribution": "Tess of the d'Urbervilles, 1891.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "The beauty or ugliness of a character lay not only in its acts, but in its aims.",
+      "author": "Thomas Hardy",
+      "attribution": "Tess of the d'Urbervilles, 1891.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Why is it that a woman’s silence can be so powerful?",
+      "author": "Thomas Hardy",
+      "attribution": "Tess of the d'Urbervilles, 1891.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Did you say the stars were worlds, Tess?",
+      "author": "Thomas Hardy",
+      "attribution": "Tess of the d'Urbervilles, 1891. Continues: \"Yes.\"All like ours?\"I don't know, but I think so.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "He who opens a school door, closes a prison.",
+      "author": "Victor Hugo",
+      "attribution": "Attributed, ~1860s.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Even the darkest night will end and the sun will rise.",
+      "author": "Victor Hugo",
+      "attribution": "Les Misérables, 1862.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Laughter is the sun that drives winter from the human face.",
+      "author": "Victor Hugo",
+      "attribution": "Les Misérables, 1862.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "The greatest happiness of life is the conviction that we are loved.",
+      "author": "Victor Hugo",
+      "attribution": "Les Misérables, 1862.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "To learn to read is to light a fire; every syllable that is spelled out is a spark.",
+      "author": "Victor Hugo",
+      "attribution": "Les Misérables, 1862.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "To love another person is to see the face of God.",
+      "author": "Victor Hugo",
+      "attribution": "Les Misérables, 1862.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "He left the cathedral, but the cathedral did not leave him.",
+      "author": "Victor Hugo",
+      "attribution": "The Hunchback of Notre-Dame, 1831.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "A one-eyed man is much more incomplete than a blind man.",
+      "author": "Victor Hugo",
+      "attribution": "The Hunchback of Notre-Dame, 1831. Continues: \" for he knows what he is missing.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "To be wicked does not insure prosperity.",
+      "author": "Victor Hugo",
+      "attribution": "The Hunchback of Notre-Dame, 1831. Continues: \" for the inn did not succeed well.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "The greatest products of architecture are social creations.",
+      "author": "Victor Hugo",
+      "attribution": "The Hunchback of Notre-Dame, 1831. Continues: \" more than the work of individual minds.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "The most beautiful things in the world are the most useless.",
+      "author": "Victor Hugo",
+      "attribution": "The Hunchback of Notre-Dame, 1831. Continues: \" peacocks and lilies, for example.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Love is like a tree: it grows by itself.",
+      "author": "Victor Hugo",
+      "attribution": "The Hunchback of Notre-Dame, 1831. Continues: \" roots itself deeply in our being.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "To struggle against the sea is to struggle against God.",
+      "author": "Victor Hugo",
+      "attribution": "Toilers of the Sea, 1866.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "The ocean is a wilderness reaching round the globe.",
+      "author": "Victor Hugo",
+      "attribution": "Toilers of the Sea, 1866. Continues: \" a desert where man is never alone.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "The sea is a world of darkness.",
+      "author": "Victor Hugo",
+      "attribution": "Toilers of the Sea, 1866. Continues: \" but it is also a world of light.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "Persons who go to the bottom of the sea are forever lost.",
+      "author": "Victor Hugo",
+      "attribution": "Toilers of the Sea, 1866. Continues: \" but they are not forever forgotten.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "A man is not idle because he is absorbed in thought.",
+      "author": "Victor Hugo",
+      "attribution": "Toilers of the Sea, 1866. Continues: \" There is visible labor and invisible labor.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "The sea is a space of infinite solitude.",
+      "author": "Victor Hugo",
+      "attribution": "Toilers of the Sea, 1866. Continues: \" where man is never alone, for he feels life stirring on all sides.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "Music expresses that which cannot be said and on which it is impossible to be silent.",
+      "author": "Victor Hugo",
+      "attribution": "William Shakespeare, 1864.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "I sing the body electric.",
+      "author": "Walt Whitman",
+      "attribution": "Leaves of Grass, 1855.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "Resist much, obey little.",
+      "author": "Walt Whitman",
+      "attribution": "Leaves of Grass, 1855.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Keep your face always toward the sunshine.",
+      "author": "Walt Whitman",
+      "attribution": "Leaves of Grass, 1855. Continues: \" and shadows will fall behind you.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Every moment of light and dark is a miracle.",
+      "author": "Walt Whitman",
+      "attribution": "Miracles, 1856.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "The powerful play goes on, and you may contribute a verse.",
+      "author": "Walt Whitman",
+      "attribution": "O Me! O Life!, 1865.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 21
+    },
+    {
+      "text": "Simplicity is the glory of expression.",
+      "author": "Walt Whitman",
+      "attribution": "Preface to Leaves of Grass, 1855.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "Whatever satisfies the soul is truth.",
+      "author": "Walt Whitman",
+      "attribution": "Preface to Leaves of Grass, 1855.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Do I contradict myself? Very well then I contradict myself.",
+      "author": "Walt Whitman",
+      "attribution": "Song of Myself, 1855.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "I am large, I contain multitudes.",
+      "author": "Walt Whitman",
+      "attribution": "Song of Myself, 1855.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 14
+    },
+    {
+      "text": "I believe a leaf of grass is no less than the journey-work of the stars.",
+      "author": "Walt Whitman",
+      "attribution": "Song of Myself, 1855.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "I celebrate myself, and sing myself.",
+      "author": "Walt Whitman",
+      "attribution": "Song of Myself, 1855.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "I exist as I am, that is enough.",
+      "author": "Walt Whitman",
+      "attribution": "Song of Myself, 1855.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 12
+    },
+    {
+      "text": "These are the days that must happen to you.",
+      "author": "Walt Whitman",
+      "attribution": "Song of the Open Road, 1856.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Let my grave be forgotten.",
+      "author": "Wilkie Collins",
+      "attribution": "The Moonstone, 1868.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "There is much that I might say about the merciless treatment of me.",
+      "author": "Wilkie Collins",
+      "attribution": "The Moonstone, 1868.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "You are not to take it as the saying of an ignorant man.",
+      "author": "Wilkie Collins",
+      "attribution": "The Moonstone, 1868.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 15
+    },
+    {
+      "text": "Your tears come easy, when you're young, and beginning the world.",
+      "author": "Wilkie Collins",
+      "attribution": "The Moonstone, 1868.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "Whenever a woman tries to put you out of temper.",
+      "author": "Wilkie Collins",
+      "attribution": "The Moonstone, 1868. Continues: \" turn the tables, and put HER out of temper instead.\"",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "I am a bundle of nerves dressed up to look like a man!",
+      "author": "Wilkie Collins",
+      "attribution": "The Woman in White, 1859.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "I sadly want a reform in the construction of children.",
+      "author": "Wilkie Collins",
+      "attribution": "The Woman in White, 1859.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "She looked so irresistibly beautiful as she said those brave words.",
+      "author": "Wilkie Collins",
+      "attribution": "The Woman in White, 1859.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "Take care how you treat your wife, and how you threaten me.",
+      "author": "Wilkie Collins",
+      "attribution": "The Woman in White, 1859.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "I don't suppose that anything you could do would make me like you any less.",
+      "author": "William Dean Howells",
+      "attribution": "A Modern Instance, 1882.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "The mortality of all inanimate things is terrible to me, but that of books most of all.",
+      "author": "William Dean Howells",
+      "attribution": "A Modern Instance, 1882.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "The world is full of people who are not worth talking about.",
+      "author": "William Dean Howells",
+      "attribution": "A Modern Instance, 1882.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 18
+    },
+    {
+      "text": "The secret of the man who is universally interesting is that he is universally interested.",
+      "author": "William Dean Howells",
+      "attribution": "The Rise of Silas Lapham, 1885.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 19
+    },
+    {
+      "text": "There is more in the education of circumstances than many suppose.",
+      "author": "William Dean Howells",
+      "attribution": "The Rise of Silas Lapham, 1885.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "All is vanity, nothing is fair.",
+      "author": "William Makepeace Thackeray",
+      "attribution": "Vanity Fair, 1848.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 13
+    },
+    {
+      "text": "Mother is the name for God in the lips and hearts of little children.",
+      "author": "William Makepeace Thackeray",
+      "attribution": "Vanity Fair, 1848.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 16
+    },
+    {
+      "text": "The world is a looking-glass, and gives back to every man the reflection of his own face.",
+      "author": "William Makepeace Thackeray",
+      "attribution": "Vanity Fair, 1848.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "Vanity working on a weak head produces every sort of mischief.",
+      "author": "William Makepeace Thackeray",
+      "attribution": "Vanity Fair, 1848.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    },
+    {
+      "text": "Fill your paper with the breathings of your heart.",
+      "author": "William Wordsworth",
+      "attribution": "Letter, 1816.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 17
+    },
+    {
+      "text": "The best portion of a good man's life: his little, nameless unremembered acts of kindness and love.",
+      "author": "William Wordsworth",
+      "attribution": "Tintern Abbey, 1798.",
+      "difficulty": 0,
+      "category": "literature_19th",
+      "unique_letters": 20
+    }
+  ]
+}

@@ -56,16 +56,28 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				Resources/literature_19th.json,
 			);
 			target = 284A19F52DD21B7E00606222 /* Decodey */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		280AB60A2EA9026800A97D00 /* Exceptions for "Decodey" folder in "Compile Sources" phase from "Decodey" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 284A19F22DD21B7E00606222 /* Sources */;
+			membershipExceptions = (
+				Resources/literature_19th.json,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		284A19F82DD21B7E00606222 /* Decodey */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				284A1A282DD21FB200606222 /* Exceptions for "Decodey" folder in "Decodey" target */,
+				280AB60A2EA9026800A97D00 /* Exceptions for "Decodey" folder in "Compile Sources" phase from "Decodey" target */,
 			);
 			path = Decodey;
 			sourceTree = "<group>";

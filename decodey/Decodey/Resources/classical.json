@@ -1,0 +1,4140 @@
+{
+    "quotes": [
+          {
+            "text": "He who learns must suffer.",
+            "author": "Aeschylus",
+            "attribution": "Agamemnon (Oresteia), lines 176-183 ~458 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Words are the physicians of a mind diseased.",
+            "author": "Aeschylus",
+            "attribution": "Prometheus Bound, line 378 ~460 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Time waxing old can many a lesson teach.",
+            "author": "Aeschylus",
+            "attribution": "Prometheus Bound, line 981 ~460 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "For somehow this is tyranny's disease, to trust no friends.",
+            "author": "Aeschylus",
+            "attribution": "Prometheus Bound, lines 224-225 ~460 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The guardian of poor suffering mankind.",
+            "author": "Aeschylus",
+            "attribution": "Prometheus Bound, lines 382-383 ~460 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Heaven cannot brook two suns nor earth two masters.",
+            "author": "Alexander the Great",
+            "attribution": "Plutarch, Lives ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "In everything a portion of everything.",
+            "author": "Anaxagoras",
+            "attribution": "DK 59 B11 ~500 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Give me a place to stand and I will move the earth.",
+            "author": "Archimedes",
+            "attribution": "Pappus of Alexandria ~340 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Eureka! I have found it!",
+            "author": "Archimedes",
+            "attribution": "Vitruvius, De Architectura ~15 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Hope is a waking dream.",
+            "author": "Aristotle",
+            "attribution": "Diogenes Laertius, Lives ~3rd c. CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "The roots of education are bitter, but the fruit is sweet.",
+            "author": "Aristotle",
+            "attribution": "Fragments ~335 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The virtues come about in us neither by nature nor apart from nature",
+            "author": "Aristotle",
+            "attribution": "Nicomachean Ethics,  1103a 24-25 ~335 BCE, 65",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "The person of moral stature is the one to whom things appear as they truly are",
+            "author": "Aristotle",
+            "attribution": "Nicomachean Ethics,  1113a 30-31 ~335 BCE, 77",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Courage is always for the sake of the beautiful",
+            "author": "Aristotle",
+            "attribution": "Nicomachean Ethics,  1115b 12-13 ~335 BCE, 76",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "One swallow does not make a summer.",
+            "author": "Aristotle",
+            "attribution": "Nicomachean Ethics, Book I.7 ~335 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Happiness depends upon ourselves.",
+            "author": "Aristotle",
+            "attribution": "Nicomachean Ethics, Book I.9 ~335 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Virtue is a habit of the soul.",
+            "author": "Aristotle",
+            "attribution": "Nicomachean Ethics, Book II.1 ~335 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "A friend to all is a friend to none.",
+            "author": "Aristotle",
+            "attribution": "Nicomachean Ethics, Book IX.10 ~335 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 11
+          },
+          {
+            "text": "Friendship is a single soul dwelling in two bodies.",
+            "author": "Aristotle",
+            "attribution": "Nicomachean Ethics, Book IX.8 ~335 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Nature does nothing in vain.",
+            "author": "Aristotle",
+            "attribution": "On the Heavens ~350 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Man is by nature a political animal.",
+            "author": "Aristotle",
+            "attribution": "Politics ~335 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The law is reason free from passion.",
+            "author": "Aristotle",
+            "attribution": "Politics, Book III.16 ~335 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "I found Rome brick, left it marble.",
+            "author": "Augustus",
+            "attribution": "Suetonius, Augustus 28 ~121 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Make haste slowly.",
+            "author": "Augustus",
+            "attribution": "Suetonius, Lives ~121 CE (Festina lente)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 11
+          },
+          {
+            "text": "Truth is the daughter of time.",
+            "author": "Aulus Gellius",
+            "attribution": "Noctes Atticae ~180 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Let them hate, so long as they fear.",
+            "author": "Caligula",
+            "attribution": "Suetonius, Caligula 30 ~121 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Wise men profit more from fools than fools from wise men.",
+            "author": "Cato the Elder",
+            "attribution": "Apophthegmata, via Plutarch ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Buy the farm outright and cultivate it.",
+            "author": "Cato the Elder",
+            "attribution": "De Agri Cultura, Ch. 1 ~160 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The seller must be a seller, not a buyer.",
+            "author": "Cato the Elder",
+            "attribution": "De Agri Cultura, Ch. 2 ~160 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Lighter is the wound foreseen.",
+            "author": "Cato the Elder",
+            "attribution": "Fragments, via Aulus Gellius, Noctes Atticae ~180 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Grasp the subject, the words will follow.",
+            "author": "Cato the Elder",
+            "attribution": "On Oratory, via Julius Victor, Ars Rhetorica ~4th c. CE (Rem tene, verba sequentur)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "It is a hard matter to save a city where fish costs more than oxen.",
+            "author": "Cato the Elder",
+            "attribution": "via Aulus Gellius, Noctes Atticae ~180 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Thieves of private property in chains; public in riches.",
+            "author": "Cato the Elder",
+            "attribution": "via Cicero, De Officiis ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Even with a sword hanging over his head, a Roman speaks out.",
+            "author": "Cato the Elder",
+            "attribution": "via Plutarch, Lives ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "The best armor is to keep out of range.",
+            "author": "Cato the Elder",
+            "attribution": "via Plutarch, Lives ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "After I'm dead, let people ask why no statue.",
+            "author": "Cato the Elder",
+            "attribution": "via Plutarch, Lives ~100 CE (Post mortem, cur non statuam?)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "Anger so clouds the mind that it cannot perceive the truth.",
+            "author": "Cato the Elder",
+            "attribution": "via Seneca, De Ira ~41 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "And for ever, my brother, hail and farewell!.",
+            "author": "Catullus",
+            "attribution": "Poem 101 ~60 BC",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "A friend is a second self.",
+            "author": "Cicero",
+            "attribution": "De Amicitia, sec. 21 ~44 BCE (Amicus est tamquam alter idem)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 11
+          },
+          {
+            "text": "The man who backbites an absent friend... is a traitor.",
+            "author": "Cicero",
+            "attribution": "De Amicitia, sec. 37 ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "The shifts of fortune test the reliability of friends.",
+            "author": "Cicero",
+            "attribution": "De Amicitia, sec. 64 ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The greatest pleasures are only narrowly separated from disgust.",
+            "author": "Cicero",
+            "attribution": "De Finibus, Book I, sec. 37 ~45 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The wise are instructed by reason.",
+            "author": "Cicero",
+            "attribution": "De Finibus, Book IV, sec. 18 ~45 BCE (Sapientes ratione instruuntur)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The beginnings of all things are small.",
+            "author": "Cicero",
+            "attribution": "De Finibus, Book V, sec. 58 ~45 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Justice is the set and constant purpose which gives to every man his due.",
+            "author": "Cicero",
+            "attribution": "De Legibus, Book I, sec. 19 ~52 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "Let the punishment match the offense.",
+            "author": "Cicero",
+            "attribution": "De Legibus, Book I, sec. 42 ~52 BCE (Poena ad maleficium accomodanda)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "The good of the people is the highest law.",
+            "author": "Cicero",
+            "attribution": "De Legibus, Book III, sec. 8 ~52 BCE (Salus populi suprema lex esto)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "The authority of those who teach is often an obstacle to learning.",
+            "author": "Cicero",
+            "attribution": "De Natura Deorum, Book I, sec. 10 ~45 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "The function of wisdom is to discriminate between good and evil.",
+            "author": "Cicero",
+            "attribution": "De Officiis, Book I, sec. 153 ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "Justice is the crowning glory of the virtues.",
+            "author": "Cicero",
+            "attribution": "De Officiis, Book I, sec. 20 ~44 BCE (Iustitia est virtutum regina)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "The foundation of justice is good faith.",
+            "author": "Cicero",
+            "attribution": "De Officiis, Book I, sec. 23 ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "The more laws, the less justice.",
+            "author": "Cicero",
+            "attribution": "De Officiis, Book I, sec. 33 ~44 BCE (Quo plurimae leges, ibi plurimae iniuriae)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "The greatest victories are won without bloodshed.",
+            "author": "Cicero",
+            "attribution": "De Officiis, Book I, sec. 35 ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "We must not only have the right principles, but also the right practice.",
+            "author": "Cicero",
+            "attribution": "De Officiis, Book I, sec. 4 ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "The first bond of society is marriage.",
+            "author": "Cicero",
+            "attribution": "De Officiis, Book I, sec. 54 ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "The first duty of a man is to defend his country.",
+            "author": "Cicero",
+            "attribution": "De Officiis, Book I, sec. 57 ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Let arms yield to the toga.",
+            "author": "Cicero",
+            "attribution": "De Officiis, Book I, sec. 77 ~44 BCE (Cedant arma togae)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Memory is the treasury and guardian of all things.",
+            "author": "Cicero",
+            "attribution": "De Oratore, Book I, sec. 18 ~55 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "No one can speak well unless he thoroughly understands his subject.",
+            "author": "Cicero",
+            "attribution": "De Oratore, Book II, sec. 114 ~55 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "History is the witness of the times.",
+            "author": "Cicero",
+            "attribution": "De Oratore, Book II, sec. 36 ~55 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "The face is the image of the soul.",
+            "author": "Cicero",
+            "attribution": "De Oratore, Book III, sec. 221 ~55 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "The harvest of old age is the memory and rich store of blessings.",
+            "author": "Cicero",
+            "attribution": "De Senectute, sec. 75 ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "Old men are children a second time.",
+            "author": "Cicero",
+            "attribution": "De Senectute, sec. 83 ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Old age is the crown of life, our play's last act.",
+            "author": "Cicero",
+            "attribution": "De Senectute, sec. 85 ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "While there's life, there's hope.",
+            "author": "Cicero",
+            "attribution": "Epistulae ad Atticum, Book IX, 10 ~49 BCE (Dum anima est, spes esse dicitur)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 11
+          },
+          {
+            "text": "The causes of events are ever more interesting than the events themselves.",
+            "author": "Cicero",
+            "attribution": "Epistulae ad Familiares, Book V, 12 ~46 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "The arrogance of officialdom should be tempered and controlled.",
+            "author": "Cicero",
+            "attribution": "In Verrem, II.5.115 ~70 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "Nothing is so fortified that it cannot be taken with money.",
+            "author": "Cicero",
+            "attribution": "In Verrem, II.5.15 ~70 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "To be ignorant of what occurred before you were born is to remain always a child.",
+            "author": "Cicero",
+            "attribution": "Orator, sec. 120 ~46 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "Freedom is participation in power.",
+            "author": "Cicero",
+            "attribution": "Philippicae, II, sec. 113 ~44 BCE (Libertas est potestas in sua re publica)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "A nation can survive its fools, and even the ambitious.",
+            "author": "Cicero",
+            "attribution": "Philippicae, III, sec. 1 ~44 BCE (Continues 'but it cannot survive treason from within')",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "The life given us by nature is short, but the memory of a life well spent is eternal.",
+            "author": "Cicero",
+            "attribution": "Philippicae, IX, sec. 10 ~43 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "The life of the dead is placed in the memory of the living.",
+            "author": "Cicero",
+            "attribution": "Philippicae, IX, sec. 10 ~43 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The budget should be balanced.",
+            "author": "Cicero",
+            "attribution": "Philippicae, V, sec. 11 ~44 BCE (Oportet esse rationes certas)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Endless money forms the sinews of war.",
+            "author": "Cicero",
+            "attribution": "Philippicae, V, sec. 5 ~44 BCE (Nervos belli, pecuniam infinitam)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The evil implanted in man by nature spreads so imperceptibly.",
+            "author": "Cicero",
+            "attribution": "Philippicae, VIII, sec. 15 ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The pursuit of knowledge is the most noble occupation of man.",
+            "author": "Cicero",
+            "attribution": "Pro Archia, sec. 16 ~62 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "We are slaves of the law so that we may be free.",
+            "author": "Cicero",
+            "attribution": "Pro Cluentio, sec. 146 ~66 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Nothing is so unbelievable that oratory cannot make it acceptable.",
+            "author": "Cicero",
+            "attribution": "Pro Cluentio, sec. 7 ~66 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "Laws are silent in times of war.",
+            "author": "Cicero",
+            "attribution": "Pro Milone, sec. 11 ~52 BCE (Silent enim leges inter arma)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "There is no quality I would rather have than gratitude.",
+            "author": "Cicero",
+            "attribution": "Pro Plancio, sec. 80 ~54 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "The wise man is never surprised by the changes of fortune.",
+            "author": "Cicero",
+            "attribution": "Tusculanae Disputationes, Book III, sec. 30 ~45 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "Confidence is that feeling by which the mind embarks in great things.",
+            "author": "Cicero",
+            "attribution": "Tusculanae Disputationes, Book IV, sec. 80 ~45 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "A happy life consists in tranquility of mind.",
+            "author": "Cicero",
+            "attribution": "Tusculanae Disputationes, Book V, sec. 1 ~45 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "Greed is but a word jealous men inflict upon the ambitious.",
+            "author": "Crassus",
+            "attribution": "via Plutarch, Lives ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "No man was rich who could not maintain a legion upon his annual income.",
+            "author": "Crassus",
+            "attribution": "via Plutarch, Lives ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "By convention sweet, by convention bitter.",
+            "author": "Democritus",
+            "attribution": "Fragment 125 ~460 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "The senses accuse the mind.",
+            "author": "Democritus",
+            "attribution": "Fragment 126 ~460 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 11
+          },
+          {
+            "text": "No man can tell what the future may bring forth.",
+            "author": "Demosthenes",
+            "attribution": "Ad Leptinem 162 ~355 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Delivery, delivery, delivery.",
+            "author": "Demosthenes",
+            "attribution": "Institutio Oratoria by Quintilian ~95 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 7
+          },
+          {
+            "text": "Every advantage in the past is judged in the light of the final issue.",
+            "author": "Demosthenes",
+            "attribution": "Olynthiacs; Philippics ~350 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "Whatever shall be to the advantage of all, may that prevail!",
+            "author": "Demosthenes",
+            "attribution": "Speech against Philip II ~351 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "The easiest thing in the world is self-deceit.",
+            "author": "Demosthenes",
+            "attribution": "Third Olynthiac, section 19 ~349 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "I am a citizen of the world.",
+            "author": "Diogenes",
+            "attribution": "via Diogenes Laërtius, Lives 3rd c. CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "No one is ever hurt but by himself.",
+            "author": "Diogenes",
+            "attribution": "via Diogenes Laërtius, Lives 3rd c. CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The foundation of every state is the education of its youth.",
+            "author": "Diogenes",
+            "attribution": "via Diogenes Laërtius, Lives 3rd c. CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "By earth we see earth, by water water.",
+            "author": "Empedocles",
+            "attribution": "DK B109 = D207 ~490 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 9
+          },
+          {
+            "text": "Difficulties show men what they are.",
+            "author": "Epictetus",
+            "attribution": "Discourses ~108 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "No great thing is created suddenly.",
+            "author": "Epictetus",
+            "attribution": "Discourses ~108 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "No man is free who is not master of himself.",
+            "author": "Epictetus",
+            "attribution": "Discourses ~108 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Wealth consists not in having great possessions.",
+            "author": "Epictetus",
+            "attribution": "Discourses ~108 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "We have two ears and one mouth so we may listen more.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book I.19 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Appearances to the mind are of four kinds.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book I.27 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Don't explain your philosophy. Embody it.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book I.29 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "The greater the difficulty, the more glory in surmounting it.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book I.6 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Freedom is the right to live as we wish.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book II.1 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Only the educated are free.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book II.1 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Preconceptions must be overturned one by one.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book II.11 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Freedom is secured not by fulfilling desires.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book II.13 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Attach yourself to what is good for the soul.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book II.16 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Every habit and faculty is confirmed by acts.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book II.18 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "Know first who you are, then adorn yourself.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book III.1 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "It takes more than a good body to be a good man.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book III.12 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Other people's views and troubles can be contagious.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book III.16 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The key is to keep company with those who uplift.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book III.16 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "You become what you give your attention to.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book III.16 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "First say what you would be; then do what you must.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book III.23 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Keep your attention focused entirely on the present.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book III.24 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Small-minded people blame others.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book III.24 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Neither the body nor wealth belong to you.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book IV.1 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Practice yourself, for heaven's sake, in little things.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book IV.1 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The world turns aside to let him pass who knows where he is going.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book IV.1 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Wealth does not bring excellence, but excellence brings wealth.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book IV.1 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Make the mind your fortress.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book IV.3 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "There is only one way to happiness: cease worrying.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book IV.4 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "If you wish to be a writer, write.",
+            "author": "Epictetus",
+            "attribution": "Discourses, Book IV.8 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Any person capable of angering you becomes your master.",
+            "author": "Epictetus",
+            "attribution": "Enchiridion ~125 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "It's not what happens to you, but how you react that matters.",
+            "author": "Epictetus",
+            "attribution": "Enchiridion ~125 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Man is troubled not by events but by the meaning he gives them.",
+            "author": "Epictetus",
+            "attribution": "Enchiridion ~125 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Make the best use of what is in your power.",
+            "author": "Epictetus",
+            "attribution": "Enchiridion, 1 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "The essence of good is in your power.",
+            "author": "Epictetus",
+            "attribution": "Enchiridion, 1 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Bear and forbear.",
+            "author": "Epictetus",
+            "attribution": "Enchiridion, 10 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 8
+          },
+          {
+            "text": "If you want to improve, be content to be thought foolish.",
+            "author": "Epictetus",
+            "attribution": "Enchiridion, 13 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "If evil be said of you, and if it be true, correct yourself.",
+            "author": "Epictetus",
+            "attribution": "Enchiridion, 33 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "When offended, turn to yourself and see your own faults.",
+            "author": "Epictetus",
+            "attribution": "Enchiridion, 42 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Men are disturbed not by things, but by views.",
+            "author": "Epictetus",
+            "attribution": "Enchiridion, 5 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Seek not that events should happen as you will.",
+            "author": "Epictetus",
+            "attribution": "Enchiridion, 8 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "All philosophy lies in two words: sustain and abstain.",
+            "author": "Epictetus",
+            "attribution": "Fragments, 10 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "He is a wise man who does not grieve for what he has not.",
+            "author": "Epictetus",
+            "attribution": "Fragments, 14 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Control thy passions lest they take vengeance.",
+            "author": "Epictetus",
+            "attribution": "Fragments, 16 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Be careful to leave your sons well instructed rather than rich.",
+            "author": "Epictetus",
+            "attribution": "Fragments, 38 ~135 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "It is impossible to live pleasantly without living wisely.",
+            "author": "Epicurus",
+            "attribution": "Principal Doctrines ~300 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Of all the things wisdom provides for happiness the greatest is friendship.",
+            "author": "Epicurus",
+            "attribution": "Principal Doctrines ~300 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Leave no stone unturned.",
+            "author": "Euripides",
+            "attribution": "Heraclidae ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 11
+          },
+          {
+            "text": "Friends show their love in times of trouble not happiness.",
+            "author": "Euripides",
+            "attribution": "Orestes ~408 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "One loyal friend is worth ten thousand relatives.",
+            "author": "Euripides",
+            "attribution": "Orestes ~408 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Hail, Emperor, those about to die salute you.",
+            "author": "Gladiators",
+            "attribution": "Suetonius, Claudius 21 ~121 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The road up and down is one and the same.",
+            "author": "Heraclitus",
+            "attribution": "DK B60 ~500 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "You cannot step twice into the same rivers.",
+            "author": "Heraclitus",
+            "attribution": "DK B91[a] ~500 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Men trust their ears less than their eyes.",
+            "author": "Herodotus",
+            "attribution": "Histories ~425 BCE (1.8)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "Circumstances rule men; men do not rule circumstances.",
+            "author": "Herodotus",
+            "attribution": "Histories ~425 BCE (7.49)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Haste in every business brings failures.",
+            "author": "Herodotus",
+            "attribution": "Histories ~430 BCE (7.10)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Great deeds are usually wrought at great risks.",
+            "author": "Herodotus",
+            "attribution": "Histories ~430 BCE (7.50)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Force has no place where there is need of skill.",
+            "author": "Herodotus",
+            "attribution": "Histories ~440 BCE (3.127)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Call no man happy until he is dead.",
+            "author": "Herodotus",
+            "attribution": "Histories ~440 BCE (quoting Solon)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The most odious of all things is ingratitude.",
+            "author": "Herodotus",
+            "attribution": "Histories, 1.187 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The gods do not allow the same man to triumph forever.",
+            "author": "Herodotus",
+            "attribution": "Histories, 1.207 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "Many men prefer to die rather than think.",
+            "author": "Herodotus",
+            "attribution": "Histories, 1.30 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "The only good is knowledge, and the only evil is ignorance.",
+            "author": "Herodotus",
+            "attribution": "Histories, 1.30 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "A man’s character is his fate.",
+            "author": "Herodotus",
+            "attribution": "Histories, 1.32 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 11
+          },
+          {
+            "text": "Great wealth without wisdom is a dangerous thing.",
+            "author": "Herodotus",
+            "attribution": "Histories, 1.32 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Time is the wisest of all things that are.",
+            "author": "Herodotus",
+            "attribution": "Histories, 1.32 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "From great empires come great ruins.",
+            "author": "Herodotus",
+            "attribution": "Histories, 1.5 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "A man who does not speak will not be understood.",
+            "author": "Herodotus",
+            "attribution": "Histories, 1.8 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "In peace, sons bury their fathers; in war, fathers bury sons.",
+            "author": "Herodotus",
+            "attribution": "Histories, 1.87 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Egypt is the gift of the Nile.",
+            "author": "Herodotus",
+            "attribution": "Histories, 2.5 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "No one is so foolish as to prefer war to peace.",
+            "author": "Herodotus",
+            "attribution": "Histories, 3.120 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Custom is king of all.",
+            "author": "Herodotus",
+            "attribution": "Histories, 3.38 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "The king’s misfortune was that he had no one to tell him the truth.",
+            "author": "Herodotus",
+            "attribution": "Histories, 3.38 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "It is better to be envied than pitied.",
+            "author": "Herodotus",
+            "attribution": "Histories, 3.52 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "It is the nature of tyranny to mistrust everyone.",
+            "author": "Herodotus",
+            "attribution": "Histories, 3.80 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "The destiny of men is to be ruled by their passions.",
+            "author": "Herodotus",
+            "attribution": "Histories, 3.80 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "The most perfect happiness is to live in a well-governed state.",
+            "author": "Herodotus",
+            "attribution": "Histories, 3.80 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The most hateful human misfortune is for a wise man to have no influence.",
+            "author": "Herodotus",
+            "attribution": "Histories, 5.97 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Adversity reveals the genius of a general; good fortune conceals it.",
+            "author": "Herodotus",
+            "attribution": "Histories, 7.10 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Fortune is like a woman: if you treat her gently, she will be kind.",
+            "author": "Herodotus",
+            "attribution": "Histories, 7.10 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "No one ever stops a war because he has won too much.",
+            "author": "Herodotus",
+            "attribution": "Histories, 7.10 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The gods will not suffer anyone to think himself equal to them.",
+            "author": "Herodotus",
+            "attribution": "Histories, 7.10 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "The only real evil is to be a slave to fear.",
+            "author": "Herodotus",
+            "attribution": "Histories, 7.10 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Those who trust in fortune are like men who build on sand.",
+            "author": "Herodotus",
+            "attribution": "Histories, 7.10 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Freedom is the most precious possession.",
+            "author": "Herodotus",
+            "attribution": "Histories, 7.135 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Men are at the mercy of events, not events at the mercy of men.",
+            "author": "Herodotus",
+            "attribution": "Histories, 7.49 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "It is better by noble boldness to run the risk of being defeated.",
+            "author": "Herodotus",
+            "attribution": "Histories, 7.50 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Success is the child of audacity.",
+            "author": "Herodotus",
+            "attribution": "Histories, 7.50 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Success often depends on small things.",
+            "author": "Herodotus",
+            "attribution": "Histories, 7.8 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "The gods love to interrupt our plans.",
+            "author": "Herodotus",
+            "attribution": "Histories, 9.109 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Soft lands breed soft men.",
+            "author": "Herodotus",
+            "attribution": "Histories, 9.122 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "Knowledge without action is useless.",
+            "author": "Herodotus",
+            "attribution": "Histories, 9.16 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The bitterest pain among men: to have much knowledge but no power.",
+            "author": "Herodotus",
+            "attribution": "Histories, 9.16 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "The worst pain a man can suffer: to have insight into much and power over nothing.",
+            "author": "Herodotus",
+            "attribution": "Histories, 9.16 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "Very few things happen at the right time, and the rest do not happen at all.",
+            "author": "Herodotus",
+            "attribution": "Histories, 9.91 ~430 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "Everything in excess is opposed to nature.",
+            "author": "Hippocrates",
+            "attribution": "Aphorisms ~400 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Life is short the art long.",
+            "author": "Hippocrates",
+            "attribution": "Aphorisms ~400 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "Natural forces within us are the true healers of disease.",
+            "author": "Hippocrates",
+            "attribution": "Aphorisms ~400 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Make a habit of two things: to help or at least to do no harm.",
+            "author": "Hippocrates",
+            "attribution": "Epidemics ~400 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "If any man obeys the gods, they listen to him also.",
+            "author": "Homer",
+            "attribution": "Iliad Book I, line 218 ~750 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "But the gods give to mortals not everything at the same time.",
+            "author": "Homer",
+            "attribution": "Iliad Book IV, line 320 ~750 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Think not to match yourself against gods",
+            "author": "Homer",
+            "attribution": "Iliad Book V, lines 440-442 ~750 BCE. Continues \", for men that walk the earth cannot hold their own with the immortals.\"",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "When a Man's exhausted, wine will build his strength.",
+            "author": "Homer",
+            "attribution": "Iliad Book VI, line 261 ~750 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Victory passes back and forth between men.",
+            "author": "Homer",
+            "attribution": "Iliad Book VI, line 339 ~750 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "And some day let them say of him: 'He is better by far than his father.'",
+            "author": "Homer",
+            "attribution": "Iliad Book VI, line 479 ~750 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "And fate? No one alive has ever escaped it, neither brave man nor coward",
+            "author": "Homer",
+            "attribution": "Iliad Book VI, lines 488-489 ~750 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "For a friend with an understanding heart is worth no less than a brother.",
+            "author": "Homer",
+            "attribution": "Iliad Book VIII, lines 585-586 ~750 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Words empty as the wind are best left unsaid.",
+            "author": "Homer",
+            "attribution": "Iliad Book XIX ~750 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "It is the god who accomplishes all things.",
+            "author": "Homer",
+            "attribution": "Iliad Book XIX, line 90 ~750 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The proof of battle is action, proof of words, debate.",
+            "author": "Homer",
+            "attribution": "Iliad Book XVI, line 630 ~750 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "But the will of Zeus will always overpower the will of men.",
+            "author": "Homer",
+            "attribution": "Iliad Book XVI, line 688 ~750 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "Once a thing has been done, the fool sees it.",
+            "author": "Homer",
+            "attribution": "Iliad Book XVII, line 32 ~750 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "The Fates have given mortals hearts that can endure.",
+            "author": "Homer",
+            "attribution": "Iliad Book XXIV, line 49 ~750 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "There is a time for many words and there is also a time for sleep.",
+            "author": "Homer",
+            "attribution": "Odyssey Book XI ~725 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Never despair.",
+            "author": "Horace",
+            "attribution": "Odes, Book I, ode vii, line 27 ~23 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 9
+          },
+          {
+            "text": "Seize the day.",
+            "author": "Horace",
+            "attribution": "Odes, Book I, ode xi ~23 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 9
+          },
+          {
+            "text": "I have built a monument more lasting than bronze.",
+            "author": "Horace",
+            "attribution": "Odes, Book III, ode xxx, line 1 ~23 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "We are dust and shadow.",
+            "author": "Horace",
+            "attribution": "Odes, Book IV, ode vii, line 16 ~23 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 11
+          },
+          {
+            "text": "Experience is the teacher of all things.",
+            "author": "Julius Caesar",
+            "attribution": "Commentarii de Bello Civili, Book II, Ch. 8 ~45 BCE (Usus magister est rerum omnium.)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Fortune can bring about great changes.",
+            "author": "Julius Caesar",
+            "attribution": "Commentarii de Bello Civili, Book III, Ch. 68 ~45 BCE (Sed fortuna, quae plurimum potest... Continues 'in every affair and especially in war, can bring about great changes in a moment of time.')",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Men willingly believe what they wish.",
+            "author": "Julius Caesar",
+            "attribution": "Commentarii de Bello Gallico, Book III, Ch. 18 ~50 BCE (Fere libenter homines id quod volunt credunt.)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "I came, I saw, I conquered.",
+            "author": "Julius Caesar",
+            "attribution": "Letter to Roman Senate ~47 BCE (Veni vidi vici)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "The die is cast.",
+            "author": "Julius Caesar",
+            "attribution": "Suetonius, Lives ~121 CE (Alea iacta est; mostly accepted)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 8
+          },
+          {
+            "text": "It is difficult not to write satire.",
+            "author": "Juvenal",
+            "attribution": "Satire I, line 30 ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Honesty is praised and left to shiver.",
+            "author": "Juvenal",
+            "attribution": "Satire I, line 74 ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Censure acquits the raven, but pursues the dove.",
+            "author": "Juvenal",
+            "attribution": "Satire II, line 63 ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "No one ever suddenly became depraved.",
+            "author": "Juvenal",
+            "attribution": "Satire II, line 83 ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Unhappy poverty has nothing in it harder to bear than that it makes men ridiculous.",
+            "author": "Juvenal",
+            "attribution": "Satire III, lines 152-3 ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "Adversity tries men, prosperity corrupts them.",
+            "author": "Livy",
+            "attribution": "Ab Urbe Condita, 1.9 ~27 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "We fear things in proportion to our ignorance of them.",
+            "author": "Livy",
+            "attribution": "Ab Urbe Condita, 22.5 ~27 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Men are only too clever at shifting blame from their own shoulders.",
+            "author": "Livy",
+            "attribution": "Ab Urbe Condita, 28.25 ~27 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "Fortune blinds the eyes of the wise.",
+            "author": "Livy",
+            "attribution": "Ab Urbe Condita, 30.30 ~27 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The result justifies the deed.",
+            "author": "Livy",
+            "attribution": "Ab Urbe Condita, 8.6 ~27 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 11
+          },
+          {
+            "text": "Shared danger is the strongest of bonds.",
+            "author": "Livy",
+            "attribution": "Ab Urbe Condita, Book II sec. 39 ~27 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "From abundance springs satiety.",
+            "author": "Livy",
+            "attribution": "Ab Urbe Condita, Book III sec. 1 ~27 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Better late than never.",
+            "author": "Livy",
+            "attribution": "Ab Urbe Condita, Book IV sec. 2 ~27 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 9
+          },
+          {
+            "text": "Woe to the vanquished!",
+            "author": "Livy",
+            "attribution": "Ab Urbe Condita, Book V sec. 48 ~27 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "We can endure neither our vices nor the remedies for them.",
+            "author": "Livy",
+            "attribution": "Ab Urbe Condita, Praefatio sec. 9 ~27 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Delay is ever fatal to those who are prepared.",
+            "author": "Lucan",
+            "attribution": "Pharsalia Book 1 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The victorious cause pleased the gods, but the vanquished pleased Cato.",
+            "author": "Lucan",
+            "attribution": "Pharsalia Book 1 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "Idle rumors are proof enough for fools.",
+            "author": "Lucan",
+            "attribution": "Pharsalia Book 5 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "By boldness great fears are concealed.",
+            "author": "Lucan",
+            "attribution": "Pharsalia Book 7 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Poverty, the mother of manhood.",
+            "author": "Lucan",
+            "attribution": "Pharsalia Book 8 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Nothing can be created out of nothing.",
+            "author": "Lucretius",
+            "attribution": "De Rerum Natura, Book I lines 156–157 ~60 BC",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Life is one long struggle in the dark.",
+            "author": "Lucretius",
+            "attribution": "De Rerum Natura, Book II line 54 ~60 BC",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "All things fade and quickly turn to myth.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "Be tolerant with others and strict with yourself.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Confine yourself to the present.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Death smiles at us all; all we can do is smile back.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Life is neither good nor evil but only a place for good and evil.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "Loss is nothing else but change.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Reject your sense of injury and the injury itself disappears.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Remember that very little is needed to make a happy life.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The art of living is more like wrestling than dancing.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The best revenge is not to be like your enemy.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "The impediment to action advances action. What stands in the way becomes the way.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "The soul becomes dyed with the color of its thoughts.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Waste no more time arguing what a good man should be. Be one.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "You always own the option of having no opinion.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "The wise man regards the reason for all his actions.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 10.37 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "How ridiculous and how strange to be surprised at anything.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 12.13 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "If it is not right, do not do it; if it is not true, do not say it.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 12.17 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Look back over the past, with its changing empires that rose and fell.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 12.24 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "Begin each day by saying: I shall meet the meddler, the ungrateful, the arrogant.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 2.1 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "When you arise in the morning think of what a privilege it is to be alive.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 2.1 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "The first rule is to keep an untroubled spirit.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 2.17 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Do every act of your life as if it were your last.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 2.5 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Nothing has such power to broaden the mind as the ability to investigate.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 3.11 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "How much time he gains who does not look to see what his neighbor says.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 4.18 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "Everything we hear is an opinion, not a fact.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 4.3 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "The memory of everything is very soon overwhelmed in time.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 4.35 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Time is a sort of river of passing events.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 4.43 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Nothing happens to any man that he is not formed by nature to bear.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 5.18 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Remember: Matter. How tiny your share of it.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 5.24 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Observe constantly that all things take place by change.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 6.15 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "The object of life is not to be on the side of the majority.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 6.15 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "A man's worth is no greater than his ambitions.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 6.16 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Look within. Let neither the peculiar quality of anything nor its value escape you.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 6.3 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "Adapt yourself to the things among which your lot has been cast.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 6.39 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "Whatever anyone does or says, I must be good.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 7.15 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Think of the life you have lived until now as over.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 7.56 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Never let the future disturb you.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 7.8 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Stick to what’s in front of you—idea, action, utterance.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 8.22 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Here is a rule to remember in future: when anything tempts you to feel bitter.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 8.47 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "You have power over your mind—not outside events.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 8.48 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Be content to seem what you really are.",
+            "author": "Marcus Aurelius",
+            "attribution": "Meditations, 9.1 ~170 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "My poems are naughty, but my life is pure.",
+            "author": "Martial",
+            "attribution": "Epigrams I.4 ~86 AD",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Laugh if you are wise.",
+            "author": "Martial",
+            "attribution": "Epigrams II.41 ~86 AD",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Life is not living, but living in health.",
+            "author": "Martial",
+            "attribution": "Epigrams VI.70 ~90 AD",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Fortune and love favor the brave.",
+            "author": "Ovid",
+            "attribution": "Ars Amatoria ~2 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "In our play we reveal what kind of people we are.",
+            "author": "Ovid",
+            "attribution": "Ars Amatoria ~2 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Nothing is stronger than habit.",
+            "author": "Ovid",
+            "attribution": "Ars Amatoria ~2 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 11
+          },
+          {
+            "text": "Take rest; a field that has rested gives a beautiful crop.",
+            "author": "Ovid",
+            "attribution": "Ars Amatoria ~2 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The cause is hidden. The effect is visible to all.",
+            "author": "Ovid",
+            "attribution": "Metamorphoses ~8 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "What is, is, and cannot not be.",
+            "author": "Parmenides",
+            "attribution": "Fr. 2.3 ~500 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "You cannot know what is not.",
+            "author": "Parmenides",
+            "attribution": "Fr. 2.7 ~500 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "Words have a longer life than deeds.",
+            "author": "Pindar",
+            "attribution": "Nemean Ode 4 ~473 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The test of any man lies in action.",
+            "author": "Pindar",
+            "attribution": "Olympian Ode 1 ~476 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Water is best.",
+            "author": "Pindar",
+            "attribution": "Olympian Ode 1 ~476 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 8
+          },
+          {
+            "text": "Become who you are.",
+            "author": "Pindar",
+            "attribution": "Pythian Ode 2 ~475 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 11
+          },
+          {
+            "text": "O my soul, do not aspire to immortal life, but exhaust the limits of the possible.",
+            "author": "Pindar",
+            "attribution": "Pythian Ode 3 ~474 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The curse of ignorance is that the ignorant do not know they are ignorant.",
+            "author": "Plato",
+            "attribution": "Apology, 29d ~399 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "The measure of a man is what he does with power.",
+            "author": "Plato",
+            "attribution": "Gorgias, 527d ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "A good decision is based on knowledge not on numbers.",
+            "author": "Plato",
+            "attribution": "Laches ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Courage is knowing what not to fear.",
+            "author": "Plato",
+            "attribution": "Laches ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Good actions give strength to ourselves and inspire good actions in others.",
+            "author": "Plato",
+            "attribution": "Laches, 193d ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "The first and greatest victory is to conquer yourself.",
+            "author": "Plato",
+            "attribution": "Laws ~347 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "Knowledge becomes evil if the aim be not virtuous.",
+            "author": "Plato",
+            "attribution": "Meno ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "The soul takes nothing with her to the next world but her education.",
+            "author": "Plato",
+            "attribution": "Phaedo, 107d ~399 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "False words are not only evil in themselves, but they infect the soul.",
+            "author": "Plato",
+            "attribution": "Phaedo, 115e ~399 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "Human behavior flows from three main sources: desire, emotion, and knowledge.",
+            "author": "Plato",
+            "attribution": "Phaedo, 68a ~399 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "We are twice armed if we fight with faith.",
+            "author": "Plato",
+            "attribution": "Phaedo, 91c ~399 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "Wise men speak because they have something to say.",
+            "author": "Plato",
+            "attribution": "Phaedrus, 260e ~370 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "Knowledge is the food of the soul.",
+            "author": "Plato",
+            "attribution": "Protagoras ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Excellence is not a gift but a skill that takes practice.",
+            "author": "Plato",
+            "attribution": "Republic ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "Knowledge acquired under compulsion has no hold.",
+            "author": "Plato",
+            "attribution": "Republic ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The beginning is the most important part of the work.",
+            "author": "Plato",
+            "attribution": "Republic ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "The greatest wealth is to live content with little.",
+            "author": "Plato",
+            "attribution": "Republic ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "The heaviest penalty for declining to rule is to be ruled by someone inferior.",
+            "author": "Plato",
+            "attribution": "Republic, 347c ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "Necessity is the mother of invention.",
+            "author": "Plato",
+            "attribution": "Republic, 369c ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Those who tell the stories rule society.",
+            "author": "Plato",
+            "attribution": "Republic, 377c ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "Music is a moral law.",
+            "author": "Plato",
+            "attribution": "Republic, 401d ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 10
+          },
+          {
+            "text": "Justice means minding one’s own business.",
+            "author": "Plato",
+            "attribution": "Republic, 433a ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Opinion is the medium between knowledge and ignorance.",
+            "author": "Plato",
+            "attribution": "Republic, 478d ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "The empty vessel makes the loudest sound.",
+            "author": "Plato",
+            "attribution": "Republic, 493a ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The price good men pay for indifference to public affairs is to be ruled by evil men.",
+            "author": "Plato",
+            "attribution": "Republic, 496d ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "Ideas are the source of all things.",
+            "author": "Plato",
+            "attribution": "Republic, 508e ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Astronomy compels the soul to look upwards.",
+            "author": "Plato",
+            "attribution": "Republic, 529a ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Democracy passes into despotism.",
+            "author": "Plato",
+            "attribution": "Republic, 562a ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Poetry is nearer to vital truth than history.",
+            "author": "Plato",
+            "attribution": "Republic, 598e ~380 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "At the touch of love everyone becomes a poet.",
+            "author": "Plato",
+            "attribution": "Symposium ~385 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "The god of love lives in a state of need.",
+            "author": "Plato",
+            "attribution": "Symposium, 203b ~385 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Beauty is the splendor of truth.",
+            "author": "Plato",
+            "attribution": "Symposium, 215b ~385 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Thinking is the talking of the soul with itself.",
+            "author": "Plato",
+            "attribution": "Theaetetus ~369 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Wonder is the feeling of the philosopher.",
+            "author": "Plato",
+            "attribution": "Theaetetus ~369 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "No man is wise enough by himself.",
+            "author": "Plautus",
+            "attribution": "Miles Gloriosus ~200 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Patience is the best remedy for every trouble.",
+            "author": "Plautus",
+            "attribution": "Rudens ~200 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "Where there are friends there is wealth.",
+            "author": "Plautus",
+            "attribution": "Truculentus ~200 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "The only certainty is that nothing is certain.",
+            "author": "Pliny the Elder",
+            "attribution": "Natural History, Book II, Ch. 5 ~77 CE (Nil certi nisi quod nihil certum)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Grief has limits, whereas apprehension has none.",
+            "author": "Pliny the Elder",
+            "attribution": "Natural History, Book VII, Ch. 1 ~77 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "How many things are judged impossible before they occur.",
+            "author": "Pliny the Elder",
+            "attribution": "Natural History, Book VII, Ch. 1 ~77 CE (Quam multa fieri non posse priusquam sint facta indicantur)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 21
+          },
+          {
+            "text": "Nature has given man no better thing than shortness of life.",
+            "author": "Pliny the Elder",
+            "attribution": "Natural History, Book VII, Ch. 189 ~77 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Man is the only one that knows nothing without being taught.",
+            "author": "Pliny the Elder",
+            "attribution": "Natural History, Book VII, Ch. 2 ~77 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "In wine there is truth.",
+            "author": "Pliny the Elder",
+            "attribution": "Natural History, Book XIV, Ch. 141 ~77 CE (In vino veritas)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 9
+          },
+          {
+            "text": "The best plan is to profit by the folly of others.",
+            "author": "Pliny the Elder",
+            "attribution": "Natural History, Book XVIII, Ch. 31 ~77 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Such is the audacity of man, that he hath learned to counterfeit Nature.",
+            "author": "Pliny the Elder",
+            "attribution": "Natural History, Book XXXVI, Ch. 179 ~77 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "True glory: do what deserves to be written, write what deserves to be read.",
+            "author": "Pliny the Elder",
+            "attribution": "Natural History, Preface ~77 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Fortune favors the brave.",
+            "author": "Pliny the Elder",
+            "attribution": "via Pliny the Younger, Letters ~100 CE (Fortes fortuna iuvat)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "Prosperity is no just scale; adversity is the only balance to weigh friends.",
+            "author": "Plutarch",
+            "attribution": "Life of Aemilius Paulus ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 21
+          },
+          {
+            "text": "Learn to be pleased with little.",
+            "author": "Plutarch",
+            "attribution": "Life of Agis ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "It is not histories I am writing, but lives.",
+            "author": "Plutarch",
+            "attribution": "Life of Alexander ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "The whole life of man is but a point of time; let us enjoy it.",
+            "author": "Plutarch",
+            "attribution": "Life of Alexander ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "A few vices are sufficient to darken many virtues.",
+            "author": "Plutarch",
+            "attribution": "Life of Cato the Elder ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Nothing is cheap that is superfluous.",
+            "author": "Plutarch",
+            "attribution": "Life of Cato the Elder ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "We ought not to treat living creatures like shoes.",
+            "author": "Plutarch",
+            "attribution": "Life of Cato the Elder ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Men’s minds are more easily moved by what they see than by what they hear.",
+            "author": "Plutarch",
+            "attribution": "Life of Fabius Maximus ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Courage stands halfway between cowardice and rashness.",
+            "author": "Plutarch",
+            "attribution": "Life of Pelopidas ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "It is part of a good man to do great and noble deeds, though he risk everything.",
+            "author": "Plutarch",
+            "attribution": "Life of Pelopidas ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "No man ever wetted clay and then left it, as if there would be bricks by the morrow.",
+            "author": "Plutarch",
+            "attribution": "Life of Pericles ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "Time is the wisest of all counselors.",
+            "author": "Plutarch",
+            "attribution": "Life of Pericles ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Perseverance is more prevailing than violence.",
+            "author": "Plutarch",
+            "attribution": "Life of Sertorius ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "An imbalance between rich and poor is the oldest and most fatal ailment of republics.",
+            "author": "Plutarch",
+            "attribution": "Life of Solon ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The measure of a man is the way he bears up under misfortune.",
+            "author": "Plutarch",
+            "attribution": "Life of Solon ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Character is simply habit long continued.",
+            "author": "Plutarch",
+            "attribution": "Moralia ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "To find fault is easy; to do better may be difficult.",
+            "author": "Plutarch",
+            "attribution": "Moralia ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "What we achieve inwardly will change outer reality.",
+            "author": "Plutarch",
+            "attribution": "Moralia ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "I don't need a friend who changes when I change.",
+            "author": "Plutarch",
+            "attribution": "Moralia, On Brotherly Love ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Know how to listen, and you will profit even from those who talk badly.",
+            "author": "Plutarch",
+            "attribution": "Moralia, On Listening ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "The mind is not a vessel to be filled, but a fire to be kindled.",
+            "author": "Plutarch",
+            "attribution": "Moralia, On Listening to Lectures ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Silence at the proper season is wisdom.",
+            "author": "Plutarch",
+            "attribution": "Moralia, On Talkativeness ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Character is long-standing habit.",
+            "author": "Plutarch",
+            "attribution": "Moralia, On the Education of Children ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Medicine to produce health must know disease.",
+            "author": "Plutarch",
+            "attribution": "Moralia, On the Education of Children ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "The drop hollows the stone not by force but by falling often.",
+            "author": "Plutarch",
+            "attribution": "Moralia, On the Education of Children ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "The very spring and root of honesty is good breeding.",
+            "author": "Plutarch",
+            "attribution": "Moralia, On the Education of Children ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Painting is silent poetry, poetry is eloquent painting.",
+            "author": "Plutarch",
+            "attribution": "Moralia, On the Fame of the Athenians ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Rest is the sauce of labor.",
+            "author": "Plutarch",
+            "attribution": "Moralia, Table Talk ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "More people worship the rising than the setting sun.",
+            "author": "Pompey",
+            "attribution": "via Plutarch, Lives ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Stop quoting laws, we carry weapons!",
+            "author": "Pompey",
+            "attribution": "via Plutarch, Lives ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "To sail is necessary, to live is not.",
+            "author": "Pompey",
+            "attribution": "via Plutarch, Lives ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "Man is the measure of all things.",
+            "author": "Protagoras",
+            "attribution": "DK 80B1 ~490 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "On gods, I cannot know if they exist.",
+            "author": "Protagoras",
+            "attribution": "DK 80B4 ~490 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "A rolling stone gathers no moss.",
+            "author": "Publilius Syrus",
+            "attribution": "Sententiae ~50 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "Anyone can hold the helm when the sea is calm.",
+            "author": "Publilius Syrus",
+            "attribution": "Sententiae ~50 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "The fear of death is more to be dreaded than death itself.",
+            "author": "Publilius Syrus",
+            "attribution": "Sententiae ~50 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "The opportunity is often lost by deliberating.",
+            "author": "Publilius Syrus",
+            "attribution": "Sententiae ~50 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "What is most just? To sacrifice.",
+            "author": "Pythagoras",
+            "attribution": "Iamblichus,  On the Pythagorean Life 82 ~570 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Enough eloquence, little wisdom.",
+            "author": "Sallust",
+            "attribution": "Bellum Catilinae ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "But all our power lies in both mind and body.",
+            "author": "Sallust",
+            "attribution": "Bellum Catilinae, Chapter I ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "For the glory of wealth and beauty is fleeting and perishable.",
+            "author": "Sallust",
+            "attribution": "Bellum Catilinae, Chapter I ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "But many mortals, dedicated to their belly and to sleep.",
+            "author": "Sallust",
+            "attribution": "Bellum Catilinae, Chapter II ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "But when sloth has usurped dominion, a false semblance of severity.",
+            "author": "Sallust",
+            "attribution": "Bellum Catilinae, Chapter II ~44 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "Their heart grew cold.",
+            "author": "Sappho",
+            "attribution": "Fragment ~600 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "What cannot be said will be wept.",
+            "author": "Sappho",
+            "attribution": "Fragment ~600 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Someone, I tell you, in another time will remember us.",
+            "author": "Sappho",
+            "attribution": "Fragment 147 ~600 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "You burn me.",
+            "author": "Sappho",
+            "attribution": "Fragment 38 ~600 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 8
+          },
+          {
+            "text": "The sun shines even on the wicked.",
+            "author": "Seneca",
+            "attribution": "De Beneficiis, 4.26.1 ~63 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Life is long if you know how to use it.",
+            "author": "Seneca",
+            "attribution": "De Brevitate Vitae, 1.1 ~49 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "It is not that we have a short time to live, but that we waste a lot of it.",
+            "author": "Seneca",
+            "attribution": "De Brevitate Vitae, 1.3 ~49 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "People are frugal in guarding their property, but wasteful of time.",
+            "author": "Seneca",
+            "attribution": "De Brevitate Vitae, 3.5 ~49 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "While we wait for life, life passes.",
+            "author": "Seneca",
+            "attribution": "De Brevitate Vitae, 8.5 ~49 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "The whole future lies in uncertainty: live immediately.",
+            "author": "Seneca",
+            "attribution": "De Brevitate Vitae, 9.1 ~49 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The greatest remedy for anger is delay.",
+            "author": "Seneca",
+            "attribution": "De Ira ~41 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Anger is a short madness.",
+            "author": "Seneca",
+            "attribution": "De Ira, 1.1.2 ~41 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "Time discovers truth.",
+            "author": "Seneca",
+            "attribution": "De Ira, 2.23.1 ~41 CE (Veritas tempore revelatur)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "The best cure for anger is to wait.",
+            "author": "Seneca",
+            "attribution": "De Ira, 2.28.1 ~41 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Every night before sleep, review the day.",
+            "author": "Seneca",
+            "attribution": "De Ira, 3.36.3 ~41 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "Revenge is the confession of pain.",
+            "author": "Seneca",
+            "attribution": "De Ira, 3.5.8 ~41 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Fire tests gold; adversity tests strong men.",
+            "author": "Seneca",
+            "attribution": "De Providentia, 5.10 ~63 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Nothing is so bitter that a calm mind cannot find comfort.",
+            "author": "Seneca",
+            "attribution": "De Tranquillitate Animi, 10.4 ~60 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Whatever can happen at any time can happen today.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 101.9 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Fate leads the willing, drags the unwilling.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 107.11 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Religion is regarded by the common as true, wise as false, rulers as useful.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 117.30 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "Let nature be your teacher.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 122.16 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "We suffer more in imagination than reality.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 13.4 ~64 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Poverty with security is better than plenty in fear.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 14.10 ~64 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "Philosophy is the medicine of the soul.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 16.3 ~64 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Freedom is won by living simply.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 18.13 ~64 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Shun luxury; it softens the spirit.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 18.6 ~64 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "To be everywhere is to be nowhere.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 2.2 ~64 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "Philosophy teaches us to act, not to speak.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 20.2 ~64 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Wealth is the slave of a wise man, master of a fool.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 20.9 ~64 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "True happiness is to enjoy the present.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 23.3 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Enjoy present pleasures so as not to harm future ones.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 23.9 ~64 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "You must live for another if you wish to live for yourself.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 48.2 ~64 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Begin at once to live, and count each day as a life.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 49.7 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Cease to hope and you will cease to fear.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 5.7 ~64 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Nothing is burdensome if taken lightly.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 56.7 ~64 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "It is better to conquer grief than to deceive it.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 63.12 ~64 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Associate with people who are likely to improve you.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 7.8 ~64 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Most powerful is he who has himself in his own power.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 73.13 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Let us say what we feel, not what we ought to say.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 75.3 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "As long as you live, keep learning how to live.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 76.3 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "No evil is great which is the last.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 78.11 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Death is a release from all pains.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 78.6 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Drunkenness is nothing but voluntary madness.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 83.19 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "Every new beginning comes from some other beginning’s end.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 91.15 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "The happy life is to have a sound mind in a sound body.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 92.1 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "No one is more hated than he who speaks the truth.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 92.34 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The point is not how long you live, but how nobly.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 93.4 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "We are members of one great body.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 95.52 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Difficulties strengthen the mind, as labor does the body.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 96.2 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The mind that is anxious about the future is miserable.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 98.6 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "What need is there to weep over parts of life? The whole of it calls for tears.",
+            "author": "Seneca",
+            "attribution": "Epistulae Morales, 99.31 ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Sometimes even to live is an act of courage.",
+            "author": "Seneca",
+            "attribution": "Letters to Lucilius ~64 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "All cruelty springs from weakness.",
+            "author": "Seneca",
+            "attribution": "Letters to Lucilius ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The willing are led by destiny.",
+            "author": "Seneca",
+            "attribution": "Letters to Lucilius ~65 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "The unexamined life is not worth living.",
+            "author": "Socrates",
+            "attribution": "Plato, Apology ~399 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "I know that I know nothing.",
+            "author": "Socrates",
+            "attribution": "Plato, Apology ~399 BCE (paraphrase of 21d)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 9
+          },
+          {
+            "text": "Wonder is the beginning of wisdom.",
+            "author": "Socrates",
+            "attribution": "Plato, Theaetetus ~369 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "A lie never lives to be old.",
+            "author": "Sophocles",
+            "attribution": "Acrisius, fragment 59 ~450 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 12
+          },
+          {
+            "text": "No man loves life like him that's growing old.",
+            "author": "Sophocles",
+            "attribution": "Acrisius, fragment 64 ~450 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "A short saying often contains much wisdom.",
+            "author": "Sophocles",
+            "attribution": "Aletes, fragment 99 ~440 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "How dreadful knowledge of the truth can be when there's no help in truth!",
+            "author": "Sophocles",
+            "attribution": "Oedipus Rex, l. 316 ~429 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "It is better not to live at all than to live disgraced.",
+            "author": "Sophocles",
+            "attribution": "Peleus, fragment 445 ~440 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "A bad peace is even worse than war.",
+            "author": "Tacitus",
+            "attribution": "Annals ~116 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Reason and judgment are the qualities of a leader.",
+            "author": "Tacitus",
+            "attribution": "Annals ~116 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "The more corrupt the state the more numerous the laws.",
+            "author": "Tacitus",
+            "attribution": "Annals ~116 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Things forbidden have a secret charm.",
+            "author": "Tacitus",
+            "attribution": "Annals ~116 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Crime, once exposed, has no refuge but in audacity.",
+            "author": "Tacitus",
+            "attribution": "Annals, 14.10 ~116 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "Men are more ready to repay an injury than a benefit.",
+            "author": "Tacitus",
+            "attribution": "Annals, 4.10 ~116 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Greater things are believed of those who are absent.",
+            "author": "Tacitus",
+            "attribution": "Histories ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Prosperity tries the fortunate, adversity the great.",
+            "author": "Tacitus",
+            "attribution": "Histories, 4.6 ~100 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Lovers' quarrels are the renewal of love.",
+            "author": "Terence",
+            "attribution": "Andria, Act III, scene 3, line 23 (555) ~166 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Hence these tears.",
+            "author": "Terence",
+            "attribution": "Andria, Line 126 ~166 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 8
+          },
+          {
+            "text": "I am human, I consider nothing human alien to me.",
+            "author": "Terence",
+            "attribution": "Heauton Timorumenos, Act I, scene 1, line 25 (77) ~163 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Nothing is so difficult but that it may be found out by seeking.",
+            "author": "Terence",
+            "attribution": "Heauton Timorumenos, Act IV, scene 2, line 8 (675) ~163 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "History is philosophy teaching by examples.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War ~400 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "We do not imitate, but are a model to others.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 1.10.2 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "It is a common mistake in going to war to begin at the wrong end.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 1.122.1 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "The future is unknowable, but the past should guide us.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 1.22.4 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "In times of peace, sons bury their fathers; in war, fathers bury their sons.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 1.23.5 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Men are in a state of war not because they are armed, but because they are men.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 1.23.5 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "The truest cause of war is the desire for more.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 1.23.6 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "We secure our friends not by accepting favors, but by doing them.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 1.32.1 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "Men's minds are won by the good they receive rather than by the good they confer.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 1.42.1 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "War is not so much a matter of armaments as of expenditure.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 1.83.2 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "We must remember that one man is much the same as another.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 1.84.3 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 14
+          },
+          {
+            "text": "Freedom is the sure possession of those alone who have the courage to defend it.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 2.37.2 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "The secret of happiness is freedom, and the secret of freedom is courage.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 2.37.2 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Self-control is the chief element in self-respect.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 2.40.1 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Wealth to us is not mere material for vainglory but an opportunity for achievement.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 2.40.1 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "Ignorance is bold, and knowledge reserved.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 2.40.3 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The bravest are surely those who have the clearest vision.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 2.40.3 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "The doer of the favor is the firmer friend.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 2.40.4 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "The whole earth is the tomb of famous men.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 2.43.3 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Men's indignation is spent on the present evil.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 2.59.1 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Men are swayed more by fear than by reverence.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 2.61.2 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "Men naturally despise those who court them, but respect those who do not give way.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 2.61.4 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "The tyranny that Athens imposed on others, it ultimately inflicted on itself.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 2.63.2 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Love of glory is the most common motive for great actions.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 2.64.3 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "The greatest glory is to be had from the greatest dangers.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 2.64.3 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "It is frequently a misfortune to have very brilliant men in charge of affairs.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 2.65.10 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "Few things are brought to a successful issue by impetuous desire.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 3.45.3 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "Revolution thus ran its course from city to city.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 3.82.1 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "The sufferings which revolution entailed were many and terrible.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 3.82.1 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 20
+          },
+          {
+            "text": "Men are more eager to return evil than to remember good.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 3.82.2 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The cause of all these evils was the love of power.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 3.82.2 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "The meaning of words had no longer the same relation to things.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 3.82.4 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Words had to change their ordinary meaning.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 3.82.4 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Most men prefer to be given a plausible lie than an unpalatable truth.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 4.108.4 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Men do not rest content with parrying the attacks of a superior.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 4.18.2 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "Peace is an armistice in a war that is continuously going on.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 4.59.3 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Hope is an expensive commodity.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 5.103 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Right, as the world goes, is only in question between equals in power.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 5.89 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The question is not of justice, but of power.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 5.89 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "The strong do what they can; the weak suffer what they must.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 5.89 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "In a democracy the poor will have more power than the rich.",
+            "author": "Thucydides",
+            "attribution": "History of the Peloponnesian War, 6.39.1 ~410 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "So little pains do the vulgar take in the investigation of truth.",
+            "author": "Thucydides",
+            "attribution": "Peloponnesian War ~420 BCE (1.20)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "Money has no odor.",
+            "author": "Vespasian",
+            "attribution": "Suetonius, Vespasian 23 ~121 CE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 10
+          },
+          {
+            "text": "Dear me, I must be turning into a god.",
+            "author": "Vespasian",
+            "attribution": "via Suetonius, Lives ~121 CE (last words)",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "I sing of arms and the man.",
+            "author": "Virgil",
+            "attribution": "Aeneid, Book I, line 1 ~19 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Perhaps it will be pleasant to remember these things one day.",
+            "author": "Virgil",
+            "attribution": "Aeneid, Book I, line 203 ~19 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "The one safety for the vanquished is to hope for none.",
+            "author": "Virgil",
+            "attribution": "Aeneid, Book II, line 354 ~19 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 16
+          },
+          {
+            "text": "I fear the Greeks even when they bring gifts.",
+            "author": "Virgil",
+            "attribution": "Aeneid, Book II, lines 48-49 ~19 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Accursed hunger for gold.",
+            "author": "Virgil",
+            "attribution": "Aeneid, Book III, lines 56-57 ~19 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 13
+          },
+          {
+            "text": "Every one of you is the leader.",
+            "author": "Xenophon",
+            "attribution": "Anabasis ~370 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "It is only for those to employ force who possess strength without judgment.",
+            "author": "Xenophon",
+            "attribution": "Anabasis ~370 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 19
+          },
+          {
+            "text": "Conquerors do not, as a rule, give up their arms.",
+            "author": "Xenophon",
+            "attribution": "Anabasis, Book 2, Chapter 1 ~370 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          },
+          {
+            "text": "The thing is to get them to turn their thoughts to what they mean to do.",
+            "author": "Xenophon",
+            "attribution": "Anabasis, Book 3, Chapter 1 ~370 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 15
+          },
+          {
+            "text": "Yet is it more honorable... to treasure in the memory good acts than bad.",
+            "author": "Xenophon",
+            "attribution": "Anabasis, Book 5, Chapter 8 ~370 BCE",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 17
+          },
+          {
+            "text": "If the things that are are many, they must be both like and unlike.",
+            "author": "Zeno of Elea",
+            "attribution": "Plato,  Parmenides 127e ~490 BCE, 64",
+            "difficulty": 0,
+            "category": "classical",
+            "unique_letters": 18
+          }
+    ]
+  }
