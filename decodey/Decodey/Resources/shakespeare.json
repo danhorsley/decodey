@@ -1,0 +1,4404 @@
+{
+    "quotes": [
+        {
+            "text": "Love looks not with the eyes, but with the mind",
+            "author": "Shakespeare",
+            "attribution": "A Midsummer Night's Dream (Act 1, Scene 1), Helena explaining why Cupid is painted blind and love is not based on appearance but perception",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "The course of true love never did run smooth",
+            "author": "Shakespeare",
+            "attribution": "A Midsummer Night's Dream (Act 1, Scene 1), Lysander comforting Hermia about the obstacles in their forbidden romance",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Over hill, over dale",
+            "author": "Shakespeare",
+            "attribution": "A Midsummer Night's Dream (Act 2, Scene 1), Fairy travels",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 9
+        },
+        {
+            "text": "My heart is true as steel",
+            "author": "Shakespeare",
+            "attribution": "A Midsummer Night's Dream (Act 2, Scene 1), Helena's vow",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Ill met by moonlight, proud Titania",
+            "author": "Shakespeare",
+            "attribution": "A Midsummer Night's Dream (Act 2, Scene 1), Oberon greets",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "I am that merry wanderer of the night",
+            "author": "Shakespeare",
+            "attribution": "A Midsummer Night's Dream (Act 2, Scene 1), Puck boasts",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Heaven take my soul",
+            "author": "Shakespeare",
+            "attribution": "A Midsummer Night’s Dream (Act 3, Scene 2), Bottom’s melodramatic cry",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "You starveling!",
+            "author": "Shakespeare",
+            "attribution": "A Midsummer Night’s Dream (Act 3, Scene 2), Helena insulting Hermia’s thin frame",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Lord, what fools these mortals be!",
+            "author": "Shakespeare",
+            "attribution": "A Midsummer Night's Dream (Act 3, Scene 2), Puck laughing at the confused and enchanted lovers in the forest",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Cupid is a knavish lad",
+            "author": "Shakespeare",
+            "attribution": "A Midsummer Night's Dream (Act 3, Scene 2), Puck on love",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "I have had a most rare vision",
+            "author": "Shakespeare",
+            "attribution": "A Midsummer Night’s Dream (Act 4, Scene 1), Bottom awed by his dreamlike transformation",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Methought I was enamored of an ass",
+            "author": "Shakespeare",
+            "attribution": "A Midsummer Night’s Dream (Act 4, Scene 1), Titania waking from her spellbound love",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "My soul is in the sky",
+            "author": "Shakespeare",
+            "attribution": "A Midsummer Night’s Dream (Act 5, Scene 1), Bottom’s poetic reflection on his dream",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "The lunatic, the lover, and the poet",
+            "author": "Shakespeare",
+            "attribution": "A Midsummer Night’s Dream (Act 5, Scene 1), Theseus on the shared imagination of love and madness",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Our remedies oft in ourselves do lie",
+            "author": "Shakespeare",
+            "attribution": "All's Well That Ends Well (Act 1, Scene 1), Helena on self",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Keep thy friend under thy own life’s key",
+            "author": "Shakespeare",
+            "attribution": "All’s Well That Ends Well (Act 1, Scene 1), the Countess on protecting friends",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Love all, trust a few, do wrong to none",
+            "author": "Shakespeare",
+            "attribution": "All's Well That Ends Well (Act 1, Scene 1), the Countess's wise motherly advice to her son Bertram before he leaves for court",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Service is no heritage",
+            "author": "Shakespeare",
+            "attribution": "All's Well That Ends Well (Act 1, Scene 3), Clown on duty",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "My friends were poor but honest",
+            "author": "Shakespeare",
+            "attribution": "All's Well That Ends Well (Act 1, Scene 3), Helena's claim",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Oft expectation fails",
+            "author": "Shakespeare",
+            "attribution": "All's Well That Ends Well (Act 2, Scene 1), King on hope",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "No legacy is so rich as honesty",
+            "author": "Shakespeare",
+            "attribution": "All’s Well That Ends Well (Act 3, Scene 5), Mariana praising integrity as the greatest inheritance",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Thou art a most notable coward",
+            "author": "Shakespeare",
+            "attribution": "All’s Well That Ends Well (Act 3, Scene 6), Bertram exposing Parolles’s cowardice",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Good and bad together",
+            "author": "Shakespeare",
+            "attribution": "All’s Well That Ends Well (Act 4, Scene 3), on the mixed nature of human morality",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "All’s well that ends well",
+            "author": "Shakespeare",
+            "attribution": "All’s Well That Ends Well (Act 4, Scene 4), Helena on good outcomes justifying means",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 9
+        },
+        {
+            "text": "Praising what is lost makes the remembrance dear",
+            "author": "Shakespeare",
+            "attribution": "All’s Well That Ends Well (Act 5, Scene 3), the King on how valuing the lost deepens memory",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "The tears live in an onion",
+            "author": "Shakespeare",
+            "attribution": "Antony and Cleopatra (Act 1, Scene 2), Enobarbus on forced, insincere crying",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "My salad days, when I was green in judgment",
+            "author": "Shakespeare",
+            "attribution": "Antony and Cleopatra (Act 1, Scene 5), Cleopatra recalling her naive youth with Caesar",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Age cannot wither her",
+            "author": "Shakespeare",
+            "attribution": "Antony and Cleopatra (Act 2, Scene 2), Enobarbus on Cleopatra’s timeless and captivating allure",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Give me some music",
+            "author": "Shakespeare",
+            "attribution": "Antony and Cleopatra (Act 2, Scene 5), Cleopatra seeking comfort in melody to ease her distress",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 9
+        },
+        {
+            "text": "Let’s have one other gaudy night",
+            "author": "Shakespeare",
+            "attribution": "Antony and Cleopatra (Act 3, Scene 13), Antony calling for a final night of celebration",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "I have forgot much",
+            "author": "Shakespeare",
+            "attribution": "Antony and Cleopatra (Act 4, Scene 14), Antony lamenting his fading memories and strength",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "I am dying, Egypt, dying",
+            "author": "Shakespeare",
+            "attribution": "Antony and Cleopatra (Act 4, Scene 15), Antony's farewell",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "Treason doth never prosper",
+            "author": "Shakespeare",
+            "attribution": "Antony and Cleopatra (Act 4, Scene 6), Soldier on betrayal",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Give me my robe, put on my crown",
+            "author": "Shakespeare",
+            "attribution": "Antony and Cleopatra (Act 5, Scene 2), Cleopatra preparing for death with regal dignity",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Make not your thoughts your prisons",
+            "author": "Shakespeare",
+            "attribution": "Antony and Cleopatra (Act 5, Scene 2), Cleopatra urging against self-imposed mental limits",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "My desolation does begin to make a better life",
+            "author": "Shakespeare",
+            "attribution": "Antony and Cleopatra (Act 5, Scene 2), Cleopatra's resolve",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "O, how full of briers is this working-day world!",
+            "author": "Shakespeare",
+            "attribution": "As You Like It (Act 1, Scene 3), Rosalind lamenting the difficulties of life in the court",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "Beauty provoketh thieves",
+            "author": "Shakespeare",
+            "attribution": "As You Like It (Act 1, Scene 3), Rosalind on beauty’s allure drawing danger",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Sweet are the uses of adversity",
+            "author": "Shakespeare",
+            "attribution": "As You Like It (Act 2, Scene 1), Duke Senior on finding value in hardship",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "The winter’s wind is not so unkind",
+            "author": "Shakespeare",
+            "attribution": "As You Like It (Act 2, Scene 7), Amiens comparing nature’s cruelty to human unkindness",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "All the world's a stage",
+            "author": "Shakespeare",
+            "attribution": "As You Like It (Act 2, Scene 7), Jaques's cynical meditation on life's seven ages, comparing existence to a theatrical performance",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Most friendship is feigning",
+            "author": "Shakespeare",
+            "attribution": "As You Like It (Act 2, Scene 7), Jaques’s cynical song about false friends and superficial loyalty",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "I do desire we may be better strangers",
+            "author": "Shakespeare",
+            "attribution": "As You Like It (Act 3, Scene 2), Orlando wittily rejecting unwanted company",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Can I do all this?",
+            "author": "Shakespeare",
+            "attribution": "As You Like It (Act 3, Scene 2), Orlando's doubt",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "He that wants money, means, and content",
+            "author": "Shakespeare",
+            "attribution": "As You Like It (Act 3, Scene 2), Touchstone on the triple poverty of lacking wealth, means, and happiness",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "The sight of lovers feedeth those in love",
+            "author": "Shakespeare",
+            "attribution": "As You Like It (Act 3, Scene 4), Rosalind on how seeing love nurtures one’s own passion",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Who ever loved that loved not at first sight?",
+            "author": "Shakespeare",
+            "attribution": "As You Like It (Act 3, Scene 5), Phebe quoting Christopher Marlowe on the power of instant romantic attraction",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "When I saw you I fell in love",
+            "author": "Shakespeare",
+            "attribution": "As You Like It (Act 3, Scene 5), Silvius confessing his instant love for Phebe",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "I will laugh like a hyena",
+            "author": "Shakespeare",
+            "attribution": "As You Like It (Act 4, Scene 1), Rosalind on exaggerated, forced mirth",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "December when they wed",
+            "author": "Shakespeare",
+            "attribution": "As You Like It (Act 4, Scene 1), Rosalind on how marriage cools passion to winter",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Men are April when they woo",
+            "author": "Shakespeare",
+            "attribution": "As You Like It (Act 4, Scene 1), Rosalind on men’s youthful passion in courtship",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "The fool doth think he is wise",
+            "author": "Shakespeare",
+            "attribution": "As You Like It (Act 5, Scene 1), Touchstone on fools’ overconfidence",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "As you like it",
+            "author": "Shakespeare",
+            "attribution": "As You Like It (title), implying the story adapts to the audience’s desires",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "More of your conversation would infect my brain",
+            "author": "Shakespeare",
+            "attribution": "Coriolanus (Act 2, Scene 1), Menenius scorning Sicinius’s toxic rhetoric",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "Action is eloquence",
+            "author": "Shakespeare",
+            "attribution": "Coriolanus (Act 3, Scene 2), Volumnia on deeds speaking louder than words",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "My rage is gone",
+            "author": "Shakespeare",
+            "attribution": "Coriolanus (Act 5, Scene 3), Coriolanus yields",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "Weariness can snore upon the flint",
+            "author": "Shakespeare",
+            "attribution": "Coriolanus (Act 5, Scene 3), Volumnia on hardship",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Boldness be my friend",
+            "author": "Shakespeare",
+            "attribution": "Cymbeline (Act 1, Scene 6), Imogen seeks courage",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Men’s vows are women’s traitors",
+            "author": "Shakespeare",
+            "attribution": "Cymbeline (Act 3, Scene 4), Imogen on how men’s false promises betray trusting women",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "I dare damnation",
+            "author": "Shakespeare",
+            "attribution": "Cymbeline (Act 4, Scene 2), Cloten's defiance",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 9
+        },
+        {
+            "text": "Golden lads and girls all must, as chimney-sweepers",
+            "author": "Shakespeare",
+            "attribution": "Cymbeline (Act 4, Scene 2), funeral song noting death's equality across all social classes",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "Fear no more the heat o’ the sun",
+            "author": "Shakespeare",
+            "attribution": "Cymbeline (Act 4, Scene 2), funeral song on death as a release from life’s hardships",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Fortune brings in some boats that are not steered",
+            "author": "Shakespeare",
+            "attribution": "Cymbeline (Act 4, Scene 3), Pisanio reflecting on unexpected luck and chance guiding outcomes",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Every good servant does not all commands",
+            "author": "Shakespeare",
+            "attribution": "Cymbeline (Act 5, Scene 1), Pisanio on duty",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Pardon’s the word to all",
+            "author": "Shakespeare",
+            "attribution": "Cymbeline (Act 5, Scene 5), Cymbeline advocating universal forgiveness to end the play’s conflicts",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "O, never say that I was false of heart",
+            "author": "Shakespeare",
+            "attribution": "Cymbeline (Act 5, Scene 5), Posthumus repents",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Stand and unfold yourself",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 1, Scene 1), Bernardo’s challenge to the sentinel, opening the play",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "In the dead vast and middle of the night",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 1, Scene 2), Bernardo on the ghost appearing at the darkest hour",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "The memory be green",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 1, Scene 2), Claudius urging that his brother’s memory remain vivid",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "In my mind’s eye",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 1, Scene 2), Hamlet seeing his father’s memory with his imagination",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 7
+        },
+        {
+            "text": "Frailty, thy name is woman!",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 1, Scene 2), Hamlet’s bitter outburst about his mother’s quick remarriage to Claudius",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Costly thy habit as thy purse can buy",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 1, Scene 3), Polonius advising Laertes to dress within his financial means",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Those friends thou hast, and their adoption tried",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 1, Scene 3), Polonius advising Laertes to keep only proven, trustworthy friends",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "To thine own self be true",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 1, Scene 3), Polonius's parting wisdom to his son Laertes, emphasizing personal integrity before leaving for France",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Angels and ministers of grace defend us!",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 1, Scene 4), Hamlet’s plea upon seeing his father’s ghost, invoking divine protection",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Something is rotten in the state of Denmark",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 1, Scene 4), Marcellus sensing deep corruption and unnatural events in the royal court",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Time is out of joint",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 1, Scene 5), Hamlet lamenting the disrupted order he must restore after the ghost’s revelation",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "Smiling damned villain",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 1, Scene 5), Hamlet on Claudius’s deceptive, friendly facade",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "One may smile, and smile, and be a villain",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 1, Scene 5), Hamlet realizing King Claudius's friendly demeanor hides his evil deeds",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Revenge his foul and most unnatural murder",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 1, Scene 5), the Ghost demanding Hamlet avenge his treacherous murder by Claudius",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Murder most foul",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 1, Scene 5), the Ghost describing his own treacherous murder by Claudius to Hamlet",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "Doubt thou the stars are fire, doubt truth to be a liar",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 2, Scene 2), from Hamlet's love letter to Ophelia, swearing his eternal devotion despite doubts",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "What’s Hecuba to him, or he to Hecuba",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 2, Scene 2), Hamlet amazed that an actor weeps for a fictional character’s sorrow",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Words, words, words",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 2, Scene 2), Hamlet dismissing Polonius’s question about his reading with feigned madness",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 5
+        },
+        {
+            "text": "And who shall ’scape whipping?",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 2, Scene 2), Hamlet noting no one is perfect enough to escape punishment",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "I am pigeon-livered and lack gall",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 2, Scene 2), Hamlet on cowardice",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "There is nothing either good or bad but thinking",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 2, Scene 2), Hamlet on how perception shapes reality’s moral value",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Use every man after his desert",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 2, Scene 2), Hamlet on treating people as their actions deserve",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "The play’s the thing",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 2, Scene 2), Hamlet planning to use a play to catch Claudius’s guilty conscience",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "O, what a rogue and peasant slave am I!",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 2, Scene 2), Hamlet's self-reproach",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Brevity is the soul of wit",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 2, Scene 2), Polonius ironically being long-winded while advising on the value of being concise",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Though this be madness, yet there is method in’t",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 2, Scene 2), Polonius recognizing calculated purpose in Hamlet’s apparent insanity",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Madness in great ones",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 1), Claudius on the instability of powerful minds like Hamlet’s",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "The undiscovered country from whose bourn",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 1), Hamlet describing death as a mysterious land from which no traveler returns",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "The proud man’s contumely",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 1), Hamlet listing life’s insults in his soliloquy",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Conscience does make cowards of us all",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 1), Hamlet on how moral awareness prevents rash actions like suicide",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "To die, to sleep—to sleep, perchance to dream",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 1), Hamlet’s full meditation on death as a sleep that might bring dreams",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "To be, or not to be, that is the question",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 1), Hamlet's soliloquy contemplating suicide versus enduring life's sufferings",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "O, what a noble mind is here o’erthrown!",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 1), Ophelia lamenting Hamlet’s apparent descent into madness",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "The expectancy and rose of the fair state",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 1), Ophelia on Hamlet",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Rich gifts wax poor when givers prove unkind",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 1), Ophelia returning Hamlet’s tainted gifts",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 19
+        },
+        {
+            "text": "Give me that man that is not passion's slave",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 2), Hamlet admires Horatio",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Speak the speech, I pray you",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 2), Hamlet advising the players on natural, unexaggerated performance",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Suit the action to the word",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 2), Hamlet instructing the players to match gestures to their spoken lines",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Tis now the very witching time of night",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 2), Hamlet noting when evil stirs, before confronting his mother",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "The lady doth protest too much",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 2), Queen Gertrude noting the player's overemphatic denial during the mousetrap play",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "My words fly up, my thoughts remain below",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 3), Claudius admitting his prayer is hollow without true repentance for his crimes",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 19
+        },
+        {
+            "text": "How now! A rat?",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 4), Hamlet before stabbing Polonius, mistaking him for Claudius behind the tapestry",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 7
+        },
+        {
+            "text": "I must be cruel only to be kind",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 4), Hamlet explaining to his mother Gertrude that his harsh confrontation is meant to help her see her errors and reform",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Assume a virtue if you have it not",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 3, Scene 4), Hamlet telling his mother Gertrude to pretend goodness until it becomes habit",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "O, from this time forth my thoughts be bloody",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 4, Scene 4), Hamlet's resolve",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "But in battalions",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 4, Scene 5), Claudius completing the thought that sorrows come in overwhelming numbers",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 9
+        },
+        {
+            "text": "When sorrows come, they come not single spies",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 4, Scene 5), Claudius noting that troubles arrive in groups, not alone",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "O heat, dry up my brains!",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 4, Scene 5), Laertes' grief",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "We know what we are, but know not what we may be",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 4, Scene 5), Ophelia in her madness reflecting on human potential and uncertainty",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "There's rosemary, that's for remembrance",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 4, Scene 5), Ophelia's flowers",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Revenge should have no bounds",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 4, Scene 7), Claudius urging Laertes to pursue unrestrained vengeance against Hamlet",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Sweets to the sweet",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 5, Scene 1), Gertrude scattering flowers at Ophelia’s grave, mourning her tragic death",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 6
+        },
+        {
+            "text": "Alas, poor Yorick! I knew him",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 5, Scene 1), Hamlet holding his childhood jester's skull and reflecting on mortality",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "There's a divinity that shapes our ends",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 5, Scene 2), Hamlet accepting providence after surviving his sea voyage and Claudius’s plot",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "The readiness is all",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 5, Scene 2), Hamlet accepting whatever fate brings with preparedness",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "O, I die, Horatio!",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 5, Scene 2), Hamlet’s dying words to his friend, beginning his final speech",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 8
+        },
+        {
+            "text": "The rest is silence",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 5, Scene 2), Hamlet’s final words as he dies, accepting the end of his struggle",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 9
+        },
+        {
+            "text": "Now cracks a noble heart",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 5, Scene 2), Horatio praising Hamlet’s noble spirit as he dies after the fatal duel",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Goodnight, sweet prince",
+            "author": "Shakespeare",
+            "attribution": "Hamlet (Act 5, Scene 2), Horatio’s tender farewell to the dying Hamlet, mourning his noble friend",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Swift as thought",
+            "author": "Shakespeare",
+            "attribution": "Henry IV Part 1 (Act 2, Scene 4), Falstaff boasting of his mental quickness",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "I am not only witty in myself",
+            "author": "Shakespeare",
+            "attribution": "Henry IV Part 1 (Act 2, Scene 4), Falstaff boasts",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "A plague of all cowards",
+            "author": "Shakespeare",
+            "attribution": "Henry IV Part 1 (Act 2, Scene 4), Falstaff curses",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Thou clay-brained guts!",
+            "author": "Shakespeare",
+            "attribution": "Henry IV Part 1 (Act 2, Scene 4), Prince Hal playfully insulting Falstaff’s wit",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "The better part of valor is discretion",
+            "author": "Shakespeare",
+            "attribution": "Henry IV Part 1 (Act 5, Scene 4), Falstaff justifying cowardice to avoid death",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Lord, how this world is given to lying!",
+            "author": "Shakespeare",
+            "attribution": "Henry IV Part 1 (Act 5, Scene 4), Falstaff marveling at universal dishonesty while faking his death",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Thought’s the slave of life",
+            "author": "Shakespeare",
+            "attribution": "Henry IV Part 1 (Act 5, Scene 4), Hotspur on how mortality limits human ideas",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Nature’s soft nurse",
+            "author": "Shakespeare",
+            "attribution": "Henry IV Part 2 (Act 3, Scene 1), the King calling sleep the gentle healer that restores the weary",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 9
+        },
+        {
+            "text": "O sleep, O gentle sleep",
+            "author": "Shakespeare",
+            "attribution": "Henry IV Part 2 (Act 3, Scene 1), the King envying the peaceful sleep of his subjects, denied to him",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 8
+        },
+        {
+            "text": "Uneasy lies the head that wears a crown",
+            "author": "Shakespeare",
+            "attribution": "Henry IV Part 2 (Act 3, Scene 1), the King reflecting on the sleepless nights and burdens of royal responsibility",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Let every eye negotiate for itself",
+            "author": "Shakespeare",
+            "attribution": "Henry V (Act 2, Scene 1), Pistol on trust",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Once more unto the breach, dear friends",
+            "author": "Shakespeare",
+            "attribution": "Henry V (Act 3, Scene 1), Henry rallying his troops to attack Harfleur’s walls again with courage",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Be brave, for your captain is brave",
+            "author": "Shakespeare",
+            "attribution": "Henry V (Act 3, Scene 6), Fluellen urging courage by citing the example of a bold leader",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "A little touch of Harry in the night",
+            "author": "Shakespeare",
+            "attribution": "Henry V (Act 4, Prologue), Chorus on king",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Self-love is not so vile a sin",
+            "author": "Shakespeare",
+            "attribution": "Henry V (Act 4, Scene 1), Henry defending self-care against neglect",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "There is some soul of goodness in things evil",
+            "author": "Shakespeare",
+            "attribution": "Henry V (Act 4, Scene 1), Henry finding silver linings in adversity while reflecting before battle",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Follow your spirit",
+            "author": "Shakespeare",
+            "attribution": "Henry V (Act 4, Scene 1), Henry urging his soldiers to let courage guide them in battle",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "The fewer men, the greater share of honor",
+            "author": "Shakespeare",
+            "attribution": "Henry V (Act 4, Scene 3), Henry's courage",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "We few, we happy few, we band of brothers",
+            "author": "Shakespeare",
+            "attribution": "Henry V (Act 4, Scene 3), Henry’s St. Crispin’s Day speech inspiring unity before Agincourt",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "The empty vessel makes the greatest sound",
+            "author": "Shakespeare",
+            "attribution": "Henry V (Act 4, Scene 4), the Boy comparing Pistol's empty boasting to the loud noise of a hollow container",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "O, for a muse of fire",
+            "author": "Shakespeare",
+            "attribution": "Henry V (Prologue), the Chorus wishing for inspiration to tell Henry’s epic wars",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 9
+        },
+        {
+            "text": "Glory is like a circle in the water",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 1 (Act 1, Scene 2), Joan on fame",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Strike up the drums",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 1 (Act 1, Scene 4), calling for military music to rally troops in battle",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "My thoughts are whirled like a potter’s wheel",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 1 (Act 1, Scene 5), Talbot describing his confused, spinning thoughts",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Delay leads impotent and snail-paced beggary",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 1 (Act 4, Scene 3), Talbot on haste",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Of all base passions, fear is most accursed",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 1 (Act 5, Scene 2), Joan la Pucelle on fear as the worst emotion",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "She is beautiful and therefore to be wooed",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 1 (Act 5, Scene 3), Suffolk plotting to win Margaret’s love for political gain",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Smooth runs the water where the brook is deep",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 2 (Act 3, Scene 1), Suffolk on still waters hiding dangerous depths",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "True nobility is exempt from fear",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 2 (Act 4, Scene 1), Suffolk claiming aristocratic courage defies fear before his death",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Small things make base men proud",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 2 (Act 4, Scene 1), Suffolk on petty pride in unworthy men",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "The first thing we do, let's kill all the lawyers",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 2 (Act 4, Scene 2), Dick the Butcher's anarchic suggestion in Jack Cade's rebellion",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Ignorance is the curse of God",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 2 (Act 4, Scene 7), Cade on ignorance as a dangerous flaw",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Knowledge the wing wherewith we fly to heaven",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 2 (Act 4, Scene 7), Say on knowledge elevating the soul",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Patience is for poltroons",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 3 (Act 1, Scene 2), Suffolk scorning patience as weakness in ambition",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Wise men ne’er sit and wail their loss",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 3 (Act 2, Scene 1), Richard on moving forward despite setbacks",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "I owe him little duty and less love",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 3 (Act 4, Scene 1), Clarence defects",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "What cannot be avoided must be endured",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 3 (Act 5, Scene 4), Margaret's resolve",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Suspicion haunts the guilty mind",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 3 (Act 5, Scene 6), Richard on guilt",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Suspicion always haunts the guilty mind",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 3 (Act 5, Scene 6), Richard reflecting on how conscience breeds paranoia",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Alarums and excursions",
+            "author": "Shakespeare",
+            "attribution": "Henry VI Part 3 (stage direction, various), indicating chaotic battle noise",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Men's judgments are a parcel of their fortunes",
+            "author": "Shakespeare",
+            "attribution": "Henry VIII (Act 3, Scene 2), Wolsey on fate",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "Farewell, a long farewell, to all my greatness",
+            "author": "Shakespeare",
+            "attribution": "Henry VIII (Act 3, Scene 2), Wolsey's fall",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "You blocks, you stones!",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 1, Scene 1), Marullus scolding the crowd for their fickle loyalty",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Yond Cassius has a lean and hungry look",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 1, Scene 2), Caesar distrusts",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Men at some time are masters of their fates",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 1, Scene 2), Cassius arguing to Brutus that we control our own destiny, not the stars",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "It is not in the stars to hold our destiny",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 1, Scene 2), Cassius on controlling one’s own fate",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "The eye sees not itself but by reflection",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 1, Scene 2), Cassius on needing others for self-knowledge",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "The fault is not in our stars",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 1, Scene 2), Cassius telling Brutus that humans control their own fate, not destiny",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Beware the ides of March",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 1, Scene 2), the soothsayer's prophetic warning to Caesar, which he fatally ignores",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Between the acting of a dreadful thing",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 2, Scene 1), Brutus on the anxiety of anticipating evil deeds",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Cowards die many times before their deaths",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 2, Scene 2), Caesar dismissing fear of death before his assassination",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "The heavens themselves blaze forth",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 2, Scene 2), Calpurnia on omens signaling Caesar’s death",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Cry havoc and let slip the dogs of war",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 3, Scene 1), Antony vowing chaos and revenge after Caesar's assassination",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "I am constant as the northern star",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 3, Scene 1), Caesar claiming his unchangeable resolve",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Et tu, Brute?",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 3, Scene 1), Caesar's shocked words upon seeing his friend Brutus among the assassins",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 5
+        },
+        {
+            "text": "Liberty! Freedom! Tyranny is dead!",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 3, Scene 1), Cinna celebrating after Caesar’s assassination",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "O judgment! thou art fled to brutish beasts",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 3, Scene 2), Antony laments",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "If you have tears, prepare to shed them now",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 3, Scene 2), Antony manipulating the crowd with emotion",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "The evil that men do lives after them",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 3, Scene 2), Antony noting that harmful deeds outlive their doers at Caesar’s funeral",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Ambition should be made of sterner stuff",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 3, Scene 2), Antony on Brutus",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "This was the most unkindest cut of all",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 3, Scene 2), Antony on Brutus’s betrayal as the worst wound",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Friends, Romans, countrymen, lend me your ears",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 3, Scene 2), Mark Antony beginning his masterful funeral oration to sway the crowd",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "I had rather be a dog and bay the moon",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 4, Scene 3), Brutus scorning being a dishonorable Roman",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "A friend should bear his friend’s infirmities",
+            "author": "Shakespeare",
+            "attribution": "Julius Caesar (Act 4, Scene 3), Cassius on the duty of true friendship to tolerate flaws",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Lord of thy presence and no land beside",
+            "author": "Shakespeare",
+            "attribution": "King John (Act 1, Scene 1), the Bastard on true versus legal ownership, asserting personal worth",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Courage mounteth with occasion",
+            "author": "Shakespeare",
+            "attribution": "King John (Act 2, Scene 1), Austria noting that bravery rises to meet challenges as they arise",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Bell, book, and candle",
+            "author": "Shakespeare",
+            "attribution": "King John (Act 3, Scene 3), Pandulph referencing excommunication rituals to pressure King John",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 9
+        },
+        {
+            "text": "Time shall unfold what plighted cunning hides",
+            "author": "Shakespeare",
+            "attribution": "King Lear (Act 1, Scene 1), Cordelia asserting that truth will reveal hidden deceptions",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Nothing will come of nothing",
+            "author": "Shakespeare",
+            "attribution": "King Lear (Act 1, Scene 1), King Lear warning his daughter Cordelia to express more love or lose her inheritance",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Come not between the dragon and his wrath",
+            "author": "Shakespeare",
+            "attribution": "King Lear (Act 1, Scene 1), Lear warning Kent not to interfere with his anger toward Cordelia",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "We are not ourselves when nature commands",
+            "author": "Shakespeare",
+            "attribution": "King Lear (Act 1, Scene 2), Edmund on losing control to natural impulses",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "How sharper than a serpent’s tooth it is",
+            "author": "Shakespeare",
+            "attribution": "King Lear (Act 1, Scene 4), Lear lamenting the pain of ungrateful children, especially Goneril",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "I am a fool",
+            "author": "Shakespeare",
+            "attribution": "King Lear (Act 1, Scene 4), the Fool embracing his role as truth-teller through jest",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 6
+        },
+        {
+            "text": "I am a man more sinned against than sinning",
+            "author": "Shakespeare",
+            "attribution": "King Lear (Act 3, Scene 2), Lear claiming his suffering outweighs his wrongs",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Thou art a villain",
+            "author": "Shakespeare",
+            "attribution": "King Lear (Act 3, Scene 2), Lear cursing Kent in his rage, mistaking loyalty for villainy",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "Things that love night love not such nights",
+            "author": "Shakespeare",
+            "attribution": "King Lear (Act 3, Scene 2), Lear on the storm’s unnatural cruelty matching his turmoil",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Blow, winds, and crack your cheeks!",
+            "author": "Shakespeare",
+            "attribution": "King Lear (Act 3, Scene 2), Lear raging at the storm, which mirrors his inner turmoil and betrayal",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "The prince of darkness is a gentleman",
+            "author": "Shakespeare",
+            "attribution": "King Lear (Act 3, Scene 4), Edgar in disguise quoting a ballad to describe the devil’s deceptive charm",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "O, that way madness lies",
+            "author": "Shakespeare",
+            "attribution": "King Lear (Act 3, Scene 4), Lear pulling back from thoughts too painful to bear, fearing insanity",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "As flies to wanton boys are we to the gods",
+            "author": "Shakespeare",
+            "attribution": "King Lear (Act 4, Scene 1), Gloucester lamenting the gods’ cruel indifference to human suffering",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "The stars above us govern our conditions",
+            "author": "Shakespeare",
+            "attribution": "King Lear (Act 4, Scene 3), Kent on astrology shaping human fates",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Forgive and forget",
+            "author": "Shakespeare",
+            "attribution": "King Lear (Act 4, Scene 7), Lear seeking complete reconciliation with Cordelia after his wrongs",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "The wheel is come full circle; I am here",
+            "author": "Shakespeare",
+            "attribution": "King Lear (Act 5, Scene 3), Edmund accepting his poetic justice and downfall as he faces death",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Jesters do oft prove prophets",
+            "author": "Shakespeare",
+            "attribution": "King Lear (Act 5, Scene 3), Regan on the Fool’s words proving unexpectedly true",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Young blood doth not obey an old decree",
+            "author": "Shakespeare",
+            "attribution": "Love’s Labour’s Lost (Act 1, Scene 1), Biron on youth ignoring restrictive rules",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Beauty is bought by judgment of the eye",
+            "author": "Shakespeare",
+            "attribution": "Love’s Labour’s Lost (Act 2, Scene 1), Boyet on beauty as a subjective choice",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "A jest’s prosperity lies in the ear",
+            "author": "Shakespeare",
+            "attribution": "Love’s Labour’s Lost (Act 5, Scene 2), Biron on humor depending on the listener’s reception",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Mirth cannot move a soul in agony",
+            "author": "Shakespeare",
+            "attribution": "Love’s Labour’s Lost (Act 5, Scene 2), Biron on the futility of jokes in times of pain",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Fair is foul, and foul is fair",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 1), the witches chanting about moral confusion and inverted reality",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "When the battle’s lost and won",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 1), the witches on war’s paradoxical outcome for Macbeth",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "When shall we three meet again",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 1), the witches planning their next gathering to weave their fateful spell",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "What, can the devil speak true?",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 3), Banquo shocked that the witches’ prophecy about Macbeth’s rise came true",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "The instruments of darkness tell us truths",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 3), Banquo warning that the witches’ truths may hide deceptive motives",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Present fears are less than horrible imaginings",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 3), Macbeth on how imagination worsens real fears",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Time and the hour runs through the roughest day",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 3), Macbeth reassuring himself that bad times will pass with patience",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Look like the innocent flower",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 5), Lady Macbeth advising her husband to hide his murderous intent behind a welcoming facade",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "The milk of human kindness",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 5), Lady Macbeth fearing her husband’s gentle nature hinders his ambition",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Come, you spirits that tend on mortal thoughts",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 5), Lady Macbeth invokes",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Come, thick night",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 5), Lady Macbeth invoking darkness to hide her murderous intent",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "Screw your courage to the sticking place",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 7), Lady Macbeth urging her husband to steel himself for Duncan’s murder",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "I dare do all that may become a man",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 7), Macbeth defending his courage against his wife’s taunts",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Tears shall drown the wind",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 7), Macbeth on how overwhelming sorrow can overpower resistance",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "False face must hide what the false heart knows",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 7), Macbeth on masking his murderous intent with a kind face",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "If it were done when 'tis done",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 7), Macbeth on murder",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Vaulting ambition, which o’erleaps itself",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 7), Macbeth recognizing his unchecked ambition as a fatal flaw",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 19
+        },
+        {
+            "text": "Memory, the warder of the brain",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 1, Scene 7), the Porter metaphorically describing memory’s role in the mind",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Is this a dagger which I see before me",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 2, Scene 1), Macbeth hallucinating a dagger before Duncan’s murder, driven by guilt",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Macbeth does murder sleep",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 2, Scene 2), a voice Macbeth hears after killing Duncan, symbolizing his lost innocence",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "The innocent sleep",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 2, Scene 2), Macbeth lamenting that murdering Duncan has killed his own peace of mind",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "Methought I heard a voice cry 'Sleep no more!'",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 2, Scene 2), Macbeth's guilt",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "There's daggers in men's smiles",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 2, Scene 3), Donalbain fearing hidden threats after his father King Duncan's murder",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Shake off this downy sleep",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 2, Scene 3), Lady Macbeth rousing her husband to act innocent after Duncan’s murder",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Dark night strangles the traveling lamp",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 2, Scene 4), Ross on an eclipse signaling chaos after Duncan’s murder",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "What’s done is done",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 3, Scene 2), Lady Macbeth dismissing guilt after Duncan’s murder",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "Night’s black agents",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 3, Scene 2), Macbeth on the dark forces awakening to aid his crimes",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "We have scotched the snake, not killed it",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 3, Scene 2), Macbeth on the incomplete elimination of threats like Banquo",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Blood will have blood",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 3, Scene 4), Macbeth acknowledging that violence breeds more violence after Banquo’s murder",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "Eye of newt and toe of frog",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 4, Scene 1), a witch listing gruesome ingredients for their magical potion",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Something wicked this way comes",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 4, Scene 1), a witch sensing Macbeth’s approach, signaling his deepening moral corruption",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Fire burn and cauldron bubble",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 4, Scene 1), the witches completing their spell chant, brewing chaos for Macbeth",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Our fears do make us traitors",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 4, Scene 2), Lady Macduff on how fear betrays one’s courage",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "I cannot but remember such things were",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 4, Scene 3), Macduff grieving his murdered family, haunted by memories",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "The grief is fine, full, perfect",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 4, Scene 3), Macduff’s raw despair upon learning of his family’s murder",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "The night is long that never finds the day",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 4, Scene 3), Malcolm on hope enduring through dark times",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Angels are bright still, though the brightest fell",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 4, Scene 3), Malcolm on virtue",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Give sorrow words",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 4, Scene 3), Malcolm urging Macduff to express his grief over his family’s murder",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 9
+        },
+        {
+            "text": "What’s done cannot be undone",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 5, Scene 1), Lady Macbeth in her guilt-ridden sleepwalking",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "All the perfumes of Arabia will not sweeten this little hand",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 5, Scene 1), Lady Macbeth's guilt",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Out, damned spot!",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 5, Scene 1), Lady Macbeth’s sleepwalking cry, tormented by guilt over Duncan’s murder",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "Thou cream-faced loon!",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 5, Scene 3), Macbeth insulting a frightened servant before battle",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "I have lived long enough",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 5, Scene 3), Macbeth's despair",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Life's but a walking shadow",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 5, Scene 5), Macbeth continuing his nihilistic view of existence as meaningless and transient",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Out, out, brief candle!",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 5, Scene 5), Macbeth despairing on life's fleeting nature after learning of his wife's death",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Sound and fury, signifying nothing",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 5, Scene 5), Macbeth on life as meaningless noise and chaos",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Tomorrow, and tomorrow, and tomorrow",
+            "author": "Shakespeare",
+            "attribution": "Macbeth (Act 5, Scene 5), Macbeth on time’s tedious creep after his wife’s death, life’s futility",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 8
+        },
+        {
+            "text": "Some rise by sin, and some by virtue fall",
+            "author": "Shakespeare",
+            "attribution": "Measure for Measure (Act 2, Scene 1), Escalus on the unfairness of sinful success and virtuous failure",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "The miserable have no other medicine but hope",
+            "author": "Shakespeare",
+            "attribution": "Measure for Measure (Act 3, Scene 1), Claudio on hope as the only solace in despair",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Virtue is bold, and goodness never fearful",
+            "author": "Shakespeare",
+            "attribution": "Measure for Measure (Act 3, Scene 1), the Duke on moral courage as a hallmark of true virtue",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Music oft hath such a charm",
+            "author": "Shakespeare",
+            "attribution": "Measure for Measure (Act 3, Scene 1), the Duke on music’s power to soothe and influence the soul",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Truth is truth to the end of reckoning",
+            "author": "Shakespeare",
+            "attribution": "Measure for Measure (Act 5, Scene 1), Isabella's stand",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Measure for measure",
+            "author": "Shakespeare",
+            "attribution": "Measure for Measure (Act 5, Scene 1), on justice matching the crime’s weight",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 8
+        },
+        {
+            "text": "This is the short and the long of it",
+            "author": "Shakespeare",
+            "attribution": "Merry Wives of Windsor (Act 2, Scene 2), Ford's summary",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Why then, the world's mine oyster",
+            "author": "Shakespeare",
+            "attribution": "Merry Wives of Windsor (Act 2, Scene 2), Pistol's boast",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "From the crown of his head to the sole of his foot",
+            "author": "Shakespeare",
+            "attribution": "Much Ado About Nothing (Act 2, Scene 1), Beatrice describing a man’s complete flaws",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "I am as merry as the day is long",
+            "author": "Shakespeare",
+            "attribution": "Much Ado About Nothing (Act 2, Scene 1), Beatrice expressing her boundless cheerfulness",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Silence is the perfectest herald of joy",
+            "author": "Shakespeare",
+            "attribution": "Much Ado About Nothing (Act 2, Scene 1), Claudio speechless with happiness at love",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Speak low if you speak love",
+            "author": "Shakespeare",
+            "attribution": "Much Ado About Nothing (Act 2, Scene 1), Don Pedro woos",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Sigh no more, ladies, sigh no more",
+            "author": "Shakespeare",
+            "attribution": "Much Ado About Nothing (Act 2, Scene 3), Balthasar’s song urging women not to mourn men’s deceit",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Is it not strange that sheep’s guts should hale",
+            "author": "Shakespeare",
+            "attribution": "Much Ado About Nothing (Act 2, Scene 3), Benedick marveling at music from instrument strings",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Friendship is constant in all other things",
+            "author": "Shakespeare",
+            "attribution": "Much Ado About Nothing (Act 2, Scene 3), Claudio on trust",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Every one can master a grief but he that has it",
+            "author": "Shakespeare",
+            "attribution": "Much Ado About Nothing (Act 3, Scene 2), Benedick on how easy it is for others to advise",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "I love you with so much of my heart that none is left to protest",
+            "author": "Shakespeare",
+            "attribution": "Much Ado About Nothing (Act 4, Scene 1), Beatrice finally confessing her deep love to Benedick after their banter",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "O, what men dare do!",
+            "author": "Shakespeare",
+            "attribution": "Much Ado About Nothing (Act 4, Scene 1), Claudio on the bold risks men take",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "Much ado about nothing",
+            "author": "Shakespeare",
+            "attribution": "Much Ado About Nothing (title), on making a fuss over trivial matters",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "I am not merry, but I do beguile the thing I am",
+            "author": "Shakespeare",
+            "attribution": "Othello (Act 1, Scene 1), Desdemona hiding her worry with a cheerful facade before Iago",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "I am not what I am",
+            "author": "Shakespeare",
+            "attribution": "Othello (Act 1, Scene 1), Iago confessing his deceptive and two-faced nature to Roderigo",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 8
+        },
+        {
+            "text": "I will wear my heart upon my sleeve",
+            "author": "Shakespeare",
+            "attribution": "Othello (Act 1, Scene 1), Iago on openly showing emotions, which he avoids",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Put money in thy purse",
+            "author": "Shakespeare",
+            "attribution": "Othello (Act 1, Scene 3), Iago’s materialistic advice to Roderigo, urging him to pursue wealth",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "The robbed that smiles steals from the thief",
+            "author": "Shakespeare",
+            "attribution": "Othello (Act 1, Scene 3), the Duke on maintaining dignity despite loss",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Reputation, reputation, reputation!",
+            "author": "Shakespeare",
+            "attribution": "Othello (Act 2, Scene 3), Cassio mourns loss",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 9
+        },
+        {
+            "text": "How poor are they that have not patience!",
+            "author": "Shakespeare",
+            "attribution": "Othello (Act 2, Scene 3), Iago on patience as a vital virtue for enduring hardship",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "It is the green-eyed monster",
+            "author": "Shakespeare",
+            "attribution": "Othello (Act 3, Scene 3), Iago naming jealousy as a devouring force",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Who steals my purse steals trash",
+            "author": "Shakespeare",
+            "attribution": "Othello (Act 3, Scene 3), Iago pretending reputation matters more than money to manipulate Othello",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "O beware, my lord, of jealousy!",
+            "author": "Shakespeare",
+            "attribution": "Othello (Act 3, Scene 3), Iago’s false warning to Othello while planting seeds of destructive jealousy",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "I will play the swan and die in music",
+            "author": "Shakespeare",
+            "attribution": "Othello (Act 5, Scene 2), Emilia’s dying wish to go out gracefully, like a swan’s song",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Think on thy sins",
+            "author": "Shakespeare",
+            "attribution": "Othello (Act 5, Scene 2), Othello to Desdemona, urging her to reflect on her perceived betrayal",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 8
+        },
+        {
+            "text": "Then must you speak of one that loved not wisely",
+            "author": "Shakespeare",
+            "attribution": "Othello (Act 5, Scene 2), Othello's regret",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "The blind mole casts copped hills towards heaven",
+            "author": "Shakespeare",
+            "attribution": "Pericles (Act 1, Scene 1), Gower describes",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "One sin another doth provoke",
+            "author": "Shakespeare",
+            "attribution": "Pericles (Act 1, Scene 1), on how one sin leads to further wrongdoing",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Few love to hear the sins they love to act",
+            "author": "Shakespeare",
+            "attribution": "Pericles (Act 1, Scene 1), Pericles on hypocrisy",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Death hath no power yet upon these prayers",
+            "author": "Shakespeare",
+            "attribution": "Pericles (Act 1, Scene 2), Pericles hopes",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "O you gods! Why do you make us love your goodly gifts",
+            "author": "Shakespeare",
+            "attribution": "Pericles (Act 1, Scene 2), Pericles prays",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "The good in nothing is set off to the bad",
+            "author": "Shakespeare",
+            "attribution": "Pericles (Act 1, Scene 2), Pericles reflects",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "O, let me taste this kiss",
+            "author": "Shakespeare",
+            "attribution": "Pericles (Act 1, Scene 4), Cleon welcomes",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "Great is the glory, for the match is made",
+            "author": "Shakespeare",
+            "attribution": "Pericles (Act 2, Scene 3), Simonides approves",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "You are a fair viol, and your sense the strings",
+            "author": "Shakespeare",
+            "attribution": "Pericles (Act 2, Scene 5), Simonides praises",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "The sea's the bosom of the earth",
+            "author": "Shakespeare",
+            "attribution": "Pericles (Act 3, Scene 1), Pericles laments",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "Thou that beget'st him that did thee beget",
+            "author": "Shakespeare",
+            "attribution": "Pericles (Act 3, Scene 1), Pericles on Marina",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "O, come hither, thou that beget'st a father",
+            "author": "Shakespeare",
+            "attribution": "Pericles (Act 3, Scene 1), Pericles to Marina",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Patience, good sir, even till the end",
+            "author": "Shakespeare",
+            "attribution": "Pericles (Act 3, Scene 3), Cleon advises",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "The gods through sense of others' grief can give",
+            "author": "Shakespeare",
+            "attribution": "Pericles (Act 5, Scene 1), Pericles finds peace",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Mine honor is my life",
+            "author": "Shakespeare",
+            "attribution": "Richard II (Act 1, Scene 1), Mowbray declaring that reputation is as vital as existence itself",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Grief makes one hour ten",
+            "author": "Shakespeare",
+            "attribution": "Richard II (Act 1, Scene 3), Bolingbroke on how sorrow slows the perception of time",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Truth hath a quiet breast",
+            "author": "Shakespeare",
+            "attribution": "Richard II (Act 1, Scene 3), Mowbray on how truth brings a clear conscience",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "Not all the water in the rough rude sea",
+            "author": "Shakespeare",
+            "attribution": "Richard II (Act 3, Scene 2), the King on the impossibility of washing away the guilt of regicide",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Heaven is above all",
+            "author": "Shakespeare",
+            "attribution": "Richard II (Act 3, Scene 4), the Queen appealing to divine power in despair",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "I wasted time, and now doth time waste me",
+            "author": "Shakespeare",
+            "attribution": "Richard II (Act 5, Scene 5), the imprisoned king regretting his past as time now torments him",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Now is the winter of our discontent",
+            "author": "Shakespeare",
+            "attribution": "Richard III (Act 1, Scene 1), Richard’s opening line celebrating the end of civil war and his rise",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Was ever woman in this humor wooed?",
+            "author": "Shakespeare",
+            "attribution": "Richard III (Act 1, Scene 2), Richard marveling at seducing Anne over her husband’s corpse",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Let heaven be judge",
+            "author": "Shakespeare",
+            "attribution": "Richard III (Act 1, Scene 4), Clarence appealing to divine justice as he faces betrayal and death",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "I am not in the giving vein today",
+            "author": "Shakespeare",
+            "attribution": "Richard III (Act 4, Scene 2), Richard refusing requests with cold resolve",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Hope is swift",
+            "author": "Shakespeare",
+            "attribution": "Richard III (Act 5, Scene 2), Richmond on hope’s quick inspiration before battle",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 9
+        },
+        {
+            "text": "Despair and die!",
+            "author": "Shakespeare",
+            "attribution": "Richard III (Act 5, Scene 3), ghosts cursing Richard with despair before his defeat",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 8
+        },
+        {
+            "text": "A horse! A horse! My kingdom for a horse!",
+            "author": "Shakespeare",
+            "attribution": "Richard III (Act 5, Scene 4), King Richard desperate for a mount to escape during the Battle of Bosworth Field",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Beauty too rich for use",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 1, Scene 1), Romeo on Juliet’s otherworldly beauty",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Love is a smoke raised with the fume of sighs",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 1, Scene 1), Romeo poetically describing the torment and illusion of unrequited love to Benvolio",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "You have dancing shoes with nimble soles",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 1, Scene 4), Mercutio teasing Romeo’s lighthearted mood before the ball",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "My only love sprung from my only hate!",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 1, Scene 5), Juliet realizing Romeo’s Montague identity conflicts with her love",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "O, she doth teach the torches to burn bright!",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 1, Scene 5), Romeo’s awe at Juliet’s radiant beauty at the Capulet ball",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "A rose by any other name would smell as sweet",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 2, Scene 2), Juliet arguing that names don’t change the essence of love",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "My bounty is as boundless as the sea",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 2, Scene 2), Juliet declaring her infinite and deepening love for Romeo from the balcony",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "This bud of love by summer’s ripening breath",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 2, Scene 2), Juliet hoping her new love for Romeo will grow strong with time",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 19
+        },
+        {
+            "text": "Wherefore art thou Romeo?",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 2, Scene 2), Juliet lamenting Romeo’s Montague name",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "At lovers’ perjuries, they say Jove laughs",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 2, Scene 2), Juliet noting that gods excuse lovers’ false promises",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "What’s in a name?",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 2, Scene 2), Juliet questioning why names like Montague should divide lovers",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 9
+        },
+        {
+            "text": "Parting is such sweet sorrow",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 2, Scene 2), Juliet’s reluctant farewell to Romeo from her balcony, blending love and pain",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Good night, good night!",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 2, Scene 2), Juliet’s reluctant farewell to Romeo, echoing their tender parting",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 7
+        },
+        {
+            "text": "What light through yonder window breaks?",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 2, Scene 2), Romeo marveling at Juliet’s beauty as she appears on her balcony",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Wisely and slow; they stumble that run fast",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 2, Scene 3), Friar Laurence counseling caution to avoid rash mistakes",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Virtue itself turns vice",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 2, Scene 3), Friar Laurence on how good intentions can become harmful",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Young men’s love lies not truly in their hearts",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 2, Scene 3), Friar Laurence on the fickle, impulsive love of youth",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "These violent delights have violent ends",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 2, Scene 6), Friar Laurence warning Romeo about the dangers of passionate love",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Passion lends them power",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 2, Scene, Prologue), the Chorus on how emotion fuels Romeo and Juliet’s love",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "A plague on both your houses!",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 3, Scene 1), Mercutio cursing both Montagues and Capulets as he dies",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "O, I am fortune’s fool!",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 3, Scene 1), Romeo lamenting his fate after killing Tybalt and facing banishment",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Mercy but murders, pardoning those that kill",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 3, Scene 1), the Prince on how leniency can encourage further violence",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 19
+        },
+        {
+            "text": "Young baggage! Disobedient wretch!",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 3, Scene 5), Capulet angrily scolding Juliet for refusing Paris",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Night’s candles are burnt out",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 3, Scene 5), Romeo on dawn’s arrival after his wedding night",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Past hope, past cure, past help!",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 4, Scene 1), Juliet in despair seeing Romeo dead",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Music with her silver sound",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 4, Scene 5), a musician on music’s healing and uplifting power",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Death lies on her like an untimely frost",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 4, Scene 5), Capulet mourning Juliet, whom he believes dead",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "O happy dagger!",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 5, Scene 3), Juliet embracing Romeo’s dagger to join him in death",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 9
+        },
+        {
+            "text": "Tempt not a desperate man",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 5, Scene 3), Romeo warning Paris not to provoke him in his grief",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "Thus with a kiss I die",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 5, Scene 3), Romeo’s final words as he takes poison, believing Juliet dead",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "For never was a story of more woe",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Act 5, Scene 3), the Prince’s final words on Romeo and Juliet’s tragic deaths",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Two households, both alike in dignity",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Prologue), introducing the equal status of the feuding Montagues and Capulets",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "With patient ears attend",
+            "author": "Shakespeare",
+            "attribution": "Romeo and Juliet (Prologue), the Chorus asking the audience to listen patiently",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "From fairest creatures we desire increase",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 1, urging beauty to reproduce to preserve its perfection",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "For shame deny that thou bear'st love to any",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 10 - Accuses self-hatred in refusing to procreate, seeking kindness through offspring",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Where art thou, Muse, that thou forget'st so long",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 100 (Calling back the missing Muse)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "O truant Muse, what shall be thy amends",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 101 (Muse's apology for absence)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "My love is strengthened, though more weak in seeming",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 102 (Love grows stronger, speaks less)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "Alack, what poverty my Muse brings forth",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 103 (Inadequate praise for beauty)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 21
+        },
+        {
+            "text": "The autumn of fair things",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 104, on the aging of beauty as seasons pass",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Let not my love be called idolatry",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 105 (Constant themes in poetry)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "When in the chronicle of wasted time",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 106 (Ancient beauty prophecies fulfilled)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "As fast as thou shalt wane, so fast thou grow'st",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 11 - Promises renewal through children, contrasting folly with wise increase",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Love is not love which alters",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 116, defining true love as constant and unchanging despite obstacles or time",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "When I do count the clock that tells the time",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 12 - Observes time's ravages on nature, defending against it via breeding",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "O! that you were your self; but, love, you are",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 13 - Warns of self-loss to time, advising to give beauty to an heir",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "My mistress' eyes are nothing like the sun",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 130, Speaker",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Not from the stars do I my judgment pluck",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 14 - Derives prophecy from the beloved's eyes, foretelling beauty's end without conversion to heirs",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 20
+        },
+        {
+            "text": "My love is as a fever",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 147, comparing obsessive love to a consuming, destructive illness",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Desire is death",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 147, likening unfulfilled desire to a fatal sickness consuming the speaker",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 8
+        },
+        {
+            "text": "When I consider every thing that grows",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 15 - Notes fleeting perfection in growth, countering time's decay with poetic renewal",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Love is too young to know what conscience is",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 151, on love’s reckless passion ignoring moral constraints",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "But wherefore do not you a mightier way",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 16 - Suggests procreation over verse as stronger defense against time",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Who will believe my verse in time to come",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 17 - Doubts poetry's sufficiency alone, preferring a child for double immortality",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Shall I compare thee to a summer's day?",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 18",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Rough winds do shake the darling buds of May",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 18, on fragile beauty threatened by nature’s harshness",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 19
+        },
+        {
+            "text": "Summer’s lease hath all too short a date",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 18, on the fleeting nature of summer’s perfection and beauty",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Shall I compare thee to a summer’s day?",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 18, opening of the love poem praising the beloved’s beauty as eternal, unlike fleeting summer",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Devouring Time, blunt thou the lion's paws",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 19 - Commands time to spare the beloved's beauty, preserved eternally in verse",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "When forty winters shall besiege thy brow",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 2 - Warns of aging's toll, advocating heirs to renew youth",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "A woman's face with nature's own hand painted",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 20 - Describes androgynous allure, lamenting nature's twist that defeats the poet's purpose",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "So is it not with me as with that Muse",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 21 - Rejects ornate comparisons, affirming true love's unadorned fairness",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "My glass shall not persuade me I am old",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 22 - Ties the poet's age to the beloved's youth, sharing hearts against time",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "As an unperfect actor on the stage",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 23 - Compares faltering expression of love to silent eloquence in looks",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Mine eye hath played the painter and hath steeled",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 24 - Depicts eyes as artists framing the beloved's image in the heart",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Let those who are in favor with their stars",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 25 - Contrasts worldly fortunes' transience with enduring mutual love",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Lord of my love, to whom in vassalage",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 26 - Sends verse as dutiful embassy, awaiting worthiness to fully express love",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Weary with toil, I haste me to my bed",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 27 - Describes nightly mental pilgrimage to the beloved, beautifying darkness",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "How can I then return in happy plight",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 28 - Laments day and night's joint oppression, far from the beloved's light",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "When in disgrace with fortune and men's eyes",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 29 - Transforms self-pity to joy through remembrance of the beloved's love",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Look in thy glass and tell the face thou viewest",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 3 - Advises self-reflection to inspire reproduction for posterity",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "I summon up remembrance of things past",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 30, the speaker reflecting on nostalgia and lost joys in quiet moments",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Thy bosom is endeared with all hearts",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 31 - Sees the beloved as grave and repository of the poet's past loves",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Full many a glorious morning have I seen",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 33 - Likens the beloved to a sun obscured by clouds, forgiving transient faults",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Why didst thou promise such a beauteous day",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 34 - Grieves broken promises like clouded suns, yet values love's tears as ransom",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "No more be grieved at that which thou hast done",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 35 - Excuses faults by nature's imperfections, though love wars with hate",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Let me confess that we two must be twain",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 36 - Accepts separation to protect reputations, yet loves remain united",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "As a decrepit father takes delight",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 37 - Finds comfort in the beloved's virtues, sharing in their abundance",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "How can my muse want subject to invent",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 38 - Credits the beloved as muse and source of all poetic invention",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "O! how thy worth with manners may I sing",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 39 - Uses absence to praise separately, dividing yet uniting in love",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Unthrifty loveliness, why dost thou spend",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 4 - Criticizes hoarding beauty, urging its generous use through children",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Take all my loves, my love, yea take them all",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 40 - Forgives theft of loves, though it grieves more than hate's injury",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Those pretty wrongs that liberty commits",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 41 - Excuses youthful temptations, blaming beauty for leading to infidelity",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "That thou hast her it is not all my grief",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 42 - Finds consolation in shared love, turning loss into mutual gain",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "When most I wink, then do mine eyes best see",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 43 - Reveals clearest visions of the beloved in dreams, brightening night",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "If the dull substance of my flesh were thought",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 44 - Laments physical distance, eased only by thought's swift travel",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 19
+        },
+        {
+            "text": "Those hours, that with gentle work did frame",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 5 - Contrasts time's creation and destruction of beauty, suggesting distillation as metaphor for legacy",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "O, how much more doth beauty beauteous seem",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 54, on how virtue enhances beauty’s value, like a rose’s sweet scent",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Not marble, nor the gilded monuments",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 55 (Opening line about poetry outlasting monuments)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Sweet love, renew thy force",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 56 (Love's renewal and strength)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Being your slave, what should I do but tend",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 57 (Devotion and patient waiting)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "That god forbid that made me first your slave",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 58 (Willing servitude to love)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "If there be nothing new, but that which is",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 59 (Everything has existed before)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Then let not winter's ragged hand deface",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 6 - Pleads against self-destruction, promoting procreation as usury for immortality",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Like as the waves make towards the pebbled shore",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 60 (Time's relentless march forward)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Is it thy will thy image should keep open",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 61 (Sleeplessness from love's image)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Sin of self-love possesseth all mine eye",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 62 (Vanity transformed by love)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Against my love shall be, as I am now",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 63 (Preparing for age with poetry)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "When I have seen by Time's fell hand defaced",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 64 (Time's destruction of all things)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Since brass, nor stone, nor earth, nor boundless sea",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 65 (Nothing resists time but poetry)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Tired with all these, for restful death I cry",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 66 (Weariness with world's wrongs)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Ah, wherefore with infection should he live",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 67 (Why beauty exists in corrupt times)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Thus is his cheek the map of days outworn",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 68 (Natural beauty versus artifice)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "Those parts of thee that the world's eye doth view",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 69 (External beauty versus inner character)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Lo! in the orient when the gracious light",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 7 - Compares sun's rise and fall to human life, urging a son for enduring legacy",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "That thou are blamed shall not be thy defect",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 70 (Slander cannot touch true worth)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "No longer mourn for me when I am dead",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 71 (Instructions for after death)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "O, lest the world should task you to recite",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 72 (Don't speak of me when I'm gone)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "That time of year thou mayst in me behold",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 73 (Autumn of life metaphor)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "But be contented when that fell arrest",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 74 (Death takes only the body)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "So are you to my thoughts as food to life",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 75 (Love as sustenance)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Why is my verse so barren of new pride",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 76 (Same style, same subject)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Thy glass will show thee how thy beauties wear",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 77 (Mirror, dial, and book as teachers)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "So oft have I invoked thee for my Muse",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 78 (Inspiration from the beloved)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Whilst I alone did call upon thy aid",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 79 (Now others write of you too)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Music to hear, why hear'st thou music sadly?",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 8 - Uses harmony to argue against singleness, favoring family unity",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "O, how I faint when I of you do write",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 80 (Inadequacy before rival poets)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "I grant thou wert not married to my Muse",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 82 (You can praise others too)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "I never saw that you did painting need",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 83 (Natural beauty needs no ornament)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Who is it that says most? Which can say more",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 84 (Praise cannot exceed truth)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "My tongue-tied Muse in manners holds her still",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 85 (Silent among other praisers)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Was it the proud full sail of his great verse",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 86 (Rival poet's impressive style)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Farewell! thou art too dear for my possessing",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 87 (Releasing claim on the beloved)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "When thou shalt be disposed to set me light",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 88 (Will agree with any criticism)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Say that thou didst forsake me for some fault",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 89 (Will accept any blame)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Is it for fear to wet a widow's eye",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 9 - Questions selfish celibacy, noting the world's loss without heirs",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Then hate me when thou wilt; if ever, now",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 90 (Get all bad things over at once)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Some glory in their birth, some in their skill",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 91 (Different sources of pride)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "But do thy worst to steal thyself away",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 92 (You cannot truly leave me)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "So shall I live, supposing thou art true",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 93 (Living in perhaps false belief)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "They that have power to hurt and will do none",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 94 (Restrained power is noble)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "How sweet and lovely dost thou make the shame",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 95 (Beauty hiding moral flaws)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Some say thy fault is youth, some wantonness",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 96 (Youth excuses faults)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "How like a winter hath my absence been",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 97 (Separation like winter)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "From you have I been absent in the spring",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 98 (Missing spring's beauty without you)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "April hath put a spirit of youth in everything",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 98, on spring’s renewal infusing all things with youthful energy",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "The forward violet thus did I chide",
+            "author": "Shakespeare",
+            "attribution": "Sonnet 99 (Scolding flowers for stealing beauty)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Small cheer and great welcome makes a merry feast",
+            "author": "Shakespeare",
+            "attribution": "The Comedy of Errors (Act 3, Scene 1), Balthazar on hospitality outweighing food",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "The devil can cite Scripture for his purpose",
+            "author": "Shakespeare",
+            "attribution": "The Merchant of Venice (Act 1, Scene 3), Antonio on how evil can misuse good things like holy texts",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "A pound of flesh",
+            "author": "Shakespeare",
+            "attribution": "The Merchant of Venice (Act 1, Scene 3), Shylock’s gruesome bond with Antonio, demanding literal repayment",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "The truth will out",
+            "author": "Shakespeare",
+            "attribution": "The Merchant of Venice (Act 2, Scene 2), Launcelot knowing that secrets and deceptions cannot stay hidden forever",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 9
+        },
+        {
+            "text": "It is a wise father that knows his own child",
+            "author": "Shakespeare",
+            "attribution": "The Merchant of Venice (Act 2, Scene 2), Launcelot on the difficulty of recognizing true paternity",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Truth will come to light",
+            "author": "Shakespeare",
+            "attribution": "The Merchant of Venice (Act 2, Scene 2), Launcelot on the inevitability of truth revealing itself",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Love is blind, and lovers cannot see",
+            "author": "Shakespeare",
+            "attribution": "The Merchant of Venice (Act 2, Scene 6), Jessica reflecting on love's foolish blindness to flaws",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "All that glisters is not gold",
+            "author": "Shakespeare",
+            "attribution": "The Merchant of Venice (Act 2, Scene 7), the scroll in the golden casket warning against deceptive appearances",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Let music sound while he doth make his choice",
+            "author": "Shakespeare",
+            "attribution": "The Merchant of Venice (Act 3, Scene 2), during Bassanio’s choice of caskets, music sets the mood",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "The sins of the father are laid upon the children",
+            "author": "Shakespeare",
+            "attribution": "The Merchant of Venice (Act 3, Scene 5), Launcelot on inherited guilt, joking about family consequences",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Mercy seasons justice",
+            "author": "Shakespeare",
+            "attribution": "The Merchant of Venice (Act 4, Scene 1), Portia explaining how mercy tempers harsh judgment",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "The quality of mercy is not strained",
+            "author": "Shakespeare",
+            "attribution": "The Merchant of Venice (Act 4, Scene 1), Portia’s speech on mercy’s free, divine nature in court",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "These blessed candles of the night",
+            "author": "Shakespeare",
+            "attribution": "The Merchant of Venice (Act 5, Scene 1), Lorenzo calling stars the night’s candles",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "There’s not the smallest orb thou behold’st",
+            "author": "Shakespeare",
+            "attribution": "The Merchant of Venice (Act 5, Scene 1), Lorenzo on the cosmic music of the spheres",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "How sweet the moonlight sleeps",
+            "author": "Shakespeare",
+            "attribution": "The Merchant of Venice (Act 5, Scene 1), Lorenzo on the serene beauty of moonlight and music",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Look how the floor of heaven",
+            "author": "Shakespeare",
+            "attribution": "The Merchant of Venice (Act 5, Scene 1), Lorenzo on the starry sky’s celestial beauty",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "The man that hath no music in himself",
+            "author": "Shakespeare",
+            "attribution": "The Merchant of Venice (Act 5, Scene 1), Lorenzo on those unmoved by music as soulless or untrustworthy",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Crabbed age and youth cannot live together",
+            "author": "Shakespeare",
+            "attribution": "The Passionate Pilgrim (Poem 12), on the conflict between youth’s vigor and age’s rigidity",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Faithful friends are hard to find",
+            "author": "Shakespeare",
+            "attribution": "The Passionate Pilgrim (Poem 19), on the rarity of true, steadfast friendship",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Time makes the truest hearts untrue",
+            "author": "Shakespeare",
+            "attribution": "The Passionate Pilgrim (Poem 8), on how time erodes even loyal hearts",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Extreme fear can neither fight nor fly",
+            "author": "Shakespeare",
+            "attribution": "The Rape of Lucrece (Line 230), on how terror paralyzes action or escape",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Thoughts are but dreams till their effects be tried",
+            "author": "Shakespeare",
+            "attribution": "The Rape of Lucrece (Line 353), on how thoughts remain unreal until acted upon",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Dance barefoot on her wedding day",
+            "author": "Shakespeare",
+            "attribution": "The Taming of the Shrew (Act 2, Scene 1), Kate on the fate of an unmarried older sister",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Away, you three-inch fool!",
+            "author": "Shakespeare",
+            "attribution": "The Taming of the Shrew (Act 3, Scene 3), Grumio mocking Biondello’s short stature",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Kiss me, Kate",
+            "author": "Shakespeare",
+            "attribution": "The Taming of the Shrew (Act 5, Scene 2), Petruchio demanding affection from his bride Katherine in their contentious marriage",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 7
+        },
+        {
+            "text": "Frame your mind to mirth and merriment",
+            "author": "Shakespeare",
+            "attribution": "The Taming of the Shrew (Induction, Scene 2), encouraging Sly to embrace joy",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Full fathom five thy father lies",
+            "author": "Shakespeare",
+            "attribution": "The Tempest (Act 1, Scene 2), Ariel’s song deceiving Ferdinand into believing his father drowned",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Hell is empty and all the devils are here",
+            "author": "Shakespeare",
+            "attribution": "The Tempest (Act 1, Scene 2), Ferdinand on the chaotic shipwreck, believing it caused by supernatural evil",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "What’s past is prologue",
+            "author": "Shakespeare",
+            "attribution": "The Tempest (Act 2, Scene 1), Antonio suggesting history merely sets the stage for present action",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Misery acquaints a man with strange bedfellows",
+            "author": "Shakespeare",
+            "attribution": "The Tempest (Act 2, Scene 2), Trinculo on alliances born of desperate circumstances",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 20
+        },
+        {
+            "text": "Thought is free",
+            "author": "Shakespeare",
+            "attribution": "The Tempest (Act 3, Scene 2), Stefano celebrating the liberty of the mind in song",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "We are such stuff as dreams are made on",
+            "author": "Shakespeare",
+            "attribution": "The Tempest (Act 4, Scene 1), Prospero on life’s fleeting, dream",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Where the bee sucks, there suck I",
+            "author": "Shakespeare",
+            "attribution": "The Tempest (Act 5, Scene 1), Ariel’s song about a carefree fairy life living in nature",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "This rough magic I here abjure",
+            "author": "Shakespeare",
+            "attribution": "The Tempest (Act 5, Scene 1), Prospero renouncing his magical powers",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "I have no other but a woman’s reason",
+            "author": "Shakespeare",
+            "attribution": "The Two Gentlemen of Verona (Act 1, Scene 2), Julia on feminine logic, defending her love’s reasoning",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "They do not love that do not show their love",
+            "author": "Shakespeare",
+            "attribution": "The Two Gentlemen of Verona (Act 1, Scene 2), Julia on the need to express love openly",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Experience is by industry achieved",
+            "author": "Shakespeare",
+            "attribution": "The Two Gentlemen of Verona (Act 1, Scene 3), Antonio on wisdom earned through effort",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "When a father gives to his son, both laugh",
+            "author": "Shakespeare",
+            "attribution": "The Two Gentlemen of Verona (Act 2, Scene 3), Launce on the joy of familial generosity and mutual affection",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Beauty lives with kindness",
+            "author": "Shakespeare",
+            "attribution": "The Two Gentlemen of Verona (Act 2, Scene 4), Proteus on true beauty needing virtue",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Hope is a lover’s staff",
+            "author": "Shakespeare",
+            "attribution": "The Two Gentlemen of Verona (Act 3, Scene 1), Proteus on hope sustaining love’s pursuit",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "A man I am crossed with adversity",
+            "author": "Shakespeare",
+            "attribution": "The Two Gentlemen of Verona (Act 4, Scene 1), Valentine on his struggles",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Extremity, that sharpens sundry wits, Makes me a fool.",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 1, Scene 1), Third Queen",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 19
+        },
+        {
+            "text": "Let th’ event, That never-erring arbitrator",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 1, Scene 2), Arcite",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Their knot of love, Tied, weaved, entangled",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 1, Scene 3), Hippolyta",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "You’re out of breath, And this high-speeded pace",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 1, Scene 3), Hippolyta",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Th’ impartial gods, who from the mounted heavens",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 1, Scene 4), Theseus",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "This world’s a city full of straying streets",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 1, Scene 5), Third Queen",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Nay, most likely, for they are noble suff’rers",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 2, Scene 1), Daughter",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Yet, cousin, Even from the bottom of these miseries",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 2, Scene 2), Arcite",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "It is the very emblem of a maid.",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 2, Scene 2), Emilia",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Men are mad things.",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 2, Scene 2), Emilia",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "Have I called thee friend?",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 2, Scene 2), Palamon",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "I shall live To knock thy brains out",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 3, Scene 6), Palamon",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Mark how his virtue, like a hidden sun",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 4, Scene 1), Doctor",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "I love him beyond love and beyond reason",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 4, Scene 1), Jailer’s Daughter",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Hail, sovereign queen of secrets, who hast power",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 5, Scene 1), Emilia",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "What sins have I committed, chaste Diana",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 5, Scene 1), Emilia",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "I’ll be cut a-pieces Before I take this oath!",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 5, Scene 1), Palamon",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "No, never duke. ’Tis worse to me than begging",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 5, Scene 1), Palamon",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "’Tis pity love should be so tyrannous.",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 5, Scene 1), Theseus",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Our reasons are not prophets When oft our fancies are.",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 5, Scene 1), Theseus",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Is this winning? O all you heavenly powers",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 5, Scene 3), Emilia",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Infinite pity That four such eyes should be so fixed",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 5, Scene 3), Theseus",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "Poor wench, go weep, for whosoever wins",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 5, Scene 3), Theseus",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Here, Palamon. This hand shall never more",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 5, Scene 4), Arcite",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "This hand shall never more come near thee",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 5, Scene 4), Arcite",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "His part is played, and though it were too short",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 5, Scene 4), Theseus",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "O you heavenly charmers, What things you make",
+            "author": "Shakespeare & John Fletcher",
+            "attribution": "The Two Noble Kinsmen (Act 5, Scene 4), Theseus",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "Is whispering nothing?",
+            "author": "Shakespeare",
+            "attribution": "The Winter’s Tale (Act 1, Scene 2), Leontes’s jealous imaginings about Hermione’s fidelity",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "What is past help should be past grief",
+            "author": "Shakespeare",
+            "attribution": "The Winter’s Tale (Act 3, Scene 2), Paulina on letting go of unchangeable losses",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "What’s gone and what’s past help",
+            "author": "Shakespeare",
+            "attribution": "The Winter’s Tale (Act 3, Scene 2), Paulina urging acceptance of unchangeable losses",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Exit, pursued by a bear",
+            "author": "Shakespeare",
+            "attribution": "The Winter’s Tale (Act 3, Scene 3), the famous stage direction for Antigonus’s dramatic and fatal exit",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "A merry heart goes all the day",
+            "author": "Shakespeare",
+            "attribution": "The Winter’s Tale (Act 4, Scene 3), Autolycus’s song celebrating a cheerful spirit",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "The spring, the summer",
+            "author": "Shakespeare",
+            "attribution": "The Winter’s Tale (Act 4, Scene 4), Perdita on the cycle of seasons and life",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 11
+        },
+        {
+            "text": "When I do stare, see how the subject quakes",
+            "author": "Shakespeare",
+            "attribution": "The Winter’s Tale (Act 4, Scene 4), Polixenes on his intimidating royal gaze",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Nothing emboldens sin so much as mercy",
+            "author": "Shakespeare",
+            "attribution": "Timon of Athens (Act 3, Scene 5), Alcibiades on mercy enabling further wrongdoing",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Sweet mercy is nobility’s true badge",
+            "author": "Shakespeare",
+            "attribution": "Titus Andronicus (Act 1, Scene 2), Tamora on compassion as the mark of true aristocracy",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 17
+        },
+        {
+            "text": "Vengeance is in my heart",
+            "author": "Shakespeare",
+            "attribution": "Titus Andronicus (Act 2, Scene 3), Tamora plotting cruel revenge against Titus for her son’s death",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "My hopes are drowned",
+            "author": "Shakespeare",
+            "attribution": "Troilus and Cressida (Act 1, Scene 1), Troilus lamenting his lost optimism in love",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Things won are done",
+            "author": "Shakespeare",
+            "attribution": "Troilus and Cressida (Act 1, Scene 2), Pandarus on action achieving goals",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Thou sodden-witted lord!",
+            "author": "Shakespeare",
+            "attribution": "Troilus and Cressida (Act 2, Scene 1), Thersites insulting Ajax as a drunken fool",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 12
+        },
+        {
+            "text": "Modest doubt is called the beacon of the wise",
+            "author": "Shakespeare",
+            "attribution": "Troilus and Cressida (Act 2, Scene 2), Hector on healthy skepticism as a guide for wisdom",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        },
+        {
+            "text": "Pride hath no other glass",
+            "author": "Shakespeare",
+            "attribution": "Troilus and Cressida (Act 3, Scene 3), Ulysses on pride’s self-absorbed mirror",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "The appetite may sicken and so die",
+            "author": "Shakespeare",
+            "attribution": "Twelfth Night (Act 1, Scene 1), Orsino on how love’s excess can lead to its own demise",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "If music be the food of love, play on",
+            "author": "Shakespeare",
+            "attribution": "Twelfth Night (Act 1, Scene 1), Orsino on love (45 chars)",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 18
+        },
+        {
+            "text": "Better a witty fool than a foolish wit",
+            "author": "Shakespeare",
+            "attribution": "Twelfth Night (Act 1, Scene 5), Feste the clown arguing that intelligent humor is preferable to misguided cleverness in his banter with Olivia",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "Youth’s a stuff will not endure",
+            "author": "Shakespeare",
+            "attribution": "Twelfth Night (Act 2, Scene 3), Feste’s song on the fleeting nature of youth’s vitality",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "In delay there lies no plenty",
+            "author": "Shakespeare",
+            "attribution": "Twelfth Night (Act 2, Scene 3), Feste’s song urging action in love to seize the moment",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 13
+        },
+        {
+            "text": "Some are born great",
+            "author": "Shakespeare",
+            "attribution": "Twelfth Night (Act 2, Scene 5), from the fake letter tricking Malvolio into believing he can achieve greatness",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 10
+        },
+        {
+            "text": "Foolery does walk about the orb",
+            "author": "Shakespeare",
+            "attribution": "Twelfth Night (Act 3, Scene 1), Feste on the universal presence of foolishness",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "Love sought is good, but given unsought is better",
+            "author": "Shakespeare",
+            "attribution": "Twelfth Night (Act 3, Scene 1), Olivia on the value of unexpected, freely given love",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 14
+        },
+        {
+            "text": "There is no darkness but ignorance",
+            "author": "Shakespeare",
+            "attribution": "Twelfth Night (Act 4, Scene 2), Feste as priest mocking Malvolio’s folly",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 15
+        },
+        {
+            "text": "What you will",
+            "author": "Shakespeare",
+            "attribution": "Twelfth Night (subtitle), implying the play’s flexible, audience-driven nature, ‘as you wish’",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 9
+        },
+        {
+            "text": "Love comforteth like sunshine after rain",
+            "author": "Shakespeare",
+            "attribution": "Venus and Adonis (Line 799), on love’s warmth and renewal after sorrow",
+            "difficulty": 0,
+            "category": "shakespeare",
+            "unique_letters": 16
+        }
+    ]
+}
