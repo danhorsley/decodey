@@ -2,6 +2,7 @@
 // Decodey
 //
 // Settings screen with game preferences - Migrated to use GameTheme
+// Updated: Removed Done button as tab navigation handles dismissal
 
 import SwiftUI
 
@@ -11,7 +12,6 @@ struct SettingsView: View {
     @State private var showingAbout = false
     @State private var showingQuoteDisclaimer = false
     @State private var showingPrivacyPolicy = false
-    @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
@@ -59,11 +59,7 @@ struct SettingsView: View {
             
             Spacer()
             
-            Button("Done") {
-                dismiss()
-            }
-            .font(.body.weight(.medium))
-            .foregroundStyle(Color.accentColor)
+            // Done button removed - tab navigation handles dismissal
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 16)
@@ -109,6 +105,20 @@ struct SettingsView: View {
                         .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
                         .scaleEffect(0.9)
                 }
+                
+                Divider()
+                    .background(Color.gameBorder)
+                
+                // Text Size Setting
+                SettingRow(
+                    title: "Accessibility Text Size",
+                    subtitle: "Larger text for better readability",
+                    icon: "textformat.size"
+                ) {
+                    Toggle("", isOn: $settings.useAccessibilityTextSize)
+                        .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
+                        .scaleEffect(0.9)
+                }
             }
         }
     }
@@ -116,112 +126,82 @@ struct SettingsView: View {
     private var gameplaySection: some View {
         SettingsSection(title: "Gameplay", icon: "gamecontroller.fill") {
             VStack(spacing: 12) {
-                // Difficulty Picker
-                SettingRow(
-                    title: "Difficulty",
-                    subtitle: "Number of mistakes allowed",
-                    icon: "dial.medium"
-                ) {
-                    Button(action: { showingDifficultyPicker = true }) {
+                // Difficulty Selector
+                Button(action: { showingDifficultyPicker = true }) {
+                    SettingRow(
+                        title: "Difficulty",
+                        subtitle: "Choose your challenge level",
+                        icon: "speedometer"
+                    ) {
                         HStack(spacing: 4) {
                             Text(settings.gameDifficulty.capitalized)
-                                .font(.body)
-                                .foregroundStyle(Color.accentColor)
+                                .foregroundStyle(Color.secondary)
                             Image(systemName: "chevron.right")
                                 .font(.caption)
-                                .foregroundStyle(Color.accentColor.opacity(0.6))
+                                .foregroundStyle(Color.secondary)
                         }
                     }
                 }
+                .buttonStyle(PlainButtonStyle())
                 
                 Divider()
                     .background(Color.gameBorder)
                 
-                // Text Helpers
+                // Text Helpers Toggle
                 SettingRow(
                     title: "Show Text Helpers",
-                    subtitle: "Display hints and assistance",
-                    icon: "questionmark.circle.fill"
+                    subtitle: "Display word length indicators",
+                    icon: "questionmark.circle"
                 ) {
                     Toggle("", isOn: $settings.showTextHelpers)
                         .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
                         .scaleEffect(0.9)
-                }
-                
-                Divider()
-                    .background(Color.gameBorder)
-                
-                // Haptic Feedback
-                SettingRow(
-                    title: "Haptic Feedback",
-                    subtitle: "Vibration feedback for actions",
-                    icon: "iphone.radiowaves.left.and.right"
-                ) {
-                    Toggle("", isOn: $settings.hapticEnabled)
-                        .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
-                        .scaleEffect(0.9)
-                        .onChange(of: settings.hapticEnabled) { isEnabled in
-                            if isEnabled {
-                                // Give a sample haptic when turned on
-                                SoundManager.shared.play(.letterClick)
-                            }
-                        }
                 }
             }
         }
     }
     
     private var audioSection: some View {
-        SettingsSection(title: "Audio", icon: "speaker.wave.2.fill") {
+        SettingsSection(title: "Audio & Feedback", icon: "speaker.wave.2.fill") {
             VStack(spacing: 12) {
-                // Sound Effects
+                // Sound Effects Toggle
                 SettingRow(
                     title: "Sound Effects",
-                    subtitle: "Play sounds during gameplay",
-                    icon: "speaker.wave.1"
+                    subtitle: "Play sounds for game events",
+                    icon: "speaker.fill"
                 ) {
                     Toggle("", isOn: $settings.soundEnabled)
                         .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
                         .scaleEffect(0.9)
                 }
                 
-                // Volume Slider
-                if settings.soundEnabled {
-                    Divider()
-                        .background(Color.gameBorder)
-                    
-                    SettingRow(
-                        title: "Volume",
-                        subtitle: "Adjust sound effect volume",
-                        icon: "speaker.wave.2"
-                    ) {
-                        HStack(spacing: 12) {
-                            Image(systemName: "speaker.fill")
-                                .font(.caption)
-                                .foregroundStyle(Color.secondary)
-                            
-                            Slider(value: $settings.soundVolume, in: 0...1)
-                                .frame(width: 100)
-                                .tint(Color.accentColor)
-                            
-                            Image(systemName: "speaker.wave.3.fill")
-                                .font(.caption)
-                                .foregroundStyle(Color.secondary)
-                        }
-                    }
+                Divider()
+                    .background(Color.gameBorder)
+                
+                // Haptic Feedback Toggle (iOS only)
+                #if os(iOS)
+                SettingRow(
+                    title: "Haptic Feedback",
+                    subtitle: "Vibration for button presses",
+                    icon: "hand.tap"
+                ) {
+                    Toggle("", isOn: $settings.hapticFeedback)
+                        .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
+                        .scaleEffect(0.9)
                 }
+                #endif
             }
         }
     }
     
     private var aboutSection: some View {
-        SettingsSection(title: "About", icon: "info.circle.fill") {
-            VStack(spacing: 0) {
-                // Quote Information Button
+        SettingsSection(title: "Information", icon: "info.circle.fill") {
+            VStack(spacing: 12) {
+                // Quote Disclaimer Button
                 Button(action: { showingQuoteDisclaimer = true }) {
                     SettingRow(
-                        title: "Quote Information",
-                        subtitle: "Usage and removal requests",
+                        title: "Quotes Disclaimer",
+                        subtitle: "About quotes and attributions",
                         icon: "quote.bubble"
                     ) {
                         Image(systemName: "chevron.right")
@@ -509,103 +489,58 @@ struct AboutSheet: View {
             
             // Content
             ScrollView {
-                VStack(alignment: .center, spacing: 24) {
-                    // App Icon
-                    Image(systemName: "square.text.square.fill")
-                        .font(.system(size: 80))
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [Color.accentColor, Color.accentColor.opacity(0.7)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
-                        .padding(.top, 32)
-                    
-                    // App Name & Version
-                    VStack(spacing: 4) {
+                VStack(spacing: 24) {
+                    // App Icon and Name
+                    VStack(spacing: 12) {
+                        Image(systemName: "text.magnifyingglass")
+                            .font(.system(size: 60))
+                            .foregroundStyle(Color.accentColor)
+                        
                         Text("Decodey")
-                            .font(.title.weight(.bold))
+                            .font(.title.bold())
                             .foregroundStyle(Color.primary)
                         
-                        Text("Version 1.0 (Build 1)")
+                        Text("Version 1.0")
                             .font(.caption)
                             .foregroundStyle(Color.secondary)
                     }
+                    .padding(.top, 20)
                     
-                    // Developer Info
-                    VStack(spacing: 8) {
-                        Text("Developed with ❤️")
-                            .font(.body)
-                            .foregroundStyle(Color.secondary)
-                        
-                        Text("© 2024 Decodey")
-                            .font(.caption)
-                            .foregroundStyle(Color.secondary)
-                    }
+                    // Description
+                    Text("A daily cryptogram puzzle game where you decode famous quotes one letter at a time.")
+                        .font(.body)
+                        .foregroundStyle(Color.primary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
                     
-                    // Features
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Features")
-                            .font(.headline)
-                            .foregroundStyle(Color.primary)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                    // Credits
+                    VStack(spacing: 16) {
+                        VStack(spacing: 4) {
+                            Text("Created by")
+                                .font(.caption)
+                                .foregroundStyle(Color.secondary)
+                            Text("Your Name")
+                                .font(.body.weight(.medium))
+                                .foregroundStyle(Color.primary)
+                        }
                         
-                        VStack(spacing: 12) {
-                            FeatureRow(icon: "quote.bubble.fill", title: "Classic Quotes", description: "Solve puzzles from famous quotes")
-                            FeatureRow(icon: "calendar.badge.clock", title: "Daily Challenges", description: "New puzzle every day")
-                            FeatureRow(icon: "airplane", title: "Offline Play", description: "No internet required")
-                            FeatureRow(icon: "lock.shield", title: "Privacy First", description: "Your data stays on your device")
+                        VStack(spacing: 4) {
+                            Text("Contact")
+                                .font(.caption)
+                                .foregroundStyle(Color.secondary)
+                            Link("support@decodey.com", destination: URL(string: "mailto:support@decodey.com")!)
+                                .font(.body)
+                                .foregroundStyle(Color.accentColor)
                         }
                     }
+                    .padding(.top, 8)
                     
-                    Spacer()
+                    Spacer(minLength: 40)
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 32)
             }
+            .background(Color.gameBackground)
         }
         .background(Color.gameBackground)
     }
 }
 
-struct FeatureRow: View {
-    let icon: String
-    let title: String
-    let description: String
-    
-    @Environment(\.colorScheme) private var colorScheme
-    
-    var body: some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon)
-                .foregroundStyle(Color.accentColor)
-                .font(.title3)
-                .frame(width: 32, height: 32)
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.body.weight(.medium))
-                    .foregroundStyle(Color.primary)
-                
-                Text(description)
-                    .font(.caption)
-                    .foregroundStyle(Color.secondary)
-            }
-            
-            Spacer()
-        }
-    }
-}
-
-// MARK: - Preview
-
-#Preview {
-    SettingsView()
-        .preferredColorScheme(.light)
-}
-
-#Preview("Dark Mode") {
-    SettingsView()
-        .preferredColorScheme(.dark)
-}

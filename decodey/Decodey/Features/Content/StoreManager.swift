@@ -13,10 +13,10 @@ class StoreManager: ObservableObject {
     
     // Product IDs - match these exactly in App Store Connect
     enum ProductID: String, CaseIterable {
-        case classical = "com.yourapp.quotes.classical"
-        case literature = "com.yourapp.quotes.literature"
-        case shakespeare = "com.yourapp.quotes.shakespeare"
-        case zingers = "com.yourapp.quotes.zingers"
+        case classical = "com.freeform.decodey.classical"
+        case literature = "com.freeform.decodey.literature"
+        case shakespeare = "com.freeform.decodey.shakespeare"
+        case zingers = "com.freeform.decodey.zingers"
         
         var displayName: String {
             switch self {
