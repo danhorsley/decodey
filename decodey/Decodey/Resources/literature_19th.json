@@ -3449,28 +3449,12 @@
       "unique_letters": 20
     },
     {
-      "text": "I can resist everything except temptation.",
-      "author": "Oscar Wilde",
-      "attribution": "Lady Windermere's Fan, 1892.",
-      "difficulty": 0,
-      "category": "literature_19th",
-      "unique_letters": 16
-    },
-    {
       "text": "We are all in the gutter, but some of us are looking at the stars.",
       "author": "Oscar Wilde",
       "attribution": "Lady Windermere's Fan, 1892.",
       "difficulty": 0,
       "category": "literature_19th",
       "unique_letters": 17
-    },
-    {
-      "text": "Education is an admirable thing, but nothing worth knowing can be taught.",
-      "author": "Oscar Wilde",
-      "attribution": "The Critic as Artist, 1891.",
-      "difficulty": 0,
-      "category": "literature_19th",
-      "unique_letters": 18
     },
     {
       "text": "I am so clever that sometimes I don't understand a single word of what I am saying.",
@@ -3495,14 +3479,6 @@
       "difficulty": 0,
       "category": "literature_19th",
       "unique_letters": 18
-    },
-    {
-      "text": "The only way to get rid of a temptation is to yield to it.",
-      "author": "Oscar Wilde",
-      "attribution": "The Picture of Dorian Gray, 1890.",
-      "difficulty": 0,
-      "category": "literature_19th",
-      "unique_letters": 17
     },
     {
       "text": "To live is the rarest thing in the world. Most people exist, that is all.",

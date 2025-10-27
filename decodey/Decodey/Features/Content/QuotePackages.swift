@@ -1,8 +1,6 @@
 import Foundation
 
-// MARK: - Quote Model (if not defined elsewhere)
-// If you already have a Quote struct defined elsewhere,
-// remove this and import that file instead
+// MARK: - Quote Model
 struct Quote: Codable, Identifiable {
     let id: Int
     let text: String
@@ -18,20 +16,28 @@ struct QuotePackage {
     static func loadPackage(_ id: StoreManager.ProductID) -> QuotePackage? {
         let filename: String
         switch id {
-        case .zingers: filename = "zingers"
-        case .shakespeare: filename = "shakespeare"
-        case .bible: filename = "bible_kjv"
-        case .literature: filename = "literature_19th"
-        case .philosophy: filename = "philosophy_classical"
-        case .mixed: filename = "mixed_classical"
+        case .classical:
+            // Use the classical.json file for classical philosophy quotes
+            filename = "classical"
+        case .literature:
+            // Use the literature_19th.json file for 19th century literature
+            filename = "literature_19th"
+        case .shakespeare:
+            // Use the shakespeare.json file for Shakespeare quotes
+            filename = "shakespeare"
+        case .zingers:
+            // Use the zingers.json file for witty comebacks
+            filename = "zingers"
         }
         
         guard let url = Bundle.main.url(forResource: filename, withExtension: "json"),
               let data = try? Data(contentsOf: url),
               let quotes = try? JSONDecoder().decode([Quote].self, from: data) else {
+            print("❌ Failed to load package: \(filename)")
             return nil
         }
         
+        print("✅ Successfully loaded package: \(filename) with \(quotes.count) quotes")
         return QuotePackage(id: id, quotes: quotes)
     }
 }
@@ -51,9 +57,6 @@ class QuotePackageManager: ObservableObject {
     func loadAvailablePackages() {
         availablePackages.removeAll()
         
-        // Always include free quotes (your existing quotes)
-        // These come from your existing quotes.json
-        
         // Load purchased packages
         for productID in StoreManager.ProductID.allCases {
             if StoreManager.shared.isPackPurchased(productID) {
@@ -70,8 +73,17 @@ class QuotePackageManager: ObservableObject {
         
         // Add free quotes if requested
         if includesFree {
-            // This would pull from your existing quote loading logic
-            // Keep this part unchanged from your current implementation
+            // Get free quotes from LocalQuoteManager and convert to Quote format
+            let freeQuotes = LocalQuoteManager.shared.getFreeQuotes()
+            let convertedQuotes = freeQuotes.enumerated().map { index, localQuote in
+                Quote(
+                    id: index,
+                    text: localQuote.text,
+                    author: localQuote.author,
+                    category: "general"
+                )
+            }
+            allQuotes.append(contentsOf: convertedQuotes)
         }
         
         // Add quotes from purchased packages

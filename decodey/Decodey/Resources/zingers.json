@@ -1,0 +1,884 @@
+{
+    "quotes":[
+        {
+            "text": "Better to remain silent and be thought a fool than to speak and remove all doubt.",
+            "author": "Maurice Swizer",
+            "attribution": "Mrs Goose, Her Book', 1907, evolved from Proverbs 17:28",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 19
+        },
+        {
+            "text": "He can compress the most words into the smallest idea of any man I know.",
+            "author": "Abraham Lincoln",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "The best thing about the future is that it comes one day at a time.",
+            "author": "Abraham Lincoln",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "I am just a businessman, giving the people what they want.",
+            "author": "Al Capone",
+            "attribution": "interview, New York Times, 1928",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "A wit with dunces, and a dunce with wits.",
+            "author": "Alexander Pope",
+            "attribution": "An Essay on Criticism (1711)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 11
+        },
+        {
+            "text": "The covers of this book are too far apart",
+            "author": "Ambrose Bierce",
+            "attribution": "Bitter Bierce, 1929",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 14
+        },
+        {
+            "text": "A stitch in time saves embarrassment.",
+            "author": "Anonymous",
+            "attribution": "folk twist (1930s)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 12
+        },
+        {
+            "text": "Absence makes the heart go wander.",
+            "author": "Anonymous",
+            "attribution": "folk pun (1940s–1950s)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 15
+        },
+        {
+            "text": "Better late than never—but never late is better.",
+            "author": "Anonymous",
+            "attribution": "punctuality twist (1940s)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 12
+        },
+        {
+            "text": "He who laughs last just didn't get the joke.",
+            "author": "Anonymous",
+            "attribution": "proverbial twist on 'laughs best' (1950s–)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 15
+        },
+        {
+            "text": "Invention is the mother of necessity.",
+            "author": "Anonymous",
+            "attribution": "anti-proverb (1950s)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 13
+        },
+        {
+            "text": "The early worm gets eaten first.",
+            "author": "Anonymous",
+            "attribution": "cartoons/folklore (1950s)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 15
+        },
+        {
+            "text": "The pen is mightier than the sword—until the sword is drawn.",
+            "author": "Anonymous",
+            "attribution": "wartime humor (1940s)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        },
+        {
+            "text": "The squeaky wheel gets the grease—until it gets replaced.",
+            "author": "Anonymous",
+            "attribution": "management humor (1950s)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "Too many irons in the fire make the blacksmith nervous.",
+            "author": "Anonymous",
+            "attribution": "industrial satire (1920s)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "Where there's a will, there's a lawsuit.",
+            "author": "Anonymous",
+            "attribution": "newspapers (1950s)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 10
+        },
+        {
+            "text": "My idea of an agreeable person is a person who agrees with me.",
+            "author": "Benjamin Disraeli",
+            "attribution": "Lothair 1870",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "Never apologize and never explain.",
+            "author": "Benjamin Disraeli",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 13
+        },
+        {
+            "text": "Talk to a man about himself and he will listen for hours.",
+            "author": "Benjamin Disraeli",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "There are three kinds of lies: lies, damned lies, and statistics.",
+            "author": "Benjamin Disraeli",
+            "attribution": "attributed by Twain",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 15
+        },
+        {
+            "text": "When men are pure, laws are useless; when men are corrupt, laws are broken.",
+            "author": "Benjamin Disraeli",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        },
+        {
+            "text": "Fish and visitors stink after three days.",
+            "author": "Benjamin Franklin",
+            "attribution": "Poor Richard's Almanack 1736",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 14
+        },
+        {
+            "text": "Brevity is the soul of lingerie.",
+            "author": "Dorothy Parker",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 15
+        },
+        {
+            "text": "Men seldom make passes at girls who wear glasses.",
+            "author": "Dorothy Parker",
+            "attribution": "News Item 1926",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        },
+        {
+            "text": "You can't teach an old dogma new tricks.",
+            "author": "Dorothy Parker",
+            "attribution": "the flaw in paganism, poem, 1920s",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "You're a good example of why some animals eat their young.",
+            "author": "Dorothy Parker",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 19
+        },
+        {
+            "text": "A fool and his money are soon invited everywhere.",
+            "author": "Elbert Hubbard",
+            "attribution": "The Roycroft Dictionary and Book of Epigrams 1923",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        },
+        {
+            "text": "If a thing is worth doing, it is worth doing badly.",
+            "author": "G.K. Chesterton",
+            "attribution": "What's Wrong with the World (1910)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 15
+        },
+        {
+            "text": "Poets have been mysteriously silent on the subject of cheese.",
+            "author": "G.K. Chesterton",
+            "attribution": "Alarms and Discursions (1910)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 19
+        },
+        {
+            "text": "It's better to waste one's youth than do nothing at all",
+            "author": "Georges Courteline",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        },
+        {
+            "text": "Behind every successful man is a woman, behind her is his wife.",
+            "author": "Groucho Marx",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "He hasn't been himself lately, but then again who has?",
+            "author": "Groucho Marx",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        },
+        {
+            "text": "How much would you charge to haunt a house?",
+            "author": "Groucho Marx",
+            "attribution": "attributed insult",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        },
+        {
+            "text": "I never forget a face, but in your case I'll be glad to make an exception.",
+            "author": "Groucho Marx",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 21
+        },
+        {
+            "text": "I refuse to join any club that would have me as a member.",
+            "author": "Groucho Marx",
+            "attribution": "attributed telegram to Hollywood club",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 20
+        },
+        {
+            "text": "I've had a perfectly wonderful evening, but this wasn't it.",
+            "author": "Groucho Marx",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 20
+        },
+        {
+            "text": "Marriage is a wonderful institution, but who wants to live in an institution?",
+            "author": "Groucho Marx",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "Tell me, was it you or your brother who was killed in the war?",
+            "author": "Groucho Marx",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "Those are my principles, and if you don't like them, well, I have others.",
+            "author": "Groucho Marx",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 20
+        },
+        {
+            "text": "Youth would be an ideal state if it came a little later in life.",
+            "author": "H.H. Asquith",
+            "attribution": "Observer interview 1923",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "Liberty is the right to do whatever the law allows.",
+            "author": "Henri Monnier (as M. Prudhomme)",
+            "attribution": "Les Plaintes d'un Bourgeois, 1840s",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 15
+        },
+        {
+            "text": "Love and scandal are the best sweeteners of tea.",
+            "author": "Henry Fielding",
+            "attribution": "The Works of Henry Fielding (1740s)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 15
+        },
+        {
+            "text": "Posterity is as likely to be wrong as anybody else.",
+            "author": "Heywood Broun",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        },
+        {
+            "text": "She never lets ideas interrupt the easy flow of her conversation",
+            "author": "Jean Webster",
+            "attribution": "Daddy Long Legs, 1912",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "Facts are stubborn things.",
+            "author": "John Adams",
+            "attribution": "Argument in Defense of British Soldiers (1770)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 14
+        },
+        {
+            "text": "That depends, sir, upon whether I embrace your policies or your mistress.",
+            "author": "John Wilkes",
+            "attribution": "reply to Earl of Sandwich when he said 'You'll die on the gallows or of some disease'",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "The man who thinks he knows it all has a lot to learn.",
+            "author": "Josh Billings",
+            "attribution": "Josh Billings' Encyclopedia of Wit and Wisdom 1874",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 13
+        },
+        {
+            "text": "I used to be Snow White, but I drifted.",
+            "author": "Mae West",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 13
+        },
+        {
+            "text": "The only thing I regret about my past is the length of it.",
+            "author": "Mae West",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "When women go wrong, men go right after them.",
+            "author": "Mae West",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 12
+        },
+        {
+            "text": "You only live once, but if you do it right, once is enough.",
+            "author": "Mae West",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "I am extraordinarily patient, provided I get my own way in the end.",
+            "author": "Margaret Thatcher",
+            "attribution": "Observer interview 1989",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "If you want something said, ask a man; if you want something done, ask a woman.",
+            "author": "Margaret Thatcher",
+            "attribution": "speech 1965",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        },
+        {
+            "text": "You may have to fight a battle more than once to win it.",
+            "author": "Margaret Thatcher",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "I didn't attend the funeral, but I sent a nice letter saying I approved of it.",
+            "author": "Mark Twain",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 19
+        },
+        {
+            "text": "The reports of my death have been greatly exaggerated.",
+            "author": "Mark Twain",
+            "attribution": "cable to Associated Press 1897",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "Curiosity can do more things than kill a cat.",
+            "author": "O. Henry",
+            "attribution": "Schools and Schools (1908)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "A gentleman is one who never hurts anyone's feelings unintentionally.",
+            "author": "Oscar Wilde",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "Always borrow money from a pessimist. He won't expect it back.",
+            "author": "Oscar Wilde",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 19
+        },
+        {
+            "text": "Education is an admirable thing, but nothing worth knowing can be taught.",
+            "author": "Oscar Wilde",
+            "attribution": "The Critic as Artist 1891",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "He has no enemies, but is intensely disliked by his friends.",
+            "author": "Oscar Wilde",
+            "attribution": "about Bernard Shaw",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "I can believe anything, provided that it is quite incredible.",
+            "author": "Oscar Wilde",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 19
+        },
+        {
+            "text": "I can resist everything except temptation.",
+            "author": "Oscar Wilde",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        },
+        {
+            "text": "I don't want to go to heaven. None of my friends are there.",
+            "author": "Oscar Wilde",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        },
+        {
+            "text": "I think that God, in creating man, somewhat overestimated his ability.",
+            "author": "Oscar Wilde",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 19
+        },
+        {
+            "text": "Nothing succeeds like excess.",
+            "author": "Oscar Wilde",
+            "attribution": "A Woman of No Importance (1893)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 14
+        },
+        {
+            "text": "One can survive everything nowadays except death.",
+            "author": "Oscar Wilde",
+            "attribution": "A Woman of No Importance (1893)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "Quotation is a serviceable substitute for wit.",
+            "author": "Oscar Wilde",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        },
+        {
+            "text": "Some cause happiness wherever they go; others whenever they go.",
+            "author": "Oscar Wilde",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "The only thing worse than being talked about is not being talked about.",
+            "author": "Oscar Wilde",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "The only way to get rid of temptation is to yield to it.",
+            "author": "Oscar Wilde",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "There is no sin except stupidity.",
+            "author": "Oscar Wilde",
+            "attribution": "The Critic as Artist (1891)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 14
+        },
+        {
+            "text": "We are all in the gutter, but some of us are looking at the stars.",
+            "author": "Oscar Wilde",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "When people agree with me I always feel I must be wrong.",
+            "author": "Oscar Wilde",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "Work is the curse of the drinking classes.",
+            "author": "Oscar Wilde",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "Every crowd has a silver lining.",
+            "author": "P.T. Barnum",
+            "attribution": "attributed (circus era, 1880s)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 15
+        },
+        {
+            "text": "History repeats itself. Historians repeat one another.",
+            "author": "Rupert Brooke",
+            "attribution": "letter to Geoffrey Keynes, 4 June 1906",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 13
+        },
+        {
+            "text": "A little inaccuracy sometimes saves tons of explanation.",
+            "author": "Saki",
+            "attribution": "The Square Egg",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "The harder I work, the luckier I get",
+            "author": "Sam Goldwyn",
+            "attribution": "Interview, ~1920s",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 14
+        },
+        {
+            "text": "He is not only dull in himself,  but the cause of dullness in others",
+            "author": "Samuel Foote",
+            "attribution": "speaking of a law-lord, recounted in Boswell's life of Johnson",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "A great many people mistake obstinacy for firmness.",
+            "author": "Sydney Smith",
+            "attribution": "Essays 1840s",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "Many a man calls himself a philosopher who is only a bore.",
+            "author": "Sydney Smith",
+            "attribution": "Essays 1840s",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        },
+        {
+            "text": "The only way to be comfortable is to be uncomfortable first.",
+            "author": "Sydney Smith",
+            "attribution": "Essays 1840s",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "I'd rather be strongly wrong than weakly right.",
+            "author": "Tallulah Bankhead",
+            "attribution": "attributed (1920s theater)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        },
+        {
+            "text": "If I had to live my life again, I'd make the same mistakes, only sooner.",
+            "author": "Tallulah Bankhead",
+            "attribution": "attributed (1920s vaudeville)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "Only good girls keep diaries. Bad girls don't have the time.",
+            "author": "Tallulah Bankhead",
+            "attribution": "attributed (1920s interview)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "There is less in this than meets the eye.",
+            "author": "Tallulah Bankhead",
+            "attribution": "attributed (1920s play review)",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 11
+        },
+        {
+            "text": "This is no time to make new enemies.",
+            "author": "Voltaire when asked to renounce the devil",
+            "attribution": "Apocryphal last words 1778",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 11
+        },
+        {
+            "text": "A woman drove me to drink and I didn't even have the decency to thank her.",
+            "author": "W.C. Fields",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 15
+        },
+        {
+            "text": "I am free of all prejudices. I hate everyone equally.",
+            "author": "W.C. Fields",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 20
+        },
+        {
+            "text": "Start every day off with a smile and get it over with.",
+            "author": "W.C. Fields",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "He found it inconvenient to be poor",
+            "author": "William Cowper",
+            "attribution": "on the subject of a burgler in 'Charity', 1782",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 14
+        },
+        {
+            "text": "Some people can stay longer in an hour than others can in a week.",
+            "author": "William Dean Howells",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "A modest little person, with much to be modest about.",
+            "author": "Winston Churchill",
+            "attribution": "about Clement Attlee",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "He has all the virtues I dislike and none of the vices I admire.",
+            "author": "Winston Churchill",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "Madam, if I were your husband I would drink it.",
+            "author": "Winston Churchill",
+            "attribution": "to Lady Astor who said she'd poison his coffee",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "It ain't over till it's over.",
+            "author": "Yogi Berra",
+            "attribution": "about 1973 pennant race",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 10
+        },
+        {
+            "text": "It's like deja vu all over again.",
+            "author": "Yogi Berra",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 15
+        },
+        {
+            "text": "Nobody goes there anymore, it's too crowded.",
+            "author": "Yogi Berra",
+            "attribution": "about a restaurant",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        },
+        {
+            "text": "The future ain't what it used to be.",
+            "author": "Yogi Berra",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 14
+        },
+        {
+            "text": "You can observe a lot by watching.",
+            "author": "Yogi Berra",
+            "attribution": "interview, 1960s",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 17
+        },
+        {
+            "text": "It gets late early out there.",
+            "author": "Yogi Berra",
+            "attribution": "about Yankee Stadium left field",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 12
+        },
+        {
+            "text": "If you can't imitate him, don't copy him.",
+            "author": "Yogi Berra",
+            "attribution": "on a player mimicking another",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 14
+        },
+        {
+            "text": "I knew the record would stand until it was broken.",
+            "author": "Yogi Berra",
+            "attribution": "on a baseball record",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        },
+        {
+            "text": "Always go to other people's funerals, otherwise they won't come to yours.",
+            "author": "Yogi Berra",
+            "attribution": "attributed",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 18
+        },
+        {
+            "text": "A nickel ain't worth a dime anymore.",
+            "author": "Yogi Berra",
+            "attribution": "on inflation",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 15
+        },
+        {
+            "text": "You wouldn't have won if we'd beaten you.",
+            "author": "Yogi Berra",
+            "attribution": "to a rival team",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 15
+        },
+        {
+            "text": "Pair up in threes.",
+            "author": "Yogi Berra",
+            "attribution": "giving directions",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 10
+        },
+        {
+            "text": "We're lost, but we're making good time.",
+            "author": "Yogi Berra",
+            "attribution": "on a road trip",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        },
+        {
+            "text": "The towels were so thick there I could hardly close my suitcase.",
+            "author": "Yogi Berra",
+            "attribution": "hotel review",
+            "difficulty": 0,
+            "category": "zingers",
+            "unique_letters": 16
+        }
+    ]
+}

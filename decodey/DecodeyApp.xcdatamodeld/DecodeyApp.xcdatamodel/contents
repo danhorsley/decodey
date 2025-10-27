@@ -39,6 +39,8 @@
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="isActive" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isDaily" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="isFromPack" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="packID" optional="YES" attributeType="String"/>
         <attribute name="serverId" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="text" optional="YES" attributeType="String"/>
         <attribute name="timesUsed" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>

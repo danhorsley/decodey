@@ -756,4 +756,24 @@ extension Dictionary where Key == String, Value == String {
 }
 
 
+// MARK: - GameState Integration
 
+extension GameState {
+    /// Refresh available quotes after a purchase
+    @MainActor
+    func refreshAvailableQuotes() async {
+        // Reload quotes from the manager
+        await LocalQuoteManager.shared.loadPurchasedQuotes()
+        
+        // Refresh the package manager
+        QuotePackageManager.shared.refreshPackages()
+        
+        // If in daily mode, reload the game with new quotes available
+        if isDailyChallenge {
+            // Reload the current game to include new quotes
+            loadOrCreateGame(isDaily: true)
+        }
+        
+        print("✅ Game state refreshed with new quotes")
+    }
+}

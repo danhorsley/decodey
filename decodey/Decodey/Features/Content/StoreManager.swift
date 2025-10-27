@@ -13,43 +13,35 @@ class StoreManager: ObservableObject {
     
     // Product IDs - match these exactly in App Store Connect
     enum ProductID: String, CaseIterable {
-        case zingers = "com.yourapp.quotes.zingers"
-        case shakespeare = "com.yourapp.quotes.shakespeare"
-        case bible = "com.yourapp.quotes.bible"
+        case classical = "com.yourapp.quotes.classical"
         case literature = "com.yourapp.quotes.literature"
-        case philosophy = "com.yourapp.quotes.philosophy"
-        case mixed = "com.yourapp.quotes.mixed"
+        case shakespeare = "com.yourapp.quotes.shakespeare"
+        case zingers = "com.yourapp.quotes.zingers"
         
         var displayName: String {
             switch self {
-            case .zingers: return "Zingers & Wit"
-            case .shakespeare: return "Shakespeare"
-            case .bible: return "King James Bible"
+            case .classical: return "Classical Wisdom"
             case .literature: return "19th Century Literature"
-            case .philosophy: return "Classical Philosophy"
-            case .mixed: return "Mixed Classics"
+            case .shakespeare: return "Shakespeare"
+            case .zingers: return "Zingers & Wit"
             }
         }
         
         var description: String {
             switch self {
-            case .zingers: return "100 witty comebacks & clever retorts"
-            case .shakespeare: return "500 quotes from the Bard"
-            case .bible: return "500 verses from the King James Bible"
+            case .classical: return "500 quotes from ancient philosophers"
             case .literature: return "500 quotes from Dickens, Austen & more"
-            case .philosophy: return "500 quotes from ancient philosophers"
-            case .mixed: return "500 mixed classical quotes"
+            case .shakespeare: return "500 quotes from the Bard"
+            case .zingers: return "100 witty comebacks & clever retorts"
             }
         }
         
         var icon: String {
             switch self {
-            case .zingers: return "bolt.fill"
-            case .shakespeare: return "theatermasks"
-            case .bible: return "book.closed.fill"
+            case .classical: return "building.columns"
             case .literature: return "books.vertical"
-            case .philosophy: return "building.columns"
-            case .mixed: return "sparkles"
+            case .shakespeare: return "theatermasks"
+            case .zingers: return "bolt.fill"
             }
         }
         
@@ -85,18 +77,20 @@ class StoreManager: ObservableObject {
     // Check what user has already purchased
     func updatePurchasedProducts() async {
         for await result in Transaction.currentEntitlements {
-            guard case .verified(let transaction) = result else { continue }
-            purchasedProductIDs.insert(transaction.productID)
+            if case .verified(let transaction) = result {
+                purchasedProductIDs.insert(transaction.productID)
+            }
         }
     }
     
-    // Listen for purchase updates
+    // Observe transaction updates
     private func observeTransactionUpdates() {
         Task {
-            for await result in Transaction.updates {
-                guard case .verified(let transaction) = result else { continue }
-                purchasedProductIDs.insert(transaction.productID)
-                await transaction.finish()
+            for await update in Transaction.updates {
+                if case .verified(let transaction) = update {
+                    purchasedProductIDs.insert(transaction.productID)
+                    await transaction.finish()
+                }
             }
         }
     }
@@ -107,55 +101,54 @@ class StoreManager: ObservableObject {
         
         switch result {
         case .success(let verification):
-            guard case .verified(let transaction) = verification else {
-                throw StoreError.verificationFailed
+            if case .verified(let transaction) = verification {
+                purchasedProductIDs.insert(transaction.productID)
+                await transaction.finish()
+                
+                // Trigger package loading after purchase
+                if let productID = ProductID(rawValue: transaction.productID) {
+                    await LocalQuoteManager.shared.loadQuotePack(productID)
+                }
+                
+                return true
             }
-            purchasedProductIDs.insert(transaction.productID)
-            await transaction.finish()
-            return true
+            return false
             
         case .userCancelled:
             return false
             
         case .pending:
-            throw StoreError.purchasePending
+            return false
             
         @unknown default:
-            throw StoreError.unknown
+            return false
         }
     }
     
     // Restore purchases
     func restorePurchases() async {
-        try? await AppStore.sync()
-        await updatePurchasedProducts()
+        do {
+            try await AppStore.sync()
+            await updatePurchasedProducts()
+            
+            // Reload packages after restore
+            for productID in ProductID.allCases {
+                if isPackPurchased(productID) {
+                    await LocalQuoteManager.shared.loadQuotePack(productID)
+                }
+            }
+        } catch {
+            errorMessage = "Failed to restore purchases"
+        }
     }
     
-    // Check if a specific pack is purchased
+    // Check if a pack is purchased
     func isPackPurchased(_ productID: ProductID) -> Bool {
         purchasedProductIDs.contains(productID.rawValue)
     }
     
-    // Get product for a specific ID
+    // Get product by ID
     func product(for productID: ProductID) -> Product? {
         products.first { $0.id == productID.rawValue }
-    }
-}
-
-// MARK: - Store Errors
-enum StoreError: LocalizedError {
-    case verificationFailed
-    case purchasePending
-    case unknown
-    
-    var errorDescription: String? {
-        switch self {
-        case .verificationFailed:
-            return "Purchase verification failed"
-        case .purchasePending:
-            return "Purchase is pending approval"
-        case .unknown:
-            return "An unknown error occurred"
-        }
     }
 }
