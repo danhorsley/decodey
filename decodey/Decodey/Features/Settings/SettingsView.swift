@@ -24,6 +24,7 @@ struct SettingsView: View {
                 VStack(spacing: 24) {
                     appearanceSection
                     gameplaySection
+                    packSelectionSection  
                     audioSection
                     aboutSection
                 }
@@ -190,6 +191,71 @@ struct SettingsView: View {
                         .scaleEffect(0.9)
                 }
                 #endif
+            }
+        }
+    }
+    
+    private var packSelectionSection: some View {
+        SettingsSection(title: "Quote Packs", icon: "books.vertical.fill") {
+            VStack(spacing: 12) {
+                Text("Select packs for random games")
+                    .font(.caption)
+                    .foregroundStyle(Color.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                
+                Divider()
+                    .background(Color.gameBorder)
+                
+                // Free pack toggle
+                HStack {
+                    Image(systemName: settings.isPackEnabledForRandom("free") ? "checkmark.square.fill" : "square")
+                        .foregroundStyle(Color.accentColor)
+                        .font(.body)
+                    
+                    Text("Free Quotes")
+                        .font(.body)
+                    
+                    Spacer()
+                    
+                    Toggle("", isOn: Binding(
+                        get: { settings.isPackEnabledForRandom("free") },
+                        set: { _ in
+                            // Only toggle if user has other packs
+                            if settings.enabledPacksForRandom.count > 1 {
+                                settings.togglePackForRandom("free")
+                            }
+                        }
+                    ))
+                    .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
+                    .scaleEffect(0.9)
+                    .disabled(settings.enabledPacksForRandom.count <= 1)
+                }
+                
+                // Add toggles for each purchased pack
+                ForEach(StoreManager.ProductID.allCases, id: \.self) { productID in
+                    if StoreManager.shared.isPackPurchased(productID) {
+                        Divider()
+                            .background(Color.gameBorder)
+                        
+                        HStack {
+                            Image(systemName: settings.isPackEnabledForRandom(productID.rawValue) ? "checkmark.square.fill" : "square")
+                                .foregroundStyle(Color.accentColor)
+                                .font(.body)
+                            
+                            Text(productID.displayName)
+                                .font(.body)
+                            
+                            Spacer()
+                            
+                            Toggle("", isOn: Binding(
+                                get: { settings.isPackEnabledForRandom(productID.rawValue) },
+                                set: { _ in settings.togglePackForRandom(productID.rawValue) }
+                            ))
+                            .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
+                            .scaleEffect(0.9)
+                        }
+                    }
+                }
             }
         }
     }

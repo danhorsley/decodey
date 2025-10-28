@@ -75,6 +75,12 @@ class SettingsState: ObservableObject {
         }
     }
     
+    @Published var enabledPacksForRandom: Set<String> {
+        didSet {
+            // Save to UserDefaults whenever it changes
+            UserDefaults.standard.set(Array(enabledPacksForRandom), forKey: "settings.enabledPacksForRandom")
+        }
+    }
     // App version (read-only)
     let appVersion: String
     
@@ -123,6 +129,12 @@ class SettingsState: ObservableObject {
         // new for alternating text
         useAlternatingTextDisplay = UserDefaults.standard.object(forKey: Keys.useAlternatingTextDisplay) as? Bool ?? false
         
+        if let savedPacks = UserDefaults.standard.array(forKey: "settings.enabledPacksForRandom") as? [String] {
+                self.enabledPacksForRandom = Set(savedPacks)
+            } else {
+                // Default: only free pack enabled initially
+                self.enabledPacksForRandom = ["free"]
+            }
         // Check biometric availability for default
         useBiometricAuth = UserDefaults.standard.object(forKey: Keys.useBiometricAuth) as? Bool ?? BiometricAuthHelper.shared.biometricAuthAvailable().0
         
@@ -267,6 +279,20 @@ class SettingsState: ObservableObject {
         }
     }
     
+    func isPackEnabledForRandom(_ packID: String) -> Bool {
+        return enabledPacksForRandom.contains(packID)
+    }
+
+    func togglePackForRandom(_ packID: String) {
+        if enabledPacksForRandom.contains(packID) {
+            // Don't allow disabling if it's the only pack enabled
+            if enabledPacksForRandom.count > 1 {
+                enabledPacksForRandom.remove(packID)
+            }
+        } else {
+            enabledPacksForRandom.insert(packID)
+        }
+    }
     // MARK: - Private Methods
     
     /// Update app appearance based on dark mode setting

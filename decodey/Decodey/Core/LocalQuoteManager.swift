@@ -284,12 +284,38 @@ class LocalQuoteManager: ObservableObject {
     func getRandomQuote() -> LocalQuoteModel? {
         let context = coreData.mainContext
         let request = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
-        request.predicate = NSPredicate(format: "isActive == YES")
+        
+        // Get enabled packs from settings
+        let enabledPacks = SettingsState.shared.enabledPacksForRandom
+        
+        // Build predicate to only include quotes from enabled packs
+        var predicates: [NSPredicate] = [NSPredicate(format: "isActive == YES")]
+        var packPredicates: [NSPredicate] = []
+        
+        // Check if free pack is enabled
+        if enabledPacks.contains("free") {
+            packPredicates.append(NSPredicate(format: "isFromPack == NO"))
+        }
+        
+        // Check for purchased packs
+        for packID in enabledPacks {
+            if packID != "free" {
+                packPredicates.append(NSPredicate(format: "packID == %@", packID))
+            }
+        }
+        
+        // Combine with OR
+        if !packPredicates.isEmpty {
+            let orPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: packPredicates)
+            predicates.append(orPredicate)
+        }
+        
+        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
         
         do {
             let quotes = try context.fetch(request)
             guard !quotes.isEmpty else {
-                print("❌ No quotes in database")
+                print("❌ No quotes available from enabled packs")
                 return nil
             }
             
