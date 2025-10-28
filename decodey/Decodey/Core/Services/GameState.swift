@@ -69,6 +69,7 @@ class GameState: ObservableObject {
     // MARK: - NEW: Simplified Game Loading with isActive
     
     /// Load or create game based on tab selection
+    
     func loadOrCreateGame(isDaily: Bool) {
         if isDaily {
             loadOrCreateDailyGame()
@@ -223,13 +224,48 @@ class GameState: ObservableObject {
     private func createNewRandomGame() {
         let context = coreData.mainContext
         
-        // Get random quote
+        // Get enabled packs from settings
+        let enabledPacks = SettingsState.shared.enabledPacksForRandom
+        print("🎲 Creating random game with enabled packs: \(enabledPacks)")
+        
+        // Build the fetch request with proper pack filtering
         let quoteFetch: NSFetchRequest<QuoteCD> = QuoteCD.fetchRequest()
-        quoteFetch.predicate = NSPredicate(format: "isActive == YES")
+        
+        // Build predicate to only include quotes from enabled packs
+        var predicates: [NSPredicate] = [NSPredicate(format: "isActive == YES")]
+        var packPredicates: [NSPredicate] = []
+        
+        // Check if free pack is enabled
+        if enabledPacks.contains("free") {
+            packPredicates.append(NSPredicate(format: "isFromPack == NO OR isFromPack == NULL"))
+            print("  ✓ Including free quotes (isFromPack == NO or NULL)")
+        }
+        
+        // Check for purchased packs
+        for packID in enabledPacks {
+            if packID != "free" {
+                packPredicates.append(NSPredicate(format: "packID == %@", packID))
+                print("  ✓ Including pack: \(packID)")
+            }
+        }
+        
+        // Combine with OR
+        if !packPredicates.isEmpty {
+            let orPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: packPredicates)
+            predicates.append(orPredicate)
+        }
+        
+        quoteFetch.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+        
+        // Debug: count quotes before fetching
+        if let count = try? context.count(for: quoteFetch) {
+            print("📊 Found \(count) quotes matching the filter")
+        }
         
         guard let quotes = try? context.fetch(quoteFetch),
               let randomQuote = quotes.randomElement() else {
-            errorMessage = "No quotes available"
+            errorMessage = "No quotes available from enabled packs"
+            print("❌ No quotes available from enabled packs: \(enabledPacks)")
             return
         }
         
@@ -245,8 +281,9 @@ class GameState: ObservableObject {
         let quote = LocalQuoteModel(
             text: randomQuote.text ?? "",
             author: randomQuote.author ?? "Unknown",
-            attribution: randomQuote.attribution,
-            difficulty: randomQuote.difficulty
+            attribution: randomQuote.attribution,  // This will now be correct!
+            difficulty: randomQuote.difficulty,
+            category: "general"
         )
         setupGameEntity(gameEntity, from: quote)
         
@@ -254,6 +291,10 @@ class GameState: ObservableObject {
             try context.save()
             loadGameFromEntity(gameEntity)
             isDailyChallenge = false
+            print("✅ Created new random game with quote from: \(quote.author)")
+            if let attr = quote.attribution {
+                print("   Attribution: \(attr)")
+            }
         } catch {
             errorMessage = "Failed to create game: \(error.localizedDescription)"
         }

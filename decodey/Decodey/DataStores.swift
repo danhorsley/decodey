@@ -180,13 +180,58 @@ class QuoteStore {
     }
     
     // Get random quote by difficulty
-    func getRandomQuote(difficulty: String = "medium") -> QuoteModel? {
-        let context = coreData.mainContext
-        let fetchRequest = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
-        fetchRequest.predicate = NSPredicate(format: "difficulty == %@", difficulty)
+    nonisolated func getRandomQuote() -> LocalQuoteModel? {
+        let context = CoreDataStack.shared.mainContext
+        let request = NSFetchRequest<QuoteCD>(entityName: "QuoteCD")
         
-        let quotes = context.safeFetch(fetchRequest)
-        return quotes.randomElement()?.toModel()
+        // Get enabled packs from settings - this is the tricky part
+        // We need to access SettingsState.shared.enabledPacksForRandom
+        // Since SettingsState isn't MainActor, this should work
+        let enabledPacks = SettingsState.shared.enabledPacksForRandom
+        
+        // Build predicate to only include quotes from enabled packs
+        var predicates: [NSPredicate] = [NSPredicate(format: "isActive == YES")]
+        var packPredicates: [NSPredicate] = []
+        
+        // Check if free pack is enabled
+        if enabledPacks.contains("free") {
+            packPredicates.append(NSPredicate(format: "isFromPack == NO"))
+        }
+        
+        // Check for purchased packs
+        for packID in enabledPacks {
+            if packID != "free" {
+                packPredicates.append(NSPredicate(format: "packID == %@", packID))
+            }
+        }
+        
+        // Combine with OR
+        if !packPredicates.isEmpty {
+            let orPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: packPredicates)
+            predicates.append(orPredicate)
+        }
+        
+        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+        
+        do {
+            let quotes = try context.fetch(request)
+            guard !quotes.isEmpty else {
+                print("❌ No quotes available from enabled packs")
+                return nil
+            }
+            
+            let randomQuote = quotes.randomElement()!
+            return LocalQuoteModel(
+                text: randomQuote.text ?? "",
+                author: randomQuote.author ?? "Unknown",
+                attribution: randomQuote.attribution,
+                difficulty: randomQuote.difficulty,
+                category: "general"
+            )
+        } catch {
+            print("❌ Fetch failed: \(error)")
+            return nil
+        }
     }
     
     // Get daily quote (deterministic based on date)

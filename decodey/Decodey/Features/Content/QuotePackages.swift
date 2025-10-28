@@ -6,6 +6,21 @@ struct Quote: Codable, Identifiable {
     let text: String
     let author: String
     let category: String
+    let attribution: String?  // Add attribution field
+}
+
+// MARK: - JSON Structure that matches your files
+struct QuotePackageData: Codable {
+    let quotes: [QuoteData]
+}
+
+struct QuoteData: Codable {
+    let text: String
+    let author: String
+    let attribution: String?
+    let difficulty: Double?
+    let category: String
+    let unique_letters: Int?
 }
 
 // MARK: - Quote Package System
@@ -17,28 +32,43 @@ struct QuotePackage {
         let filename: String
         switch id {
         case .classical:
-            // Use the classical.json file for classical philosophy quotes
             filename = "classical"
         case .literature:
-            // Use the literature_19th.json file for 19th century literature
             filename = "literature_19th"
         case .shakespeare:
-            // Use the shakespeare.json file for Shakespeare quotes
             filename = "shakespeare"
         case .zingers:
-            // Use the zingers.json file for witty comebacks
             filename = "zingers"
         }
         
         guard let url = Bundle.main.url(forResource: filename, withExtension: "json"),
-              let data = try? Data(contentsOf: url),
-              let quotes = try? JSONDecoder().decode([Quote].self, from: data) else {
-            print("❌ Failed to load package: \(filename)")
+              let data = try? Data(contentsOf: url) else {
+            print("❌ Failed to load file: \(filename).json")
             return nil
         }
         
-        print("✅ Successfully loaded package: \(filename) with \(quotes.count) quotes")
-        return QuotePackage(id: id, quotes: quotes)
+        do {
+            // Parse the JSON with the structure that matches your files
+            let packageData = try JSONDecoder().decode(QuotePackageData.self, from: data)
+            
+            // Convert QuoteData to Quote format - NOW PROPERLY MAPPING ATTRIBUTION
+            let quotes = packageData.quotes.enumerated().map { index, quoteData in
+                Quote(
+                    id: index,
+                    text: quoteData.text.uppercased(), // Convert to uppercase for the game
+                    author: quoteData.author,
+                    category: quoteData.category,
+                    attribution: quoteData.attribution  // Use the actual attribution field!
+                )
+            }
+            
+            print("✅ Successfully loaded package: \(filename) with \(quotes.count) quotes")
+            return QuotePackage(id: id, quotes: quotes)
+            
+        } catch {
+            print("❌ Failed to decode package: \(filename) - Error: \(error)")
+            return nil
+        }
     }
 }
 
@@ -80,7 +110,8 @@ class QuotePackageManager: ObservableObject {
                     id: index,
                     text: localQuote.text,
                     author: localQuote.author,
-                    category: "general"
+                    category: "general",
+                    attribution: nil  // Free quotes might not have attribution
                 )
             }
             allQuotes.append(contentsOf: convertedQuotes)

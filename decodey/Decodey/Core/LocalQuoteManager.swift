@@ -69,7 +69,7 @@ class LocalQuoteManager: ObservableObject {
         await loadQuotesFromBundle()
         await loadPurchasedQuotes()
     }
-    
+
     // MARK: - Bundle Loading (Free Quotes)
     
     private func loadQuotesFromBundle() async {
@@ -141,22 +141,25 @@ class LocalQuoteManager: ObservableObject {
         print("📦 Loading package: \(productID.displayName) with \(package.quotes.count) quotes")
         
         // Convert package quotes to SimpleQuote format
+        // FIX: Use the actual attribution from the quote, not category!
         let simpleQuotes = package.quotes.map { quote in
             SimpleQuote(
                 text: quote.text,
                 author: quote.author,
-                attribution: quote.category
+                attribution: quote.attribution  // FIXED: was quote.category
             )
         }
         
         // Save to Core Data with pack info
+        // IMPORTANT: packID should be the full rawValue (com.freeform.decodey.shakespeare)
         await saveQuotesToCoreData(simpleQuotes, isFromPack: true, packID: productID.rawValue)
         
         // Mark pack as loaded
         markPackAsLoaded(productID)
         
-        print("✅ Successfully loaded \(productID.displayName) pack")
+        print("✅ Successfully loaded \(productID.displayName) pack with packID: \(productID.rawValue)")
     }
+
     
     /// Check if a pack has been loaded
     private func isPackLoaded(_ productID: StoreManager.ProductID) -> Bool {

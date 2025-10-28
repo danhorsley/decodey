@@ -103,6 +103,11 @@ class StoreManager: ObservableObject {
         case .success(let verification):
             if case .verified(let transaction) = verification {
                 purchasedProductIDs.insert(transaction.productID)
+                if let productID = ProductID(rawValue: transaction.productID) {
+                    print("🎯 Starting to load pack: \(productID.displayName)")
+                    await LocalQuoteManager.shared.loadQuotePack(productID)
+                    print("✅ Finished loading pack: \(productID.displayName)")
+                }
                 await transaction.finish()
                 
                 // Trigger package loading after purchase
