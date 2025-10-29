@@ -230,11 +230,12 @@ struct SettingsView: View {
                     .scaleEffect(0.9)
                     .disabled(settings.enabledPacksForRandom.count <= 1)
                 }
-                Button("Verify Quote Database") {
-                    Task {
-                        await QuoteCheck.performManualCheck()
-                    }
-                }
+                // maybe add button back in later if users want to force reload quote packs
+//                Button("Verify Quote Database") {
+//                    Task {
+//                        await QuoteCheck.performManualCheck()
+//                    }
+//                }
                 // Add toggles for each purchased pack
                 ForEach(StoreManager.ProductID.allCases, id: \.self) { productID in
                     if StoreManager.shared.isPackPurchased(productID) {
