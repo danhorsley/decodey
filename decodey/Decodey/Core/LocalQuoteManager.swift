@@ -72,7 +72,7 @@ class LocalQuoteManager: ObservableObject {
 
     // MARK: - Bundle Loading (Free Quotes)
     
-    private func loadQuotesFromBundle() async {
+    func loadQuotesFromBundle() async {
         // Find the file - try both names for compatibility
         let fileNames = ["quotes_starter", "quotes"]
         var fileURL: URL?
