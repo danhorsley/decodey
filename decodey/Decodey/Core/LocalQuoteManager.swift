@@ -69,7 +69,16 @@ class LocalQuoteManager: ObservableObject {
         await loadQuotesFromBundle()
         await loadPurchasedQuotes()
     }
-
+    // helper funtion to check quotes are loaded from purchase history
+    @MainActor
+    func verifyAndReloadIfNeeded() async {
+        let (total, missingPacks) = QuoteCheck.shared.quickStatusCheck()
+        
+        if !missingPacks.isEmpty {
+            print("⚠️ Missing packs detected: \(missingPacks)")
+            await QuoteCheck.performStartupCheck()
+        }
+    }
     // MARK: - Bundle Loading (Free Quotes)
     
     func loadQuotesFromBundle() async {

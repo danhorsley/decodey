@@ -60,6 +60,9 @@ struct decodeyApp: App {
         // Load quotes
         await LocalQuoteManager.shared.loadQuotesIfNeeded()
         
+
+        await QuoteCheck.performStartupCheck()
+        
         // Check Apple Sign In status
         authManager.checkAuthenticationStatus()
         

@@ -107,6 +107,7 @@ class StoreManager: ObservableObject {
                     print("🎯 Starting to load pack: \(productID.displayName)")
                     await LocalQuoteManager.shared.loadQuotePack(productID)
                     print("✅ Finished loading pack: \(productID.displayName)")
+                    await QuoteCheck.checkAfterPurchase(productID)
                 }
                 await transaction.finish()
                 
@@ -135,6 +136,7 @@ class StoreManager: ObservableObject {
         do {
             try await AppStore.sync()
             await updatePurchasedProducts()
+            await QuoteCheck.performStartupCheck()
             
             // Reload packages after restore
             for productID in ProductID.allCases {

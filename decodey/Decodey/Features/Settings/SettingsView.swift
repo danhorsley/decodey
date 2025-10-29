@@ -24,7 +24,7 @@ struct SettingsView: View {
                 VStack(spacing: 24) {
                     appearanceSection
                     gameplaySection
-                    packSelectionSection  
+                    packSelectionSection
                     audioSection
                     aboutSection
                 }
@@ -230,7 +230,11 @@ struct SettingsView: View {
                     .scaleEffect(0.9)
                     .disabled(settings.enabledPacksForRandom.count <= 1)
                 }
-                
+                Button("Verify Quote Database") {
+                    Task {
+                        await QuoteCheck.performManualCheck()
+                    }
+                }
                 // Add toggles for each purchased pack
                 ForEach(StoreManager.ProductID.allCases, id: \.self) { productID in
                     if StoreManager.shared.isPackPurchased(productID) {
