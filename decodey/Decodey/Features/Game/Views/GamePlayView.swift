@@ -2,7 +2,7 @@
 // Decodey
 //
 // Main game playing interface with header, display, and controls
-// WITH LETTER HIGHLIGHTING SYSTEM
+// WITH LETTER HIGHLIGHTING SYSTEM AND iOS TEXT WRAPPING FIX
 
 import SwiftUI
 
@@ -49,7 +49,7 @@ struct GamePlayView: View {
                 AlternatingTextDisplayView()
             } else {
                 // Use the existing stacked display WITH HIGHLIGHTING
-                VStack(spacing: GameLayout.padding) {
+                VStack(spacing: textDisplaySpacing) {  // <- CHANGED: Use platform-specific spacing
                     // Encrypted text display
                     encryptedTextView
                     
@@ -58,6 +58,15 @@ struct GamePlayView: View {
                 }
             }
         }
+    }
+    
+    // ADD this new computed property somewhere in the GamePlayView struct:
+    private var textDisplaySpacing: CGFloat {
+        #if os(iOS)
+        return 8  // Reduced spacing for iOS
+        #else
+        return GameLayout.padding  // Original spacing for macOS (probably 16 or 20)
+        #endif
     }
     
     private var encryptedTextView: some View {
@@ -69,16 +78,36 @@ struct GamePlayView: View {
                     .foregroundColor(.secondary.opacity(0.7))
             }
             
-            // Use the highlightable text instead of plain Text
+            // Use the highlightable text with iOS wrapping fix
+            #if os(iOS)
+            iOSWrappingEncryptedText
+            #else
             highlightableEncryptedText
-                .padding(.horizontal, GameLayout.padding + 4)
-                .padding(.vertical, GameLayout.padding)
-                .background(Color("GameBackground"))
-                .cornerRadius(GameLayout.cornerRadius)
+            #endif
         }
+        .padding(.horizontal, GameLayout.padding + 4)
+        .padding(.vertical, GameLayout.padding)
+        .background(Color("GameBackground"))
+        .cornerRadius(GameLayout.cornerRadius)
     }
     
-    // NEW: Character-by-character display with highlighting
+    // NEW: iOS-specific wrapping text view for encrypted text
+    #if os(iOS)
+    private var iOSWrappingEncryptedText: some View {
+        let text = displayedEncryptedText
+        
+        // Use Text with AttributedString for proper wrapping
+        return Text(text)
+            .font(.gameDisplay)
+            .foregroundColor(Color("GameEncrypted"))
+            .multilineTextAlignment(.center)
+            .lineSpacing(4)
+            .fixedSize(horizontal: false, vertical: true) // Allow horizontal wrapping
+            .frame(maxWidth: .infinity)
+    }
+    #endif
+    
+    // Original character-by-character display for macOS
     private var highlightableEncryptedText: some View {
         let text = displayedEncryptedText
         
@@ -114,16 +143,36 @@ struct GamePlayView: View {
                     .foregroundColor(.secondary.opacity(0.7))
             }
             
-            // Use character-by-character display for solution too
+            // Use character-by-character display for solution with iOS fix
+            #if os(iOS)
+            iOSWrappingSolutionText
+            #else
             highlightableSolutionText
-                .padding(.horizontal, GameLayout.padding + 4)
-                .padding(.vertical, GameLayout.padding)
-                .background(Color("GameBackground"))
-                .cornerRadius(GameLayout.cornerRadius)
+            #endif
         }
+        .padding(.horizontal, GameLayout.padding + 4)
+        .padding(.vertical, GameLayout.padding)
+        .background(Color("GameBackground"))
+        .cornerRadius(GameLayout.cornerRadius)
     }
     
-    //highlight helper for solution text view
+    // NEW: iOS-specific wrapping text view for solution
+    #if os(iOS)
+    private var iOSWrappingSolutionText: some View {
+        let text = displayedSolutionText
+        
+        // Use Text with AttributedString for proper wrapping
+        return Text(text)
+            .font(.gameDisplay)
+            .foregroundColor(Color("GameGuess"))
+            .multilineTextAlignment(.center)
+            .lineSpacing(4)
+            .fixedSize(horizontal: false, vertical: true) // Allow horizontal wrapping
+            .frame(maxWidth: .infinity)
+    }
+    #endif
+    
+    // Original solution text view for macOS
     @ViewBuilder
     private var highlightableSolutionText: some View {
         if let game = gameState.currentGame {
@@ -168,6 +217,7 @@ struct GamePlayView: View {
                 .font(.gameDisplay)
         }
     }
+    
     // MARK: - Display Text Logic
     
     private var displayedEncryptedText: String {

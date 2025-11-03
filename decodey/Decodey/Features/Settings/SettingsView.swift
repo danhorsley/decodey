@@ -186,7 +186,7 @@ struct SettingsView: View {
                     subtitle: "Vibration for button presses",
                     icon: "hand.tap"
                 ) {
-                    Toggle("", isOn: $settings.hapticFeedback)
+                    Toggle("", isOn: $settings.hapticEnabled)
                         .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
                         .scaleEffect(0.9)
                 }

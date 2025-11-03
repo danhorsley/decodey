@@ -127,7 +127,7 @@ class SettingsState: ObservableObject {
         useEnhancedLetterCells = UserDefaults.standard.object(forKey: Keys.useEnhancedLetterCells) as? Bool ?? true
         
         // new for alternating text
-        useAlternatingTextDisplay = UserDefaults.standard.object(forKey: Keys.useAlternatingTextDisplay) as? Bool ?? false
+        useAlternatingTextDisplay = UserDefaults.standard.object(forKey: Keys.useAlternatingTextDisplay) as? Bool ?? true
         
         if let savedPacks = UserDefaults.standard.array(forKey: "settings.enabledPacksForRandom") as? [String] {
                 self.enabledPacksForRandom = Set(savedPacks)

@@ -2,8 +2,7 @@
 //  AlternatingTextDisplayView.swift
 //  Decodey
 //
-//  Displays encrypted and solution text in alternating lines with proper character alignment
-//  Uses GameTheme and modern SwiftUI cross-platform approach
+//  FINAL: Matching macOS styling with proper iOS rendering
 //
 
 import SwiftUI
@@ -12,11 +11,6 @@ struct AlternatingTextDisplayView: View {
     @EnvironmentObject var gameState: GameState
     @EnvironmentObject var settingsState: SettingsState
     
-    // Layout constants
-    private let maxContentWidth: CGFloat = 600
-    private let characterSpacing: CGFloat = 2
-    private let lineSpacing: CGFloat = 4
-    
     var body: some View {
         VStack(spacing: GameLayout.padding) {
             if settingsState.showTextHelpers {
@@ -24,28 +18,18 @@ struct AlternatingTextDisplayView: View {
             }
             
             ScrollView {
-                VStack(alignment: .center, spacing: 0) {
-                    ForEach(textLines, id: \.lineNumber) { line in
-                        AlternatingLineView(
-                            encryptedLine: line.encrypted,
-                            solutionLine: line.solution,
-                            guessedMappings: gameState.currentGame?.guessedMappings ?? [:],
-                            characterSpacing: characterSpacing,
-                            lineSpacing: lineSpacing
-                        )
-                    }
+                VStack(spacing: 0) {
+                    contentView
+                        .frame(maxWidth: 600)  // Match macOS max width
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, GameLayout.padding + 4)
+                        .padding(.vertical, GameLayout.padding)
+                        .background(Color("GameBackground"))
+                        .cornerRadius(GameLayout.cornerRadius)
                 }
-                .frame(maxWidth: maxContentWidth)
-                .frame(maxWidth: .infinity)
-                .padding(.horizontal, GameLayout.padding + 4)
-                .padding(.vertical, GameLayout.padding)
-                .background(Color("GameBackground"))
-                .cornerRadius(GameLayout.cornerRadius)
             }
         }
     }
-    
-    // MARK: - Header View
     
     private var headerView: some View {
         HStack(spacing: 40) {
@@ -62,210 +46,188 @@ struct AlternatingTextDisplayView: View {
         .padding(.vertical, GameLayout.paddingSmall)
     }
     
-    // MARK: - Text Processing
+    private var contentView: some View {
+        VStack(alignment: .center, spacing: 16) {
+            ForEach(textLines.indices, id: \.self) { index in
+                let line = textLines[index]
+                
+                // Each line pair tightly coupled
+                VStack(alignment: .center, spacing: 4) {
+                    // Encrypted line
+                    HStack(spacing: 0) {
+                        ForEach(Array(line.encrypted.enumerated()), id: \.offset) { offset, char in
+                            encryptedCharView(char: char)
+                        }
+                    }
+                    
+                    // Solution line immediately below
+                    HStack(spacing: 0) {
+                        ForEach(Array(line.solution.enumerated()), id: \.offset) { offset, char in
+                            let encIndex = line.encrypted.index(line.encrypted.startIndex, offsetBy: offset)
+                            let encChar = line.encrypted[encIndex]
+                            solutionCharView(solutionChar: char, encryptedChar: encChar)
+                        }
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .multilineTextAlignment(.center)
+        .lineSpacing(4)
+    }
     
+    @ViewBuilder
+    private func encryptedCharView(char: Character) -> some View {
+        let isHighlighted = gameState.highlightedEncryptedLetter == char && char.isLetter
+        
+        Text(String(char))
+            .font(.gameDisplay)  // Using the proper game font
+            .foregroundColor(char.isLetter ? Color("GameEncrypted") : Color("GameEncrypted").opacity(0.6))
+            .background(
+                RoundedRectangle(cornerRadius: 2)
+                    .fill(isHighlighted ? Color("HighlightColor").opacity(0.4) : Color.clear)
+                    .frame(width: 16, height: 24)
+            )
+            .onTapGesture {
+                if char.isLetter {
+                    handleLetterTap(char)
+                }
+            }
+            .animation(.easeInOut(duration: 0.3), value: isHighlighted)
+    }
+    
+    @ViewBuilder
+    private func solutionCharView(solutionChar: Character, encryptedChar: Character) -> some View {
+        let isHighlighted = gameState.highlightedEncryptedLetter == encryptedChar && encryptedChar.isLetter
+        
+        Group {
+            if !solutionChar.isLetter {
+                // Punctuation/spaces
+                Text(String(solutionChar))
+                    .font(.gameDisplay)
+                    .foregroundColor(Color("GameGuess").opacity(0.6))
+            } else if let guessedChar = gameState.currentGame?.guessedMappings[encryptedChar] {
+                // Already guessed letter
+                Text(String(guessedChar))
+                    .font(.gameDisplay)
+                    .foregroundColor(Color("GameGuess"))
+            } else {
+                // Unguessed block
+                Text("█")
+                    .font(.gameDisplay)
+                    .foregroundColor(isHighlighted ? Color("HighlightColor") : Color("GameGuess"))
+                    .background(
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(isHighlighted ? Color("HighlightColor").opacity(0.2) : Color.clear)
+                            .frame(width: 16, height: 24)
+                    )
+            }
+        }
+        .onTapGesture {
+            if encryptedChar.isLetter {
+                handleLetterTap(encryptedChar)
+            }
+        }
+        .animation(.easeInOut(duration: 0.3), value: isHighlighted)
+    }
+    
+    private func handleLetterTap(_ letter: Character) {
+        gameState.selectLetter(letter)
+        if gameState.currentGame?.selectedLetter == letter {
+            gameState.selectedEncryptedLetter = letter
+        } else {
+            gameState.selectedEncryptedLetter = nil
+        }
+    }
+    
+    // Smart line breaking that preserves words
     private var textLines: [TextLine] {
         guard let game = gameState.currentGame else { return [] }
         
         let encrypted = game.encrypted
         let solution = game.solution
         
-        // Split text into words while preserving spaces and punctuation
-        let words = splitIntoWords(encrypted: encrypted, solution: solution)
+        #if os(iOS)
+        // Calculate based on screen width
+        let screenWidth = UIScreen.main.bounds.width
+        // Account for padding: GameLayout.padding (16) + 4 on each side = 40 total
+        // Plus some margin for safety
+        let availableWidth = screenWidth - 60
+        // Each character in Courier New 22pt is roughly 13-14pt wide
+        let charWidth: CGFloat = 13.2
+        let maxCharsPerLine = Int(availableWidth / charWidth)
+        #else
+        let maxCharsPerLine = 40
+        #endif
         
-        // Group words into lines that fit the display width
-        return createLines(from: words)
-    }
-    
-    private func splitIntoWords(encrypted: String, solution: String) -> [WordPair] {
-        var words: [WordPair] = []
+        var lines: [TextLine] = []
         var currentEncrypted = ""
         var currentSolution = ""
+        var currentWord = ""
+        var currentWordSolution = ""
+        var lineNumber = 0
         
-        for (index, char) in encrypted.enumerated() {
-            let solutionIndex = solution.index(solution.startIndex, offsetBy: index)
-            let solutionChar = solution[solutionIndex]
+        for i in 0..<encrypted.count {
+            let encChar = encrypted[encrypted.index(encrypted.startIndex, offsetBy: i)]
+            let solChar = solution[solution.index(solution.startIndex, offsetBy: i)]
             
-            currentEncrypted.append(char)
-            currentSolution.append(solutionChar)
-            
-            // Check if we should create a new word (after space or punctuation followed by space)
-            if char == " " || (index < encrypted.count - 1 &&
-                !char.isLetter &&
-                encrypted[encrypted.index(encrypted.startIndex, offsetBy: index + 1)] == " ") {
-                
-                if !currentEncrypted.isEmpty {
-                    words.append(WordPair(encrypted: currentEncrypted, solution: currentSolution))
-                    currentEncrypted = ""
-                    currentSolution = ""
+            // Build current word
+            if encChar != " " {
+                currentWord.append(encChar)
+                currentWordSolution.append(solChar)
+            } else {
+                // End of word - check if it fits
+                if !currentWord.isEmpty {
+                    if currentEncrypted.count + currentWord.count + 1 > maxCharsPerLine && !currentEncrypted.isEmpty {
+                        // Start new line
+                        lines.append(TextLine(
+                            lineNumber: lineNumber,
+                            encrypted: currentEncrypted,
+                            solution: currentSolution
+                        ))
+                        lineNumber += 1
+                        currentEncrypted = currentWord + " "
+                        currentSolution = currentWordSolution + " "
+                    } else {
+                        // Add to current line
+                        currentEncrypted += currentWord + " "
+                        currentSolution += currentWordSolution + " "
+                    }
+                    currentWord = ""
+                    currentWordSolution = ""
                 }
             }
         }
         
-        // Add any remaining word
-        if !currentEncrypted.isEmpty {
-            words.append(WordPair(encrypted: currentEncrypted, solution: currentSolution))
-        }
-        
-        return words
-    }
-    
-    private func createLines(from words: [WordPair]) -> [TextLine] {
-        var lines: [TextLine] = []
-        var currentLine = TextLine(lineNumber: 0, encrypted: "", solution: "")
-        // Use a fixed max width based on the content width, not screen size
-        let maxWidth: CGFloat = maxContentWidth - 40
-        let charWidth: CGFloat = 14 // Approximate width of monospace character
-        
-        for word in words {
-            let wordWidth = CGFloat(word.encrypted.count) * charWidth
-            let currentWidth = CGFloat(currentLine.encrypted.count) * charWidth
-            
-            // Check if adding this word would exceed line width
-            if currentWidth + wordWidth > maxWidth && !currentLine.encrypted.isEmpty {
-                // Start a new line
-                lines.append(currentLine)
-                currentLine = TextLine(lineNumber: lines.count, encrypted: word.encrypted, solution: word.solution)
+        // Add last word if exists
+        if !currentWord.isEmpty {
+            if currentEncrypted.count + currentWord.count > maxCharsPerLine && !currentEncrypted.isEmpty {
+                lines.append(TextLine(
+                    lineNumber: lineNumber,
+                    encrypted: currentEncrypted,
+                    solution: currentSolution
+                ))
+                currentEncrypted = currentWord
+                currentSolution = currentWordSolution
             } else {
-                // Add word to current line
-                currentLine.encrypted += word.encrypted
-                currentLine.solution += word.solution
+                currentEncrypted += currentWord
+                currentSolution += currentWordSolution
             }
         }
         
-        // Add the last line if not empty
-        if !currentLine.encrypted.isEmpty {
-            lines.append(currentLine)
+        // Add final line
+        if !currentEncrypted.isEmpty {
+            // Trim trailing spaces for cleaner display
+            currentEncrypted = currentEncrypted.trimmingCharacters(in: .whitespaces)
+            currentSolution = currentSolution.trimmingCharacters(in: .whitespaces)
+            lines.append(TextLine(
+                lineNumber: lineNumber,
+                encrypted: currentEncrypted,
+                solution: currentSolution
+            ))
         }
         
         return lines
-    }
-}
-
-// MARK: - Line View
-
-struct AlternatingLineView: View {
-    let encryptedLine: String
-    let solutionLine: String
-    let guessedMappings: [Character: Character]
-    let characterSpacing: CGFloat
-    let lineSpacing: CGFloat
-    @EnvironmentObject var gameState: GameState  // Add this
-    
-    var body: some View {
-        VStack(alignment: .center, spacing: lineSpacing) {
-            // Encrypted line with highlighting
-            HStack(spacing: characterSpacing) {
-                ForEach(Array(encryptedLine.enumerated()), id: \.offset) { offset, char in
-                    let isHighlighted = gameState.highlightedEncryptedLetter == char && char.isLetter
-                    
-                    Text(String(char))
-                        .font(.gameDisplay)
-                        .foregroundColor(char.isLetter ? Color("GameEncrypted") : Color("GameEncrypted").opacity(0.6))
-                        .frame(width: 12, alignment: .center)
-                        .background(
-                            isHighlighted ?
-                            Color("HighlightColor").opacity(0.4) : Color.clear
-                        )
-                        .animation(.easeInOut(duration: 0.3), value: gameState.highlightedEncryptedLetter)
-                }
-            }
-            
-            // Solution line with block highlighting
-            HStack(spacing: characterSpacing) {
-                ForEach(Array(solutionLine.enumerated()), id: \.offset) { index, char in
-                    let encryptedChar = encryptedLine[encryptedLine.index(encryptedLine.startIndex, offsetBy: index)]
-                    let isHighlighted = gameState.highlightedEncryptedLetter == encryptedChar && encryptedChar.isLetter
-                    
-                    if !char.isLetter {
-                        // Punctuation/spaces
-                        Text(String(char))
-                            .font(.gameDisplay)
-                            .foregroundColor(Color("GameGuess").opacity(0.6))
-                            .frame(width: 12, alignment: .center)
-                    } else if let guessedChar = guessedMappings[encryptedChar] {
-                        // Already guessed letter
-                        Text(String(guessedChar))
-                            .font(.gameDisplay)
-                            .foregroundColor(Color("GameGuess"))
-                            .frame(width: 12, alignment: .center)
-                    } else {
-                        // Unguessed block - highlight if selected
-                        Text("█")
-                            .font(.gameDisplay)
-                            .foregroundColor(
-                                isHighlighted ?
-                                Color("HighlightColor") : Color("GameGuess")
-                            )
-                            .frame(width: 12, alignment: .center)
-                            .background(
-                                isHighlighted ?
-                                Color("HighlightColor").opacity(0.2) : Color.clear
-                            )
-                            .animation(.easeInOut(duration: 0.3), value: gameState.highlightedEncryptedLetter)
-                    }
-                }
-            }
-        }
-        .padding(.vertical, lineSpacing)
-    }
-
-    
-    @ViewBuilder
-    private func highlightBackground(for char: Character, at index: Int) -> some View {
-        if let game = gameState.currentGame,
-           let highlightedLetter = gameState.highlightedEncryptedLetter,
-           char == highlightedLetter && char.isLetter {
-            Color("HighlightColor")
-                .opacity(0.4)
-                .animation(.easeInOut(duration: 0.3), value: gameState.highlightedEncryptedLetter)
-        } else {
-            Color.clear
-        }
-    }
-    
-    private func getDisplayCharacter(
-        solutionChar: Character,
-        encryptedChar: Character,
-        guessedMappings: [Character: Character]
-    ) -> Character {
-        if !solutionChar.isLetter {
-            return solutionChar
-        }
-        
-        if let guessedChar = guessedMappings[encryptedChar] {
-            return guessedChar
-        }
-        
-        return "█"
-    }
-}
-
-// MARK: - Character View
-
-struct CharacterView: View {
-    let character: Character
-    let color: Color
-    let isLetter: Bool
-    let index: Int? = nil  // Add index parameter
-    @EnvironmentObject var gameState: GameState  // Add environment object
-    
-    var body: some View {
-        Text(String(character))
-            .font(.gameDisplay)
-            .foregroundColor(isLetter ? color : color.opacity(0.6))
-            .frame(width: 12, alignment: .center)
-            .background(
-                shouldHighlight() ?
-                Color("HighlightColor").opacity(0.4) : Color.clear
-            )
-            .animation(.easeInOut(duration: 0.3), value: gameState.highlightedEncryptedLetter)
-    }
-    
-    private func shouldHighlight() -> Bool {
-        guard let highlightedLetter = gameState.highlightedEncryptedLetter,
-              let index = index else { return false }
-        return character == highlightedLetter && gameState.highlightPositions.contains(index)
     }
 }
 
@@ -277,19 +239,3 @@ struct TextLine: Identifiable {
     var encrypted: String
     var solution: String
 }
-
-struct WordPair {
-    let encrypted: String
-    let solution: String
-}
-
-// MARK: - Integration Extension
-
-extension AlternatingTextDisplayView {
-    /// Factory method to create with proper alignment verification
-    static func create() -> some View {
-        AlternatingTextDisplayView()
-    }
-}
-
-

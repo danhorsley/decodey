@@ -440,7 +440,7 @@ struct ShareSheet: UIViewControllerRepresentable {
         
         // Suggest Twitter/X as preferred sharing option
         controller.activityItemsConfiguration = [
-            UIActivityType.postToTwitter
+            UIActivity.ActivityType.postToTwitter
         ] as? UIActivityItemsConfigurationReading
         
         return controller
