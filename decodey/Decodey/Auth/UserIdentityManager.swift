@@ -51,7 +51,6 @@ class UserIdentityManager: ObservableObject {
     
     /// Called when Apple Sign In completes
     func setAppleSignInUser(id: String, name: String?, email: String?) {
-        print("📱 Apple Sign In: id=\(id), name=\(name ?? "nil")")
         
         self.appleSignInID = id
         
@@ -69,7 +68,6 @@ class UserIdentityManager: ObservableObject {
     
     /// Called when Game Center authenticates
     func setGameCenterUser(id: String, displayName: String, alias: String) {
-        print("🎮 Game Center: id=\(id), displayName=\(displayName), alias=\(alias)")
         
         self.gameCenterID = id
         self.gameCenterAlias = !displayName.isEmpty ? displayName : alias
@@ -124,7 +122,6 @@ class UserIdentityManager: ObservableObject {
             isAuthenticated = false
         }
         
-        print("🔑 Primary Identifier: \(primaryIdentifier)")
     }
     
     private func updateDisplayName() {
@@ -140,7 +137,6 @@ class UserIdentityManager: ObservableObject {
             displayName = "Player"
         }
         
-        print("👤 Display Name: \(displayName)")
     }
     
     private func updateUserInDatabase() {
@@ -158,14 +154,12 @@ class UserIdentityManager: ObservableObject {
             
             if let existingUser = users.first {
                 user = existingUser
-                print("✅ Found existing user in DB")
             } else {
                 user = UserCD(context: context)
                 user.id = UUID()
                 user.primaryIdentifier = primaryIdentifier
                 user.registrationDate = Date()
                 user.isActive = true
-                print("✅ Created new user in DB")
             }
             
             // Update user fields
@@ -186,14 +180,14 @@ class UserIdentityManager: ObservableObject {
                 stats.bestStreak = 0
                 stats.averageMistakes = 0.0
                 stats.averageTime = 0.0
-                print("✅ Created user stats")
             }
             
             try context.save()
-            print("✅ User saved to database: \(displayName) [\(primaryIdentifier)]")
             
         } catch {
+            #if DEBUG
             print("❌ Error updating user in database: \(error)")
+            #endif
         }
     }
     
@@ -210,7 +204,9 @@ class UserIdentityManager: ObservableObject {
             let users = try context.fetch(fetchRequest)
             return users.first?.stats
         } catch {
+            #if DEBUG
             print("❌ Error fetching user stats: \(error)")
+            #endif
             return nil
         }
     }
@@ -220,7 +216,9 @@ class UserIdentityManager: ObservableObject {
         let context = CoreDataStack.shared.mainContext
         
         guard let user = getCurrentUser() else {
+            #if DEBUG
             print("❌ No user found to update stats")
+            #endif
             return
         }
         
@@ -228,21 +226,17 @@ class UserIdentityManager: ObservableObject {
         let stats: UserStatsCD
         if let existingStats = user.stats {
             stats = existingStats
+            #if DEBUG
             print("📊 Found existing stats")
+            #endif
         } else {
             stats = UserStatsCD(context: context)
             stats.user = user
             user.stats = stats
+            #if DEBUG
             print("📊 Created new stats")
+            #endif
         }
-        
-        // Log current state BEFORE update
-        print("📊 BEFORE Update:")
-        print("   Games Played: \(stats.gamesPlayed)")
-        print("   Games Won: \(stats.gamesWon)")
-        print("   Current Streak: \(stats.currentStreak)")
-        print("   Best Streak: \(stats.bestStreak)")
-        print("   Game Result: \(won ? "WON" : "LOST")")
         
         // Update basic stats
         stats.gamesPlayed += 1
@@ -265,7 +259,6 @@ class UserIdentityManager: ObservableObject {
             // IMPORTANT: Only reset streak on loss
             let oldStreak = stats.currentStreak
             stats.currentStreak = 0
-            print("❌ LOST! Streak reset from \(oldStreak) to 0")
         }
         
         // Update averages
@@ -283,13 +276,6 @@ class UserIdentityManager: ObservableObject {
         
         stats.lastPlayedDate = Date()
         
-        // Log AFTER update but BEFORE save
-        print("📊 AFTER Update (before save):")
-        print("   Games Played: \(stats.gamesPlayed)")
-        print("   Games Won: \(stats.gamesWon)")
-        print("   Current Streak: \(stats.currentStreak)")
-        print("   Best Streak: \(stats.bestStreak)")
-        
         // Save changes
         do {
             try context.save()
@@ -297,13 +283,10 @@ class UserIdentityManager: ObservableObject {
             // Verify the save worked by fetching again
             context.refresh(stats, mergeChanges: false)
             
-            print("📊 VERIFIED After Save:")
-            print("   Current Streak: \(stats.currentStreak)")
-            print("   Best Streak: \(stats.bestStreak)")
-            print("✅ Stats saved successfully")
-            
         } catch {
+            #if DEBUG
             print("❌ Error saving stats: \(error)")
+            #endif
         }
     }
     
@@ -319,7 +302,9 @@ class UserIdentityManager: ObservableObject {
             let users = try context.fetch(fetchRequest)
             return users.first
         } catch {
+            #if DEBUG
             print("❌ Error fetching current user: \(error)")
+            #endif
             return nil
         }
     }

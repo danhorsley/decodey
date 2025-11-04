@@ -27,7 +27,9 @@ class LocalQuoteManager: ObservableObject {
         let hasLoadedFlag = UserDefaults.standard.bool(forKey: quotesLoadedKey)
         
         if hasLoadedFlag && hasQuotesInDB {
+            #if DEBUG
             print("✅ Quotes already loaded (Count: \(getQuoteCount()))")
+            #endif
             self.isLoaded = true
             self.quotesCount = getQuoteCount()
             
@@ -38,11 +40,15 @@ class LocalQuoteManager: ObservableObject {
         
         // If we have the flag but no quotes, clear the flag
         if hasLoadedFlag && !hasQuotesInDB {
+            #if DEBUG
             print("⚠️ UserDefaults says quotes loaded but database is empty. Clearing flag.")
+            #endif
             UserDefaults.standard.removeObject(forKey: quotesLoadedKey)
         }
         
+        #if DEBUG
         print("📚 Loading quotes from bundle...")
+        #endif
         await loadQuotesFromBundle()
         
         // Load purchased quotes after free quotes
@@ -51,7 +57,9 @@ class LocalQuoteManager: ObservableObject {
     
     /// Force reload all quotes (for debugging or manual refresh)
     func forceReloadQuotes() async {
+        #if DEBUG
         print("🔄 Force reloading quotes...")
+        #endif
         
         // Clear the flag
         UserDefaults.standard.removeObject(forKey: quotesLoadedKey)

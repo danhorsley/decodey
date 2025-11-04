@@ -79,7 +79,9 @@ class AppState: ObservableObject {
                 useBiometricAuth: prefs.useBiometricAuth
             )
         } catch {
+            #if DEBUG
             print("Error syncing user preferences: \(error.localizedDescription)")
+            #endif
         }
     }
     
@@ -139,10 +141,11 @@ class AppState: ObservableObject {
             prefs.lastSyncDate = Date()
             
             try context.save()
-            print("✅ User preferences saved locally")
             
         } catch {
+            #if DEBUG
             print("Error saving user preferences: \(error.localizedDescription)")
+            #endif
         }
     }
 }

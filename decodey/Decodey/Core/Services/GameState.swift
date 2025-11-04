@@ -226,7 +226,9 @@ class GameState: ObservableObject {
         
         // Get enabled packs from settings
         let enabledPacks = SettingsState.shared.enabledPacksForRandom
+        #if DEBUG
         print("🎲 Creating random game with enabled packs: \(enabledPacks)")
+        #endif
         
         // Build the fetch request with proper pack filtering
         let quoteFetch: NSFetchRequest<QuoteCD> = QuoteCD.fetchRequest()
@@ -238,14 +240,12 @@ class GameState: ObservableObject {
         // Check if free pack is enabled
         if enabledPacks.contains("free") {
             packPredicates.append(NSPredicate(format: "isFromPack == NO OR isFromPack == NULL"))
-            print("  ✓ Including free quotes (isFromPack == NO or NULL)")
         }
         
         // Check for purchased packs
         for packID in enabledPacks {
             if packID != "free" {
                 packPredicates.append(NSPredicate(format: "packID == %@", packID))
-                print("  ✓ Including pack: \(packID)")
             }
         }
         
@@ -257,15 +257,9 @@ class GameState: ObservableObject {
         
         quoteFetch.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
         
-        // Debug: count quotes before fetching
-        if let count = try? context.count(for: quoteFetch) {
-            print("📊 Found \(count) quotes matching the filter")
-        }
-        
         guard let quotes = try? context.fetch(quoteFetch),
               let randomQuote = quotes.randomElement() else {
             errorMessage = "No quotes available from enabled packs"
-            print("❌ No quotes available from enabled packs: \(enabledPacks)")
             return
         }
         
@@ -291,9 +285,13 @@ class GameState: ObservableObject {
             try context.save()
             loadGameFromEntity(gameEntity)
             isDailyChallenge = false
+            #if DEBUG
             print("✅ Created new random game with quote from: \(quote.author)")
+            #endif
             if let attr = quote.attribution {
+                #if DEBUG
                 print("   Attribution: \(attr)")
+                #endif
             }
         } catch {
             errorMessage = "Failed to create game: \(error.localizedDescription)"
@@ -814,7 +812,8 @@ extension GameState {
             // Reload the current game to include new quotes
             loadOrCreateGame(isDaily: true)
         }
-        
+        #if DEBUG
         print("✅ Game state refreshed with new quotes")
+        #endif
     }
 }

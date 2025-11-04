@@ -61,12 +61,9 @@ class AuthenticationManager: NSObject, ObservableObject, ASAuthorizationControll
                         UserState.shared.isAuthenticated = true
                         UserState.shared.isSignedIn = true
                         
-                        print("✅ User still authorized with Apple ID: \(savedUserID)")
-                        
                     case .revoked, .notFound:
                         // User has revoked authorization or not found
                         self?.signOut()
-                        print("⚠️ Apple ID authorization revoked or not found")
                         
                     default:
                         break
@@ -162,21 +159,33 @@ class AuthenticationManager: NSObject, ObservableObject, ASAuthorizationControll
         if let error = error as? ASAuthorizationError {
             switch error.code {
             case .canceled:
+                // User canceled - this is normal, don't treat as error
+                #if DEBUG
                 print("User canceled Apple Sign In")
+                #endif
+                return  // Don't set errorMessage for cancellation
+                
             case .failed:
                 errorMessage = "Sign in failed. Please try again."
+                
             case .invalidResponse:
                 errorMessage = "Invalid response from Apple Sign In"
+                
             case .notHandled:
                 errorMessage = "Sign in request not handled"
+                
             case .unknown:
                 errorMessage = "An unknown error occurred"
+                
             @unknown default:
                 errorMessage = "An error occurred during sign in"
             }
+            
+            // Log errors for debugging, but safely
+            #if DEBUG
+            print("❌ Apple Sign In error: \(error.code)")
+            #endif
         }
-        
-        print("❌ Apple Sign In error: \(error.localizedDescription)")
     }
     
     // MARK: - ASAuthorizationControllerPresentationContextProviding
@@ -208,7 +217,5 @@ class AuthenticationManager: NSObject, ObservableObject, ASAuthorizationControll
         
         // Update identity manager
         identityManager.signOut()
-        
-        print("👋 User signed out")
     }
 }
