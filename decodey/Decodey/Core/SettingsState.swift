@@ -68,6 +68,13 @@ class SettingsState: ObservableObject {
         }
     }
     
+    //game mode for timed or classic
+    @Published var gameMode: GameMode = .classic {
+            didSet {
+                UserDefaults.standard.set(gameMode.rawValue, forKey: "selectedGameMode")
+            }
+        }
+    
     // Security settings
     @Published var useBiometricAuth: Bool {
         didSet {
@@ -135,6 +142,11 @@ class SettingsState: ObservableObject {
                 // Default: only free pack enabled initially
                 self.enabledPacksForRandom = ["free"]
             }
+        // toggle for game mode save state
+        if let savedMode = UserDefaults.standard.string(forKey: "selectedGameMode"),
+                   let mode = GameMode(rawValue: savedMode) {
+                    self.gameMode = mode
+                }
         // Check biometric availability for default
         useBiometricAuth = UserDefaults.standard.object(forKey: Keys.useBiometricAuth) as? Bool ?? BiometricAuthHelper.shared.biometricAuthAvailable().0
         

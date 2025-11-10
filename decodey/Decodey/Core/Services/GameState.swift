@@ -44,6 +44,10 @@ class GameState: ObservableObject {
     @Published var highlightedEncryptedLetter: Character?
     @Published var highlightPositions: Set<Int> = []
     
+    // timed state mode
+    @Published var gameMode: GameMode = .classic
+    @Published var timerState: TimerState?
+    
     // For completed games
     struct CompletedGameStats {
         let solution: String
@@ -171,6 +175,21 @@ class GameState: ObservableObject {
             }
         }
     }
+    
+    // starting game with timed mode
+    func startGameWithMode(_ mode: GameMode) {
+            self.gameMode = mode
+            
+            // Your existing game setup code...
+            resetGame()
+            
+            // If time pressure mode, initialize timer
+            if mode == .timePressure {
+                let timer = TimerState()
+                timer.startGame(with: self)
+                self.timerState = timer
+            }
+        }
     
     func stopTrackingTime() {
         playTimer?.invalidate()
@@ -744,6 +763,8 @@ class GameState: ObservableObject {
     func resetGame() {
         guard let game = currentGame else { return }
         
+        timerState?.stopTimer()
+        timerState = nil
         // Mark current game as abandoned
         if let gameId = game.gameId {
             let context = coreData.mainContext

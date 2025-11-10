@@ -3353,14 +3353,6 @@
             "unique_letters": 14
         },
         {
-            "text": "Tired with all these, for restful death I cry",
-            "author": "Shakespeare",
-            "attribution": "Sonnet 66 (Weariness with world's wrongs)",
-            "difficulty": 0,
-            "category": "shakespeare",
-            "unique_letters": 15
-        },
-        {
             "text": "Ah, wherefore with infection should he live",
             "author": "Shakespeare",
             "attribution": "Sonnet 67 (Why beauty exists in corrupt times)",
@@ -3427,7 +3419,7 @@
         {
             "text": "But be contented when that fell arrest",
             "author": "Shakespeare",
-            "attribution": "Sonnet 74 (Death takes only the body)",
+            "attribution": "Sonnet 74",
             "difficulty": 0,
             "category": "shakespeare",
             "unique_letters": 15

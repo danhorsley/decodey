@@ -1585,14 +1585,6 @@
             "unique_letters": 18
           },
           {
-            "text": "When a Man's exhausted, wine will build his strength.",
-            "author": "Homer",
-            "attribution": "Iliad Book VI, line 261 ~750 BCE",
-            "difficulty": 0,
-            "category": "classical",
-            "unique_letters": 16
-          },
-          {
             "text": "Victory passes back and forth between men.",
             "author": "Homer",
             "attribution": "Iliad Book VI, line 339 ~750 BCE",
@@ -2713,14 +2705,6 @@
             "unique_letters": 16
           },
           {
-            "text": "In wine there is truth.",
-            "author": "Pliny the Elder",
-            "attribution": "Natural History, Book XIV, Ch. 141 ~77 CE (In vino veritas)",
-            "difficulty": 0,
-            "category": "classical",
-            "unique_letters": 9
-          },
-          {
             "text": "The best plan is to profit by the folly of others.",
             "author": "Pliny the Elder",
             "attribution": "Natural History, Book XVIII, Ch. 31 ~77 CE",
@@ -3428,14 +3412,6 @@
             "text": "No evil is great which is the last.",
             "author": "Seneca",
             "attribution": "Epistulae Morales, 78.11 ~65 CE",
-            "difficulty": 0,
-            "category": "classical",
-            "unique_letters": 14
-          },
-          {
-            "text": "Death is a release from all pains.",
-            "author": "Seneca",
-            "attribution": "Epistulae Morales, 78.6 ~65 CE",
             "difficulty": 0,
             "category": "classical",
             "unique_letters": 14

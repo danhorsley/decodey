@@ -23,6 +23,7 @@ struct SettingsView: View {
             ScrollView {
                 VStack(spacing: 24) {
                     appearanceSection
+                    gameModeSection 
                     gameplaySection
                     packSelectionSection
                     audioSection
@@ -120,6 +121,41 @@ struct SettingsView: View {
                         .toggleStyle(SwitchToggleStyle(tint: Color.accentColor))
                         .scaleEffect(0.9)
                 }
+            }
+        }
+    }
+    
+    var gameModeSection: some View {
+        SettingsSection(title: "Game Mode", icon: "gamecontroller.fill") {
+            VStack(spacing: 12) {
+                // Game Mode Selector
+                HStack(spacing: 12) {
+                    ForEach(GameMode.allCases, id: \.self) { mode in
+                        GameModeCard(
+                            mode: mode,
+                            isSelected: settings.gameMode == mode,
+                            action: {
+                                withAnimation(.easeInOut(duration: 0.2)) {
+                                    settings.gameMode = mode
+                                    // Save to UserDefaults
+                                    UserDefaults.standard.set(mode.rawValue, forKey: "selectedGameMode")
+                                    
+                                    // Play selection sound
+                                    SoundManager.shared.play(.letterClick)
+                                }
+                            }
+                        )
+                    }
+                }
+                
+                // Description of selected mode
+                Text(settings.gameMode.description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 8)
+                    .padding(.top, 4)
+                    .animation(.easeInOut(duration: 0.2), value: settings.gameMode)
             }
         }
     }
