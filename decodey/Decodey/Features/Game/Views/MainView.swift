@@ -136,9 +136,35 @@ struct MainView: View {
     }
 }
 
-// MARK: - Daily Game Wrapper
+// MARK: - Random Game Wrapper (UPDATED)
+struct RandomGameWrapper: View {
+    @EnvironmentObject var gameState: GameState
+    @EnvironmentObject var settingsState: SettingsState  // Add this
+    
+    var body: some View {
+        // CHANGED: Use GameModeWrapper instead of GameView directly
+        GameModeWrapper()
+            .environmentObject(gameState)
+            .environmentObject(settingsState)
+            .onAppear {
+                ensureRandomLoaded()
+            }
+    }
+    
+    private func ensureRandomLoaded() {
+        // Make sure we're in random mode and have the right game loaded
+        if gameState.isDailyChallenge || gameState.currentGame == nil {
+            gameState.isDailyChallenge = false
+            gameState.loadOrCreateGame(isDaily: false)
+            gameState.startTrackingTime()
+        }
+    }
+}
+
+// MARK: - Daily Game Wrapper (UPDATED)
 struct DailyGameWrapper: View {
     @EnvironmentObject var gameState: GameState
+    @EnvironmentObject var settingsState: SettingsState  // Add this
     
     var body: some View {
         Group {
@@ -151,18 +177,19 @@ struct DailyGameWrapper: View {
                     score: stats.score,
                     mistakes: stats.mistakes,
                     maxMistakes: stats.maxMistakes,
-                    timeElapsed: stats.timeElapsed,  // Using existing property name
-                    isDailyChallenge: true,  // Always true for daily wrapper
+                    timeElapsed: stats.timeElapsed,
+                    isDailyChallenge: true,
                     onPlayRandom: {
                         // Switch to random/custom game mode
                         gameState.isDailyChallenge = false
                         gameState.resetGame()
-                        // Parent view should handle tab switching if needed
                     }
                 )
             } else {
-                // Show game
-                GameView()
+                // CHANGED: Use GameModeWrapper instead of GameView directly
+                GameModeWrapper()
+                    .environmentObject(gameState)
+                    .environmentObject(settingsState)
                     .onAppear {
                         ensureDailyLoaded()
                     }
@@ -179,14 +206,7 @@ struct DailyGameWrapper: View {
         }
     }
 }
-// MARK: - Random Game Wrapper
-struct RandomGameWrapper: View {
-    @EnvironmentObject var gameState: GameState
-    
-    var body: some View {
-        GameView()
-    }
-}
+
 
 // MARK: - Daily Completed View
 struct DailyCompletedView: View {

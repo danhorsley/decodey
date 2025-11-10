@@ -4,6 +4,7 @@ import SwiftUI
 struct DailyView: View {
     @EnvironmentObject var userState: UserState
     @EnvironmentObject var gameState: GameState
+    @EnvironmentObject var settingsState: SettingsState
     @State private var showInfoView = true
     
     var body: some View {
@@ -41,7 +42,11 @@ struct DailyView: View {
             if showInfoView {
                 dailyInfoView
             } else {
-                GameView()
+//                GameView()
+                GameModeWrapper()
+                                    .environmentObject(gameState)
+                                    .environmentObject(settingsState)
+                            
             }
         }
         .navigationTitle("Daily Challenge")
