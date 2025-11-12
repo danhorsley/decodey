@@ -175,11 +175,12 @@ class TimerState: ObservableObject {
     @Published var currentStreak: Int = 0
     @Published var bonusTime: Double = 0
     @Published var isGameActive: Bool = false
+    @Published var gatewayBonusesCount: Int = 0
     
     private var timer: Timer?
-    private var gameState: GameState?
+    private weak var gameState: GameState?
     private var currentRevealIndex: Int = 0
-    private let baseInterval: Double = 8.0 // Base time per letter
+    private let baseInterval: Double = 8.0
     
     func startGame(with gameState: GameState) {
         self.gameState = gameState
@@ -208,14 +209,14 @@ class TimerState: ObservableObject {
         
         timeRemaining -= 0.1
         
-        // Add bonus time if available
+        // Apply bonus time smoothly
         if bonusTime > 0 {
             let bonusToAdd = min(0.1, bonusTime)
             timeRemaining += bonusToAdd
             bonusTime -= bonusToAdd
         }
         
-        // Auto-reveal when time runs out
+        // Check for auto-reveal
         if timeRemaining <= 0 {
             autoRevealCurrentLetter()
         }
@@ -223,108 +224,178 @@ class TimerState: ObservableObject {
     
     private func autoRevealCurrentLetter() {
         guard let letter = nextRevealLetter,
-              let game = gameState?.currentGame else { return }
+              let gameState = gameState else { return }
         
-        // Add to auto-revealed set
+        // Track auto-revealed letter
         autoRevealedLetters.insert(letter)
+        
+        // Use GameState's autoRevealLetter method
+        // This will properly update the game and call checkWinCondition
+        gameState.autoRevealLetter(letter)
         
         // Reset streak on auto-reveal
         currentStreak = 0
         
-        // Move to next letter
-        currentRevealIndex += 1
-        if currentRevealIndex < revealOrder.count {
-            timeRemaining = baseInterval
-            updateNextRevealLetter()
-        } else {
-            // Game over - all letters revealed
+        // Check if game has ended
+        if let game = gameState.currentGame, game.hasWon {
             stopTimer()
-            // Check win/loss manually
-            if let game = gameState?.currentGame {
-                if game.hasWon {
-                    gameState?.showWinMessage = true
-                } else {
-                    gameState?.showLoseMessage = true
-                }
-            }
+            return
         }
+        
+        // Move to next letter
+        moveToNextLetter()
     }
     
     func handleCorrectGuess(for letter: Character, isGateway: Bool) {
-        if letter == nextRevealLetter {
-            // Correct guess for current timer letter
+        if isGateway {
+            // Gateway letter - add bonus time with animation
+            addBonusTime(2.0)
+            gatewayBonusesCount += 1
+        } else {
+            // Timer letter - increment streak
             currentStreak += 1
-            
-            // Move to next letter
-            currentRevealIndex += 1
-            timeRemaining = baseInterval - Double(min(currentStreak, 3)) * 0.5 // Speed up with streak
+            moveToNextLetter()
+        }
+        
+        // Check if all letters are revealed
+        checkForCompletion()
+    }
+    
+    private func addBonusTime(_ seconds: Double) {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+            bonusTime += seconds
+        }
+    }
+    
+    private func moveToNextLetter() {
+        currentRevealIndex += 1
+        
+        if currentRevealIndex >= revealOrder.count {
+            // No more letters to reveal
+            nextRevealLetter = nil
+            checkForCompletion()
+        } else {
+            // Reset timer for next letter
+            timeRemaining = baseInterval
             updateNextRevealLetter()
-        } else if isGateway {
-            // Gateway letter bonus
-            bonusTime += 2.0
         }
     }
     
     private func updateNextRevealLetter() {
-        guard currentRevealIndex < revealOrder.count else {
+        guard currentRevealIndex < revealOrder.count,
+              let game = gameState?.currentGame else {
             nextRevealLetter = nil
             return
         }
-        nextRevealLetter = revealOrder[currentRevealIndex]
+        
+        // Find next unguessed letter
+        while currentRevealIndex < revealOrder.count {
+            let letter = revealOrder[currentRevealIndex]
+            
+            // Skip if already guessed
+            if !game.guessedMappings.keys.contains(letter) {
+                nextRevealLetter = letter
+                return
+            }
+            
+            currentRevealIndex += 1
+        }
+        
+        // No more letters
+        nextRevealLetter = nil
+        checkForCompletion()
+    }
+    
+    private func checkForCompletion() {
+        guard let game = gameState?.currentGame else { return }
+        
+        // If all unique letters have been handled (guessed or auto-revealed)
+        let uniqueLetters = game.getUniqueEncryptedLetters()
+        let allHandled = uniqueLetters.allSatisfy { letter in
+            game.guessedMappings.keys.contains(letter)
+        }
+        
+        if allHandled && !game.hasWon {
+            // All letters revealed but game didn't register win
+            // This shouldn't happen if makeGuess is working correctly
+            stopTimer()
+        } else if game.hasWon {
+            stopTimer()
+        }
     }
     
     private func generateRevealOrder() {
         guard let game = gameState?.currentGame else { return }
         
         let encrypted = game.encrypted
-        var letters = Set<Character>()
-        var letterFrequency: [Character: Int] = [:]
+        var letterFreq: [Character: Int] = [:]
         
-        // Count letter frequencies
+        // Count frequencies
         for char in encrypted where char.isLetter {
-            letters.insert(char)
-            letterFrequency[char, default: 0] += 1
+            letterFreq[char, default: 0] += 1
         }
         
-        // Smart reveal order based on tiers
-        var tier1: [Character] = [] // Common patterns
+        // Smart categorization
+        var tier1: [Character] = [] // Doubles, THE
         var tier2: [Character] = [] // High frequency
-        var tier3: [Character] = [] // Singles (A, I)
-        var tier4: [Character] = [] // Rare letters
+        var tier3: [Character] = [] // Possible A, I
+        var tier4: [Character] = [] // Rest
         
-        for (letter, freq) in letterFrequency {
-            switch freq {
-            case 4...:
+        let theLetters: Set<Character> = ["T", "H", "E"]
+        let commonDoubles: Set<Character> = ["L", "S", "E", "T", "F", "O"]
+        
+        for (letter, freq) in letterFreq {
+            // Check for doubles or THE letters
+            if isDouble(letter, in: encrypted) || theLetters.contains(letter) {
                 tier1.append(letter)
-            case 2...3:
+            }
+            // High frequency letters (4+ occurrences)
+            else if freq >= 4 {
                 tier2.append(letter)
-            case 1:
-                // Check if it might be A or I
-                if couldBeSingleLetterWord(letter, in: encrypted) {
-                    tier3.append(letter)
-                } else {
-                    tier4.append(letter)
-                }
-            default:
+            }
+            // Single occurrences that might be A or I
+            else if freq == 1 && couldBeSingleLetterWord(letter, in: encrypted) {
+                tier3.append(letter)
+            }
+            // Everything else
+            else {
                 tier4.append(letter)
             }
         }
         
         // Build reveal order
         revealOrder = []
+        
+        // Add tier 1 (easiest to guess)
         revealOrder.append(contentsOf: tier1.shuffled())
+        
+        // Add tier 2
         revealOrder.append(contentsOf: tier2.shuffled())
         
-        // Insert tier3 at 40% position
-        let insertPosition = Int(Double(tier1.count + tier2.count) * 0.4)
-        revealOrder.insert(contentsOf: tier3.shuffled(), at: min(insertPosition, revealOrder.count))
+        // Insert tier 3 at strategic position (after some letters revealed)
+        let insertPos = max(2, revealOrder.count / 2)
+        tier3.shuffled().forEach { letter in
+            revealOrder.insert(letter, at: min(insertPos, revealOrder.count))
+        }
         
+        // Add remaining letters
         revealOrder.append(contentsOf: tier4.shuffled())
     }
     
+    private func isDouble(_ letter: Character, in text: String) -> Bool {
+        var prev: Character?
+        for char in text {
+            if char == letter && prev == letter {
+                return true
+            }
+            prev = char
+        }
+        return false
+    }
+    
     private func couldBeSingleLetterWord(_ letter: Character, in text: String) -> Bool {
-        // Check if letter appears as a single word
-        let words = text.split(separator: " ")
+        // Split by spaces and check for single-letter words
+        let words = text.split { !$0.isLetter && $0 != "'" }
         return words.contains { $0.count == 1 && $0.first == letter }
     }
 }
